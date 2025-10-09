@@ -27,7 +27,7 @@
             </div>
 
             <h3 class="fw-bold text-teal">Halo, Selamat Datang!</h3>
-            <p class="text-muted mb-4">Silahkan Masuk ke akun Anda!</p>
+            <p class="text-muted mb-5">Silahkan Masuk ke akun Anda!</p>
 
             <form method="POST" action="{{ route('login') }}">
                 @csrf
@@ -56,15 +56,11 @@
 
                 <button type="submit" class="btn btn-custom w-100">Sign In</button>
 
-                <button type="button" class="btn btn-sso w-100 mt-3">
-                    <i class="fa-solid fa-key me-2"></i> Sign In with SSO
-                </button>
-
             </form>
 
-            <p class="text-center mt-4">
-                Don't have an account?
-                <a href="#" class="text-signup">Sign Up</a>
+            <p class="text-center mt-4 text-gray">
+                Belum punya akun?
+                <a href="{{ route('register') }}" class="text-signup">Register disini</a>
             </p>
         </div>
 

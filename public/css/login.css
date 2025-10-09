@@ -62,20 +62,6 @@ body {
     color: white;
 }
 
-.btn-sso {
-    background-color: white;
-    color: #4a4a4a;
-    font-weight: 500;
-    border: 1px solid #d1d1d1;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-}
-
-.btn-sso:hover {
-    background-color: #f3f3f3;
-    border-color: #c0c0c0;
-}
-
 .form-control:focus {
     border-color: #00695c !important;
     box-shadow: 0 0 0 0.2rem rgba(0, 105, 92, 0.25) !important;
@@ -89,6 +75,14 @@ body {
 .form-check-input:focus {
     box-shadow: 0 0 0 0.2rem rgba(0, 105, 92, 0.25) !important;
     border-color: #00695c !important;
+}
+
+.btn-custom {
+    background-color: #00796b;
+}
+
+.btn-custom:hover {
+    background-color: #00695c;
 }
 
 a {
@@ -111,6 +105,9 @@ a:hover {
     text-decoration: none;
 }
 
+.text-gray {
+    color: #6c757d;
+}
 
 @media (max-width: 992px) {
     .login-container {
