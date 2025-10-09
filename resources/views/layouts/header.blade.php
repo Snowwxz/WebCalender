@@ -14,11 +14,12 @@
     </div>
 
     <div class="header-right">
-        <div class="login-section">
-            <button class="login-btn">
-                <i class="fas fa-sign-in-alt"></i>
-                Login
-            </button>
-        </div>
+    <div class="login-section">
+        <button class="login-btn" onclick="window.location.href='/login'">
+            <i class="fas fa-sign-in-alt"></i>
+            Login
+        </button>
     </div>
+</div>
+
 </header>
