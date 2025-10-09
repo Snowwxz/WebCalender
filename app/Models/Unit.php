@@ -22,3 +22,4 @@ class Unit extends Model
         return $this->hasMany(User::class, 'id_unit', 'id_unit');
     }
 }
+

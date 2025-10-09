@@ -37,7 +37,7 @@ class UserSeeder extends Seeder
             'contact' => '081298765432'
         ]);
 
-        // buat users untuk setiap unit
+
         $units = Unit::all();
         foreach ($units as $unit) {
             \App\Models\User::factory()->count(3)->create([

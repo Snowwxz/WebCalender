@@ -33,3 +33,4 @@ class Agenda extends Model
         return $this->belongsTo(User::class, 'approved_by', 'id_user');
     }
 }
+
