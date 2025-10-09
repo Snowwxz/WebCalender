@@ -17,6 +17,7 @@ class AgendaFactory extends Factory
             'date'        => $this->faker->dateTimeBetween('-1 month', '+2 months')->format('Y-m-d'),
             'location'    => $this->faker->city,
             'status'      => 'pending',
+            // id_user & approved_by di-handle di seeder supaya kontrol lebih jelas
         ];
     }
 }
