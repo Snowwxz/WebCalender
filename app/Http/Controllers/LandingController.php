@@ -10,7 +10,7 @@ class LandingController extends Controller
 {
     public function index()
     {
-        // render view kalender di landing page
+
         return view('landing.index');
     }
 
