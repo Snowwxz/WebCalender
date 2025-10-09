@@ -18,10 +18,10 @@ class UserFactory extends Factory
             'email'             => $this->faker->unique()->safeEmail,
             'email_verified_at' => now(),
             'username'          => $this->faker->unique()->userName,
-            'password'          => Hash::make('password'), 
+            'password'          => Hash::make('password'), // default dev password
             'remember_token'    => Str::random(10),
             'role'              => 'user',
-            'id_unit'           => null,
+            'id_unit'           => null, // override di seeder
             'contact'            => $this->faker->phoneNumber,
         ];
     }

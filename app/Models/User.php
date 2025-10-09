@@ -36,19 +36,19 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-
+    // 🔗 Relasi ke tabel Unit
     public function unit()
     {
         return $this->belongsTo(Unit::class, 'id_unit', 'id_unit');
     }
 
-
+    // 🔗 Relasi ke tabel Agenda
     public function agenda()
     {
         return $this->hasMany(Agenda::class, 'id_user', 'id_user');
     }
 
-
+    // 🔗 Relasi ke agenda yang disetujui (optional)
     public function approvedAgenda()
     {
         return $this->hasMany(Agenda::class, 'approved_by', 'id_user');
