@@ -265,7 +265,7 @@ body {
 }
 
 .mini-calendar {
-    background: #f8f9fa;
+    background: transparent;
     border-radius: 8px;
     padding: 15px;
 }
@@ -294,7 +294,7 @@ body {
 }
 
 .mini-calendar-weekdays .weekend {
-    color: #dc3545;
+    color: #6c757d;
 }
 
 .mini-calendar-days {
@@ -327,7 +327,7 @@ body {
 }
 
 .mini-day.weekend {
-    color: #dc3545;
+    color: #6c757d;
 }
 
 /* Agenda Section */
@@ -336,7 +336,7 @@ body {
 }
 
 .agenda-categories {
-    background: #f8f9fa;
+    background: transparent;
     border-radius: 8px;
     padding: 15px;
 }
@@ -608,7 +608,7 @@ body {
 }
 
 .month-day.weekend {
-    color: #dc3545;
+    color: #6c757d;
 }
 
 .month-day.other-month {
@@ -657,7 +657,7 @@ body {
 }
 
 .mini-day.weekend {
-    color: #dc3545;
+    color: #6c757d;
 }
 
 .mini-day.other-month {
@@ -742,7 +742,7 @@ body {
 }
 
 .calendar-weekdays .weekend {
-    color: #dc3545;
+    color: #6c757d;
 }
 
 .calendar-days {
@@ -785,7 +785,7 @@ body {
 }
 
 .calendar-day.weekend .day-number {
-    color: #dc3545;
+    color: #6c757d;
 }
 
 .calendar-day.other-month.weekend .day-number {
@@ -833,36 +833,36 @@ body {
         flex-wrap: wrap;
         gap: 15px;
     }
-    
+
     .header-center {
         order: 3;
         width: 100%;
         justify-content: center;
     }
-    
+
     .search-input {
         width: 150px;
     }
-    
+
     .sidebar {
         width: 70px;
     }
-    
+
     .sidebar .brand h2,
     .section-title span,
     .category-item label span {
         display: none;
     }
-    
+
     .main-content {
         padding: 20px;
     }
-    
+
     .calendar-day {
         min-height: 80px;
         padding: 8px;
     }
-    
+
     .agenda-item {
         font-size: 10px;
         padding: 3px 4px;
@@ -873,38 +873,38 @@ body {
     .header {
         padding: 10px 15px;
     }
-    
+
     .nav-tabs {
         width: 100%;
         justify-content: center;
     }
-    
+
     .nav-tab {
         flex: 1;
         text-align: center;
     }
-    
+
     .search-input {
         width: 120px;
     }
-    
+
     .user-info {
         display: none;
     }
-    
+
     .main-content {
         padding: 15px;
     }
-    
+
     .calendar-day {
         min-height: 60px;
         padding: 5px;
     }
-    
+
     .day-number {
         font-size: 12px;
     }
-    
+
     .agenda-item {
         font-size: 9px;
         padding: 2px 3px;
