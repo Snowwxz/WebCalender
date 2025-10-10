@@ -48,9 +48,9 @@ class AuthController extends Controller
             // 'contact' => $request->contact,
         ]);
 
-        Auth::login($user);
+        // Auth::login($user);
 
-        return redirect()->route('dashboard');
+        return redirect()->route('login');
     }
 
     // LOGIN
