@@ -4,14 +4,14 @@
         <a href="/" class="nav-tab {{ (request()->is('/') || request()->path()=='/' || url()->current()==url('/')) ? 'active' : '' }}">Bulan</a>
         <a href="/tahun" class="nav-tab {{ request()->is('tahun') ? 'active' : '' }}">Tahun</a>
     </div>
-    
+
     <!-- Mini Calendar -->
     <div class="mini-calendar-section">
         <div class="section-title">
             <i class="fas fa-calendar"></i>
             <span>Kalender</span>
         </div>
-        
+
         <div class="mini-calendar">
             <div class="mini-calendar-header" id="miniCalendarHeader">Okt 2025</div>
             <div class="mini-calendar-weekdays">
@@ -22,17 +22,17 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Kategori Agenda -->
     <div class="agenda-section">
         <div class="section-title">
             <i class="fas fa-list"></i>
             <span>Agenda</span>
         </div>
-        
+
         <div class="agenda-categories">
             <div class="category-title">Kategori Agenda</div>
-            
+
             <div class="category-item">
                 <input type="checkbox" id="public" checked>
                 <label for="public">
@@ -40,18 +40,6 @@
                     <span>Publik</span>
                 </label>
             </div>
-            
-            <div class="category-item">
-                <input type="checkbox" id="private" checked>
-                <label for="private">
-                    <span class="category-dot private"></span>
-                    <span>Privasi</span>
-                </label>
-            </div>
-            
-            <button class="add-category-btn">
-                <i class="fas fa-plus"></i>
-            </button>
         </div>
     </div>
 </aside>

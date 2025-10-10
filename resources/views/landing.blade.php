@@ -14,7 +14,7 @@
                 </button>
             </div>
         </div>
-        
+
         <div class="calendar-grid">
             <div class="calendar-weekdays">
                 <div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div class="weekend">Sab</div><div class="weekend">Min</div>
@@ -36,36 +36,36 @@ const sampleAgendas = {};
 function generateMiniCalendar() {
     const miniCalendar = document.getElementById('miniCalendarDays');
     const miniHeader = document.getElementById('miniCalendarHeader');
-    
+
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
     miniHeader.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
-    
+
     const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     const startDate = new Date(firstDay);
     startDate.setDate(startDate.getDate() - (firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1)); // Mulai dari hari Senin
-    
+
     miniCalendar.innerHTML = '';
-    
+
     for (let i = 0; i < 35; i++) { // 5 minggu x 7 hari = 35 hari
         const date = new Date(startDate);
         date.setDate(startDate.getDate() + i);
-        
+
         const dayElement = document.createElement('div');
         dayElement.className = 'mini-day';
         dayElement.textContent = date.getDate();
-        
+
         if (date.getMonth() !== currentDate.getMonth()) {
             dayElement.classList.add('other-month');
         }
-        
+
         if (date.toDateString() === new Date().toDateString()) {
             dayElement.classList.add('today');
         }
-        
+
         if (date.getDay() === 0 || date.getDay() === 6) {
             dayElement.classList.add('weekend');
         }
-        
+
         miniCalendar.appendChild(dayElement);
     }
 }
@@ -74,45 +74,52 @@ function generateMiniCalendar() {
 function generateMainCalendar() {
     const monthYear = document.getElementById('currentMonthYear');
     const calendarDays = document.getElementById('calendarDays');
-    
+
     const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
     monthYear.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
-    
+
     const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     const startDate = new Date(firstDay);
     startDate.setDate(startDate.getDate() - (firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1)); // Mulai dari hari Senin
-    
+
     calendarDays.innerHTML = '';
-    
+
     for (let i = 0; i < 35; i++) { // 5 minggu x 7 hari = 35 hari
         const date = new Date(startDate);
         date.setDate(startDate.getDate() + i);
-        
+
         const dayElement = document.createElement('div');
         dayElement.className = 'calendar-day';
-        
+
         if (date.getMonth() !== currentDate.getMonth()) {
             dayElement.classList.add('other-month');
         }
-        
+
         if (date.getDay() === 0 || date.getDay() === 6) {
             dayElement.classList.add('weekend');
         }
-        
+
         if (date.toDateString() === new Date().toDateString()) {
             dayElement.classList.add('today');
         }
-        
+
         const dayNumber = document.createElement('div');
         dayNumber.className = 'day-number';
         dayNumber.textContent = date.getDate();
-        
+
         if (date.getDay() === 0 || date.getDay() === 6) {
             dayNumber.classList.add('weekend');
         }
-        
+
+        dayElement.addEventListener('click', () => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            window.location.href = `/hari?tanggal=${year}-${month}-${day}`;
+        });
+
         dayElement.appendChild(dayNumber);
-        
+
         calendarDays.appendChild(dayElement);
     }
 }
