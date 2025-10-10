@@ -17,7 +17,7 @@
         </div>
 
         <div class="year-grid">
-            <div class="month-card">
+            <div class="month-card" onclick="goToMonth(1)">
                 <div class="month-header">Januari</div>
                 <div class="month-grid">
                     <div class="month-weekdays">
@@ -28,7 +28,7 @@
                 </div>
             </div>
 
-            <div class="month-card">
+            <div class="month-card" onclick="goToMonth(2)">
                 <div class="month-header">Februari</div>
                 <div class="month-grid">
                     <div class="month-weekdays">
@@ -39,7 +39,7 @@
                 </div>
             </div>
 
-            <div class="month-card">
+            <div class="month-card" onclick="goToMonth(3)">
                 <div class="month-header">Maret</div>
                 <div class="month-grid">
                     <div class="month-weekdays">
@@ -50,7 +50,7 @@
                 </div>
             </div>
 
-            <div class="month-card">
+            <div class="month-card" onclick="goToMonth(4)">
                 <div class="month-header">April</div>
                 <div class="month-grid">
                     <div class="month-weekdays">
@@ -61,7 +61,7 @@
                 </div>
             </div>
 
-            <div class="month-card">
+            <div class="month-card" onclick="goToMonth(5)">
                 <div class="month-header">Mei</div>
                 <div class="month-grid">
                     <div class="month-weekdays">
@@ -72,7 +72,7 @@
                 </div>
             </div>
 
-            <div class="month-card">
+            <div class="month-card" onclick="goToMonth(6)">
                 <div class="month-header">Juni</div>
                 <div class="month-grid">
                     <div class="month-weekdays">
@@ -83,7 +83,7 @@
                 </div>
             </div>
 
-            <div class="month-card">
+            <div class="month-card" onclick="goToMonth(7)">
                 <div class="month-header">Juli</div>
                 <div class="month-grid">
                     <div class="month-weekdays">
@@ -94,7 +94,7 @@
                 </div>
             </div>
 
-            <div class="month-card">
+            <div class="month-card" onclick="goToMonth(8)">
                 <div class="month-header">Agustus</div>
                 <div class="month-grid">
                     <div class="month-weekdays">
@@ -105,7 +105,7 @@
                 </div>
             </div>
 
-            <div class="month-card">
+            <div class="month-card" onclick="goToMonth(9)">
                 <div class="month-header">September</div>
                 <div class="month-grid">
                     <div class="month-weekdays">
@@ -116,7 +116,7 @@
                 </div>
             </div>
 
-            <div class="month-card">
+            <div class="month-card" onclick="goToMonth(10)">
                 <div class="month-header">Oktober</div>
                 <div class="month-grid">
                     <div class="month-weekdays">
@@ -127,7 +127,7 @@
                 </div>
             </div>
 
-            <div class="month-card">
+            <div class="month-card" onclick="goToMonth(11)">
                 <div class="month-header">November</div>
                 <div class="month-grid">
                     <div class="month-weekdays">
@@ -138,7 +138,7 @@
                 </div>
             </div>
 
-            <div class="month-card">
+            <div class="month-card" onclick="goToMonth(12)">
                 <div class="month-header">Desember</div>
                 <div class="month-grid">
                     <div class="month-weekdays">
@@ -206,6 +206,10 @@ function generateYearCalendar() {
 
 function updateYearDisplay() {
     document.getElementById('currentYear').textContent = currentYear;
+}
+
+function goToMonth(month) {
+    window.location.href = `/landing?month=${month}`;
 }
 
 function changeYear(direction) {

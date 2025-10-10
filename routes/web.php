@@ -7,6 +7,11 @@ Route::get('/', function () {
     return view('landing');
 });
 
+Route::get('/landing', function (Illuminate\Http\Request $request) {
+    $month = $request->query('month');
+    return view('landing', ['month' => $month]);
+});
+
 Route::get('/hari', function () {
     return view('landing_hari');
 });
