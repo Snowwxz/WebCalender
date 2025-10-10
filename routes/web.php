@@ -5,21 +5,23 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LandingController;
 use Illuminate\Support\Facades\Route;
 
-// ====================
-// 🔹 LANDING & PUBLIC ROUTES
-// ====================
 
+// 🔹 LANDING & PUBLIC ROUTES
 // Halaman utama (kalender default)
 Route::get('/', [LandingController::class, 'index'])->name('landing.index');
+
+// biar bulan bisa di pencet dibagian tahun
+Route::get('/landing', function (Illuminate\Http\Request $request) {
+    $month = $request->query('month');
+    return view('landing', ['month' => $month]);
+});
 
 // Optional (kalau masih pakai view terpisah)
 Route::get('/hari', fn() => view('landing_hari'))->name('landing.hari');
 Route::get('/tahun', fn() => view('landing_tahun'))->name('landing.tahun');
 
-// ====================
-// 📅 LANDING PAGE API (PUBLIC CALENDAR)
-// ====================
 
+//LANDING PAGE API (PUBLIC CALENDAR)
 // Ambil agenda berdasarkan bulan
 Route::get('/api/agenda/{year}/{month}', [LandingController::class, 'getByMonth'])
     ->where(['year' => '[0-9]{4}', 'month' => '[0-9]{1,2}']);
@@ -36,16 +38,12 @@ Route::get('/api/agenda/year/{year}', [LandingController::class, 'getByYear'])
 Route::get('/api/agenda/search', [LandingController::class, 'search'])
     ->name('agenda.search');
 
-// ====================
-// 🏠 DASHBOARD (HANYA LOGIN)
-// ====================
+
+//DASHBOARD (HANYA LOGIN)
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// =============================
-// 🔐 AUTH ROUTES
-// =============================
 
 // Register
 Route::get('/register', fn() => view('auth.register'))->name('register.form');
@@ -58,9 +56,8 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 // Logout
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
-// =============================
-// 👤 PROFILE ROUTES
-// =============================
+
+// PROFILE ROUTES
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

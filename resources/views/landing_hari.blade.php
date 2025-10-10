@@ -15,7 +15,7 @@
                 </button>
             </div>
         </div>
-        
+
         <!-- Time Grid -->
         <div class="day-grid">
             <div class="time-column">
@@ -44,7 +44,7 @@
                 <div class="time-slot">22:00</div>
                 <div class="time-slot">23:00</div>
             </div>
-            
+
             <div class="day-column">
                 <div class="hour-slot" data-hour="0"></div>
                 <div class="hour-slot" data-hour="1"></div>
@@ -76,20 +76,25 @@
 </div>
 
 <script>
-let currentDate = new Date(2025, 9, 21); // October 21, 2025
+const urlParams = new URLSearchParams(window.location.search);
+const tanggalParam = urlParams.get('tanggal');
 
-// Tidak ada agenda untuk sementara
-const dayEvents = {};
+let currentDate = tanggalParam
+    ? new Date(tanggalParam)
+    : new Date();
+
+    const dayEvents = {};
 
 // Update day display
 function updateDayDisplay() {
     const dayElement = document.getElementById('currentDay');
-    const options = { 
-        weekday: 'long', 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
+    const options = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
     };
+    const formattedDate = currentDate.toLocaleDateString('id-ID', options);
     dayElement.textContent = currentDate.toLocaleDateString('id-ID', options);
 }
 
@@ -98,16 +103,22 @@ function changeDay(direction) {
     currentDate.setDate(currentDate.getDate() + direction);
     updateDayDisplay();
     renderDayEvents();
+
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    const newUrl = `${window.location.pathname}?tanggal=${year}-${month}-${day}`;
+    window.history.pushState({}, '', newUrl);
 }
 
 // Render day events
 function renderDayEvents() {
     const dayColumn = document.querySelector('.day-column');
     const dateString = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
-    
+
     // Clear existing events
     dayColumn.querySelectorAll('.event-item').forEach(item => item.remove());
-    
+
     // Tidak ada agenda untuk ditampilkan saat ini
 }
 
