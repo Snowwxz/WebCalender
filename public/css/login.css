@@ -18,7 +18,11 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    box-shadow: 0 0 25px rgba(0, 0, 0, 0.05);
+    position: relative;
+}
+
+.form-wrapper {
+    margin-top: 60px;
 }
 
 .right-section {
@@ -107,6 +111,43 @@ a:hover {
 
 .text-gray {
     color: #6c757d;
+}
+
+.back-btn {
+    position: fixed;
+    top: 25px;
+    left: 35px;
+    z-index: 1000;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    font-weight: 500;
+    font-size: 16px;
+    color: #004d40;
+    text-decoration: none;
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    transition: color 0.3s ease;
+}
+
+.back-link i {
+    font-size: 20px;
+    margin-right: 6px;
+    color: #004d40;
+    transition: transform 0.2s ease;
+}
+
+.back-link:hover {
+    color: #00796b;
+    text-decoration: none;
+}
+
+.back-link:hover i {
+    transform: translateX(-3px);
 }
 
 @media (max-width: 992px) {
