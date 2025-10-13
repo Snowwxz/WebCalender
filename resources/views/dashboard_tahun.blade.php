@@ -197,7 +197,7 @@ function generateMonthDays(monthIndex, year) {
 
         // ✅ perbaikan utama:
         // jangan buat new Date() di sini karena itu selalu bulan sekarang (Oktober)
-        // pakai variabel `today` yang fix di awal
+        // pakai variabel today yang fix di awal
         if (
             date.getDate() === today.getDate() &&
             date.getMonth() === today.getMonth() &&
@@ -224,7 +224,7 @@ function updateYearDisplay() {
 }
 
 function goToMonth(month) {
-    window.location.href = `/dashboard/bulan?bulan=${month}&tahun=${currentYear}`;
+    window.location.href = /dashboard/bulan?bulan=${month}&tahun=${currentYear};
 }
 
 function changeYear(direction) {
