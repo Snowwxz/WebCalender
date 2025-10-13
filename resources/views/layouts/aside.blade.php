@@ -1,20 +1,20 @@
-@php
-    $isDashboard = request()->is('dashboard*');
-@endphp
+   @php
+        $isDashboard = request()->is('dashboard*');
+    @endphp
 
-<aside class="sidebar">
-    <div class="nav-tabs">
-        @if ($isDashboard)
-            <a href="/dashboard/hari" class="nav-tab {{ request()->is('dashboard/hari') ? 'active' : '' }}">Hari</a>
-            <a href="/dashboard/bulan" class="nav-tab {{ request()->is('dashboard/bulan') ? 'active' : '' }}">Bulan</a>
-            <a href="/dashboard/tahun" class="nav-tab {{ request()->is('dashboard/tahun') ? 'active' : '' }}">Tahun</a>
-        @else
-            <a href="/hari" class="nav-tab {{ request()->is('hari') ? 'active' : '' }}">Hari</a>
-            <a href="/bulan" class="nav-tab {{ (request()->is('/') || request()->is('bulan')) ? 'active' : '' }}">Bulan</a>
-            <a href="/tahun" class="nav-tab {{ request()->is('tahun') ? 'active' : '' }}">Tahun</a>
-        @endif
-    </div>
- 
+    <aside class="sidebar">
+        <div class="nav-tabs">
+            @if ($isDashboard)
+                <a href="/dashboard/hari" class="nav-tab {{ request()->is('dashboard/hari') ? 'active' : '' }}">Hari</a>
+                <a href="/dashboard/bulan" class="nav-tab {{ request()->is('dashboard/bulan') ? 'active' : '' }}">Bulan</a>
+                <a href="/dashboard/tahun" class="nav-tab {{ request()->is('dashboard/tahun') ? 'active' : '' }}">Tahun</a>
+            @else
+                <a href="/hari" class=" nav-tab {{ request()->is('hari') ? 'active' : '' }}">Hari</a>
+                <a href="/bulan" class="nav-tab {{ (request()->is('/') || request()->is('bulan')) ? 'active' : '' }}">Bulan</a>
+                <a href="/tahun" class="nav-tab {{ request()->is('tahun') ? 'active' : '' }}">Tahun</a>
+            @endif
+        </div>
+
     <!-- Mini Calendar -->
     <div class="mini-calendar-section">
         <div class="section-title">

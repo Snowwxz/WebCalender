@@ -4,12 +4,12 @@
 <div class="day-view-page">
     <div class="day-view-main">
         <!-- Day Header -->
-        <div class="day-header">
-            <div class="day-navigation">
+        <div class="calendar-header">
+            <div class="month-navigation">
                 <button class="nav-btn" onclick="changeDay(-1)">
                     <i class="fas fa-chevron-left"></i>
                 </button>
-                <h2 class="current-day" id="currentDay">Hari ini</h2>
+                <h2 class="month-year" id="currentDay">Hari ini</h2>
                 <button class="nav-btn" onclick="changeDay(1)">
                     <i class="fas fa-chevron-right"></i>
                 </button>

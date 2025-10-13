@@ -1,19 +1,19 @@
 @extends('layouts.main')
 
 @section('content')
-    <div class="calendar-page">
-        <div class="calendar-main">
-            <div class="calendar-header">
-                <div class="month-navigation">
-                    <button class="nav-btn" onclick="changeMonth(-1)">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <h2 class="month-year" id="currentMonthYear">Oktober 2025</h2>
-                    <button class="nav-btn" onclick="changeMonth(1)">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
+<div class="calendar-page">
+    <div class="calendar-main">
+        <div class="calendar-header">
+            <div class="month-navigation">
+                <button class="nav-btn" onclick="changeMonth(-1)">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <h2 class="month-year" id="currentMonthYear">Oktober 2025</h2>
+                <button class="nav-btn" onclick="changeMonth(1)">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
+        </div>
 
             <div class="calendar-grid">
                 <div class="calendar-weekdays">
@@ -67,8 +67,8 @@
                 const date = new Date(startDate);
                 date.setDate(startDate.getDate() + i);
 
-                const dayElement = document.createElement('div');
-                dayElement.className = 'calendar-day';
+        const dayElement = document.createElement('div');
+        dayElement.className = 'calendar-day';
 
                 // Tandai kalau tanggal bukan dari bulan yang sedang ditampilkan
                 if (date.getMonth() !== currentDate.getMonth()) {

@@ -14,12 +14,56 @@
     </div>
 
     <div class="header-right">
-    <div class="login-section">
-        <button class="login-btn" onclick="window.location.href='/login'">
-            <i class="fas fa-sign-in-alt"></i>
-            Login
-        </button>
+        @auth
+            {{-- User Profile Section for authenticated users --}}
+            <div class="user-profile-section">
+                <div class="user-profile" onclick="toggleDropdown()">
+                    <div class="user-avatar">
+                        @if(Auth::user()->profile_photo_path)
+                            <img src="{{ Auth::user()->profile_photo_path }}" alt="Profile" class="profile-image">
+                        @else
+                            <div class="profile-initials">{{ substr(Auth::user()->name, 0, 2) }}</div>
+                        @endif
+                    </div>
+                    <div class="user-info">
+                        <div class="username">{{ Auth::user()->name }}</div>
+                        <div class="user-email">{{ Auth::user()->email }}</div>
+                    </div>
+                    <div class="dropdown-arrow">
+                        <i class="fas fa-chevron-up"></i>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+                
+                {{-- Dropdown Menu --}}
+                <div class="user-dropdown" id="userDropdown">
+                    <div class="dropdown-item" onclick="window.location.href='{{ route('profile.edit') }}'">
+                        <i class="fas fa-user"></i>
+                        <span>Profile</span>
+                    </div>
+                    <div class="dropdown-item" onclick="window.location.href='{{ route('profile.edit') }}'">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <form method="POST" action="{{ route('logout') }}" class="dropdown-form">
+                        @csrf
+                        <button type="submit" class="dropdown-item logout-btn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        @else
+            {{-- Login Button for guests --}}
+            <div class="login-section">
+                <button class="login-btn" onclick="window.location.href='/login'">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
+                </button>
+            </div>
+        @endauth
     </div>
-</div>
 
 </header>
