@@ -12,7 +12,6 @@
                     <i class="fas fa-chevron-left"></i>
                 </button>
                 <h2 class="current-year" id="currentYear">2025</h2>
-                <h2 class="month-year" id="currentYear">2025</h2>
                 <button class="nav-btn" onclick="changeYear(1)">
                     <i class="fas fa-chevron-right"></i>
                 </button>
@@ -159,13 +158,10 @@
 <script>
 let currentYear = new Date().getFullYear();
 const today = new Date(); // simpan tanggal hari ini sekali aja
-let currentYear = new Date().getFullYear();
-const today = new Date(); // simpan tanggal hari ini sekali aja
 
 function generateMonthDays(monthIndex, year) {
     const monthCards = document.querySelectorAll('.month-card');
     const monthCard = monthCards[monthIndex];
-    if (!monthCard) return;
     if (!monthCard) return;
     const monthDaysContainer = monthCard.querySelector('.month-days');
 
@@ -173,11 +169,7 @@ function generateMonthDays(monthIndex, year) {
     const lastDay = new Date(year, monthIndex + 1, 0);
 
     // mulai dari Senin
-
-    // mulai dari Senin
     const dayOffset = firstDay.getDay() === 0 ? -6 : -(firstDay.getDay() - 1);
-    const startDate = new Date(firstDay);
-    startDate.setDate(firstDay.getDate() + dayOffset);
     const startDate = new Date(firstDay);
     startDate.setDate(firstDay.getDate() + dayOffset);
 
@@ -195,13 +187,8 @@ function generateMonthDays(monthIndex, year) {
             dayElement.classList.add('other-month');
         }
 
-        // ✅ perbaikan utama:
-        // jangan buat new Date() di sini karena itu selalu bulan sekarang (Oktober)
-        // pakai variabel `today` yang fix di awal
+        // Highlight hari ini
         if (
-            date.getDate() === today.getDate() &&
-            date.getMonth() === today.getMonth() &&
-            date.getFullYear() === today.getFullYear()
             date.getDate() === today.getDate() &&
             date.getMonth() === today.getMonth() &&
             date.getFullYear() === today.getFullYear()
@@ -224,6 +211,7 @@ function updateYearDisplay() {
 }
 
 function goToMonth(month) {
+    // tambahkan +1 karena bulan JS dimulai dari 0
     window.location.href = `/dashboard/bulan?bulan=${month}&tahun=${currentYear}`;
 }
 
