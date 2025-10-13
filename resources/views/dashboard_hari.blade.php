@@ -79,13 +79,18 @@
 const urlParams = new URLSearchParams(window.location.search);
 const tanggalParam = urlParams.get('tanggal');
 
-let currentDate = tanggalParam
-    ? new Date(tanggalParam)
-    : new Date();
+// Parse tanggal tanpa terkena timezone shift
+function parseLocalDate(dateStr) {
+    if (!dateStr) return new Date(); // kalau tidak ada parameter, pakai hari ini
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day); // bulan dikurangi 1 karena index 0-11
+}
 
-    const dayEvents = {};
+let currentDate = parseLocalDate(tanggalParam);
 
-// Update day display
+const dayEvents = {};
+
+// Update tampilan hari
 function updateDayDisplay() {
     const dayElement = document.getElementById('currentDay');
     const options = {
@@ -95,34 +100,34 @@ function updateDayDisplay() {
         day: 'numeric'
     };
     const formattedDate = currentDate.toLocaleDateString('id-ID', options);
-    dayElement.textContent = currentDate.toLocaleDateString('id-ID', options);
+    // Kapital huruf pertama
+    dayElement.textContent = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
 }
 
-// Change day
+// Ganti hari (← →)
 function changeDay(direction) {
     currentDate.setDate(currentDate.getDate() + direction);
     updateDayDisplay();
     renderDayEvents();
 
+    // Update URL tanpa reload
     const year = currentDate.getFullYear();
     const month = String(currentDate.getMonth() + 1).padStart(2, '0');
     const day = String(currentDate.getDate()).padStart(2, '0');
-    const newUrl = ${window.location.pathname}?tanggal=${year}-${month}-${day};
+    const newUrl = `${window.location.pathname}?tanggal=${year}-${month}-${day}`;
     window.history.pushState({}, '', newUrl);
 }
 
-// Render day events
+// Render agenda (sementara kosong)
 function renderDayEvents() {
     const dayColumn = document.querySelector('.day-column');
-    const dateString = ${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')};
+    const dateString = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
 
-    // Clear existing events
+    // Bersihkan event sebelumnya
     dayColumn.querySelectorAll('.event-item').forEach(item => item.remove());
-
-    // Tidak ada agenda untuk ditampilkan saat ini
 }
 
-// Initialize day view
+// Inisialisasi
 document.addEventListener('DOMContentLoaded', function() {
     updateDayDisplay();
     renderDayEvents();
