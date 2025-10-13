@@ -4,12 +4,12 @@
 <div class="day-view-page">
     <div class="day-view-main">
         <!-- Day Header -->
-        <div class="day-header">
-            <div class="day-navigation">
+        <div class="calendar-header">
+            <div class="month-navigation">
                 <button class="nav-btn" onclick="changeDay(-1)">
                     <i class="fas fa-chevron-left"></i>
                 </button>
-                <h2 class="current-day" id="currentDay">Senin, 21 Oktober 2025</h2>
+                <h2 class="month-year" id="currentDay">Hari ini</h2>
                 <button class="nav-btn" onclick="changeDay(1)">
                     <i class="fas fa-chevron-right"></i>
                 </button>
@@ -76,56 +76,67 @@
 </div>
 
 <script>
-const urlParams = new URLSearchParams(window.location.search);
-const tanggalParam = urlParams.get('tanggal');
+    // Ambil parameter tanggal dari URL (?tanggal=YYYY-MM-DD)
+    const urlParams = new URLSearchParams(window.location.search);
+    const tanggalParam = urlParams.get('tanggal');
 
-let currentDate = tanggalParam
-    ? new Date(tanggalParam)
-    : new Date();
+    // Jika ada parameter, pakai itu; jika tidak, pakai hari ini
+    let currentDate = tanggalParam ? new Date(tanggalParam) : new Date();
 
     const dayEvents = {};
 
-// Update day display
-function updateDayDisplay() {
-    const dayElement = document.getElementById('currentDay');
-    const options = {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    };
-    const formattedDate = currentDate.toLocaleDateString('id-ID', options);
-    dayElement.textContent = currentDate.toLocaleDateString('id-ID', options);
-}
+    // Fungsi untuk update teks hari (format Indonesia, kapital huruf pertama)
+    function updateDayDisplay() {
+        const dayElement = document.getElementById('currentDay');
+        const options = {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        };
+        const formatted = currentDate.toLocaleDateString('id-ID', options);
+        dayElement.textContent = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+    }
 
-// Change day
-function changeDay(direction) {
-    currentDate.setDate(currentDate.getDate() + direction);
-    updateDayDisplay();
-    renderDayEvents();
+    // Ganti hari (panah kiri / kanan)
+    function changeDay(direction) {
+        currentDate.setDate(currentDate.getDate() + direction);
+        updateDayDisplay();
+        renderDayEvents();
 
-    const year = currentDate.getFullYear();
-    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-    const day = String(currentDate.getDate()).padStart(2, '0');
-    const newUrl = `${window.location.pathname}?tanggal=${year}-${month}-${day}`;
-    window.history.pushState({}, '', newUrl);
-}
+        // Update URL pada path yang sama (tetap di /dashboard/hari jika itu path sekarang)
+        const newDateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
+        const basePath = window.location.pathname.split('?')[0]; // tetap di /dashboard/hari
+        const newUrl = `${basePath}?tanggal=${newDateStr}`;
+        window.history.pushState({}, '', newUrl);
+    }
 
-// Render day events
-function renderDayEvents() {
-    const dayColumn = document.querySelector('.day-column');
-    const dateString = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
+    // Render event (sementara kosong)
+    function renderDayEvents() {
+        const dayColumn = document.querySelector('.day-column');
+        if (!dayColumn) return;
 
-    // Clear existing events
-    dayColumn.querySelectorAll('.event-item').forEach(item => item.remove());
+        const dateString = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
 
-    // Tidak ada agenda untuk ditampilkan saat ini
-}
+        // Clear existing
+        dayColumn.querySelectorAll('.event-item').forEach(item => item.remove());
 
-// Initialize day view
-document.addEventListener('DOMContentLoaded', function() {
-    updateDayDisplay();
-    renderDayEvents();
-});
+        // TODO: fetch events via API e.g. /api/agenda/date/{dateString} dan append ke dayColumn
+        // contoh nanti: fetch(`/api/agenda/date/${dateString}`).then(...)
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        updateDayDisplay();
+        renderDayEvents();
+    });
+
+    // Optional: handle back/forward so the page reflects the query param if user navigates history
+    window.addEventListener('popstate', () => {
+        const params = new URLSearchParams(window.location.search);
+        const t = params.get('tanggal');
+        currentDate = t ? new Date(t) : new Date();
+        updateDayDisplay();
+        renderDayEvents();
+    });
 </script>
 @endsection
