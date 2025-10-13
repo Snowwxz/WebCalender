@@ -6,10 +6,13 @@
         <!-- Year Header -->
         <div class="year-header">
             <div class="year-navigation">
+                <div class="calendar-header">
+                    <div class="month-navigation">
                 <button class="nav-btn" onclick="changeYear(-1)">
                     <i class="fas fa-chevron-left"></i>
                 </button>
                 <h2 class="current-year" id="currentYear">2025</h2>
+                <h2 class="month-year" id="currentYear">2025</h2>
                 <button class="nav-btn" onclick="changeYear(1)">
                     <i class="fas fa-chevron-right"></i>
                 </button>
@@ -154,31 +157,25 @@
 </div>
 
 <script>
-let currentYear = 2025;
-
-const yearEvents = {};
+let currentYear = new Date().getFullYear();
+const today = new Date(); // simpan tanggal hari ini sekali aja
 
 function generateMonthDays(monthIndex, year) {
-    const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
     const monthCards = document.querySelectorAll('.month-card');
     const monthCard = monthCards[monthIndex];
+    if (!monthCard) return;
     const monthDaysContainer = monthCard.querySelector('.month-days');
 
     const firstDay = new Date(year, monthIndex, 1);
     const lastDay = new Date(year, monthIndex + 1, 0);
-    const startDate = new Date(firstDay);
 
-
-    // Adjust untuk mulai dari Senin (getDay() returns 0=Sunday, 1=Monday, etc.)
-    // Jika hari pertama adalah Minggu (0), kita mulai dari Senin sebelumnya (-6)
-    // Jika hari pertama adalah Senin (1), kita mulai dari hari itu (-0)
-    // Jika hari pertama adalah Selasa (2), kita mulai dari Senin sebelumnya (-1)
+    // mulai dari Senin
     const dayOffset = firstDay.getDay() === 0 ? -6 : -(firstDay.getDay() - 1);
-    startDate.setDate(startDate.getDate() + dayOffset);
+    const startDate = new Date(firstDay);
+    startDate.setDate(firstDay.getDate() + dayOffset);
 
     monthDaysContainer.innerHTML = '';
 
-    // Generate 42 days (6 weeks)
     for (let i = 0; i < 42; i++) {
         const date = new Date(startDate);
         date.setDate(startDate.getDate() + i);
@@ -191,19 +188,16 @@ function generateMonthDays(monthIndex, year) {
             dayElement.classList.add('other-month');
         }
 
-        if (date.getDay() === 0 || date.getDay() === 6) {
-            dayElement.classList.add('weekend');
-        }
-
-        // Highlight today ONLY inside its actual month card
+        // ✅ perbaikan utama:
+        // jangan buat new Date() di sini karena itu selalu bulan sekarang (Oktober)
+        // pakai variabel today yang fix di awal
         if (
-            date.toDateString() === new Date().toDateString() &&
-            date.getMonth() === monthIndex
+            date.getDate() === today.getDate() &&
+            date.getMonth() === today.getMonth() &&
+            date.getFullYear() === today.getFullYear()
         ) {
             dayElement.classList.add('today');
         }
-
-        // Tidak ada event dot untuk saat ini
 
         monthDaysContainer.appendChild(dayElement);
     }
@@ -220,7 +214,7 @@ function updateYearDisplay() {
 }
 
 function goToMonth(month) {
-    window.location.href = /landing?month=${month};
+    window.location.href = /dashboard/bulan?bulan=${month}&tahun=${currentYear};
 }
 
 function changeYear(direction) {
