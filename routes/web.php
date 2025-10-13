@@ -60,7 +60,7 @@ Route::get('/api/agenda/search', [LandingController::class, 'search'])
 
 //DASHBOARD (HANYA LOGIN)
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return view('dashboard_bulan');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 
