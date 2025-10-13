@@ -139,23 +139,22 @@ body {
 }
 
 .login-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    background: #007bff;
+    background-color: #00695c; /* hijau toska */
     color: white;
     border: none;
+    padding: 10px 20px;
     border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 500;
-    transition: all 0.2s ease;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.3s ease;
 }
 
 .login-btn:hover {
-    background: #0056b3;
-    transform: translateY(-1px);
+    background-color: #004d40;
 }
 
 .login-btn i {
@@ -604,7 +603,9 @@ body {
 }
 
 .month-day:hover {
-    background: #f8f9fa;
+    background-color: #e0f2f1;
+    color: #00695c;
+    transition: all 0.3s ease;
 }
 
 .month-day.weekend {
@@ -616,9 +617,10 @@ body {
 }
 
 .month-day.today {
-    background: #e8f0fe;
-    color: #1a73e8;
-    font-weight: 600;
+    color: #00695c;
+    background-color: #e8f5e9;
+    font-weight: 700;
+    border-radius: 6px;
 }
 
 .event-dot {
@@ -653,7 +655,9 @@ body {
 }
 
 .mini-day:hover {
-    background: #f8f9fa;
+    background-color: #e0f2f1;
+    color: #00695c;
+    transition: all 0.3s ease;
 }
 
 .mini-day.weekend {
@@ -665,9 +669,10 @@ body {
 }
 
 .mini-day.today {
-    background: #e8f0fe;
-    color: #1a73e8;
-    font-weight: 600;
+    color: #00695c;
+    background-color: #e8f5e9;
+    font-weight: 700;
+    border-radius: 6px;
 }
 
 .calendar-main {
