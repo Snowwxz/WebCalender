@@ -80,7 +80,6 @@
         // Nanti bisa isi event berdasarkan API getByDate(dateString)
     }
 
-    // Inisialisasi tampilan saat halaman dimuat
     document.addEventListener('DOMContentLoaded', function() {
         updateDayDisplay();
         renderDayEvents();

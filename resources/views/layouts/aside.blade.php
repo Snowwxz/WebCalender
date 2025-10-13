@@ -1,7 +1,7 @@
 <aside class="sidebar">
     <div class="nav-tabs">
         <a href="/hari" class="nav-tab {{ request()->is('hari') ? 'active' : '' }}">Hari</a>
-        <a href="/" class="nav-tab {{ (request()->is('/') || request()->path()=='/' || url()->current()==url('/')) ? 'active' : '' }}">Bulan</a>
+        <a href="/bulan" class="nav-tab {{ (request()->is('/') || request()->path()=='/' || url()->current()==url('/')) ? 'active' : '' }}">Bulan</a>
         <a href="/tahun" class="nav-tab {{ request()->is('tahun') ? 'active' : '' }}">Tahun</a>
     </div>
 
