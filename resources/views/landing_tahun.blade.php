@@ -167,7 +167,6 @@ function generateMonthDays(monthIndex, year) {
     const firstDay = new Date(year, monthIndex, 1);
     const lastDay = new Date(year, monthIndex + 1, 0);
     const startDate = new Date(firstDay);
-    startDate.setDate(startDate.getDate() - firstDay.getDay());
 
 
     // Adjust untuk mulai dari Senin (getDay() returns 0=Sunday, 1=Monday, etc.)
