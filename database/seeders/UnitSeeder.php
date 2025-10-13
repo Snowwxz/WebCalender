@@ -9,7 +9,7 @@ class UnitSeeder extends Seeder
 {
     public function run()
     {
-        // buat 5 unit
         Unit::factory()->count(5)->create();
     }
 }
+

@@ -6,8 +6,21 @@ use Illuminate\Support\Facades\Route;
 
 // Halaman utama
 Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+    return view('landing');
+});
+
+Route::get('/landing', function (Illuminate\Http\Request $request) {
+    $month = $request->query('month');
+    return view('landing', ['month' => $month]);
+});
+
+Route::get('/hari', function () {
+    return view('landing_hari');
+});
+
+Route::get('/tahun', function () {
+    return view('landing_tahun');
+});
 
 // Dashboard (cuma buat user login)
 Route::get('/dashboard', function () {
