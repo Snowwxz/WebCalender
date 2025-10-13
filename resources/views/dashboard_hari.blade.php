@@ -76,10 +76,14 @@
 </div>
 
 <script>
-let currentDate = new Date(2025, 9, 21); // October 21, 2025
+const urlParams = new URLSearchParams(window.location.search);
+const tanggalParam = urlParams.get('tanggal');
 
-// Tidak ada agenda untuk sementara
-const dayEvents = {};
+let currentDate = tanggalParam
+    ? new Date(tanggalParam)
+    : new Date();
+
+    const dayEvents = {};
 
 // Update day display
 function updateDayDisplay() {
@@ -90,6 +94,7 @@ function updateDayDisplay() {
         month: 'long',
         day: 'numeric'
     };
+    const formattedDate = currentDate.toLocaleDateString('id-ID', options);
     dayElement.textContent = currentDate.toLocaleDateString('id-ID', options);
 }
 
@@ -98,6 +103,12 @@ function changeDay(direction) {
     currentDate.setDate(currentDate.getDate() + direction);
     updateDayDisplay();
     renderDayEvents();
+
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    const newUrl = ${window.location.pathname}?tanggal=${year}-${month}-${day};
+    window.history.pushState({}, '', newUrl);
 }
 
 // Render day events

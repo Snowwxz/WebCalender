@@ -2,7 +2,7 @@
     <div class="header-left">
         <div class="logo-section">
             <img src="{{ asset('images/logo.png') }}" alt="Logo Pemkot Samarinda" class="logo-img">
-            <span class="logo-text">Pemkot Samarinda</span>
+            <span class="logo-text">SiKota</span>
         </div>
     </div>
 
