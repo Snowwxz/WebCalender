@@ -42,8 +42,8 @@ class AuthController extends Controller
             'username' => $username,
             'password' => Hash::make($request->password),
             'role' => 'user', // default sesuai enum
-            'id_unit' => 0,
-            'contact' => "",
+            'id_unit' => null,
+            'contact' => null,
             // 'id_unit' => $request->id_unit,
             // 'contact' => $request->contact,
         ]);
