@@ -21,7 +21,7 @@ class AuthController extends Controller
             // 'contact' => ['required', 'string', 'max:255'],
         ]);
 
-            // dd($request);
+        // dd($request);
 
         // Ambil username dari bagian depan email
         $email = $request->email;
@@ -48,9 +48,9 @@ class AuthController extends Controller
             // 'contact' => $request->contact,
         ]);
 
-        Auth::login($user);
+        // Auth::login($user);
 
-        return redirect()->route('dashboard');
+        return redirect()->route('login');
     }
 
     // LOGIN
@@ -63,13 +63,15 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended('dashboard');
+            // ✅ Ubah redirect ke dashboard/bulan, bukan dashboard root
+            return redirect()->intended('/dashboard/bulan');
         }
 
         throw ValidationException::withMessages([
             'email' => trans('auth.failed'),
         ]);
     }
+
 
     // LOGOUT
     public function logout(Request $request)

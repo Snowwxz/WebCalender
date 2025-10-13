@@ -86,6 +86,32 @@
         document.addEventListener('DOMContentLoaded', function() {
             window.generateMiniCalendar();
         });
+        
+        // User dropdown functionality
+        function toggleDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            const profile = document.querySelector('.user-profile');
+            
+            if (dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+                profile.classList.remove('active');
+            } else {
+                dropdown.classList.add('show');
+                profile.classList.add('active');
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const profileSection = document.querySelector('.user-profile-section');
+            const dropdown = document.getElementById('userDropdown');
+            const profile = document.querySelector('.user-profile');
+            
+            if (profileSection && !profileSection.contains(event.target)) {
+                dropdown.classList.remove('show');
+                profile.classList.remove('active');
+            }
+        });
     </script>
 </body>
 </html>
