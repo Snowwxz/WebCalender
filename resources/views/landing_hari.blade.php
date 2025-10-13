@@ -76,14 +76,10 @@
 </div>
 
 <script>
-const urlParams = new URLSearchParams(window.location.search);
-const tanggalParam = urlParams.get('tanggal');
+let currentDate = new Date(2025, 9, 21); // October 21, 2025
 
-let currentDate = tanggalParam
-    ? new Date(tanggalParam)
-    : new Date();
-
-    const dayEvents = {};
+// Tidak ada agenda untuk sementara
+const dayEvents = {};
 
 // Update day display
 function updateDayDisplay() {
@@ -94,7 +90,6 @@ function updateDayDisplay() {
         month: 'long',
         day: 'numeric'
     };
-    const formattedDate = currentDate.toLocaleDateString('id-ID', options);
     dayElement.textContent = currentDate.toLocaleDateString('id-ID', options);
 }
 
@@ -103,18 +98,12 @@ function changeDay(direction) {
     currentDate.setDate(currentDate.getDate() + direction);
     updateDayDisplay();
     renderDayEvents();
-
-    const year = currentDate.getFullYear();
-    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-    const day = String(currentDate.getDate()).padStart(2, '0');
-    const newUrl = ${window.location.pathname}?tanggal=${year}-${month}-${day};
-    window.history.pushState({}, '', newUrl);
 }
 
 // Render day events
 function renderDayEvents() {
     const dayColumn = document.querySelector('.day-column');
-    const dateString = ${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')};
+    const dateString = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
 
     // Clear existing events
     dayColumn.querySelectorAll('.event-item').forEach(item => item.remove());
