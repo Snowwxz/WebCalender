@@ -212,7 +212,7 @@ function updateYearDisplay() {
 
 function goToMonth(month) {
     // tambahkan +1 karena bulan JS dimulai dari 0
-    window.location.href = /dashboard/bulan?bulan=${month}&tahun=${currentYear};
+    window.location.href = `/dashboard/bulan?bulan=${month}&tahun=${currentYear}`;
 }
 
 function changeYear(direction) {
