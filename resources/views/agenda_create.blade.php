@@ -1,50 +1,94 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Tambah Agenda Baru</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajukan Agenda - SiKota</title>
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="p-4">
+<body>
+    <div class="app-container">
+        @include('layouts.header')
 
-    <div class="container mt-4">
-        <h2 class="mb-3">Tambah Agenda Baru</h2>
+        <div class="agenda-container">
+            <div class="agenda-form-card">
 
-        @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
+                <!-- Bagian header -->
+                <div style="position: relative; text-align: center; margin-bottom: 8px;">
+                    <!-- Tombol kembali di kiri -->
+                    <a href="{{ route('dashboard') }}"
+                       style="color:#333;font-size:1.3rem;position:absolute;left:0;top:50%;transform:translateY(-50%);">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
 
-        <form action="{{ route('agenda.store') }}" method="POST">
-            @csrf
+                    <!-- Judul di tengah -->
+                    <div class="agenda-title" style="display:inline-block; font-weight:600; font-size:1.4rem; color:#333;">
+                        <i class="fas fa-calendar-plus"></i> Sistem Pengajuan Agenda
+                    </div>
+                </div>
 
-            <div class="form-group mb-3">
-                <label for="agenda_name">Nama Agenda <span style="color:red">*</span></label>
-                <input type="text" id="agenda_name" name="agenda_name" class="form-control" value="{{ old('agenda_name') }}" required>
-                @error('agenda_name') <small class="text-danger">{{ $message }}</small> @enderror
+                <p class="agenda-subtitle" style="text-align:center;">
+                    Platform untuk mengajukan dan mengelola agenda kegiatan instansi
+                </p>
+
+                <form action="{{ route('agenda.store') }}" method="POST">
+                    @csrf
+
+                    <div class="form-grid">
+                        <!-- Kolom kiri -->
+                        <div class="form-column">
+                            <div class="input-group">
+                                <label><i class="fas fa-file-alt"></i> Nama Agenda</label>
+                                <input type="text" name="agenda_name" placeholder="Masukkan nama agenda" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label><i class="fas fa-align-left"></i> Deskripsi Agenda</label>
+                                <textarea name="description" placeholder="Masukkan deskripsi agenda"></textarea>
+                            </div>
+
+                            <div class="input-group">
+                                <label><i class="fas fa-building"></i> Nama Instansi</label>
+                                <input type="text" name="nama_instansi" placeholder="Masukkan nama instansi">
+                            </div>
+
+                            <div class="input-group">
+                                <label><i class="fas fa-user-tie"></i> Penanggung Jawab</label>
+                                <input type="text" name="penanggung_jawab" placeholder="Masukkan nama penanggung jawab">
+                            </div>
+                        </div>
+
+                        <!-- Kolom kanan -->
+                        <div class="form-column">
+                            <div class="input-group">
+                                <label><i class="fas fa-calendar-day"></i> Tanggal</label>
+                                <input type="date" name="tanggal" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label><i class="fas fa-clock"></i> Waktu Pelaksanaan</label>
+                                <input type="time" name="waktu_pelaksanaan">
+                            </div>
+
+                            <div class="input-group">
+                                <label><i class="fas fa-location-dot"></i> Lokasi</label>
+                                <input type="text" name="lokasi" placeholder="Masukkan lokasi anda">
+                            </div>
+
+                            <div class="input-group">
+                                <label><i class="fas fa-people-group"></i> Instansi yang ikut serta</label>
+                                <textarea name="instansi_ikut" placeholder="Masukkan instansi yang akan ikut serta"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-submit">
+                        <button type="submit" class="btn-primary">Ajukan Agenda</button>
+                    </div>
+                </form>
             </div>
-
-            <div class="form-group mb-3">
-                <label for="description">Deskripsi</label>
-                <textarea id="description" name="description" class="form-control" rows="4">{{ old('description') }}</textarea>
-                @error('description') <small class="text-danger">{{ $message }}</small> @enderror
-            </div>
-
-            <div class="form-group mb-3">
-                <label for="date">Tanggal <span style="color:red">*</span></label>
-                <input type="date" id="date" name="date" class="form-control" value="{{ old('date') }}" required>
-                @error('date') <small class="text-danger">{{ $message }}</small> @enderror
-            </div>
-
-            <div class="form-group mb-3">
-                <label for="location">Lokasi</label>
-                <input type="text" id="location" name="location" class="form-control" value="{{ old('location') }}">
-                @error('location') <small class="text-danger">{{ $message }}</small> @enderror
-            </div>
-
-            <button type="submit" class="btn btn-primary">Simpan</button>
-            <a href="{{ url()->previous() }}" class="btn btn-secondary">Batal</a>
-        </form>
+        </div>
     </div>
-
 </body>
 </html>
