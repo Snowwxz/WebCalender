@@ -47,39 +47,46 @@ class AgendaController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'agenda_name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'date' => 'required|date',
-            'location' => 'nullable|string|max:255',
+       // Validasi input
+    $validated = $request->validate([
+        'agenda_name' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'tanggal' => 'required|date',
+        'lokasi' => 'nullable|string|max:255',
+        'penanggung_jawab' => 'nullable|string|max:255',
+        'instansi_ikut' => 'nullable|string|max:255',
+    ]);
+
+    try {
+        // Ambil user id
+        $userId = Auth::id() ?: 1;
+
+        // Simpan ke database
+        $agenda = new Agenda();
+        $agenda->agenda_name = $validated['agenda_name'];
+        $agenda->description = $validated['description'] ?? null;
+        $agenda->date = $validated['tanggal'];
+        $agenda->location = $validated['lokasi'] ?? null;
+        $agenda->person_in_charge = $validated['penanggung_jawab'] ?? null;
+        $agenda->involved_institution = $validated['instansi_ikut'] ?? null;
+        $agenda->status = 'pending';
+        $agenda->id_user = $userId;
+        $agenda->approved_by = null;
+        $agenda->save();
+
+        return redirect()
+            ->back()
+            ->with('success', '✅ Agenda berhasil ditambahkan ke database (status pending).');
+
+    } catch (\Throwable $e) {
+        Log::error('❌ Gagal menyimpan agenda: ' . $e->getMessage(), [
+            'trace' => $e->getTraceAsString(),
         ]);
 
-        try {
-            // ❗ Pastikan user id valid
-            $userId = Auth::id() ?: 1; // fallback user 1 (harus ada di users)
-
-            Agenda::create([
-                "agenda_name" => $validated['agenda_name'],
-                "description" => $validated['description'] ?? null,
-                "date" => $validated['date'],
-                "location" => $validated['location'] ?? null,
-                "status" => 'pending',
-                "id_user" => $userId,
-                "approved_by" => null,
-            ]);
-
-            return redirect()
-                ->back()
-                ->with('success', 'Agenda berhasil ditambahkan ke database (status pending).');
-        } catch (\Throwable $e) {
-            Log::error('❌ Failed to save agenda: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return back()
-                ->withInput()
-                ->with('error', 'Gagal menambahkan agenda: ' . $e->getMessage());
-        }
+        return back()
+            ->withInput()
+            ->with('error', 'Gagal menambahkan agenda ke database: ' . $e->getMessage());
+    }
     }
 
     /**
