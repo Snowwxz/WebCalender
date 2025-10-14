@@ -1112,3 +1112,129 @@ body {
         padding: 2px 3px;
     }
 }
+
+/* === PENGAJUAN AGENDA PAGE === */
+.agenda-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: calc(100vh - 150px);
+    padding: 60px 20px;
+    background: #f8f9fa;
+}
+
+.agenda-form-card {
+    background: #ffffff;
+    padding: 40px 50px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    max-width: 850px;
+    transition: 0.3s ease;
+}
+
+.agenda-form-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* === Title & Subtitle === */
+.agenda-title {
+    display: flex;
+    align-items: center;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--primary-color, #00695c);
+    margin-bottom: 10px;
+}
+
+.agenda-title i {
+    margin-right: 10px;
+    color: #009688;
+    font-size: 1.8rem;
+}
+
+.agenda-subtitle {
+    color: #6c757d;
+    font-size: 0.95rem;
+    margin-bottom: 25px;
+}
+
+/* === Label & Inputs === */
+.agenda-form-card label {
+    font-weight: 600;
+    color: #004d40;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.agenda-form-card input[type="text"],
+.agenda-form-card input[type="date"],
+.agenda-form-card input[type="time"],
+.agenda-form-card textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #fafafa;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+}
+
+.agenda-form-card input:focus,
+.agenda-form-card textarea:focus {
+    border-color: #009688;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(0,150,136,0.1);
+    outline: none;
+}
+
+.agenda-form-card textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* === Submit Button === */
+.agenda-form-card .btn-primary {
+    background-color: #009688;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    color: white;
+    box-shadow: 0 3px 6px rgba(0,150,136,0.3);
+}
+
+.agenda-form-card .btn-primary:hover {
+    background-color: #00796b;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(0,150,136,0.3);
+}
+
+/* === Login Prompt === */
+.agenda-form-card .btn-success {
+    background-color: #28a745;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 24px;
+    font-weight: 600;
+    color: white;
+    transition: 0.3s;
+}
+
+.agenda-form-card .btn-success:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+}
+
+/* === Responsiveness === */
+@media (max-width: 768px) {
+    .agenda-form-card {
+        padding: 30px 25px;
+    }
+    .agenda-title {
+        font-size: 1.4rem;
+    }
+}
+

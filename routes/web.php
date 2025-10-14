@@ -61,8 +61,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard/tahun', fn() => view('dashboard_tahun'))->name('dashboard.tahun');
 });
 
-
-
 // 🔹 AUTH ROUTES
 Route::get('/register', fn() => view('auth.register'))->name('register.form');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
@@ -73,8 +71,6 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/logout', [AuthController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
-
-
 
 // 🔹 PROFILE ROUTES
 Route::middleware('auth')->group(function () {
