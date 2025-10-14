@@ -16,7 +16,11 @@ Route::get('/landing', function (Request $request) {
     return view('landing', ['month' => $month]);
 });
 
-Route::get('/hari', fn() => view('landing_hari'))->name('landing.hari');
+Route::get('/hari', function (Illuminate\Http\Request $request) {
+    $tanggal = $request->query('tanggal');
+    return view('landing_hari', compact('tanggal'));
+});
+
 Route::get('/tahun', fn() => view('landing_tahun'))->name('landing.tahun');
 Route::get('/bulan', function (Request $request) {
     $bulanIndex = $request->query('bulan', null);
