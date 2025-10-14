@@ -18,7 +18,7 @@ class LandingController extends Controller
     public function getByMonth($year, $month)
     {
         $cacheKey = "agenda_month_{$year}_{$month}";
-        $agendas = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($year, $month) {
+        $agenda = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($year, $month) {
             return Agenda::query()
                 ->select('id', 'judul', 'tanggal', 'lokasi')
                 ->whereYear('tanggal', $year)
@@ -29,7 +29,7 @@ class LandingController extends Controller
                 ->get();
         });
 
-        return response()->json($agendas);
+        return response()->json($agenda);
     }
 
     // ambil semua agenda di tanggal tertentu (untuk modal show)
@@ -40,7 +40,7 @@ class LandingController extends Controller
             return response()->json(['error' => 'Format tanggal tidak valid.'], 400);
         }
 
-        $agendas = Agenda::query()
+        $agenda = Agenda::query()
             ->select('id', 'judul', 'tanggal', 'lokasi', 'jam_mulai', 'jam_selesai', 'deskripsi')
             ->whereDate('tanggal', $date)
             ->where('status', 'approved')
@@ -48,23 +48,23 @@ class LandingController extends Controller
             ->orderBy('jam_mulai', 'asc')
             ->get();
 
-        if ($agendas->isEmpty()) {
+        if ($agenda->isEmpty()) {
             return response()->json(['message' => 'Tidak ada agenda di tanggal ini.']);
         }
 
-        return response()->json($agendas);
+        return response()->json($agenda);
     }
 
     public function getByYear($year)
     {
-        $agendas = Agenda::select('id', 'judul', 'tanggal', 'lokasi')
+        $agenda = Agenda::select('id', 'judul', 'tanggal', 'lokasi')
             ->whereYear('tanggal', $year)
             ->where('status', 'approved')
             ->where('visibility', 'public')
             ->orderBy('tanggal', 'asc')
             ->get();
 
-        return response()->json($agendas);
+        return response()->json($agenda);
     }
 
 
@@ -77,7 +77,7 @@ class LandingController extends Controller
             return response()->json(['error' => 'Minimal 2 karakter untuk pencarian.'], 400);
         }
 
-        $agendas = Agenda::query()
+        $agenda = Agenda::query()
             ->select('id', 'judul', 'tanggal', 'lokasi')
             ->where('status', 'approved')
             ->where('visibility', 'public')
@@ -90,6 +90,6 @@ class LandingController extends Controller
             ->limit(50) // batasi biar gak berat
             ->get();
 
-        return response()->json($agendas);
+        return response()->json($agenda);
     }
 }
