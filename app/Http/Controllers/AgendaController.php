@@ -5,25 +5,46 @@ namespace App\Http\Controllers;
 use App\Models\Agenda;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class AgendaController extends Controller
 {
     /**
-     * Menampilkan semua agenda (untuk dashboard admin/user)
+     * ✅ Tampilkan daftar agenda di dashboard.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Bisa tambahkan filter kalau user biasa hanya lihat agenda miliknya
-        $agendas = Agenda::with(['user', 'approver'])
-            ->orderBy('date', 'desc')
-            ->get();
+        $year = $request->query('year', date('Y'));
+        $month = $request->query('month', date('m'));
 
-        return response()->json($agendas);
+        // Query dasar
+        $query = Agenda::with(['user', 'approver'])
+            ->whereYear('date', $year)
+            ->whereMonth('date', $month)
+            ->orderBy('date', 'desc');
+
+        // Jika user hanya ingin lihat agendanya sendiri
+        if ($request->query('only_my')) {
+            $query->where('id_user', Auth::id());
+        }
+
+        $agenda = $query->get();
+
+        // Jika request dari AJAX → JSON, kalau tidak → view biasa
+        if ($request->wantsJson() || $request->isJson()) {
+            return response()->json($agenda);
+        }
+
+        // kalau dashboard_bulan kamu pakai view biasa
+        return view('dashboard_bulan', compact('agenda', 'year', 'month'));
     }
 
-    /**
-     * Menyimpan agenda baru
-     */
+    public function create()
+    {
+        return view('agenda_create');
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -33,29 +54,45 @@ class AgendaController extends Controller
             'location' => 'nullable|string|max:255',
         ]);
 
-        $validated['id_user'] = Auth::id() ?? $request->id_user; // fallback kalau belum auth
-        $validated['status'] = 'pending';
+        try {
+            // ❗ Pastikan user id valid
+            $userId = Auth::id() ?: 1; // fallback user 1 (harus ada di users)
 
-        $agenda = Agenda::create($validated);
+            Agenda::create([
+                "agenda_name" => $validated['agenda_name'],
+                "description" => $validated['description'] ?? null,
+                "date" => $validated['date'],
+                "location" => $validated['location'] ?? null,
+                "status" => 'pending',
+                "id_user" => $userId,
+                "approved_by" => null,
+            ]);
 
-        return response()->json([
-            'message' => 'Agenda berhasil dibuat.',
-            'data' => $agenda
-        ], 201);
+            return redirect()
+                ->back()
+                ->with('success', 'Agenda berhasil ditambahkan ke database (status pending).');
+        } catch (\Throwable $e) {
+            Log::error('❌ Failed to save agenda: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return back()
+                ->withInput()
+                ->with('error', 'Gagal menambahkan agenda: ' . $e->getMessage());
+        }
     }
 
     /**
-     * Menampilkan satu agenda (detail)
+     * ✅ Lihat detail agenda (optional).
      */
     public function show($id)
     {
         $agenda = Agenda::with(['user', 'approver'])->findOrFail($id);
-
         return response()->json($agenda);
     }
 
     /**
-     * Memperbarui data agenda
+     * ✅ Update agenda.
      */
     public function update(Request $request, $id)
     {
@@ -69,29 +106,27 @@ class AgendaController extends Controller
             'status' => 'nullable|string|in:pending,approved,rejected',
         ]);
 
-        // Kalau admin update (misal approve), simpan approved_by
-        if ($request->status === 'approved' && Auth::check()) {
+        if (isset($validated['status']) && $validated['status'] === 'approved' && Auth::check()) {
             $validated['approved_by'] = Auth::id();
         }
 
         $agenda->update($validated);
 
-        return response()->json([
-            'message' => 'Agenda berhasil diperbarui.',
-            'data' => $agenda
-        ]);
+        return redirect()
+            ->back()
+            ->with('success', 'Agenda berhasil diperbarui.');
     }
 
     /**
-     * Menghapus agenda
+     * ✅ Hapus agenda.
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $agenda = Agenda::findOrFail($id);
         $agenda->delete();
 
-        return response()->json([
-            'message' => 'Agenda berhasil dihapus.'
-        ]);
+        return redirect()
+            ->back()
+            ->with('success', 'Agenda berhasil dihapus.');
     }
 }

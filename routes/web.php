@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\AgendaController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
@@ -59,9 +60,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ✅ Tambahkan halaman dashboard hari & tahun agar tidak not found
     Route::get('/dashboard/hari', fn() => view('dashboard_hari'))->name('dashboard.hari');
     Route::get('/dashboard/tahun', fn() => view('dashboard_tahun'))->name('dashboard.tahun');
+
+     // ✅ CRUD Agenda Controller (tempel di sini)
+   Route::prefix('dashboard')->group(function () {
+    Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
+    Route::get('/agenda/create', [AgendaController::class, 'create'])->name('agenda.create');
+    Route::post('/agenda', [AgendaController::class, 'store'])->name('agenda.store');
+    Route::get('/agenda/{id}', [AgendaController::class, 'show'])->name('agenda.show');
+    Route::put('/agenda/{id}', [AgendaController::class, 'update'])->name('agenda.update');
+    Route::delete('/agenda/{id}', [AgendaController::class, 'destroy'])->name('agenda.destroy');
+    });
 });
-
-
 
 // 🔹 AUTH ROUTES
 Route::get('/register', fn() => view('auth.register'))->name('register.form');
