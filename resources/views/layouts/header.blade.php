@@ -7,14 +7,23 @@
     </div>
 
     <div class="header-center">
+        @if (!request()->routeIs('approve'))
         <div class="search-container">
             <i class="fas fa-search search-icon"></i>
             <input type="text" placeholder="Search" class="search-input">
         </div>
+        @endif
     </div>
 
     <div class="header-right">
         @auth
+            {{-- Notification Bell Icon --}}
+            <div class="notification-bell">
+                <a href="{{ route('approve') }}" class="bell-link" title="Notifications">
+                    <i class="fas fa-bell"></i>
+                </a>
+            </div>
+            
             {{-- User Profile Section for authenticated users --}}
             <div class="user-profile-section">
                 <div class="user-profile" onclick="toggleDropdown()">
