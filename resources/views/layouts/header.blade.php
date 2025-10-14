@@ -16,6 +16,16 @@
     <div class="header-right">
         @auth
             {{-- User Profile Section for authenticated users --}}
+             {{-- Tombol Tambah Agenda (hanya tampil kalau login) --}}
+            <div class="add-agenda-btn" style="margin-right: 1rem;">
+                <button
+                    class="btn-create-agenda"
+                    title="Tambah Agenda"
+                    onclick="window.location.href='{{ route('agenda.create') }}'">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+            {{-- user profile section --}}
             <div class="user-profile-section">
                 <div class="user-profile" onclick="toggleDropdown()">
                     <div class="user-avatar">
@@ -34,7 +44,7 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                 </div>
-                
+
                 {{-- Dropdown Menu --}}
                 <div class="user-dropdown" id="userDropdown">
                     <div class="dropdown-item" onclick="window.location.href='{{ route('profile.edit') }}'">
