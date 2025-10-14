@@ -35,11 +35,10 @@
     <div class="agenda-section">
         <div class="section-title">
             <i class="fas fa-list"></i>
-            <span>Agenda</span>
+            <span>Kategori Agenda</span>
         </div>
 
         <div class="agenda-categories">
-            <div class="category-title">Kategori Agenda</div>
             <div class="category-item">
                 <input type="checkbox" id="public" checked>
                 <label for="public">
@@ -47,6 +46,15 @@
                     <span>Publik</span>
                 </label>
             </div>
+            @auth
+            <div class="category-item">
+                <input type="checkbox" id="private" checked>
+                <label for="private">
+                    <span class="category-dot private"></span>
+                    <span>Privasi</span>
+                </label>
+            </div>
+            @endauth
         </div>
     </div>
 </aside>
