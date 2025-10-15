@@ -10,9 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class AgendaController extends Controller
 {
-    /**
-     * ✅ Tampilkan daftar agenda di dashboard.
-     */
+    // tampilkan daftar agenda
     public function index(Request $request)
     {
         $year = $request->query('year', date('Y'));
@@ -40,11 +38,13 @@ class AgendaController extends Controller
         return view('dashboard_bulan', compact('agenda', 'year', 'month'));
     }
 
+    // ini buat munculin form create
     public function create()
     {
         return view('agenda_create');
     }
 
+    // ini buat simpan agenda
     public function store(Request $request)
     {
        // Validasi input
@@ -89,44 +89,63 @@ class AgendaController extends Controller
     }
     }
 
-    /**
-     * ✅ Lihat detail agenda (optional).
-     */
+    // lihat detail agenda (show)
     public function show($id)
     {
         $agenda = Agenda::with(['user', 'approver'])->findOrFail($id);
         return response()->json($agenda);
     }
 
-    /**
-     * ✅ Update agenda.
-     */
-    public function update(Request $request, $id)
+    //tampilkan form pengeditan
+    public function edit($id)
+    {
+        // Ambil data agenda sesuai ID
+        $agenda = Agenda::findOrFail($id);
+
+        // Kirim ke view edit
+        return view('agenda_edit', compact('agenda'));
+    }
+
+    //khusus simpan update-an form agenda yo
+   public function update(Request $request, $id)
     {
         $agenda = Agenda::findOrFail($id);
 
+        // Validasi input sama seperti store
         $validated = $request->validate([
-            'agenda_name' => 'sometimes|required|string|max:255',
+            'agenda_name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'date' => 'sometimes|required|date',
-            'location' => 'nullable|string|max:255',
+            'tanggal' => 'required|date',
+            'lokasi' => 'nullable|string|max:255',
+            'penanggung_jawab' => 'nullable|string|max:255',
+            'instansi_ikut' => 'nullable|string|max:255',
             'status' => 'nullable|string|in:pending,approved,rejected',
+            'waktu_pelaksanaan' => 'nullable|string|max:10', // tambahan kalau pakai field time
         ]);
 
-        if (isset($validated['status']) && $validated['status'] === 'approved' && Auth::check()) {
-            $validated['approved_by'] = Auth::id();
+        // Map ke field database
+        $agenda->agenda_name = $validated['agenda_name'];
+        $agenda->description = $validated['description'] ?? null;
+        $agenda->date = $validated['tanggal'];
+        $agenda->location = $validated['lokasi'] ?? null;
+        $agenda->person_in_charge = $validated['penanggung_jawab'] ?? null;
+        $agenda->involved_institution = $validated['instansi_ikut'] ?? null;
+        $agenda->time = $validated['waktu_pelaksanaan'] ?? null; // jika ada kolom waktu
+        $agenda->status = $validated['status'] ?? $agenda->status;
+
+        // Jika status diubah ke approved, set approved_by
+        if (($validated['status'] ?? '') === 'approved' && Auth::check()) {
+            $agenda->approved_by = Auth::id();
         }
 
-        $agenda->update($validated);
+        $agenda->save();
 
         return redirect()
             ->back()
             ->with('success', 'Agenda berhasil diperbarui.');
     }
 
-    /**
-     * ✅ Hapus agenda.
-     */
+    // ini buat hapus agenda ges
     public function destroy(Request $request, $id)
     {
         $agenda = Agenda::findOrFail($id);
