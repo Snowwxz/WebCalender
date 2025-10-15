@@ -6,25 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('agenda', function (Blueprint $table) {
-           $table->string('person_in_charge', 255)->after('location');
-           $table->string('involved_institution', 255)->after('person_in_charge');
-
+            $table->string('submitted_by')->nullable()->after('description'); // instansi yang mengajukan
+            $table->time('start_time')->nullable()->after('submitted_by'); // waktu mulai
+            $table->time('end_time')->nullable()->after('start_time'); // waktu selesai
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('agenda', function (Blueprint $table) {
-           $table->dropColumn(['person_in_charge', 'involved_institution']);
+            $table->dropColumn(['submitted_by', 'start_time', 'end_time']);
         });
     }
 };

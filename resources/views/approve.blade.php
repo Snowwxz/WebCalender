@@ -74,14 +74,36 @@
                         @foreach ($agendas as $agenda)
                             <div class="approval-card">
                                 <h3>{{ $agenda->agenda_name }}</h3>
-                                <p><strong>Tanggal:</strong>
-                                    {{ \Carbon\Carbon::parse($agenda->date)->format('d M Y') }}</p>
-                                <p><strong>Lokasi:</strong> {{ $agenda->location ?? '-' }}</p>
+
+                                <p><strong>Deskripsi:</strong> {{ $agenda->description ?? '-' }}</p>
+
+                                <p><strong>Nama Instansi (Pengaju):</strong> {{ $agenda->submitted_by ?? '-' }}</p>
+
                                 <p><strong>Penanggung Jawab:</strong> {{ $agenda->person_in_charge ?? '-' }}</p>
+
+                                <p><strong>Tanggal:</strong>
+                                    {{ \Carbon\Carbon::parse($agenda->date)->format('d M Y') }}
+                                </p>
+
+                                <p><strong>Waktu Pelaksanaan:</strong>
+                                    @if ($agenda->start_time && $agenda->end_time)
+                                        {{ \Carbon\Carbon::parse($agenda->start_time)->format('H:i') }} -
+                                        {{ \Carbon\Carbon::parse($agenda->end_time)->format('H:i') }}
+                                    @elseif($agenda->start_time)
+                                        {{ \Carbon\Carbon::parse($agenda->start_time)->format('H:i') }}
+                                    @else
+                                        -
+                                    @endif
+                                </p>
+
+                                <p><strong>Lokasi:</strong> {{ $agenda->location ?? '-' }}</p>
+
                                 <p><strong>Instansi Terlibat:</strong> {{ $agenda->involved_institution ?? '-' }}</p>
+
                                 <p><strong>Status:</strong>
                                     <span class="badge">{{ ucfirst($agenda->status) }}</span>
                                 </p>
+
                                 <div class="approval-actions">
                                     <form action="{{ route('agenda.update', $agenda->id_agenda) }}" method="POST">
                                         @csrf
