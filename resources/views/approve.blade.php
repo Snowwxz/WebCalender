@@ -34,23 +34,24 @@
                             <a href="{{ route('approve', ['status' => 'all']) }}"
                                 class="status-tab {{ $status === 'all' ? 'active' : '' }}">
                                 <span>Semua</span>
-                                <span class="badge">0</span>
+                                <span class="badge">{{ $countAll }}</span>
                             </a>
                             <a href="{{ route('approve', ['status' => 'pending']) }}"
                                 class="status-tab {{ $status === 'pending' ? 'active' : '' }}">
                                 <span>Menunggu</span>
-                                <span class="badge">0</span>
+                                <span class="badge">{{ $countPending }}</span>
                             </a>
                             <a href="{{ route('approve', ['status' => 'approved']) }}"
                                 class="status-tab {{ $status === 'approved' ? 'active' : '' }}">
                                 <span>Disetujui</span>
-                                <span class="badge">0</span>
+                                <span class="badge">{{ $countApproved }}</span>
                             </a>
                             <a href="{{ route('approve', ['status' => 'rejected']) }}"
                                 class="status-tab {{ $status === 'rejected' ? 'active' : '' }}">
                                 <span>Ditolak</span>
-                                <span class="badge">0</span>
+                                <span class="badge">{{ $countRejected }}</span>
                             </a>
+
                         </div>
                     </div>
 
