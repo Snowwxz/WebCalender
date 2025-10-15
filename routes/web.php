@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
 
-
 // 🔹 LANDING & PUBLIC ROUTES
 Route::get('/', [LandingController::class, 'index'])->name('landing.index');
 

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
     <div class="app-container">
         @include('layouts.header')
@@ -18,12 +20,13 @@
                 <div style="position: relative; text-align: center; margin-bottom: 8px;">
                     <!-- Tombol kembali -->
                     <a href="{{ route('dashboard') }}"
-                       style="color:#333;font-size:1.3rem;position:absolute;left:0;top:50%;transform:translateY(-50%);">
+                        style="color:#6E9579;font-size:1.3rem;position:absolute;left:0;top:50%;transform:translateY(-50%);">
                         <i class="fas fa-arrow-left"></i>
                     </a>
 
-                    <!-- Judul -->
-                    <div class="agenda-title" style="display:inline-block; font-weight:600; font-size:1.4rem; color:#333;">
+                    <!-- Judul di tengah -->
+                    <div class="agenda-title"
+                        style="display:inline-block; font-weight:600; font-size:1.4rem; color:#333;">
                         <i class="fas fa-calendar-plus"></i> Sistem Pengajuan Agenda
                     </div>
                 </div>
@@ -55,7 +58,8 @@
 
                             <div class="input-group">
                                 <label><i class="fas fa-user-tie"></i> Penanggung Jawab</label>
-                                <input type="text" name="person_in_charge" placeholder="Masukkan nama penanggung jawab">
+                                <input type="text" name="penanggung_jawab"
+                                    placeholder="Masukkan nama penanggung jawab">
                             </div>
                         </div>
 
@@ -63,17 +67,17 @@
                         <div class="form-column">
                             <div class="input-group">
                                 <label><i class="fas fa-calendar-day"></i> Tanggal</label>
-                                <input type="date" name="date" required>
+                                <input type="date" name="tanggal" required>
                             </div>
 
                             <div class="input-group">
-                                <label><i class="fas fa-clock"></i> Waktu Mulai</label>
-                                <input type="time" name="start_time">
+                                <label><i class="fas fa-clock"></i> Waktu Pelaksanaan</label>
+                                <input type="time" name="waktu_pelaksanaan">
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-clock"></i> Waktu Selesai</label>
-                                <input type="time" name="end_time">
+                                <input type="time" name="waktu_pelaksanaan">
                             </div>
 
                             <div class="input-group">
@@ -95,5 +99,7 @@
             </div>
         </div>
     </div>
+
 </body>
+
 </html>
