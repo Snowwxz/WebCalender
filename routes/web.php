@@ -3,6 +3,8 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\AgendaController;
+use App\Http\Controllers\ApproveController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
@@ -16,7 +18,11 @@ Route::get('/landing', function (Request $request) {
     return view('landing', ['month' => $month]);
 });
 
-Route::get('/hari', fn() => view('landing_hari'))->name('landing.hari');
+Route::get('/hari', function (Illuminate\Http\Request $request) {
+    $tanggal = $request->query('tanggal');
+    return view('landing_hari', compact('tanggal'));
+});
+
 Route::get('/tahun', fn() => view('landing_tahun'))->name('landing.tahun');
 Route::get('/bulan', function (Request $request) {
     $bulanIndex = $request->query('bulan', null);
@@ -59,9 +65,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ✅ Tambahkan halaman dashboard hari & tahun agar tidak not found
     Route::get('/dashboard/hari', fn() => view('dashboard_hari'))->name('dashboard.hari');
     Route::get('/dashboard/tahun', fn() => view('dashboard_tahun'))->name('dashboard.tahun');
+
+    // ✅ CRUD Agenda Controller (tempel di sini)
+    Route::prefix('dashboard')->group(function () {
+        Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
+        Route::get('/agenda/create', [AgendaController::class, 'create'])->name('agenda.create');
+        Route::post('/agenda', [AgendaController::class, 'store'])->name('agenda.store');
+        Route::get('/agenda/{id}', [AgendaController::class, 'show'])->name('agenda.show');
+        Route::put('/agenda/{id}', [AgendaController::class, 'update'])->name('agenda.update');
+        Route::delete('/agenda/{id}', [AgendaController::class, 'destroy'])->name('agenda.destroy');
+    });
 });
-
-
 
 // 🔹 AUTH ROUTES
 Route::get('/register', fn() => view('auth.register'))->name('register.form');
@@ -74,11 +88,13 @@ Route::post('/logout', [AuthController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
 
-
-
 // 🔹 PROFILE ROUTES
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // 🔔 APPROVE ROUTE
+    Route::get('/approve', [ApproveController::class, 'index'])->name('approve');
+    Route::put('/approve/agenda/{id}', [AgendaController::class, 'update'])->name('approve.update');
 });

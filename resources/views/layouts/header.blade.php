@@ -7,19 +7,39 @@
     </div>
 
     <div class="header-center">
+        @if (!request()->routeIs('approve'))
         <div class="search-container">
             <i class="fas fa-search search-icon"></i>
             <input type="text" placeholder="Search" class="search-input">
         </div>
+        @endif
     </div>
 
     <div class="header-right">
         @auth
+            {{-- Notification Bell Icon --}}
+            <div class="notification-bell">
+                <a href="{{ route('approve') }}" class="bell-link" title="Notifications">
+                    <i class="fas fa-bell"></i>
+                </a>
+            </div>
+            
             {{-- User Profile Section for authenticated users --}}
+           {{-- Tombol Tambah Agenda (hanya tampil kalau login) --}}
+        <div class="add-agenda-btn" style="margin-right: 1rem;">
+            <button
+                class="btn-create-agenda"
+                title="Tambah Agenda"
+                onclick="window.location.href='{{ route('agenda.create') }}'">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+
+            {{-- user profile section --}}
             <div class="user-profile-section">
                 <div class="user-profile" onclick="toggleDropdown()">
                     <div class="user-avatar">
-                        @if(Auth::user()->profile_photo_path)
+                        @if (Auth::user()->profile_photo_path)
                             <img src="{{ Auth::user()->profile_photo_path }}" alt="Profile" class="profile-image">
                         @else
                             <div class="profile-initials">{{ substr(Auth::user()->name, 0, 2) }}</div>
@@ -34,7 +54,7 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                 </div>
-                
+
                 {{-- Dropdown Menu --}}
                 <div class="user-dropdown" id="userDropdown">
                     <div class="dropdown-item" onclick="window.location.href='{{ route('profile.edit') }}'">
