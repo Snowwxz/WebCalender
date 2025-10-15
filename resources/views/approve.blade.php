@@ -73,28 +73,69 @@
                     <div class="approval-list">
                         @foreach ($agendas as $agenda)
                             <div class="approval-card">
-                                <h3>{{ $agenda->agenda_name }}</h3>
-                                <p><strong>Tanggal:</strong>
-                                    {{ \Carbon\Carbon::parse($agenda->date)->format('d M Y') }}</p>
-                                <p><strong>Lokasi:</strong> {{ $agenda->location ?? '-' }}</p>
-                                <p><strong>Penanggung Jawab:</strong> {{ $agenda->person_in_charge ?? '-' }}</p>
-                                <p><strong>Instansi Terlibat:</strong> {{ $agenda->involved_institution ?? '-' }}</p>
-                                <p><strong>Status:</strong>
-                                    <span class="badge">{{ ucfirst($agenda->status) }}</span>
-                                </p>
-                                <div class="approval-actions">
-                                    <form action="{{ route('agenda.update', $agenda->id_agenda) }}" method="POST">
-                                        @csrf
-                                        @method('PUT')
-                                        <input type="hidden" name="status" value="approved">
-                                        <button type="submit" class="btn-approve">Setujui</button>
-                                    </form>
-                                    <form action="{{ route('agenda.update', $agenda->id_agenda) }}" method="POST">
-                                        @csrf
-                                        @method('PUT')
-                                        <input type="hidden" name="status" value="rejected">
-                                        <button type="submit" class="btn-reject">Tolak</button>
-                                    </form>
+                                <div class="card-header">
+                                    <div class="card-title-section">
+                                        <h3 class="card-title">{{ $agenda->agenda_name }}</h3>
+                                        <p class="card-description">{{ $agenda->description ?? 'Tidak ada deskripsi' }}</p>
+                                    </div>
+                                    <div class="status-badge {{ $agenda->approval_status }}">
+                                        {{ ucfirst($agenda->approval_status) }}
+                                    </div>
+                                </div>
+                                
+                                <div class="card-content">
+                                    <div class="details-grid">
+                                        <div class="details-left">
+                                            <div class="detail-item">
+                                                <i class="fas fa-calendar-alt"></i>
+                                                <span>{{ \Carbon\Carbon::parse($agenda->date)->format('l, d F Y') }}</span>
+                                            </div>
+                                            <div class="detail-item participants">
+                                                <i class="fas fa-building"></i>
+                                                <span>{{ $agenda->involved_institution ?? 'Peserta belum ditentukan' }}</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="details-right">
+                                            <div class="detail-item">
+                                                <i class="fas fa-clock"></i>
+                                                <span>{{ $agenda->start_time ?? '09.00' }} - {{ $agenda->end_time ?? '11.00' }} WITA</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <i class="fas fa-map-marker-alt"></i>
+                                                <span>{{ $agenda->location ?? 'Lokasi belum ditentukan' }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card-footer">
+                                    <div class="submission-info">
+                                        <i class="fas fa-user"></i>
+                                        <span>{{ $agenda->user->name ?? 'Unknown User' }}</span>
+                                        <span class="submission-time">{{ $agenda->created_at->diffForHumans() }}</span>
+                                    </div>
+                                    
+                                    <div class="approval-actions">
+                                        <form action="{{ route('approve.update', $agenda->id_agenda) }}" method="POST" class="action-form">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="approval_status" value="rejected">
+                                            <button type="submit" class="btn-reject">
+                                                <i class="fas fa-times"></i>
+                                                Tolak
+                                            </button>
+                                        </form>
+                                        <form action="{{ route('approve.update', $agenda->id_agenda) }}" method="POST" class="action-form">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="approval_status" value="approved">
+                                            <button type="submit" class="btn-approve">
+                                                <i class="fas fa-check"></i>
+                                                Setujui
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         @endforeach

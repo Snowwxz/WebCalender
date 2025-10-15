@@ -1358,3 +1358,368 @@
                 min-width: 0;
        }
     }
+
+    .agenda-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 60px 20px;
+    background: #f3f4f6;
+    min-height: calc(100vh - 150px);
+}
+
+.agenda-form-card {
+    background: #ffffff;
+    padding: 45px 50px;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 950px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.agenda-form-card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.agenda-title {
+    display: flex;
+    align-items: center;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 6px;
+}
+
+.agenda-title i {
+    margin-right: 10px;
+    color: #444;
+    font-size: 1.6rem;
+}
+
+.agenda-subtitle {
+    color: #6c757d;
+    margin-bottom: 35px;
+    font-size: 0.95rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px 50px;
+}
+
+.input-group {
+    margin-bottom: 18px;
+}
+
+.input-group label {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 6px;
+}
+
+.input-group label i {
+    margin-right: 8px;
+    color: #495057;
+}
+
+.agenda-form-card input[type="text"],
+.agenda-form-card input[type="date"],
+.agenda-form-card input[type="time"],
+.agenda-form-card textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #dcdcdc;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.agenda-form-card input:focus,
+.agenda-form-card textarea:focus {
+    border-color: #007bff;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+    outline: none;
+}
+
+.agenda-form-card textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.btn-primary {
+    background: #5c636a;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 30px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn-primary:hover {
+    background: #3d4145;
+    transform: translateY(-2px);
+}
+
+body, input, textarea, button, label {
+    font-family: 'Poppins', sans-serif !important;
+}
+
+input[name="instansi_ikut"] {
+    min-height: 90px; /* sama kayak deskripsi */
+    resize: none;
+    padding: 12px 15px;
+    border: 1px solid #dcdcdc;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+input[name="instansi_ikut"]:focus {
+    border-color: #007bff;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+    outline: none;
+}
+
+.agenda-subtitle {
+    color: #6c757d;
+    margin-top: 8px;
+    margin-bottom: 45px;
+    font-size: 0.95rem;
+    text-align: center;
+}
+
+
+/* === SUBMIT AREA === */
+.form-submit {
+    text-align: center;
+    margin-top: 30px;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .agenda-form-card {
+        padding: 30px 25px;
+    }
+}
+
+.btn-create-agenda {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: #f8f9fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 50%;
+    color: #6b7280;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    position: relative;
+    font-size: 16px;
+}
+
+.btn-create-agenda:hover {
+    background: #e9ecef;
+    color: #374151;
+    border-color: #d1d5db;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* New Card Design */
+.approval-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.approval-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease;
+}
+
+.approval-card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.card-title-section {
+    flex: 1;
+}
+
+.card-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+.card-description {
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-badge.approved {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-badge.rejected {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.card-content {
+    margin-bottom: 20px;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.details-left, .details-right {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 14px;
+    color: #374151;
+}
+
+.detail-item i {
+    color: #9ca3af;
+    width: 16px;
+    text-align: center;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.detail-item span {
+    line-height: 1.4;
+}
+
+.detail-item.participants span {
+    line-height: 1.4;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 16px;
+    border-top: 1px solid #f3f4f6;
+}
+
+.submission-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.submission-info i {
+    color: #9ca3af;
+}
+
+.submission-time {
+    margin-left: 4px;
+}
+
+.action-form {
+    margin: 0;
+}
+
+.btn-approve, .btn-reject {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.btn-approve {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-approve:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+}
+
+.btn-reject {
+    background: white;
+    color: #ef4444;
+    border: 1px solid #ef4444;
+}
+
+.btn-reject:hover {
+    background: #fef2f2;
+    transform: translateY(-1px);
+}
+
+.btn-approve i, .btn-reject i {
+    font-size: 12px;
+}
+
+.approval-actions {
+    display: flex;
+    gap: 12px;
+}

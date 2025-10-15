@@ -95,7 +95,7 @@
             calendarDays.appendChild(dayElement);
         }
     }
-
+    
     // Change month
     function changeMonth(direction) {
         currentDate.setMonth(currentDate.getMonth() + direction);
