@@ -13,16 +13,29 @@ class Agenda extends Model
     protected $primaryKey = 'id_agenda';
     protected $guarded = [];
 
-    // Relasi ke user (Many to One)
+    /**
+     * ✅ Konversi otomatis tipe data tanggal & jam
+     * Agar mudah diformat dan diolah di Blade dengan Carbon.
+     */
+    protected $casts = [
+        'date' => 'date',
+        'start_time' => 'datetime:H:i',
+        'end_time' => 'datetime:H:i',
+    ];
+
+    /**
+     * ✅ Relasi ke user (pembuat agenda)
+     */
     public function user()
     {
         return $this->belongsTo(User::class, 'id_user', 'id_user');
     }
 
-    // Relasi ke user yang menyetujui (optional)
+    /**
+     * ✅ Relasi ke user yang menyetujui (admin)
+     */
     public function approver()
     {
         return $this->belongsTo(User::class, 'approved_by', 'id_user');
     }
 }
-

@@ -1353,19 +1353,18 @@ body {
     text-align: center;
 }
 
-@media (max-width: 768px) {
-    .approval-page {
-        padding: 0 4px;
+        @media (max-width: 768px) {
+            .approval-page {
+                padding: 0 4px;
+            }
+            .approval-search {
+                width: 100%;
+                max-width: 100%;
+                min-width: 0;
+       }
     }
 
-    .approval-search {
-        width: 100%;
-        max-width: 100%;
-        min-width: 0;
-    }
-}
-
-.agenda-container {
+    .agenda-container {
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -1450,7 +1449,7 @@ body {
 .agenda-form-card textarea:focus {
     border-color: #007bff;
     background-color: #fff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
     outline: none;
 }
 
@@ -1468,7 +1467,7 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .btn-primary:hover {
@@ -1476,17 +1475,12 @@ body {
     transform: translateY(-2px);
 }
 
-body,
-input,
-textarea,
-button,
-label {
+body, input, textarea, button, label {
     font-family: 'Poppins', sans-serif !important;
 }
 
 input[name="instansi_ikut"] {
-    min-height: 90px;
-    /* sama kayak deskripsi */
+    min-height: 90px; /* sama kayak deskripsi */
     resize: none;
     padding: 12px 15px;
     border: 1px solid #dcdcdc;
@@ -1499,7 +1493,7 @@ input[name="instansi_ikut"] {
 input[name="instansi_ikut"]:focus {
     border-color: #007bff;
     background-color: #fff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
     outline: none;
 }
 
@@ -1633,8 +1627,7 @@ input[name="instansi_ikut"]:focus {
     gap: 24px;
 }
 
-.details-left,
-.details-right {
+.details-left, .details-right {
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -1692,8 +1685,7 @@ input[name="instansi_ikut"]:focus {
     margin: 0;
 }
 
-.btn-approve,
-.btn-reject {
+.btn-approve, .btn-reject {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -1728,8 +1720,7 @@ input[name="instansi_ikut"]:focus {
     transform: translateY(-1px);
 }
 
-.btn-approve i,
-.btn-reject i {
+.btn-approve i, .btn-reject i {
     font-size: 12px;
 }
 
