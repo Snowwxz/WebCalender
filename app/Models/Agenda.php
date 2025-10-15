@@ -13,6 +13,13 @@ class Agenda extends Model
     protected $primaryKey = 'id_agenda';
     protected $guarded = [];
 
+    // biar date bisa di olah
+      protected $casts = [
+        'date' => 'date',
+        'start_time' => 'datetime:H:i',
+        'end_time' => 'datetime:H:i',
+    ];
+
     // Relasi ke user (Many to One)
     public function user()
     {

@@ -66,10 +66,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
     Route::get('/agenda/create', [AgendaController::class, 'create'])->name('agenda.create');
     Route::post('/agenda', [AgendaController::class, 'store'])->name('agenda.store');
-    Route::get('/agenda/{id}', [AgendaController::class, 'show'])->name('agenda.show');
-    Route::get('/agenda/{id}/edit', [AgendaController::class, 'edit'])->name('agenda.edit');
-    Route::put('/agenda/{id}', [AgendaController::class, 'update'])->name('agenda.update');
-    Route::delete('/agenda/{id}', [AgendaController::class, 'destroy'])->name('agenda.destroy');
+    Route::get('/agenda/{id_agenda}', [AgendaController::class, 'show'])->name('agenda.show');
+    Route::get('/agenda/{id_agenda}/edit', [AgendaController::class, 'edit'])->name('agenda.edit');
+    Route::put('/agenda/{id_agenda}', [AgendaController::class, 'update'])->name('agenda.update');
+    Route::delete('/agenda/{id_agenda}', [AgendaController::class, 'destroy'])->name('agenda.destroy');
+
+    // notifikasi user
+    Route::get('notification', [AgendaController::class, 'notification'])
+    ->name('agenda.notification');
     });
 });
 
