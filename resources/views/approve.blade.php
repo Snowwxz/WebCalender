@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
     <div class="app-container">
         @include('layouts.header')
@@ -15,31 +17,37 @@
             <div class="approval-page">
                 <div class="approval-header">
                     <div>
-                        <a href="{{ route('dashboard.bulan') }}" title="Kembali ke Dashboard" aria-label="Kembali ke Dashboard">
+                        <a href="{{ route('dashboard.bulan') }}" title="Kembali ke Dashboard"
+                            aria-label="Kembali ke Dashboard">
                             <i class="fas fa-arrow-left"></i>
                         </a>
                     </div>
                     <div class="title-wrap">
                         <h1 class="page-title">Kelola Agenda Kegiatan</h1>
-                        <p class="page-subtitle">Tinjau dan setujui proposal agenda kegiatan dari berbagai dinas dan instansi.</p>
+                        <p class="page-subtitle">Tinjau dan setujui proposal agenda kegiatan dari berbagai dinas dan
+                            instansi.</p>
                     </div>
 
                     @php($status = request('status', 'all'))
                     <div class="status-tabs-wrap">
                         <div class="status-tabs">
-                            <a href="{{ route('approve', ['status' => 'all']) }}" class="status-tab {{ $status === 'all' ? 'active' : '' }}">
+                            <a href="{{ route('approve', ['status' => 'all']) }}"
+                                class="status-tab {{ $status === 'all' ? 'active' : '' }}">
                                 <span>Semua</span>
                                 <span class="badge">0</span>
                             </a>
-                            <a href="{{ route('approve', ['status' => 'pending']) }}" class="status-tab {{ $status === 'pending' ? 'active' : '' }}">
+                            <a href="{{ route('approve', ['status' => 'pending']) }}"
+                                class="status-tab {{ $status === 'pending' ? 'active' : '' }}">
                                 <span>Menunggu</span>
                                 <span class="badge">0</span>
                             </a>
-                            <a href="{{ route('approve', ['status' => 'approved']) }}" class="status-tab {{ $status === 'approved' ? 'active' : '' }}">
+                            <a href="{{ route('approve', ['status' => 'approved']) }}"
+                                class="status-tab {{ $status === 'approved' ? 'active' : '' }}">
                                 <span>Disetujui</span>
                                 <span class="badge">0</span>
                             </a>
-                            <a href="{{ route('approve', ['status' => 'rejected']) }}" class="status-tab {{ $status === 'rejected' ? 'active' : '' }}">
+                            <a href="{{ route('approve', ['status' => 'rejected']) }}"
+                                class="status-tab {{ $status === 'rejected' ? 'active' : '' }}">
                                 <span>Ditolak</span>
                                 <span class="badge">0</span>
                             </a>
@@ -53,13 +61,45 @@
                     </form>
                 </div>
 
-                <div class="approval-empty">
-                    <div class="empty-icon">
-                        <i class="fas fa-inbox"></i>
+                @if ($agendas->isEmpty())
+                    <div class="approval-empty">
+                        <div class="empty-icon">
+                            <i class="fas fa-inbox"></i>
+                        </div>
+                        <h2>Belum ada pengajuan agenda</h2>
+                        <p>Pengajuan agenda yang sudah dibuat akan muncul di sini untuk ditinjau.</p>
                     </div>
-                    <h2>Belum ada pengajuan agenda</h2>
-                    <p>Pengajuan agenda yang sudah dibuat akan muncul di sini untuk ditinjau.</p>
-                </div>
+                @else
+                    <div class="approval-list">
+                        @foreach ($agendas as $agenda)
+                            <div class="approval-card">
+                                <h3>{{ $agenda->agenda_name }}</h3>
+                                <p><strong>Tanggal:</strong>
+                                    {{ \Carbon\Carbon::parse($agenda->date)->format('d M Y') }}</p>
+                                <p><strong>Lokasi:</strong> {{ $agenda->location ?? '-' }}</p>
+                                <p><strong>Penanggung Jawab:</strong> {{ $agenda->person_in_charge ?? '-' }}</p>
+                                <p><strong>Instansi Terlibat:</strong> {{ $agenda->involved_institution ?? '-' }}</p>
+                                <p><strong>Status:</strong>
+                                    <span class="badge">{{ ucfirst($agenda->status) }}</span>
+                                </p>
+                                <div class="approval-actions">
+                                    <form action="{{ route('agenda.update', $agenda->id_agenda) }}" method="POST">
+                                        @csrf
+                                        @method('PUT')
+                                        <input type="hidden" name="status" value="approved">
+                                        <button type="submit" class="btn-approve">Setujui</button>
+                                    </form>
+                                    <form action="{{ route('agenda.update', $agenda->id_agenda) }}" method="POST">
+                                        @csrf
+                                        @method('PUT')
+                                        <input type="hidden" name="status" value="rejected">
+                                        <button type="submit" class="btn-reject">Tolak</button>
+                                    </form>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </main>
     </div>
@@ -81,4 +121,5 @@
         });
     </script>
 </body>
+
 </html>

@@ -95,5 +95,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // 🔔 APPROVE ROUTE
-    Route::get('/approve', fn() => view('approve'))->name('approve');
+    Route::get('/approve', [ApproveController::class, 'index'])->name('approve');
+    Route::put('/approve/agenda/{id}', [AgendaController::class, 'update'])->name('approve.update');
 });
