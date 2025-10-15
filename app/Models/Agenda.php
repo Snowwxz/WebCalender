@@ -11,15 +11,7 @@ class Agenda extends Model
 
     protected $table = 'agenda';
     protected $primaryKey = 'id_agenda';
-    protected $fillable = [
-        'agenda_name',
-        'description',
-        'date',
-        'location',
-        'status',
-        'id_user',
-        'approved_by',
-    ];
+    protected $guarded = [];
 
     // Relasi ke user (Many to One)
     public function user()

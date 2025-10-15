@@ -1112,3 +1112,200 @@ body {
         padding: 2px 3px;
     }
 }
+
+.agenda-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 60px 20px;
+    background: #f3f4f6;
+    min-height: calc(100vh - 150px);
+}
+
+.agenda-form-card {
+    background: #ffffff;
+    padding: 45px 50px;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 950px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.agenda-form-card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.agenda-title {
+    display: flex;
+    align-items: center;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 6px;
+}
+
+.agenda-title i {
+    margin-right: 10px;
+    color: #444;
+    font-size: 1.6rem;
+}
+
+.agenda-subtitle {
+    color: #6c757d;
+    margin-bottom: 35px;
+    font-size: 0.95rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px 50px;
+}
+
+.input-group {
+    margin-bottom: 18px;
+}
+
+.input-group label {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 6px;
+}
+
+.input-group label i {
+    margin-right: 8px;
+    color: #495057;
+}
+
+.agenda-form-card input[type="text"],
+.agenda-form-card input[type="date"],
+.agenda-form-card input[type="time"],
+.agenda-form-card textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #dcdcdc;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.agenda-form-card input:focus,
+.agenda-form-card textarea:focus {
+    border-color: #007bff;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+    outline: none;
+}
+
+.agenda-form-card textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.btn-primary {
+    background: #5c636a;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 30px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn-primary:hover {
+    background: #3d4145;
+    transform: translateY(-2px);
+}
+
+body, input, textarea, button, label {
+    font-family: 'Poppins', sans-serif !important;
+}
+
+input[name="instansi_ikut"] {
+    min-height: 90px; /* sama kayak deskripsi */
+    resize: none;
+    padding: 12px 15px;
+    border: 1px solid #dcdcdc;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+input[name="instansi_ikut"]:focus {
+    border-color: #007bff;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+    outline: none;
+}
+
+.agenda-subtitle {
+    color: #6c757d;
+    margin-top: 8px;
+    margin-bottom: 45px;
+    font-size: 0.95rem;
+    text-align: center;
+}
+
+
+/* === SUBMIT AREA === */
+.form-submit {
+    text-align: center;
+    margin-top: 30px;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .agenda-form-card {
+        padding: 30px 25px;
+    }
+}
+
+.btn-create-agenda {
+    position: relative;
+    background: none;
+    border: none;
+    color: #4a2c2c;
+    font-size: 1.5rem;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+}
+
+.btn-create-agenda::after {
+    content: "";
+    position: absolute;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background-color: rgba(74, 44, 44, 0.08); /* lingkaran SELALU ADA */
+    opacity: 1; /* selalu terlihat */
+    transition: background-color 0.25s ease, transform 0.25s ease;
+    z-index: -1;
+}
+
+.btn-create-agenda:hover::after {
+    background-color: rgba(74, 44, 44, 0.15); /* lebih tebal saat hover */
+    transform: scale(1.1);
+}
+
+.btn-create-agenda:hover {
+    color: #7a3f3f;
+    transform: scale(1.08);
+}
