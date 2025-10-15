@@ -112,6 +112,10 @@
                 profile.classList.remove('active');
             }
         });
+
+        function getel(id) {
+            return document.getElementById(id);
+        }
     </script>
 </body>
 </html>

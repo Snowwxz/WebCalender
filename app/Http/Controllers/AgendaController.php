@@ -51,10 +51,10 @@ class AgendaController extends Controller
     $validated = $request->validate([
         'agenda_name' => 'required|string|max:255',
         'description' => 'nullable|string',
-        'tanggal' => 'required|date',
-        'lokasi' => 'nullable|string|max:255',
-        'penanggung_jawab' => 'nullable|string|max:255',
-        'instansi_ikut' => 'nullable|string|max:255',
+        'date' => 'required|date',
+        'location' => 'nullable|string|max:255',
+        'person_in_charge' => 'nullable|string|max:255',
+        'involved_institution' => 'nullable|string|max:255',
     ]);
 
     try {
