@@ -7,24 +7,23 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Tambahkan kolom start_time dan end_time ke tabel agenda.
      */
     public function up(): void
     {
         Schema::table('agenda', function (Blueprint $table) {
-           $table->string('person_in_charge', 255)->after('location');
-           $table->string('involved_institution', 255)->after('person_in_charge');
-
+            $table->time('start_time')->nullable()->after('date');
+            $table->time('end_time')->nullable()->after('start_time');
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Hapus kolom jika rollback.
      */
     public function down(): void
     {
         Schema::table('agenda', function (Blueprint $table) {
-           $table->dropColumn(['person_in_charge', 'involved_institution']);
+            $table->dropColumn(['start_time', 'end_time']);
         });
     }
 };
