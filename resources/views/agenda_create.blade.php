@@ -18,7 +18,7 @@
 
                 <!-- Bagian header -->
                 <div style="position: relative; text-align: center; margin-bottom: 8px;">
-                    <!-- Tombol kembali di kiri -->
+                    <!-- Tombol kembali -->
                     <a href="{{ route('dashboard') }}"
                         style="color:#6E9579;font-size:1.3rem;position:absolute;left:0;top:50%;transform:translateY(-50%);">
                         <i class="fas fa-arrow-left"></i>
@@ -52,8 +52,8 @@
                             </div>
 
                             <div class="input-group">
-                                <label><i class="fas fa-building"></i> Nama Instansi</label>
-                                <input type="text" name="nama_instansi" placeholder="Masukkan nama instansi">
+                                <label><i class="fas fa-building"></i> Nama Instansi (Pengaju)</label>
+                                <input type="text" name="submitted_by" placeholder="Masukkan nama instansi pengaju">
                             </div>
 
                             <div class="input-group">
@@ -83,12 +83,12 @@
 
                             <div class="input-group">
                                 <label><i class="fas fa-location-dot"></i> Lokasi</label>
-                                <input type="text" name="lokasi" placeholder="Masukkan lokasi anda">
+                                <input type="text" name="location" placeholder="Masukkan lokasi kegiatan">
                             </div>
 
                             <div class="input-group">
-                                <label><i class="fas fa-people-group"></i> Instansi yang ikut serta</label>
-                                <textarea name="instansi_ikut" placeholder="Masukkan instansi yang akan ikut serta"></textarea>
+                                <label><i class="fas fa-people-group"></i> Instansi yang Ikut Serta</label>
+                                <textarea name="involved_institution" placeholder="Masukkan instansi yang akan ikut serta"></textarea>
                             </div>
                         </div>
                     </div>
@@ -100,6 +100,47 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Toggle sidebar
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+        }
+
+        // Switch view
+        function switchView(view) {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // User dropdown functionality
+        function toggleDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            const profile = document.querySelector('.user-profile');
+
+            if (dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+                profile.classList.remove('active');
+            } else {
+                dropdown.classList.add('show');
+                profile.classList.add('active');
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const profileSection = document.querySelector('.user-profile-section');
+            const dropdown = document.getElementById('userDropdown');
+            const profile = document.querySelector('.user-profile');
+
+            if (profileSection && !profileSection.contains(event.target)) {
+                dropdown.classList.remove('show');
+                profile.classList.remove('active');
+            }
+        });
+    </script>
 
 </body>
 
