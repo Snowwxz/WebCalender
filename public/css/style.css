@@ -419,10 +419,9 @@ body {
 }
 
 .sidebar .nav-tab.active {
-    background: rgba(182, 206, 180, 0.7); /* lebih pudar */
+    background: rgba(182, 206, 180, 0.7);
     font-weight: 600;
 }
-
 
 .sidebar.collapsed .nav-tabs {
     flex-direction: column;
@@ -1239,7 +1238,6 @@ body {
     transform: translateY(-2px);
 }
 
-/* Tombol kembali */
 a.back-btn {
     color: #6E9579 !important;
     font-size: 1.4rem;

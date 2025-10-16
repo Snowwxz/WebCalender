@@ -61,6 +61,7 @@
                                 <input type="text" name="penanggung_jawab"
                                     placeholder="Masukkan nama penanggung jawab">
                             </div>
+
                         </div>
 
                         <!-- Kolom kanan -->
