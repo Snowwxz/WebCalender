@@ -152,14 +152,22 @@ class AgendaController extends Controller
         return view('notification', compact('agenda'));
     }
 
-    // hapus agenda
     public function destroy($id_agenda)
     {
-        $agenda = Agenda::findOrFail($id_agenda);
-        $agenda->delete();
+    $agenda = Agenda::findOrFail($id_agenda);
 
-        return redirect()
-            ->back()
-            ->with('success', 'Agenda berhasil dihapus.');
+    // Validasi: hanya creator & status pending yang bisa hapus
+    if ($agenda->status !== 'pending') {
+        return redirect()->back()->with('error', 'Agenda tidak dapat dihapus karena sudah di-approve atau ditolak.');
+    }
+
+    // Sesuaikan dengan kolom kamu: id_user
+    if ($agenda->id_user !== Auth::user()->id_user) {
+        return redirect()->back()->with('error', 'Anda tidak memiliki izin untuk menghapus agenda ini.');
+    }
+
+    $agenda->delete();
+
+    return redirect()->back()->with('success', 'Agenda berhasil dihapus.');
     }
 }

@@ -91,6 +91,16 @@
                                             <i class="fas fa-pen"></i> Edit Agenda
                                         </a>
                                     @endif
+
+                                    @if($agenda->status === 'pending')
+                                        <form action="{{ route('agenda.destroy', $agenda->id_agenda) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus agenda ini?');" style="display:inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn-delete">
+                                                <i class="fas fa-trash"></i> Hapus
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             </div>
                         @endforeach
