@@ -63,14 +63,24 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            // ✅ Ubah redirect ke dashboard/bulan, bukan dashboard root
-            return redirect()->intended('/dashboard/bulan');
+
+            $user = Auth::user(); // 🔹 Ambil data user yang login
+
+            // 🔹 Cek role dan arahkan ke halaman sesuai peran
+            if ($user->role === 'super_admin') {
+                return redirect('/super_admin');
+            } elseif ($user->role === 'admin') {
+                return redirect('/approve');
+            } else {
+                return redirect('/dashboard/bulan');
+            }
         }
 
         throw ValidationException::withMessages([
             'email' => trans('auth.failed'),
         ]);
     }
+
 
 
     // LOGOUT

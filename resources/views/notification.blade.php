@@ -41,13 +41,16 @@
                         <a href="?status=all" class="status-tab {{ request('status') === 'all' ? 'active' : '' }}">
                             Semua <span class="badge">{{ $agenda->count() }}</span>
                         </a>
-                        <a href="?status=pending" class="status-tab {{ request('status') === 'pending' ? 'active' : '' }}">
+                        <a href="?status=pending"
+                            class="status-tab {{ request('status') === 'pending' ? 'active' : '' }}">
                             Menunggu <span class="badge">{{ $pendingCount }}</span>
                         </a>
-                        <a href="?status=approved" class="status-tab {{ request('status') === 'approved' ? 'active' : '' }}">
+                        <a href="?status=approved"
+                            class="status-tab {{ request('status') === 'approved' ? 'active' : '' }}">
                             Disetujui <span class="badge">{{ $approvedCount }}</span>
                         </a>
-                        <a href="?status=rejected" class="status-tab {{ request('status') === 'rejected' ? 'active' : '' }}">
+                        <a href="?status=rejected"
+                            class="status-tab {{ request('status') === 'rejected' ? 'active' : '' }}">
                             Ditolak <span class="badge">{{ $rejectedCount }}</span>
                         </a>
                     </div>
@@ -55,9 +58,7 @@
 
                 @php
                     $status = request('status', 'all');
-                    $filtered = $status === 'all'
-                        ? $agenda
-                        : $agenda->where('status', $status);
+                    $filtered = $status === 'all' ? $agenda : $agenda->where('status', $status);
                 @endphp
 
                 @if ($filtered->isEmpty())
@@ -86,17 +87,25 @@
                                 </p>
 
                                 <div class="approval-actions">
-                                    @if($agenda->status === 'pending' || $agenda->status === 'rejected')
+                                    @if ($agenda->status === 'pending' || $agenda->status === 'rejected')
                                         <a href="{{ route('agenda.edit', $agenda->id_agenda) }}" class="btn-edit">
                                             <i class="fas fa-pen"></i> Edit Agenda
                                         </a>
                                     @endif
+
+                                    @if ($agenda->status === 'pending')
+                                        <form action="{{ route('agenda.destroy', $agenda->id_agenda) }}" method="POST"
+                                            onsubmit="return confirm('Yakin ingin menghapus agenda ini?');"
+                                            style="display:inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn-delete">
+                                                <i class="fas fa-trash"></i> Hapus
+                                            </button>
+                                        </form>
+                                    @endif
+
                                 </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
         </main>
     </div>
 
@@ -117,4 +126,5 @@
         });
     </script>
 </body>
+
 </html>

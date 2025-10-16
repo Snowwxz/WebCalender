@@ -14,6 +14,24 @@ class Agenda extends Model
     protected $guarded = [];
 
     /**
+     * ✅ Kolom yang bisa diisi mass-assignment
+     */
+    protected $fillable = [
+        'agenda_name',
+        'description',
+        'person_in_charge',
+        'date',
+        'start_time',
+        'end_time',
+        'location',
+        'involved_institution',
+        'status',
+        'is_public', // 🆕 Tambahkan field publik/privat
+        'id_user',
+        'approved_by',
+    ];
+
+    /**
      * ✅ Konversi otomatis tipe data tanggal & jam
      * Agar mudah diformat dan diolah di Blade dengan Carbon.
      */

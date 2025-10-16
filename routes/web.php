@@ -68,7 +68,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/agenda/{id_agenda}', [AgendaController::class, 'destroy'])->name('agenda.destroy');
 
         // 🔔 Notifikasi user
-        Route::get('/notification', [AgendaController::class, 'notification'])->name('agenda.notification');
+        Route::get('notification', [AgendaController::class, 'notification'])->name('agenda.notification');
+    });
+    Route::middleware('role:user')->group(function () {
+        Route::get('/dashboard', fn() => view('dashboard_bulan'))->name('user.dashboard');
+    });
+
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/approve', fn() => view('approve'))->name('admin.dashboard');
+    });
+
+    Route::middleware('role:superadmin')->group(function () {
+        Route::get('/superadmin', fn() => view('super_admin'))->name('superadmin.dashboard');
     });
 });
 
@@ -92,4 +103,5 @@ Route::middleware('auth')->group(function () {
     // 🔔 APPROVE ROUTE
     Route::get('/approve', [ApproveController::class, 'index'])->name('approve');
     Route::put('/approve/agenda/{id_agenda}', [AgendaController::class, 'update'])->name('approve.update');
+
 });

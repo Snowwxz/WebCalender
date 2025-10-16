@@ -72,6 +72,7 @@ class AgendaController extends Controller
             $agenda->location = $validated['location'] ?? null;
             $agenda->involved_institution = $validated['involved_institution'] ?? null;
             $agenda->status = 'pending';
+            $agenda->is_public = $validated['is_public'];
             $agenda->id_user = $userId;
             $agenda->approved_by = null;
             $agenda->save();
@@ -79,7 +80,6 @@ class AgendaController extends Controller
             return redirect()
                 ->back()
                 ->with('success', '✅ Agenda berhasil ditambahkan (status: pending).');
-
         } catch (\Throwable $e) {
             Log::error('❌ Gagal menyimpan agenda: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
@@ -126,6 +126,7 @@ class AgendaController extends Controller
             'penanggung_jawab'   => 'nullable|string|max:255',
             'instansi_ikut'      => 'nullable|string|max:255',
             'status'             => 'nullable|string|in:pending,approved,rejected',
+            'is_public' => 'required|boolean',
         ]);
 
         $agenda->agenda_name = $validated['agenda_name'];
@@ -136,6 +137,7 @@ class AgendaController extends Controller
         $agenda->location = $validated['lokasi'] ?? null;
         $agenda->person_in_charge = $validated['penanggung_jawab'] ?? null;
         $agenda->involved_institution = $validated['instansi_ikut'] ?? null;
+        $agenda->is_public = $validated['is_public'];
 
         // hanya admin yang boleh ubah status
         if (Auth::user()->role === 'admin') {
@@ -155,14 +157,23 @@ class AgendaController extends Controller
     /**
      * ✅ Hapus agenda.
      */
-    public function destroy($id)
+    public function destroy($id_agenda)
     {
-        $agenda = Agenda::findOrFail($id);
+        $agenda = Agenda::findOrFail($id_agenda);
+
+        // Validasi: hanya creator & status pending yang bisa hapus
+        if ($agenda->status !== 'pending') {
+            return redirect()->back()->with('error', 'Agenda tidak dapat dihapus karena sudah di-approve atau ditolak.');
+        }
+
+        // Sesuaikan dengan kolom kamu: id_user
+        if ($agenda->id_user !== Auth::user()->id_user) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki izin untuk menghapus agenda ini.');
+        }
+
         $agenda->delete();
 
-        return redirect()
-            ->back()
-            ->with('success', 'Agenda berhasil dihapus.');
+        return redirect()->back()->with('success', 'Agenda berhasil dihapus.');
     }
 
     /**

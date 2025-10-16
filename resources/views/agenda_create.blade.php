@@ -17,7 +17,7 @@
                 <!-- Bagian header -->
                 <div style="position: relative; text-align: center; margin-bottom: 8px;">
                     <!-- Tombol kembali -->
-                    <a href="{{ route('dashboard') }}"
+                    <a href="{{ url ('/dashboard/bulan') }}"
                        style="color:#333;font-size:1.3rem;position:absolute;left:0;top:50%;transform:translateY(-50%);">
                         <i class="fas fa-arrow-left"></i>
                     </a>
