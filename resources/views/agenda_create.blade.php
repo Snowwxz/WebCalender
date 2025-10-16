@@ -61,6 +61,14 @@
                                 <input type="text" name="penanggung_jawab"
                                     placeholder="Masukkan nama penanggung jawab">
                             </div>
+
+                            <div class="input-group">
+                                <label><i class="fas fa-eye"></i> Kategori Agenda</label>
+                                <select name="is_public">
+                                    <option value="1">Public</option>
+                                    <option value="0">Private</option>
+                                </select>
+                            </div>
                         </div>
 
                         <!-- Kolom kanan -->
