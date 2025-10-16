@@ -74,6 +74,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/agenda/{id}', [AgendaController::class, 'update'])->name('agenda.update');
         Route::delete('/agenda/{id}', [AgendaController::class, 'destroy'])->name('agenda.destroy');
     });
+
+    // ✅ Superadmin page (UI only for now)
+    Route::get('/superadmin', fn() => view('superadmin'))->name('superadmin');
 });
 
 // 🔹 AUTH ROUTES
