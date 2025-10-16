@@ -48,14 +48,18 @@ Route::get('/api/agenda/search', [LandingController::class, 'search'])
 Route::middleware(['auth', 'verified'])->group(function () {
 
     // ✅ Default dashboard → redirect otomatis ke /dashboard/bulan
-    Route::get('/dashboard', function () {
-        return redirect('/dashboard/bulan');
-    })->name('dashboard');
+    // Route::get('/dashboard', function () {
+    //     return redirect('/dashboard/bulan');
+    // })->name('dashboard');
+    Route::get('/dashboard', [AgendaController::class, 'index'])->name('dashboard.bulan');
+
 
     // ✅ Halaman dashboard bulan
-    Route::get('/dashboard/bulan', function () {
-        return view('dashboard_bulan');
-    })->name('dashboard.bulan');
+    // Route::get('/dashboard/bulan', function () {
+    //     return view('dashboard_bulan');
+    // })->name('dashboard.bulan');
+        Route::get('/dashboard/bulan', [AgendaController::class, 'index'])->name('dashboard.bulan');
+
 
     // ✅ Tambahkan halaman dashboard hari & tahun agar tidak not found
     Route::get('/dashboard/hari', fn() => view('dashboard_hari'))->name('dashboard.hari');

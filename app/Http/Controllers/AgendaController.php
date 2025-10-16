@@ -6,7 +6,6 @@ use App\Models\Agenda;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
 
 class AgendaController extends Controller
 {
@@ -41,73 +40,69 @@ class AgendaController extends Controller
     // ini buat munculin form create
     public function create()
     {
-        return view('agenda_create');
+        return view('agenda_create', ['agenda' => null]);
     }
 
     // ini buat simpan agenda
     public function store(Request $request)
     {
-       // Validasi input
-    $validated = $request->validate([
-        'agenda_name' => 'required|string|max:255',
-        'description' => 'required|string',
-        'start_time' => 'required|date_format:H:i',
-        'end_time' => 'required|date_format:H:i',
-        'date' => 'required|date',
-        'location' => 'required|string|max:255',
-        'person_in_charge' => 'required|string|max:255',
-        'involved_institution' => 'required|string|max:255',
-    ]);
-
-
-
-    try {
-        // Ambil user id
-        $userId = Auth::id() ?: 1;
-
-
-        // Simpan ke database
-        $agenda = new Agenda();
-        $agenda->agenda_name = $validated['agenda_name'];
-        $agenda->description = $validated['description'] ?? null;
-        $agenda->submitted_by = $validated['submitted_by'] ?? null;
-        $agenda->start_time = $validated['start_time'];
-        $agenda->end_time = $validated['end_time'];
-        $agenda->date = $validated['date'];
-        $agenda->location = $validated['location'] ?? null;
-        $agenda->person_in_charge = $validated['person_in_charge'] ?? null;
-        $agenda->involved_institution = $validated['involved_institution'] ?? null;
-        $agenda->status = 'pending';
-        $agenda->id_user = $userId;
-        $agenda->approved_by = 0;
-        $agenda->save();
-        
-
-
-        return redirect()
-            ->back()
-            ->with('success', '✅ Agenda berhasil ditambahkan ke database (status pending).');
-
-    } catch (\Throwable $e) {
-        dd($e);
-        Log::error('❌ Gagal menyimpan agenda: ' . $e->getMessage(), [
-            'trace' => $e->getTraceAsString(),
+        // Validasi input
+        $validated = $request->validate([
+            'agenda_name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i',
+            'date' => 'required|date',
+            'location' => 'required|string|max:255',
+            'person_in_charge' => 'required|string|max:255',
+            'involved_institution' => 'required|string|max:255',
         ]);
 
-        return back()
-            ->withInput()
-            ->with('error', 'Gagal menambahkan agenda ke database: ' . $e->getMessage());
-    }
+        try {
+            // Ambil user id
+            $userId = Auth::id() ?: 1;
+
+            // Simpan ke database
+            $agenda = new Agenda;
+            $agenda->agenda_name = $validated['agenda_name'];
+            $agenda->description = $validated['description'] ?? null;
+            $agenda->submitted_by = $validated['submitted_by'] ?? null;
+            $agenda->start_time = $validated['start_time'];
+            $agenda->end_time = $validated['end_time'];
+            $agenda->date = $validated['date'];
+            $agenda->location = $validated['location'] ?? null;
+            $agenda->person_in_charge = $validated['person_in_charge'] ?? null;
+            $agenda->involved_institution = $validated['involved_institution'] ?? null;
+            $agenda->status = 'pending';
+            $agenda->id_user = $userId;
+            $agenda->approved_by = 0;
+            $agenda->save();
+
+            return redirect()
+                ->back()
+                ->with('success', '✅ Agenda berhasil ditambahkan ke database (status pending).');
+
+        } catch (\Throwable $e) {
+            dd($e);
+            Log::error('❌ Gagal menyimpan agenda: '.$e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return back()
+                ->withInput()
+                ->with('error', 'Gagal menambahkan agenda ke database: '.$e->getMessage());
+        }
     }
 
     // lihat detail agenda (show)
     public function show($id)
     {
         $agenda = Agenda::with(['user', 'approver'])->findOrFail($id);
+
         return response()->json($agenda);
     }
 
-    //tampilkan form pengeditan
+    // tampilkan form pengeditan
     public function edit($id)
     {
         // Ambil data agenda sesuai ID
@@ -117,8 +112,8 @@ class AgendaController extends Controller
         return view('agenda_edit', compact('agenda'));
     }
 
-    //khusus simpan update-an form agenda yo
-   public function update(Request $request, $id)
+    // khusus simpan update-an form agenda yo
+    public function update(Request $request, $id)
     {
         $agenda = Agenda::findOrFail($id);
 
