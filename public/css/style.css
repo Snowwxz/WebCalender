@@ -985,6 +985,22 @@ body {
     white-space: nowrap;
 }
 
+.agenda-badge {
+    display: block; /* Each badge on a new line */
+    font-size: 10px;
+    padding: 2px 6px;
+    margin-top: 4px;
+    border-radius: 10px; /* More rounded corners for a badge look */
+    background-color: #e0f7fa; /* Light blue background */
+    color: #00796b; /* Darker blue-green text */
+    border: 1px solid #b2ebf2; /* Light blue border */
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%; /* Ensure it doesn't overflow the day */
+}
+
 .agenda-item.public {
     background-color: #d4edda;
     border-left: 3px solid #28a745;

@@ -36,7 +36,7 @@ class AgendaController extends Controller
     // form create
     public function create()
     {
-        return view('agenda_create');
+        return view('agenda_create', ['agenda' => null]);
     }
 
     // simpan agenda baru
@@ -44,26 +44,26 @@ class AgendaController extends Controller
     { $validated = $request->validate([
         'agenda_name' => 'required|string|max:255',
         'description' => 'nullable|string',
-        'tanggal' => 'required|date',
+        'date' => 'required|date',
         'start_time' => 'nullable|date_format:H:i',
-        'end_time' => 'nullable|date_format:H:i|after_or_equal:start_time',
-        'lokasi' => 'nullable|string|max:255',
-        'penanggung_jawab' => 'nullable|string|max:255',
-        'instansi_ikut' => 'nullable|string|max:255',
-        'nama_instansi' => 'nullable|string|max:255',
+        'end_time' => 'nullable|date_format:H:i',
+        'location' => 'nullable|string|max:255',
+        'person_in_charge' => 'nullable|string|max:255',
+        'involved_institution' => 'nullable|string|max:255',
+        'submitted_by' => 'nullable|string|max:255',
     ]);
 
     try {
         $agenda = new Agenda();
         $agenda->agenda_name = $validated['agenda_name'];
         $agenda->description = $validated['description'] ?? null;
-        $agenda->date = $validated['tanggal'];
+        $agenda->date = $validated['date'];
         $agenda->start_time = $validated['start_time'] ?? null;
         $agenda->end_time = $validated['end_time'] ?? null;
-        $agenda->location = $validated['lokasi'] ?? null;
-        $agenda->person_in_charge = $validated['penanggung_jawab'] ?? null;
-        $agenda->involved_institution = $validated['instansi_ikut'] ?? null;
-        $agenda->submitted_by = $validated['nama_instansi'] ?? null;
+        $agenda->location = $validated['location'] ?? null;
+        $agenda->person_in_charge = $validated['person_in_charge'] ?? null;
+        $agenda->involved_institution = $validated['involved_institution'] ?? null;
+        $agenda->submitted_by = $validated['submitted_by'] ?? null;
         $agenda->status = 'pending';
         $agenda->id_user = Auth::id() ?: 1;
         $agenda->approved_by = null;
