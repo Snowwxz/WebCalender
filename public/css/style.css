@@ -582,9 +582,11 @@ body {
 
 .mini-calendar-weekdays {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: repeat(7, minmax(0, 1fr));
     gap: 2px;
     margin-bottom: 8px;
+    justify-items: center;
+    align-items: center;
 }
 
 .mini-calendar-weekdays>div {
@@ -601,8 +603,10 @@ body {
 
 .mini-calendar-days {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: repeat(7, minmax(0, 1fr));
     gap: 2px;
+    justify-items: center;
+    align-items: center;
 }
 
 .mini-day {
