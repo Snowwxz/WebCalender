@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Approve - SiKota</title>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
@@ -34,23 +34,24 @@
                             <a href="{{ route('approve', ['status' => 'all']) }}"
                                 class="status-tab {{ $status === 'all' ? 'active' : '' }}">
                                 <span>Semua</span>
-                                <span class="badge">0</span>
+                                <span class="badge">{{ $countAll }}</span>
                             </a>
                             <a href="{{ route('approve', ['status' => 'pending']) }}"
                                 class="status-tab {{ $status === 'pending' ? 'active' : '' }}">
                                 <span>Menunggu</span>
-                                <span class="badge">0</span>
+                                <span class="badge">{{ $countPending }}</span>
                             </a>
                             <a href="{{ route('approve', ['status' => 'approved']) }}"
                                 class="status-tab {{ $status === 'approved' ? 'active' : '' }}">
                                 <span>Disetujui</span>
-                                <span class="badge">0</span>
+                                <span class="badge">{{ $countApproved }}</span>
                             </a>
                             <a href="{{ route('approve', ['status' => 'rejected']) }}"
                                 class="status-tab {{ $status === 'rejected' ? 'active' : '' }}">
                                 <span>Ditolak</span>
-                                <span class="badge">0</span>
+                                <span class="badge">{{ $countRejected }}</span>
                             </a>
+
                         </div>
                     </div>
 
@@ -73,28 +74,86 @@
                     <div class="approval-list">
                         @foreach ($agendas as $agenda)
                             <div class="approval-card">
-                                <h3>{{ $agenda->agenda_name }}</h3>
-                                <p><strong>Tanggal:</strong>
-                                    {{ \Carbon\Carbon::parse($agenda->date)->format('d M Y') }}</p>
-                                <p><strong>Lokasi:</strong> {{ $agenda->location ?? '-' }}</p>
-                                <p><strong>Penanggung Jawab:</strong> {{ $agenda->person_in_charge ?? '-' }}</p>
-                                <p><strong>Instansi Terlibat:</strong> {{ $agenda->involved_institution ?? '-' }}</p>
-                                <p><strong>Status:</strong>
-                                    <span class="badge">{{ ucfirst($agenda->status) }}</span>
-                                </p>
-                                <div class="approval-actions">
-                                    <form action="{{ route('agenda.update', $agenda->id_agenda) }}" method="POST">
-                                        @csrf
-                                        @method('PUT')
-                                        <input type="hidden" name="status" value="approved">
-                                        <button type="submit" class="btn-approve">Setujui</button>
-                                    </form>
-                                    <form action="{{ route('agenda.update', $agenda->id_agenda) }}" method="POST">
-                                        @csrf
-                                        @method('PUT')
-                                        <input type="hidden" name="status" value="rejected">
-                                        <button type="submit" class="btn-reject">Tolak</button>
-                                    </form>
+                                <!-- Card Header -->
+                                <div class="card-header">
+                                    <div class="card-title-section">
+                                        <h3 class="card-title">{{ $agenda->agenda_name }}</h3>
+                                        <p class="card-description">{{ $agenda->description ?? '-' }}</p>
+                                    </div>
+                                    <div class="status-badge {{ $agenda->status }}">
+                                        {{ ucfirst($agenda->status) }}
+                                    </div>
+                                </div>
+
+                                <!-- Card Content -->
+                                <div class="card-content">
+                                    <div class="details-grid">
+                                        <div class="details-left">
+                                            <div class="detail-item">
+                                                <i class="fas fa-building"></i>
+                                                <span><strong>Nama Instansi (Pengaju):</strong> {{ $agenda->submitted_by ?? '-' }}</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <i class="fas fa-user-tie"></i>
+                                                <span><strong>Penanggung Jawab:</strong> {{ $agenda->person_in_charge ?? '-' }}</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <i class="fas fa-calendar-alt"></i>
+                                                <span><strong>Tanggal:</strong> {{ \Carbon\Carbon::parse($agenda->date)->format('l, d F Y') }}</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <i class="fas fa-clock"></i>
+                                                <span><strong>Waktu Pelaksanaan:</strong>
+                                                    @if ($agenda->start_time && $agenda->end_time)
+                                                        {{ \Carbon\Carbon::parse($agenda->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($agenda->end_time)->format('H:i') }} WITA
+                                                    @elseif($agenda->start_time)
+                                                        {{ \Carbon\Carbon::parse($agenda->start_time)->format('H:i') }} WITA
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="details-right">
+                                            <div class="detail-item">
+                                                <i class="fas fa-map-marker-alt"></i>
+                                                <span><strong>Lokasi:</strong> {{ $agenda->location ?? '-' }}</span>
+                                            </div>
+                                            <div class="detail-item participants">
+                                                <i class="fas fa-people-group"></i>
+                                                <span><strong>Instansi Terlibat:</strong> {{ $agenda->involved_institution ?? '-' }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Card Footer -->
+                                <div class="card-footer">
+                                    <div class="submission-info">
+                                        <i class="fas fa-user"></i>
+                                        <span>{{ $agenda->submitted_by ?? '-' }}</span>
+                                        <span class="submission-time">Diajukan {{ \Carbon\Carbon::parse($agenda->created_at)->diffForHumans() }}</span>
+                                    </div>
+                                    <div class="approval-actions">
+                                        <form action="{{ route('agenda.update', $agenda->id_agenda) }}" method="POST" class="action-form">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="status" value="rejected">
+                                            <button type="submit" class="btn-reject">
+                                                <i class="fas fa-times"></i>
+                                                Tolak
+                                            </button>
+                                        </form>
+                                        <form action="{{ route('agenda.update', $agenda->id_agenda) }}" method="POST" class="action-form">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="status" value="approved">
+                                            <button type="submit" class="btn-approve">
+                                                <i class="fas fa-check"></i>
+                                                Setujui
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         @endforeach

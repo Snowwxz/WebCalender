@@ -7,24 +7,25 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Tambahkan kolom is_public ke tabel agenda.
      */
     public function up(): void
     {
         Schema::table('agenda', function (Blueprint $table) {
-           $table->string('person_in_charge', 255)->after('location');
-           $table->string('involved_institution', 255)->after('person_in_charge');
-
+            // Boolean: true = publik, false = privat
+            $table->boolean('is_public')
+                ->default(true)
+                ->after('status'); // taruh setelah kolom status (bisa ubah sesuai kebutuhan)
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Hapus kolom jika di-rollback.
      */
     public function down(): void
     {
         Schema::table('agenda', function (Blueprint $table) {
-           $table->dropColumn(['person_in_charge', 'involved_institution']);
+            $table->dropColumn('is_public');
         });
     }
 };
