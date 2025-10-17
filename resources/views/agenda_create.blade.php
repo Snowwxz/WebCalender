@@ -62,6 +62,16 @@
                                     placeholder="Masukkan nama penanggung jawab">
                             </div>
 
+<<<<<<< HEAD
+=======
+                            <div class="input-group">
+                                <label><i class="fas fa-eye"></i> Kategori Agenda</label>
+                                <select name="is_public">
+                                    <option value="1">Public</option>
+                                    <option value="0">Private</option>
+                                </select>
+                            </div>
+>>>>>>> 4bc0fe8580ef67e6cb8f1da717e20019ce33c711
                         </div>
 
                         <!-- Kolom kanan -->
