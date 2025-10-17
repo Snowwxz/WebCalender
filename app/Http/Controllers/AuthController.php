@@ -55,31 +55,32 @@ class AuthController extends Controller
 
     // LOGIN
     public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+{
+    $credentials = $request->validate([
+        'email' => ['required', 'email'],
+        'password' => ['required'],
+    ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            $request->session()->regenerate();
+    if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        $request->session()->regenerate();
 
-            $user = Auth::user(); // 🔹 Ambil data user yang login
+        $user = Auth::user();
 
-            // 🔹 Cek role dan arahkan ke halaman sesuai peran
-            if ($user->role === 'super_admin') {
-                return redirect('/super_admin');
-            } elseif ($user->role === 'admin') {
-                return redirect('/approve');
-            } else {
-                return redirect('/dashboard/bulan');
-            }
+        // Arahkan sesuai role
+        if ($user->role === 'superadmin') {
+            return redirect()->route('superadmin.dashboard');
+        } elseif ($user->role === 'admin') {
+            return redirect()->route('approve');
+        } else {
+            return redirect()->route('user.dashboard');
         }
-
-        throw ValidationException::withMessages([
-            'email' => trans('auth.failed'),
-        ]);
     }
+
+    throw ValidationException::withMessages([
+        'email' => trans('auth.failed'),
+    ]);
+}
+
 
 
 

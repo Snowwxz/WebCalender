@@ -7,24 +7,23 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Jalankan migrasi untuk menghapus kolom category.
+     * Tambahkan kolom start_time dan end_time ke tabel agenda.
      */
     public function up(): void
     {
         Schema::table('agenda', function (Blueprint $table) {
-            if (Schema::hasColumn('agenda', 'category')) {
-                $table->dropColumn('category');
-            }
+            $table->time('start_time')->nullable()->after('date');
+            $table->time('end_time')->nullable()->after('start_time');
         });
     }
 
     /**
-     * Kembalikan kolom category kalau di-rollback.
+     * Hapus kolom jika rollback.
      */
     public function down(): void
     {
         Schema::table('agenda', function (Blueprint $table) {
-            $table->string('category', 50)->default('public');
+            $table->dropColumn(['start_time', 'end_time']);
         });
     }
 };

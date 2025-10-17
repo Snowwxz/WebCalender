@@ -7,24 +7,25 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Jalankan migrasi untuk menghapus kolom category.
+     * Tambahkan kolom is_public ke tabel agenda.
      */
     public function up(): void
     {
         Schema::table('agenda', function (Blueprint $table) {
-            if (Schema::hasColumn('agenda', 'category')) {
-                $table->dropColumn('category');
-            }
+            // Boolean: true = publik, false = privat
+            $table->boolean('is_public')
+                ->default(true)
+                ->after('status'); // taruh setelah kolom status (bisa ubah sesuai kebutuhan)
         });
     }
 
     /**
-     * Kembalikan kolom category kalau di-rollback.
+     * Hapus kolom jika di-rollback.
      */
     public function down(): void
     {
         Schema::table('agenda', function (Blueprint $table) {
-            $table->string('category', 50)->default('public');
+            $table->dropColumn('is_public');
         });
     }
 };

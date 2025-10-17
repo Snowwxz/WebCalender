@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\ApproveController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
@@ -47,17 +48,14 @@ Route::get('/api/agenda/year/{year}', [LandingController::class, 'getByYear'])
 Route::get('/api/agenda/search', [LandingController::class, 'search'])
     ->name('agenda.search');
 
+
 // 🔒 DASHBOARD (LOGIN DIBUTUHKAN)
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    // ✅ Default redirect ke dashboard bulan
-    Route::get('/dashboard', fn() => redirect('/dashboard/bulan'))->name('dashboard');
+    // ✅ Dashboard utama: arahkan sesuai role user
+    Route::get('/dashboard', [UserController::class, 'index'])->name('dashboard');
 
-    Route::get('/dashboard/bulan', fn() => view('dashboard_bulan'))->name('dashboard.bulan');
-    Route::get('/dashboard/hari', fn() => view('dashboard_hari'))->name('dashboard.hari');
-    Route::get('/dashboard/tahun', fn() => view('dashboard_tahun'))->name('dashboard.tahun');
-
-    // ✅ CRUD Agenda (gabungan kamu + temanmu)
+    // ✅ CRUD Agenda
     Route::prefix('dashboard')->group(function () {
         Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
         Route::get('/agenda/create', [AgendaController::class, 'create'])->name('agenda.create');
@@ -66,12 +64,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/agenda/{id_agenda}/edit', [AgendaController::class, 'edit'])->name('agenda.edit');
         Route::put('/agenda/{id_agenda}', [AgendaController::class, 'update'])->name('agenda.update');
         Route::delete('/agenda/{id_agenda}', [AgendaController::class, 'destroy'])->name('agenda.destroy');
-
-        // 🔔 Notifikasi user
         Route::get('notification', [AgendaController::class, 'notification'])->name('agenda.notification');
     });
+
+    // ✅ Route khusus tiap role
     Route::middleware('role:user')->group(function () {
-        Route::get('/dashboard', fn() => view('dashboard_bulan'))->name('user.dashboard');
+        Route::get('/dashboard/bulan', fn() => view('dashboard_bulan'))->name('user.dashboard');
     });
 
     Route::middleware('role:admin')->group(function () {
@@ -79,9 +77,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::middleware('role:superadmin')->group(function () {
-        Route::get('/superadmin', fn() => view('super_admin'))->name('superadmin.dashboard');
+        Route::get('/superadmin', [UserController::class, 'index'])->name('superadmin.dashboard');
     });
 });
+
 
 // 🔹 AUTH ROUTES
 Route::get('/register', fn() => view('auth.register'))->name('register.form');
@@ -94,14 +93,13 @@ Route::post('/logout', [AuthController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
 
+
 // 🔹 PROFILE ROUTES + APPROVE
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // 🔔 APPROVE ROUTE
     Route::get('/approve', [ApproveController::class, 'index'])->name('approve');
     Route::put('/approve/agenda/{id_agenda}', [AgendaController::class, 'update'])->name('approve.update');
-
 });

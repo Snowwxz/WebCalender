@@ -57,6 +57,7 @@ class AgendaController extends Controller
             'end_time' => 'nullable|date_format:H:i|after_or_equal:start_time',
             'location' => 'nullable|string|max:255',
             'involved_institution' => 'nullable|string|max:500',
+            'is_public' => 'required|boolean',
         ]);
 
         try {
@@ -193,4 +194,5 @@ class AgendaController extends Controller
 
         return view('notification', compact('agenda'));
     }
+
 }
