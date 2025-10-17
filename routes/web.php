@@ -7,6 +7,7 @@ use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\ApproveController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 // 🔹 LANDING & PUBLIC ROUTES
@@ -53,7 +54,18 @@ Route::get('/api/agenda/search', [LandingController::class, 'search'])
 Route::middleware(['auth', 'verified'])->group(function () {
 
     // ✅ Dashboard utama: arahkan sesuai role user
-    Route::get('/dashboard', [UserController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', function () {
+    $user = Auth::user();
+
+    if ($user->role === 'superadmin') {
+        return redirect()->route('superadmin.dashboard');
+    } elseif ($user->role === 'admin') {
+        return redirect()->route('approve');
+    } else {
+        return redirect()->route('dashboard.bulan');
+    }
+})->name('dashboard');
+
 
     // ✅ CRUD Agenda
     Route::prefix('dashboard')->group(function () {
@@ -69,7 +81,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // ✅ Route khusus tiap role
     Route::middleware('role:user')->group(function () {
-        Route::get('/dashboard/bulan', fn() => view('dashboard_bulan'))->name('user.dashboard');
+        Route::get('/dashboard/bulan', fn() => view('dashboard_bulan'))->name('dashboard.bulan');
     });
 
     Route::middleware('role:admin')->group(function () {
