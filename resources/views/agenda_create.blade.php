@@ -32,13 +32,6 @@
                     Platform untuk mengajukan dan mengelola agenda kegiatan instansi
                 </p>
 
-                <!-- Notifikasi sukses/gagal -->
-                @if (session('success'))
-                    <div style="color:green;text-align:center;margin-bottom:10px;">{{ session('success') }}</div>
-                @elseif (session('error'))
-                    <div style="color:red;text-align:center;margin-bottom:10px;">{{ session('error') }}</div>
-                @endif
-
                 <form action="{{ route('agenda.store') }}" method="POST">
                     @csrf
 
@@ -104,5 +97,45 @@
             </div>
         </div>
     </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    @if (session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '{{ session('success') }}',
+            showConfirmButton: false,
+            timer: 2000
+        });
+    @elseif (session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: '{{ session('error') }}',
+            showConfirmButton: true
+        });
+    @endif
+});
+</script>
+
+<script>
+document.getElementById('agendaForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    Swal.fire({
+        title: 'Yakin ajukan agenda ini?',
+        text: "Pastikan semua data sudah benar.",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, ajukan!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            e.target.submit();
+        }
+    });
+});
+</script>
 </body>
 </html>
