@@ -72,7 +72,7 @@ class AuthController extends Controller
         } elseif ($user->role === 'admin') {
             return redirect()->route('approve');
         } else {
-            return redirect()->route('user.dashboard');
+            return redirect()->route('dashboard.bulan');
         }
     }
 

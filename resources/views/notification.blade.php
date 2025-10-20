@@ -41,16 +41,13 @@
                         <a href="?status=all" class="status-tab {{ request('status') === 'all' ? 'active' : '' }}">
                             Semua <span class="badge">{{ $agenda->count() }}</span>
                         </a>
-                        <a href="?status=pending"
-                            class="status-tab {{ request('status') === 'pending' ? 'active' : '' }}">
+                        <a href="?status=pending" class="status-tab {{ request('status') === 'pending' ? 'active' : '' }}">
                             Menunggu <span class="badge">{{ $pendingCount }}</span>
                         </a>
-                        <a href="?status=approved"
-                            class="status-tab {{ request('status') === 'approved' ? 'active' : '' }}">
+                        <a href="?status=approved" class="status-tab {{ request('status') === 'approved' ? 'active' : '' }}">
                             Disetujui <span class="badge">{{ $approvedCount }}</span>
                         </a>
-                        <a href="?status=rejected"
-                            class="status-tab {{ request('status') === 'rejected' ? 'active' : '' }}">
+                        <a href="?status=rejected" class="status-tab {{ request('status') === 'rejected' ? 'active' : '' }}">
                             Ditolak <span class="badge">{{ $rejectedCount }}</span>
                         </a>
                     </div>
@@ -58,7 +55,9 @@
 
                 @php
                     $status = request('status', 'all');
-                    $filtered = $status === 'all' ? $agenda : $agenda->where('status', $status);
+                    $filtered = $status === 'all'
+                        ? $agenda
+                        : $agenda->where('status', $status);
                 @endphp
 
                 @if ($filtered->isEmpty())
@@ -87,25 +86,25 @@
                                 </p>
 
                                 <div class="approval-actions">
-                                    @if ($agenda->status === 'pending' || $agenda->status === 'rejected')
+                                    @if($agenda->status === 'pending' || $agenda->status === 'rejected')
                                         <a href="{{ route('agenda.edit', $agenda->id_agenda) }}" class="btn-edit">
                                             <i class="fas fa-pen"></i> Edit Agenda
                                         </a>
                                     @endif
 
-                                    @if ($agenda->status === 'pending')
-                                        <form action="{{ route('agenda.destroy', $agenda->id_agenda) }}" method="POST"
-                                            onsubmit="return confirm('Yakin ingin menghapus agenda ini?');"
-                                            style="display:inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn-delete">
-                                                <i class="fas fa-trash"></i> Hapus
-                                            </button>
-                                        </form>
-                                    @endif
-
+                                   <form action="{{ route('agenda.destroy', $agenda->id_agenda) }}" method="POST" class="delete-form" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn-delete">
+                                            <i class="fas fa-trash"></i> Hapus
+                                        </button>
+                                    </form>
                                 </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
         </main>
     </div>
 
@@ -125,6 +124,55 @@
             }
         });
     </script>
-</body>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const deleteForms = document.querySelectorAll('.delete-form');
+
+    deleteForms.forEach(form => {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault(); // cegah submit langsung
+
+            Swal.fire({
+                title: 'Yakin ingin menghapus agenda ini?',
+                text: "Data yang dihapus tidak bisa dikembalikan.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit(); // kirim form jika user menekan konfirmasi
+                }
+            });
+        });
+    });
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    @if (session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '{{ session('success') }}',
+            showConfirmButton: false,
+            timer: 2000
+        });
+    @elseif (session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: '{{ session('error') }}',
+            showConfirmButton: true
+        });
+    @endif
+});
+</script>
+</body>
 </html>

@@ -6,6 +6,7 @@ use App\Http\Controllers\LandingController;
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\ApproveController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UnitController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -55,16 +56,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // ✅ Dashboard utama: arahkan sesuai role user
     Route::get('/dashboard', function () {
-    $user = Auth::user();
+        $user = Auth::user();
 
-    if ($user->role === 'superadmin') {
-        return redirect()->route('superadmin.dashboard');
-    } elseif ($user->role === 'admin') {
-        return redirect()->route('approve');
-    } else {
-        return redirect()->route('dashboard.bulan');
-    }
-})->name('dashboard');
+        if ($user->role === 'superadmin') {
+            return redirect()->route('superadmin.dashboard');
+        } elseif ($user->role === 'admin') {
+            return redirect()->route('approve');
+        } else {
+            return redirect()->route('dashboard.bulan');
+        }
+    })->name('dashboard');
 
 
     // ✅ CRUD Agenda
@@ -81,7 +82,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // ✅ Route khusus tiap role
     Route::middleware('role:user')->group(function () {
+        Route::get('/dashboard/hari', fn() => view('dashboard_hari'))->name('dashboard.hari');
         Route::get('/dashboard/bulan', fn() => view('dashboard_bulan'))->name('dashboard.bulan');
+        Route::get('/dashboard/tahun', fn() => view('dashboard_tahun'))->name('dashboard.tahun');
     });
 
     Route::middleware('role:admin')->group(function () {
@@ -90,6 +93,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware('role:superadmin')->group(function () {
         Route::get('/superadmin', [UserController::class, 'index'])->name('superadmin.dashboard');
+
+        Route::delete('/superadmin/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+        Route::put('/superadmin/users/{id}', [UserController::class, 'update'])->name('users.update');
+
+        Route::post('/superadmin/units', [UnitController::class, 'store'])->name('units.store');
+
+        Route::prefix('superadmin')->group(function () {
+            Route::resource('units', UnitController::class);
+        });
     });
 });
 
@@ -114,4 +126,5 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/approve', [ApproveController::class, 'index'])->name('approve');
     Route::put('/approve/agenda/{id_agenda}', [AgendaController::class, 'update'])->name('approve.update');
+    Route::put('/agenda/{id_agenda}/status', [AgendaController::class, 'updateStatus'])->name('agenda.updateStatus');
 });

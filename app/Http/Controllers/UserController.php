@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -14,8 +15,9 @@ class UserController extends Controller
 
         // Jika superadmin, tampilkan halaman daftar user
         if ($user->role === 'superadmin') {
-            $users = User::all();
-            return view('SuperAdmin', compact('users'));
+            $users = User::whereNotNull('id_user')->get();
+            $units = \App\Models\Unit::all();
+            return view('SuperAdmin', compact('users', 'units'));
         }
 
         // Jika admin
@@ -30,5 +32,49 @@ class UserController extends Controller
 
         // Default fallback
         abort(403, 'Role tidak dikenali.');
+    }
+
+    /**
+     * Hapus user (hanya untuk superadmin)
+     */
+    public function destroy($id_user)
+    {
+        $user = User::where('id_user', $id_user)->first();
+        if ($user) {
+            $user->delete();
+        }
+
+        return redirect()->back()->with('success', 'User berhasil dihapus');
+    }
+
+
+    /**
+     * Update data user (hanya untuk superadmin)
+     */
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'username' => 'nullable|string|max:255',
+            'email' => 'required|email|max:255',
+            'password' => 'nullable|string|min:6',
+            'role' => 'required|in:user,admin',
+        ]);
+
+        $user = User::findOrFail($id);
+
+        $user->name = $request->name;
+        $user->username = $request->username;
+        $user->email = $request->email;
+
+        // Jika password diisi, baru ubah
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
+        $user->role = $request->role;
+        $user->save();
+
+        return redirect()->back()->with('success', 'User berhasil diperbarui.');
     }
 }

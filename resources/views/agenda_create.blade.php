@@ -19,10 +19,13 @@
                 <!-- Bagian header -->
                 <div style="position: relative; text-align: center; margin-bottom: 8px;">
                     <!-- Tombol kembali -->
-                    <a href="{{ url('/dashboard/bulan') }}"
-                        style="color:#6E9579;font-size:1.3rem;position:absolute;left:0;top:50%;transform:translateY(-50%);">
-                        <i class="fas fa-arrow-left"></i>
-                    </a>
+                    @if (Auth::user()->role !== 'admin')
+                        <a href="{{ url('/dashboard/bulan') }}"
+                            style="color:#6E9579;font-size:1.3rem;position:absolute;left:0;top:50%;transform:translateY(-50%);">
+                            <i class="fas fa-arrow-left"></i>
+                        </a>
+                    @endif
+
 
                     <!-- Judul di tengah -->
                     <div class="agenda-title"
@@ -53,8 +56,12 @@
 
                             <div class="input-group">
                                 <label><i class="fas fa-building"></i> Nama Instansi (Pengaju)</label>
-                                <input type="text" name="units"
-                                    placeholder="Masukkan instansi pengaju">
+                                <select name="id_unit" required>
+                                    <option value="">-- Pilih Instansi Pengaju --</option>
+                                    @foreach ($units as $unit)
+                                        <option value="{{ $unit->id_unit }}">{{ $unit->unit_name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
 
                             <div class="input-group">

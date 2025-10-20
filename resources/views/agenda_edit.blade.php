@@ -56,9 +56,9 @@
                             </div>
 
                             <div class="input-group">
-                                <label><i class="fas fa-building"></i> Nama Instansi Pengajuan</label>
+                                <label><i class="fas fa-building"></i> Nama Instansi Pengaju</label>
                                 <input type="text" name="instansi_pengajuan"
-                                    value="{{ old('instansi_pengajuan', $agenda->submitted_by) }}">
+                                    value="{{ old('instansi_pengajuan', $agenda->units) }}">
                             </div>
 
                             <div class="input-group">
