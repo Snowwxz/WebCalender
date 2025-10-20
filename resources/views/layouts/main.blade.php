@@ -11,7 +11,7 @@
     <!-- Component CSS -->
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
     <link rel="stylesheet" href="{{ asset('css/sidebar.css') }}">
-    
+
     @stack('styles')
 </head>
 <body>
@@ -118,6 +118,10 @@
                 profile.classList.remove('active');
             }
         });
+
+        function getel(id) {
+            return document.getElementById(id);
+        }
     </script>
 </body>
 </html>

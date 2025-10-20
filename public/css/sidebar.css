@@ -138,17 +138,16 @@
 }
 
 .mini-day {
-    text-align: center;
-    font-size: 12px;
-    padding: 6px 4px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-    color: #333;
+    width: 30px;
+    height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 24px;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    color: #333;
 }
 
 .mini-day:hover {
@@ -168,19 +167,18 @@
     color: #6c757d;
 }
 
-/* Mini Calendar Hover Effects */
 .mini-day:hover {
     background-color: rgba(130, 169, 141, 0.3);
     color: #82A98D;
-    transition: all 0.3s ease;
-    border-radius: 18px;
+    font-weight: 600;
+    border-radius: 50%;
 }
 
 .mini-day.today {
-    color: #82A98D;
     background-color: rgba(130, 169, 141, 0.3);
+    color: #82A98D;
     font-weight: 700;
-    border-radius: 18px;
+    border-radius: 50%;
 }
 
 /* Agenda Section */

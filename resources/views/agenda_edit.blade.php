@@ -1,18 +1,12 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ajukan Agenda - SiKota</title>
-    <!-- Base CSS -->
-    <link rel="stylesheet" href="{{ asset('css/base.css') }}">
-    <!-- Component CSS -->
-    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/agenda-create.css') }}">
+    <title>Edit Agenda - SiKota</title>
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-
 <body>
     <div class="app-container">
         @include('layouts.header')
@@ -20,92 +14,97 @@
         <div class="agenda-container">
             <div class="agenda-form-card">
 
-                <!-- Bagian header -->
+                <!-- Header -->
                 <div style="position: relative; text-align: center; margin-bottom: 8px;">
-                    <!-- Tombol kembali -->
-                    <a href="{{ route('dashboard.bulan') }}"
+                    <a href="{{ route('agenda.notification') }}"
                        style="color:#333;font-size:1.3rem;position:absolute;left:0;top:50%;transform:translateY(-50%);">
                         <i class="fas fa-arrow-left"></i>
                     </a>
 
-                    <!-- Judul -->
                     <div class="agenda-title" style="display:inline-block; font-weight:600; font-size:1.4rem; color:#333;">
-                        <i class="fas fa-calendar-plus"></i> Sistem Pengajuan Agenda
+                        <i class="fas fa-calendar-edit"></i> Edit Agenda
                     </div>
                 </div>
 
                 <p class="agenda-subtitle" style="text-align:center;">
-                    Platform untuk mengajukan dan mengelola agenda kegiatan instansi
+                    Ubah detail agenda sesuai kebutuhan
                 </p>
 
-                <form action="{{ route('agenda.store') }}" method="POST">
+                <form action="{{ route('agenda.update', $agenda->id_agenda) }}" method="POST">
                     @csrf
+                    @method('PUT')
 
                     <div class="form-grid">
                         <!-- Kolom kiri -->
                         <div class="form-column">
                             <div class="input-group">
                                 <label><i class="fas fa-file-alt"></i> Nama Agenda</label>
-                                <input type="text" name="agenda_name" placeholder="Masukkan nama agenda" required>
+                                <input type="text" name="agenda_name"
+                                    value="{{ old('agenda_name', $agenda->agenda_name) }}" required>
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-align-left"></i> Deskripsi Agenda</label>
-                                <textarea name="description" placeholder="Masukkan deskripsi agenda"></textarea>
+                                <textarea name="description">{{ old('description', $agenda->description) }}</textarea>
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-building"></i> Nama Instansi Pengajuan</label>
-                                <input type="text" name="submitted_by" placeholder="Masukkan nama instansi pengaju">
+                                <input type="text" name="instansi_pengajuan"
+                                    value="{{ old('instansi_pengajuan', $agenda->submitted_by) }}">
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-user-tie"></i> Penanggung Jawab</label>
-                                <input type="text" name="person_in_charge" placeholder="Masukkan nama penanggung jawab">
+                                <input type="text" name="penanggung_jawab"
+                                    value="{{ old('penanggung_jawab', $agenda->person_in_charge) }}">
                             </div>
-
                         </div>
 
                         <!-- Kolom kanan -->
                         <div class="form-column">
                             <div class="input-group">
                                 <label><i class="fas fa-calendar-day"></i> Tanggal</label>
-                                <input type="date" name="date" required>
+                                <input type="date" name="tanggal"
+                                    value="{{ old('tanggal', $agenda->date ? $agenda->date->format('Y-m-d') : '') }}" required>
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-clock"></i> Waktu Mulai</label>
-                                <input type="time" name="start_time" required>
+                                <input type="time" name="start_time"
+                                    value="{{ old('start_time', $agenda->start_time ? \Carbon\Carbon::parse($agenda->start_time)->format('H:i') : '') }}">
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-clock"></i> Waktu Selesai</label>
-                                <input type="time" name="end_time">
-                            </div>
+                                <input type="time" name="end_time"
+                                    value="{{ old('end_time', $agenda->end_time ? \Carbon\Carbon::parse($agenda->end_time)->format('H:i') : '') }}">
+                           </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-location-dot"></i> Lokasi</label>
-                                <input type="text" name="location" placeholder="Masukkan lokasi agenda">
+                                <input type="text" name="lokasi"
+                                    value="{{ old('lokasi', $agenda->location) }}">
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-people-group"></i> Instansi yang Ikut Serta</label>
-                                <textarea name="involved_institution" placeholder="Masukkan instansi yang akan ikut serta"></textarea>
+                                <textarea name="instansi_ikut">{{ old('instansi_ikut', $agenda->involved_institution) }}</textarea>
                             </div>
                         </div>
                     </div>
 
                     <div class="form-submit">
                         <button type="submit" class="btn-primary">
-                            <i class="fas fa-paper-plane"></i> Ajukan Agenda
+                            <i class="fas fa-save"></i> Simpan Perubahan
                         </button>
                     </div>
                 </form>
+
             </div>
         </div>
     </div>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     @if (session('success'))
@@ -127,15 +126,16 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 
+
 <script>
 document.getElementById('agendaForm').addEventListener('submit', function(e) {
     e.preventDefault();
     Swal.fire({
-        title: 'Yakin ajukan agenda ini?',
+        title: 'Yakin mengubah agenda ini?',
         text: "Pastikan semua data sudah benar.",
         icon: 'question',
         showCancelButton: true,
-        confirmButtonText: 'Ya, ajukan!',
+        confirmButtonText: 'Ya, diubah!',
         cancelButtonText: 'Batal'
     }).then((result) => {
         if (result.isConfirmed) {
@@ -144,6 +144,6 @@ document.getElementById('agendaForm').addEventListener('submit', function(e) {
     });
 });
 </script>
-</body>
 
+</body>
 </html>
