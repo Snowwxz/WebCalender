@@ -1,5 +1,9 @@
 @extends('layouts.main')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/dashboard-tahun.css') }}">
+@endpush
+
 @section('content')
 <div class="year-view-page">
     <div class="year-view-main">

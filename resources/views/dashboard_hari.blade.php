@@ -1,5 +1,9 @@
 @extends('layouts.main')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/dashboard-hari.css') }}">
+@endpush
+
 @section('content')
 <div class="day-view-page">
     <div class="day-view-main">

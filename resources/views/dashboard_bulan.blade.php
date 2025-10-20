@@ -1,5 +1,9 @@
 @extends('layouts.main')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/dashboard-bulan.css') }}">
+@endpush
+
 @section('content')
     @include("create_agenda_modal")
     <div class="calendar-page">
