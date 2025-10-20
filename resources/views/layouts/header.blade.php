@@ -35,6 +35,16 @@
             </button>
         </div>
 
+         {{-- 🔔 Tombol Notifikasi Agenda Pending --}}
+        <div class="notification-btn" style="margin-right: 1rem;">
+            <button
+                class="btn-notification"
+                title="Notifikasi Agenda"
+                onclick="window.location.href='{{ route('agenda.notification') }}'">
+                <i class="fas fa-bell"></i>
+            </button>
+        </div>
+
             {{-- user profile section --}}
             <div class="user-profile-section">
                 <div class="user-profile" onclick="toggleDropdown()">
