@@ -21,5 +21,10 @@ class Unit extends Model
     {
         return $this->hasMany(User::class, 'id_unit', 'id_unit');
     }
-}
 
+    // Relasi ke agenda (One to Many)
+    public function agendas()
+    {
+        return $this->hasMany(Agenda::class, 'id_unit', 'id_unit');
+    }
+}

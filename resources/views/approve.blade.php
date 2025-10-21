@@ -98,7 +98,8 @@
                                             <div class="detail-item">
                                                 <i class="fas fa-building"></i>
                                                 <span><strong>Nama Instansi (Pengaju):</strong>
-                                                    {{ $agenda->submitted_by ?? '-' }}</span>
+                                                    {{ $agenda->unit->unit_name ?? '-' }}
+                                                </span>
                                             </div>
                                             <div class="detail-item">
                                                 <i class="fas fa-user-tie"></i>
@@ -151,16 +152,20 @@
                                 <div class="card-footer">
                                     <div class="submission-info">
                                         <i class="fas fa-user"></i>
-                                        <span>{{ $agenda->submitted_by ?? '-' }}</span>
+                                        <span>{{ $agenda->units ?? '-' }}</span>
+                                        <span class="submission-name">
+                                            {{ $agenda->person_in_charge ?? ($agenda->user->name ?? '-') }}
+                                        </span>
                                         <span class="submission-time">
-                                            Diajukan {{ \Carbon\Carbon::parse($agenda->created_at)->diffForHumans() }}
+                                            &nbsp;Diajukan
+                                            {{ \Carbon\Carbon::parse($agenda->created_at)->diffForHumans() }}
                                         </span>
                                     </div>
 
                                     {{-- Tombol hanya muncul jika status masih pending --}}
                                     @if ($agenda->status === 'pending')
                                         <div class="approval-actions">
-                                            <form action="{{ route('agenda.update', $agenda->id_agenda) }}"
+                                            <form action="{{ route('agenda.updateStatus', $agenda->id_agenda) }}"
                                                 method="POST" class="action-form">
                                                 @csrf
                                                 @method('PUT')
@@ -169,7 +174,7 @@
                                                     <i class="fas fa-times"></i> Tolak
                                                 </button>
                                             </form>
-                                            <form action="{{ route('agenda.update', $agenda->id_agenda) }}"
+                                            <form action="{{ route('agenda.updateStatus', $agenda->id_agenda) }}"
                                                 method="POST" class="action-form">
                                                 @csrf
                                                 @method('PUT')

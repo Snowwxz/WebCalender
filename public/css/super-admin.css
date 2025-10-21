@@ -57,14 +57,14 @@
     box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
 }
 
-.admin-card + .admin-card { 
-    margin-top: 16px; 
+.admin-card + .admin-card {
+    margin-top: 16px;
 }
 
-.admin-card-header { 
-    display: flex; 
-    justify-content: flex-start; 
-    margin-bottom: 12px; 
+.admin-card-header {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 12px;
 }
 
 .admin-card-title {
@@ -74,15 +74,15 @@
     margin: 0;
 }
 
-.admin-table-wrap { 
-    overflow-x: auto; 
+.admin-table-wrap {
+    overflow-x: auto;
 }
 
-.admin-table { 
-    width: 100%; 
-    border-collapse: separate; 
-    border-spacing: 0; 
-    font-size: 14px; 
+.admin-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 14px;
 }
 
 .admin-table thead th {
@@ -95,83 +95,83 @@
     border-bottom: 1px solid #d6e0d9;
 }
 
-.admin-table tbody td { 
-    padding: 12px 14px; 
-    border-bottom: 1px solid #f1f3f5; 
-    color: #374151; 
+.admin-table tbody td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #f1f3f5;
+    color: #374151;
 }
 
-.admin-table tbody tr:hover { 
-    background: #fafafa; 
+.admin-table tbody tr:hover {
+    background: #fafafa;
 }
 
-.admin-table .empty-row { 
-    text-align: center; 
-    color: #9ca3af; 
-    font-style: italic; 
+.admin-table .empty-row {
+    text-align: center;
+    color: #9ca3af;
+    font-style: italic;
 }
 
-.btn-chip { 
-    display: inline-flex; 
-    align-items: center; 
-    gap: 8px; 
-    padding: 8px 12px; 
-    border-radius: 999px; 
-    border: 1px solid #b9d0c1; 
-    background: rgba(130, 169, 141, 0.3); 
-    color: #2f4737; 
-    font-weight: 600; 
-    cursor: pointer; 
+.btn-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid #b9d0c1;
+    background: rgba(130, 169, 141, 0.3);
+    color: #2f4737;
+    font-weight: 600;
+    cursor: pointer;
 }
 
-.btn-chip:hover { 
-    background: rgba(130, 169, 141, 0.45); 
+.btn-chip:hover {
+    background: rgba(130, 169, 141, 0.45);
 }
 
-.btn-icon { 
-    width: 36px; 
-    height: 36px; 
-    border-radius: 8px; 
-    border: 1px solid #e5e7eb; 
-    background: #ffffff; 
-    color: #374151; 
-    cursor: pointer; 
-    display: inline-flex; 
-    align-items: center; 
-    justify-content: center; 
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #374151;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.btn-icon:hover { 
-    background: #f8f9fa; 
+.btn-icon:hover {
+    background: #f8f9fa;
 }
 
-.role-pill { 
-    display: inline-flex; 
-    align-items: center; 
-    gap: 8px; 
-    background: #eef6f0; 
-    color: #2f4737; 
-    border: 1px solid #d1e2d7; 
-    border-radius: 999px; 
-    padding: 6px 12px; 
-    font-weight: 600; 
+.role-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #eef6f0;
+    color: #2f4737;
+    border: 1px solid #d1e2d7;
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-weight: 600;
 }
 
-.role-pill .dot { 
-    width: 8px; 
-    height: 8px; 
-    background: #6E9579; 
-    border-radius: 50%; 
-    display: inline-block; 
+.role-pill .dot {
+    width: 8px;
+    height: 8px;
+    background: #6E9579;
+    border-radius: 50%;
+    display: inline-block;
 }
 
-.role-pill i { 
-    color: #6E9579; 
-    font-size: 12px; 
+.role-pill i {
+    color: #6E9579;
+    font-size: 12px;
 }
 
-.section-space { 
-    height: 20px; 
+.section-space {
+    height: 20px;
 }
 
 /* User Management */
@@ -412,4 +412,112 @@
         padding: 15px;
         margin: 10px;
     }
+
+    .btn-edit, .btn-delete {
+        min-width: 60px;
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    width: 400px;
+}
+
+.modal-content input, .modal-content select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+}
+
+/* Super Admin Edit and Delete Buttons */
+.btn-edit, .btn-delete {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    min-width: 70px;
+    justify-content: center;
+    margin: 2px;
+}
+
+.btn-edit {
+    background: linear-gradient(135deg, #82A98D 0%, #6E9579 100%);
+    color: white;
+    box-shadow: 0 2px 4px rgba(130, 169, 141, 0.2);
+}
+
+.btn-edit:hover {
+    background: linear-gradient(135deg, #6E9579 0%, #5A7A66 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(130, 169, 141, 0.3);
+}
+
+.btn-edit:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(130, 169, 141, 0.2);
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+}
+
+.btn-delete:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+}
+
+.btn-delete:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+}
+
+/* Shimmer effect for edit and delete buttons */
+.btn-edit::before, .btn-delete::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-edit:hover::before, .btn-delete:hover::before {
+    left: 100%;
 }

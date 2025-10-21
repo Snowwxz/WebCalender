@@ -5,8 +5,7 @@
 @endpush
 
 @section('content')
-    @include("create_agenda_modal")
-    <div class="calendar-page">
+<div class="calendar-page">
         <div class="calendar-main">
             <div class="calendar-header">
                 <div class="month-navigation">
@@ -32,6 +31,82 @@
                 <div class="calendar-days" id="calendarDays">
                     <!-- Tanggal akan di-generate lewat JavaScript -->
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Create Agenda -->
+    <div class="modal-overlay" id="createAgendaModal" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-calendar-plus"></i>
+                    <span>Buat Agenda Baru</span>
+                </div>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <form id="agendaForm" action="{{ route('agenda.store') }}" method="POST" onsubmit="return validateAgendaForm()">
+                    @csrf
+                    
+                    <div class="form-grid">
+                        <!-- Kolom kiri -->
+                        <div class="form-column">
+                            <div class="input-group">
+                                <label><i class="fas fa-file-alt"></i> Nama Agenda</label>
+                                <input type="text" name="agenda_name" id="agenda_name" placeholder="Masukkan nama agenda" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label><i class="fas fa-align-left"></i> Deskripsi Agenda</label>
+                                <textarea name="description" id="description" placeholder="Masukkan deskripsi agenda" required></textarea>
+                            </div>
+
+                            <div class="input-group">
+                                <label><i class="fas fa-user-tie"></i> Penanggung Jawab</label>
+                                <input type="text" name="person_in_charge" id="person_in_charge" placeholder="Masukkan nama penanggung jawab" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label><i class="fas fa-people-group"></i> Instansi yang Ikut Serta</label>
+                                <textarea name="involved_institution" id="involved_institution" placeholder="Masukkan instansi yang akan ikut serta" required></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Kolom kanan -->
+                        <div class="form-column">
+                            <div class="input-group">
+                                <label><i class="fas fa-calendar-day"></i> Tanggal</label>
+                                <input type="date" name="date" id="date" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label><i class="fas fa-clock"></i> Waktu Mulai</label>
+                                <input type="time" name="start_time" id="start_time" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label><i class="fas fa-clock"></i> Waktu Selesai</label>
+                                <input type="time" name="end_time" id="end_time" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label><i class="fas fa-location-dot"></i> Lokasi</label>
+                                <input type="text" name="location" id="location" placeholder="Masukkan lokasi agenda" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-submit">
+                        <button type="button" class="btn-secondary" onclick="closeModal()">Batal</button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-paper-plane"></i> Ajukan Agenda
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -128,28 +203,50 @@
                 dayElement.appendChild(dayNumber);
                 calendarDays.appendChild(dayElement);
 
-                for (let i=0; i<filteredAgenda.length; i++) {
-                    const badge = document.createElement("div");
-                    badge.setAttribute("class", "bg-gray-400 text-white mb-2 rounded-sm p-2");
-                    badge.innerHTML = filteredAgenda[i].agenda_name;
-                    dayElement.appendChild(badge);
-                }
+                 // Buat container untuk agenda items
+                 const agendaContainer = document.createElement("div");
+                 agendaContainer.className = "agenda-container";
+                 
+                 // Tampilkan maksimal 3 agenda
+                 const maxAgenda = 3;
+                 const agendaToShow = filteredAgenda.slice(0, maxAgenda);
+                 
+                 for (let i=0; i<agendaToShow.length; i++) {
+                     const badge = document.createElement("div");
+                     badge.setAttribute("class", "bg-gray-400 text-white mb-2 rounded-sm p-2");
+                     
+                     // Batasi panjang teks agenda (maksimal 20 karakter)
+                     let agendaText = agendaToShow[i].agenda_name;
+                     if (agendaText.length > 20) {
+                         agendaText = agendaText.substring(0, 17) + "...";
+                     }
+                     
+                     badge.innerHTML = agendaText;
+                     badge.title = agendaToShow[i].agenda_name; // Tooltip untuk teks lengkap
+                     agendaContainer.appendChild(badge);
+                 }
+                 
+                 // Tambahkan indikator jika ada agenda lebih dari 3
+                 if (filteredAgenda.length > maxAgenda) {
+                     agendaContainer.classList.add("has-more");
+                 }
+                 
+                 dayElement.appendChild(agendaContainer);
 
-                            // ✅ Klik di area hari
-                dayElement.addEventListener('click', (e) => {
-                    // Filter agenda hari ini
-                    let filteredAgenda = filterAgenda(agenda, { year, month, day });
+                             // ✅ Klik di area hari
+                 dayElement.addEventListener('click', (e) => {
+                     // Filter agenda hari ini
+                     let filteredAgenda = filterAgenda(agenda, { year, month, day });
 
-                    // Kalau ada agenda di hari ini, jangan buka modal create
-                    if (filteredAgenda.length > 0) return;
+                     // Kalau ada agenda di hari ini, jangan buka modal create
+                     if (filteredAgenda.length > 0) return;
 
-                    // Kalau user klik angka tanggal (bukan area kosong), skip modal
-                    if (e.target.classList.contains('day-number')) return;
+                     // Kalau user klik angka tanggal (bukan area kosong), skip modal
+                     if (e.target.classList.contains('day-number')) return;
 
-                    // Kalau lolos semua kondisi di atas → buka modal create
-                    getel("date").value = `${year}-${month}-${day}`;
-                    getel("createAgendaModal").hidden = false;
-                });
+                     // Kalau lolos semua kondisi di atas → buka modal create
+                     openModal(`${year}-${month}-${day}`);
+                 });
 
                 // ✅ Klik angka tanggal (langsung buka halaman hari)
                 dayNumber.addEventListener('click', (e) => {
@@ -165,8 +262,72 @@
             generateMainCalendar();
         }
 
-        document.addEventListener('DOMContentLoaded', generateMainCalendar);
-    </script>
+         // Modal functions
+         function openModal(selectedDate = null) {
+             const modal = document.getElementById('createAgendaModal');
+             const dateInput = document.getElementById('date');
+             
+             if (selectedDate && dateInput) {
+                 dateInput.value = selectedDate;
+             }
+             
+             modal.style.display = 'flex';
+             document.body.style.overflow = 'hidden';
+         }
+
+         function closeModal() {
+             const modal = document.getElementById('createAgendaModal');
+             modal.style.display = 'none';
+             document.body.style.overflow = 'auto';
+             
+             // Reset form
+             document.getElementById('agendaForm').reset();
+         }
+
+         // Validasi form
+         function validateAgendaForm() {
+             const inputs = document.querySelectorAll('#createAgendaModal input[required], #createAgendaModal textarea[required]');
+             let valid = true;
+
+             inputs.forEach(input => {
+                 if (!input.value.trim()) {
+                     input.style.borderColor = 'red';
+                     valid = false;
+                 } else {
+                     input.style.borderColor = '#d6e0d9';
+                 }
+             });
+
+             if (!valid) {
+                 alert('Semua field wajib diisi!');
+             }
+
+             return valid;
+         }
+
+         // Helper function untuk get element
+         function getel(id) {
+             return document.getElementById(id);
+         }
+
+         document.addEventListener('DOMContentLoaded', function() {
+             generateMainCalendar();
+             
+             // Close modal when clicking outside
+             document.getElementById('createAgendaModal').addEventListener('click', (e) => {
+                 if (e.target.id === 'createAgendaModal') {
+                     closeModal();
+                 }
+             });
+
+             // Close modal with Escape key
+             document.addEventListener('keydown', (e) => {
+                 if (e.key === 'Escape') {
+                     closeModal();
+                 }
+             });
+         });
+     </script>
     @if (session('success'))
         <script>
             Swal.fire({
