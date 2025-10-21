@@ -97,8 +97,18 @@ class AgendaController extends Controller
      */
     public function show($id)
     {
-        $agenda = Agenda::with(['user', 'approver'])->findOrFail($id);
-        return response()->json($agenda);
+        try {
+            $agenda = Agenda::with(['user', 'approver'])->findOrFail(id: $id);
+            return response()->json([
+                'success' => true,
+                'data' => $agenda,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Agenda tidak ditemukan.',
+            ], 404);
+        }
     }
 
     /**
