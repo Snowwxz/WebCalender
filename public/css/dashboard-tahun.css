@@ -1,0 +1,289 @@
+/* Dashboard Tahun Styles */
+.year-view-page {
+    height: 100%;
+    overflow: hidden;
+}
+
+.year-view-main {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.year-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 20px;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.month-card {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.month-header {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.month-grid {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.month-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: 8px;
+}
+
+.month-weekdays>div {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: #6c757d;
+    padding: 4px;
+}
+
+.month-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    flex: 1;
+}
+
+.month-day {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #333;
+    position: relative;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.month-day:hover {
+    background-color: rgba(130, 169, 141, 0.3);
+    color: #82A98D;
+    transition: all 0.3s ease;
+    border-radius: 20px;
+}
+
+.month-day.weekend {
+    color: #6c757d;
+}
+
+.month-day.other-month {
+    color: #adb5bd;
+}
+
+.month-day.today {
+    background-color: rgba(130, 169, 141, 0.3);
+    color: #82A98D;
+    font-weight: 700;
+    border-radius: 20px;
+}
+
+.event-dot {
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+}
+
+.event-dot.orange {
+    background: #ff9800;
+}
+
+.event-dot.green {
+    background: #4caf50;
+}
+
+/* Year View Header - using consistent calendar header styles */
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.month-navigation {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-btn {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #6c757d;
+}
+
+.nav-btn:hover {
+    background: #e9ecef;
+    color: #333;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nav-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.month-year {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+/* Year View Actions */
+.year-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.btn-create-agenda {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: #f8f9fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 50%;
+    color: #6b7280;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    position: relative;
+    font-size: 16px;
+}
+
+.btn-create-agenda:hover {
+    background: #e9ecef;
+    color: #374151;
+    border-color: #d1d5db;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Year View */
+@media (max-width: 1024px) {
+    .year-grid {
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+        gap: 15px;
+        padding: 15px;
+    }
+}
+
+@media (max-width: 768px) {
+    .calendar-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .month-navigation {
+        order: 2;
+    }
+
+    .year-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(6, 1fr);
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .month-card {
+        padding: 12px;
+    }
+
+    .month-header {
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .month-weekdays>div {
+        font-size: 9px;
+        padding: 3px;
+    }
+
+    .month-day {
+        font-size: 11px;
+    }
+
+    .event-dot {
+        width: 3px;
+        height: 3px;
+    }
+}
+
+@media (max-width: 480px) {
+    .calendar-header {
+        padding: 0 10px;
+    }
+
+    .month-navigation {
+        gap: 15px;
+    }
+
+    .nav-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+    .month-year {
+        font-size: 20px;
+    }
+
+    .year-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(12, 1fr);
+        gap: 8px;
+        padding: 8px;
+    }
+
+    .month-card {
+        padding: 10px;
+    }
+
+    .month-header {
+        font-size: 13px;
+    }
+
+    .month-weekdays>div {
+        font-size: 8px;
+        padding: 2px;
+    }
+
+    .month-day {
+        font-size: 10px;
+    }
+}

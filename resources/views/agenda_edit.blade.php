@@ -79,14 +79,14 @@
                             <div class="input-group">
                                 <label><i class="fas fa-clock"></i> Waktu Mulai</label>
                                 <input type="time" name="start_time"
-                                    value="{{ old('start_time', $agenda->start_time) }}">
+                                    value="{{ old('start_time', $agenda->start_time ? \Carbon\Carbon::parse($agenda->start_time)->format('H:i') : '') }}">
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-clock"></i> Waktu Selesai</label>
                                 <input type="time" name="end_time"
-                                    value="{{ old('end_time', $agenda->end_time) }}">
-                            </div>
+                                    value="{{ old('end_time', $agenda->end_time ? \Carbon\Carbon::parse($agenda->end_time)->format('H:i') : '') }}">
+                           </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-location-dot"></i> Lokasi</label>
@@ -111,5 +111,46 @@
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    @if (session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '{{ session('success') }}',
+            showConfirmButton: false,
+            timer: 2000
+        });
+    @elseif (session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: '{{ session('error') }}',
+            showConfirmButton: true
+        });
+    @endif
+});
+</script>
+
+
+<script>
+document.getElementById('agendaForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    Swal.fire({
+        title: 'Yakin mengubah agenda ini?',
+        text: "Pastikan semua data sudah benar.",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, diubah!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            e.target.submit();
+        }
+    });
+});
+</script>
+
 </body>
 </html>

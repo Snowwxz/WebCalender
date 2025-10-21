@@ -65,7 +65,11 @@ class AgendaController extends Controller
         ]);
 
         try {
+<<<<<<< HEAD
             $agenda = new \App\Models\Agenda();
+=======
+            $agenda = new Agenda();
+>>>>>>> 2a81be45960cbf8499674204a2c29332d1783aa3
             $agenda->agenda_name = $validated['agenda_name'];
             $agenda->description = $validated['description'];
             $agenda->person_in_charge = $validated['person_in_charge'];
@@ -93,8 +97,18 @@ class AgendaController extends Controller
      */
     public function show($id)
     {
-        $agenda = Agenda::with(['user', 'approver'])->findOrFail($id);
-        return response()->json($agenda);
+        try {
+            $agenda = Agenda::with(['user', 'approver'])->findOrFail($id_agenda);
+            return response()->json([
+                'success' => true,
+                'data' => $agenda,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Agenda tidak ditemukan.',
+            ], 404);
+        }
     }
 
     /**
