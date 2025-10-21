@@ -8,10 +8,10 @@
 
     <div class="header-center">
         @if (!request()->routeIs('approve'))
-        <div class="search-container">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" placeholder="Search" class="search-input">
-        </div>
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="Search" class="search-input">
+            </div>
         @endif
     </div>
 
@@ -53,6 +53,29 @@
             @endif
 
 
+            {{-- Notification Bell Icon --}}
+            <div class="notification-bell">
+                <a href="{{ route('approve') }}" class="bell-link" title="Notifications">
+                    <i class="fas fa-bell"></i>
+                </a>
+            </div>
+
+            {{-- User Profile Section for authenticated users --}}
+            {{-- Tombol Tambah Agenda (hanya tampil kalau login) --}}
+            <div class="add-agenda-btn" style="margin-right: 1rem;">
+                <button class="btn-create-agenda" title="Tambah Agenda"
+                    onclick="window.location.href='{{ route('agenda.create') }}'">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+
+            {{-- 🔔 Tombol Notifikasi Agenda Pending --}}
+            <div class="notification-btn" style="margin-right: 1rem;">
+                <button class="btn-notification" title="Notifikasi Agenda"
+                    onclick="window.location.href='{{ route('agenda.notification') }}'">
+                    <i class="fas fa-bell"></i>
+                </button>
+            </div>
 
             {{-- user profile section --}}
             <div class="user-profile-section">
@@ -106,3 +129,82 @@
     </div>
 
 </header>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const logoutForm = document.querySelector('.dropdown-form');
+
+        logoutForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            Swal.fire({
+                title: 'Konfirmasi Logout',
+                text: 'Yakin ingin keluar dari akun?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, keluar',
+                cancelButtonText: 'Batal',
+                toast: true,
+                position: 'top',
+                background: '#FFF1E6',
+                color: '#333',
+                customClass: {
+                    popup: 'notif-swal-popup',
+                    title: 'notif-swal-title',
+                    confirmButton: 'notif-swal-confirm',
+                    cancelButton: 'notif-swal-cancel'
+                },
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    logoutForm.submit();
+                }
+            });
+        });
+    });
+</script>
+
+<style>
+    .notif-swal-popup {
+        width: 280px !important;
+        border-radius: 12px !important;
+        padding: 1rem 1.2rem !important;
+        font-family: 'Poppins', sans-serif;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+        border: 1px solid #f5dada;
+    }
+
+    .notif-swal-title {
+        font-size: 0.95rem !important;
+        font-weight: 600 !important;
+        color: #444 !important;
+    }
+
+    .notif-swal-confirm {
+        background-color: #F47C7C !important;
+        color: white !important;
+        border-radius: 6px !important;
+        padding: 4px 10px !important;
+        font-size: 0.75rem !important;
+        border: none !important;
+        transition: background-color 0.2s ease;
+    }
+
+    .notif-swal-confirm:hover {
+        background-color: #ff6b6b !important;
+    }
+
+    .notif-swal-cancel {
+        background-color: #f1f1f1 !important;
+        color: #444 !important;
+        border-radius: 6px !important;
+        padding: 4px 10px !important;
+        font-size: 0.75rem !important;
+        border: none !important;
+        transition: background-color 0.2s ease;
+    }
+
+    .notif-swal-cancel:hover {
+        background-color: #e6e6e6 !important;
+    }
+</style>
