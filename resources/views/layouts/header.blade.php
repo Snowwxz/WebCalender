@@ -24,16 +24,35 @@
                 </a>
             </div>
 
+            {{-- Notification Bell Icon (hidden on super admin page) --}}
+            @if (!request()->routeIs('superadmin*'))
+                <div class="notification-bell">
+                    @if (Auth::user()->role === 'admin')
+                        <a href="{{ route('approve') }}" class="bell-link" title="Kelola Pengajuan Agenda">
+                            <i class="fas fa-bell"></i>
+                        </a>
+                    @else
+                        <a href="{{ route('agenda.notification') }}" class="bell-link" title="Notifikasi Agenda Saya">
+                            <i class="fas fa-bell"></i>
+                        </a>
+                    @endif
+                </div>
+            @endif
+
             {{-- User Profile Section for authenticated users --}}
-           {{-- Tombol Tambah Agenda (hanya tampil kalau login) --}}
-        <div class="add-agenda-btn" style="margin-right: 1rem;">
-            <button
-                class="btn-create-agenda"
-                title="Tambah Agenda"
-                onclick="window.location.href='{{ route('agenda.create') }}'">
-                <i class="fas fa-plus"></i>
-            </button>
-        </div>
+           {{-- Tombol Tambah Agenda (hidden on super admin page) --}}
+            @if (!request()->routeIs('superadmin*'))
+                <div class="add-agenda-btn" style="margin-right: 1rem;">
+                    <button
+                        class="btn-create-agenda"
+                        title="Tambah Agenda"
+                        onclick="window.location.href='{{ route('agenda.create') }}'">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            @endif
+
+
 
             {{-- user profile section --}}
             <div class="user-profile-section">

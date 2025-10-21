@@ -26,9 +26,10 @@ class Agenda extends Model
         'location',
         'involved_institution',
         'status',
-        'is_public', // 🆕 Tambahkan field publik/privat
+        'is_public',
         'id_user',
         'approved_by',
+        'id_unit',
     ];
 
     /**
@@ -55,5 +56,10 @@ class Agenda extends Model
     public function approver()
     {
         return $this->belongsTo(User::class, 'approved_by', 'id_user');
+    }
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class, 'id_unit', 'id_unit');
     }
 }

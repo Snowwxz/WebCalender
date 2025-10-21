@@ -5,7 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Approve - SiKota</title>
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <!-- Base CSS -->
+    <link rel="stylesheet" href="{{ asset('css/base.css') }}">
+    <!-- Component CSS -->
+    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/approve.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -16,12 +20,15 @@
         <main class="main-content">
             <div class="approval-page">
                 <div class="approval-header">
-                    <div>
-                        <a href="{{ route('dashboard.bulan') }}" title="Kembali ke Dashboard"
-                            aria-label="Kembali ke Dashboard">
-                            <i class="fas fa-arrow-left"></i>
-                        </a>
-                    </div>
+                    @if (Auth::user()->role !== 'admin')
+                        <div>
+                            <a href="{{ route('dashboard.bulan') }}" title="Kembali ke Dashboard"
+                                aria-label="Kembali ke Dashboard">
+                                <i class="fas fa-arrow-left"></i>
+                            </a>
+                        </div>
+                    @endif
+
                     <div class="title-wrap">
                         <h1 class="page-title">Kelola Agenda Kegiatan</h1>
                         <p class="page-subtitle">Tinjau dan setujui proposal agenda kegiatan dari berbagai dinas dan
@@ -51,7 +58,6 @@
                                 <span>Ditolak</span>
                                 <span class="badge">{{ $countRejected }}</span>
                             </a>
-
                         </div>
                     </div>
 
@@ -91,23 +97,30 @@
                                         <div class="details-left">
                                             <div class="detail-item">
                                                 <i class="fas fa-building"></i>
-                                                <span><strong>Nama Instansi (Pengaju):</strong> {{ $agenda->submitted_by ?? '-' }}</span>
+                                                <span><strong>Nama Instansi (Pengaju):</strong>
+                                                    {{ $agenda->unit->unit_name ?? '-' }}
+                                                </span>
                                             </div>
                                             <div class="detail-item">
                                                 <i class="fas fa-user-tie"></i>
-                                                <span><strong>Penanggung Jawab:</strong> {{ $agenda->person_in_charge ?? '-' }}</span>
+                                                <span><strong>Penanggung Jawab:</strong>
+                                                    {{ $agenda->person_in_charge ?? '-' }}</span>
                                             </div>
                                             <div class="detail-item">
                                                 <i class="fas fa-calendar-alt"></i>
-                                                <span><strong>Tanggal:</strong> {{ \Carbon\Carbon::parse($agenda->date)->format('l, d F Y') }}</span>
+                                                <span><strong>Tanggal:</strong>
+                                                    {{ \Carbon\Carbon::parse($agenda->date)->format('l, d F Y') }}</span>
                                             </div>
                                             <div class="detail-item">
                                                 <i class="fas fa-clock"></i>
                                                 <span><strong>Waktu Pelaksanaan:</strong>
                                                     @if ($agenda->start_time && $agenda->end_time)
-                                                        {{ \Carbon\Carbon::parse($agenda->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($agenda->end_time)->format('H:i') }} WITA
+                                                        {{ \Carbon\Carbon::parse($agenda->start_time)->format('H:i') }}
+                                                        - {{ \Carbon\Carbon::parse($agenda->end_time)->format('H:i') }}
+                                                        WITA
                                                     @elseif($agenda->start_time)
-                                                        {{ \Carbon\Carbon::parse($agenda->start_time)->format('H:i') }} WITA
+                                                        {{ \Carbon\Carbon::parse($agenda->start_time)->format('H:i') }}
+                                                        WITA
                                                     @else
                                                         -
                                                     @endif
@@ -121,8 +134,16 @@
                                             </div>
                                             <div class="detail-item participants">
                                                 <i class="fas fa-people-group"></i>
-                                                <span><strong>Instansi Terlibat:</strong> {{ $agenda->involved_institution ?? '-' }}</span>
+                                                <span><strong>Instansi Terlibat:</strong>
+                                                    {{ $agenda->involved_institution ?? '-' }}</span>
                                             </div>
+                                        </div>
+                                        <div class="detail-item">
+                                            <i class="fas fa-eye"></i>
+                                            <span>
+                                                <strong>Status Publikasi:</strong>
+                                                {{ $agenda->is_public ? 'Publik' : 'Privat' }}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -131,29 +152,46 @@
                                 <div class="card-footer">
                                     <div class="submission-info">
                                         <i class="fas fa-user"></i>
-                                        <span>{{ $agenda->submitted_by ?? '-' }}</span>
-                                        <span class="submission-time">Diajukan {{ \Carbon\Carbon::parse($agenda->created_at)->diffForHumans() }}</span>
+                                        <span>{{ $agenda->units ?? '-' }}</span>
+                                        <span class="submission-name">
+                                            {{ $agenda->person_in_charge ?? ($agenda->user->name ?? '-') }}
+                                        </span>
+                                        <span class="submission-time">
+                                            &nbsp;Diajukan
+                                            {{ \Carbon\Carbon::parse($agenda->created_at)->diffForHumans() }}
+                                        </span>
                                     </div>
-                                    <div class="approval-actions">
-                                        <form action="{{ route('agenda.update', $agenda->id_agenda) }}" method="POST" class="action-form">
-                                            @csrf
-                                            @method('PUT')
-                                            <input type="hidden" name="status" value="rejected">
-                                            <button type="submit" class="btn-reject">
-                                                <i class="fas fa-times"></i>
-                                                Tolak
-                                            </button>
-                                        </form>
-                                        <form action="{{ route('agenda.update', $agenda->id_agenda) }}" method="POST" class="action-form">
-                                            @csrf
-                                            @method('PUT')
-                                            <input type="hidden" name="status" value="approved">
-                                            <button type="submit" class="btn-approve">
-                                                <i class="fas fa-check"></i>
-                                                Setujui
-                                            </button>
-                                        </form>
-                                    </div>
+
+                                    {{-- Tombol hanya muncul jika status masih pending --}}
+                                    @if ($agenda->status === 'pending')
+                                        <div class="approval-actions">
+                                            <form action="{{ route('agenda.updateStatus', $agenda->id_agenda) }}"
+                                                method="POST" class="action-form">
+                                                @csrf
+                                                @method('PUT')
+                                                <input type="hidden" name="status" value="rejected">
+                                                <button type="submit" class="btn-reject">
+                                                    <i class="fas fa-times"></i> Tolak
+                                                </button>
+                                            </form>
+                                            <form action="{{ route('agenda.updateStatus', $agenda->id_agenda) }}"
+                                                method="POST" class="action-form">
+                                                @csrf
+                                                @method('PUT')
+                                                <input type="hidden" name="status" value="approved">
+                                                <button type="submit" class="btn-approve">
+                                                    <i class="fas fa-check"></i> Setujui
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @else
+                                        <div class="approval-actions">
+                                            <span class="validated-text">
+                                                <i class="fas fa-circle-check"></i>
+                                                Agenda sudah divalidasi ({{ ucfirst($agenda->status) }})
+                                            </span>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         @endforeach
@@ -161,24 +199,24 @@
                 @endif
             </div>
         </main>
-    </div>
 
-    <script>
-        function toggleDropdown() {
-            const dropdown = document.getElementById('userDropdown');
-            const profile = document.querySelector('.user-profile');
-            dropdown.classList.toggle('show');
-            profile.classList.toggle('active');
-        }
-        document.addEventListener('click', function(event) {
-            const dropdown = document.getElementById('userDropdown');
-            const profile = document.querySelector('.user-profile');
-            if (profile && !profile.contains(event.target)) {
-                dropdown && dropdown.classList.remove('show');
-                profile.classList.remove('active');
+
+        <script>
+            function toggleDropdown() {
+                const dropdown = document.getElementById('userDropdown');
+                const profile = document.querySelector('.user-profile');
+                dropdown.classList.toggle('show');
+                profile.classList.toggle('active');
             }
-        });
-    </script>
+            document.addEventListener('click', function(event) {
+                const dropdown = document.getElementById('userDropdown');
+                const profile = document.querySelector('.user-profile');
+                if (profile && !profile.contains(event.target)) {
+                    dropdown && dropdown.classList.remove('show');
+                    profile.classList.remove('active');
+                }
+            });
+        </script>
 </body>
 
 </html>

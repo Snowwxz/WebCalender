@@ -1,17 +1,19 @@
 @extends('layouts.main')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/dashboard-tahun.css') }}">
+@endpush
+
 @section('content')
 <div class="year-view-page">
     <div class="year-view-main">
         <!-- Year Header -->
-        <div class="year-header">
-            <div class="year-navigation">
-                <div class="calendar-header">
-                    <div class="month-navigation">
+        <div class="calendar-header">
+            <div class="month-navigation">
                 <button class="nav-btn" onclick="changeYear(-1)">
                     <i class="fas fa-chevron-left"></i>
                 </button>
-                <h2 class="current-year" id="currentYear">2025</h2>
+                <h2 class="month-year" id="currentYear">2025</h2>
                 <button class="nav-btn" onclick="changeYear(1)">
                     <i class="fas fa-chevron-right"></i>
                 </button>

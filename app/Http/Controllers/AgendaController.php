@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Agenda;
+use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -23,7 +24,7 @@ class AgendaController extends Controller
             ->orderBy('date', 'desc');
 
         if ($request->query('only_my')) {
-            $query->where('id_user', Auth::id());
+            $query->where('id_user', Auth::user()->id_user);
         }
 
         $agenda = $query->get();
@@ -40,7 +41,9 @@ class AgendaController extends Controller
      */
     public function create()
     {
-        return view('agenda_create');
+        $units = Unit::orderBy('unit_name', 'asc')->get();
+
+        return view('agenda_create', compact('units'));
     }
 
     /**
@@ -57,40 +60,33 @@ class AgendaController extends Controller
             'end_time' => 'nullable|date_format:H:i|after_or_equal:start_time',
             'location' => 'nullable|string|max:255',
             'involved_institution' => 'nullable|string|max:500',
+            'is_public' => 'required|in:0,1',
+            'id_unit' => 'required|exists:units,id_unit',
         ]);
 
         try {
-            $userId = Auth::id() ?: 1;
-
             $agenda = new Agenda();
             $agenda->agenda_name = $validated['agenda_name'];
-            $agenda->description = $validated['description'] ?? null;
-            $agenda->person_in_charge = $validated['person_in_charge'] ?? null;
+            $agenda->description = $validated['description'];
+            $agenda->person_in_charge = $validated['person_in_charge'];
             $agenda->date = $validated['date'];
-            $agenda->start_time = $validated['start_time'] ?? null;
-            $agenda->end_time = $validated['end_time'] ?? null;
-            $agenda->location = $validated['location'] ?? null;
-            $agenda->involved_institution = $validated['involved_institution'] ?? null;
-            $agenda->status = 'pending';
+            $agenda->start_time = $validated['start_time'];
+            $agenda->end_time = $validated['end_time'];
+            $agenda->location = $validated['location'];
+            $agenda->involved_institution = $validated['involved_institution'];
             $agenda->is_public = $validated['is_public'];
-            $agenda->id_user = $userId;
-            $agenda->approved_by = null;
+            $agenda->id_unit = $validated['id_unit'];
+            $agenda->id_user = Auth::user()->id_user;
+            $agenda->status = 'pending';
+
             $agenda->save();
 
-            return redirect()
-                ->back()
-                ->with('success', '✅ Agenda berhasil ditambahkan (status: pending).');
-
-        } catch (\Throwable $e) {
-            Log::error('❌ Gagal menyimpan agenda: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            return back()
-                ->withInput()
-                ->with('error', 'Gagal menambahkan agenda: ' . $e->getMessage());
+            return redirect()->back()->with('success', 'Agenda berhasil ditambahkan!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menyimpan agenda: ' . $e->getMessage());
         }
     }
+
 
     /**
      * ✅ Lihat detail agenda (JSON).
@@ -155,17 +151,46 @@ class AgendaController extends Controller
             ->with('success', '✅ Agenda berhasil diperbarui.');
     }
 
+    public function updateStatus(Request $request, $id_agenda)
+    {
+        $agenda = Agenda::findOrFail($id_agenda);
+
+        $request->validate([
+            'status' => 'required|in:approved,rejected'
+        ]);
+
+        if (Auth::user()->role === 'admin') {
+            $agenda->status = $request->status;
+            $agenda->approved_by = ($request->status === 'approved') ? Auth::id() : null;
+            $agenda->save();
+
+            return redirect()->back()->with('success', 'Status agenda berhasil diperbarui!');
+        }
+
+        return redirect()->back()->with('error', 'Anda tidak memiliki izin untuk mengubah status agenda.');
+    }
+
+
     /**
      * ✅ Hapus agenda.
      */
-    public function destroy($id)
+    public function destroy($id_agenda)
     {
-        $agenda = Agenda::findOrFail($id);
+        $agenda = Agenda::findOrFail($id_agenda);
+
+        // Validasi: hanya creator & status pending yang bisa hapus
+        if ($agenda->status !== 'pending') {
+            return redirect()->back()->with('error', 'Agenda tidak dapat dihapus karena sudah di-approve atau ditolak.');
+        }
+
+        // Sesuaikan dengan kolom kamu: id_user
+        if ($agenda->id_user !== Auth::user()->id_user) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki izin untuk menghapus agenda ini.');
+        }
+
         $agenda->delete();
 
-        return redirect()
-            ->back()
-            ->with('success', 'Agenda berhasil dihapus.');
+        return redirect()->back()->with('success', 'Agenda berhasil dihapus.');
     }
 
     /**
