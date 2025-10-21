@@ -209,6 +209,76 @@
     transform: translateX(1px);
 }
 
+/* Status Agenda Colors */
+.bg-green-500 {
+    background-color: #10b981 !important;
+    color: white !important;
+    font-size: 9px;
+    padding: 3px 5px;
+    margin-bottom: 2px;
+    border-radius: 3px;
+    line-height: 1.1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    max-width: 100%;
+    flex-shrink: 0;
+    word-break: break-word;
+}
+
+.bg-yellow-500 {
+    background-color: #f59e0b !important;
+    color: white !important;
+    font-size: 9px;
+    padding: 3px 5px;
+    margin-bottom: 2px;
+    border-radius: 3px;
+    line-height: 1.1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    max-width: 100%;
+    flex-shrink: 0;
+    word-break: break-word;
+}
+
+.bg-red-500 {
+    background-color: #ef4444 !important;
+    color: white !important;
+    font-size: 9px;
+    padding: 3px 5px;
+    margin-bottom: 2px;
+    border-radius: 3px;
+    line-height: 1.1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    max-width: 100%;
+    flex-shrink: 0;
+    word-break: break-word;
+}
+
+.bg-green-500:hover {
+    background-color: #059669 !important;
+    transform: translateX(1px);
+}
+
+.bg-yellow-500:hover {
+    background-color: #d97706 !important;
+    transform: translateX(1px);
+}
+
+.bg-red-500:hover {
+    background-color: #dc2626 !important;
+    transform: translateX(1px);
+}
+
 /* Container untuk agenda items */
 .agenda-container {
     flex: 1;

@@ -24,7 +24,11 @@ class AgendaController extends Controller
             ->orderBy('date', 'desc');
 
         if ($request->query('only_my')) {
+            // Jika user ingin melihat agenda mereka sendiri, tampilkan semua status
             $query->where('id_user', Auth::user()->id_user);
+        } else {
+            // Jika melihat semua agenda, hanya tampilkan yang sudah di-approve
+            $query->where('status', 'approved');
         }
 
         $agenda = $query->get();

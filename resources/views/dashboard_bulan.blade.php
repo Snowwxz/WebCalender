@@ -213,7 +213,20 @@
                  
                  for (let i=0; i<agendaToShow.length; i++) {
                      const badge = document.createElement("div");
-                     badge.setAttribute("class", "bg-gray-400 text-white mb-2 rounded-sm p-2");
+                     
+                     // Tentukan class berdasarkan status agenda
+                     let badgeClass = "text-white mb-2 rounded-sm p-2";
+                     if (agendaToShow[i].status === 'approved') {
+                         badgeClass = "bg-green-500 " + badgeClass; // Hijau untuk approved
+                     } else if (agendaToShow[i].status === 'pending') {
+                         badgeClass = "bg-yellow-500 " + badgeClass; // Kuning untuk pending
+                     } else if (agendaToShow[i].status === 'rejected') {
+                         badgeClass = "bg-red-500 " + badgeClass; // Merah untuk rejected
+                     } else {
+                         badgeClass = "bg-gray-400 " + badgeClass; // Default abu-abu
+                     }
+                     
+                     badge.setAttribute("class", badgeClass);
                      
                      // Batasi panjang teks agenda (maksimal 20 karakter)
                      let agendaText = agendaToShow[i].agenda_name;
@@ -222,7 +235,7 @@
                      }
                      
                      badge.innerHTML = agendaText;
-                     badge.title = agendaToShow[i].agenda_name; // Tooltip untuk teks lengkap
+                     badge.title = `${agendaToShow[i].agenda_name} (Status: ${agendaToShow[i].status})`; // Tooltip dengan status
                      agendaContainer.appendChild(badge);
                  }
                  
