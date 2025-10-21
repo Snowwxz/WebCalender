@@ -23,7 +23,7 @@
                     <i class="fas fa-bell"></i>
                 </a>
             </div>
-            
+
             {{-- User Profile Section for authenticated users --}}
            {{-- Tombol Tambah Agenda (hanya tampil kalau login) --}}
         <div class="add-agenda-btn" style="margin-right: 1rem;">
