@@ -15,7 +15,7 @@ return new class extends Migration
                 $table->foreign('id_unit')->references('id_unit')->on('units')->onDelete('set null');
             }
 
-            // 🗑️ Hapus kolom submitted_by jika ada
+            
             if (Schema::hasColumn('agenda', 'submitted_by')) {
                 $table->dropColumn('submitted_by');
             }

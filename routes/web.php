@@ -83,7 +83,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ✅ Route khusus tiap role
     Route::middleware('role:user')->group(function () {
         Route::get('/dashboard/hari', fn() => view('dashboard_hari'))->name('dashboard.hari');
-        Route::get('/dashboard/bulan', fn() => view('dashboard_bulan'))->name('dashboard.bulan');
+        Route::get('/dashboard/bulan', [AgendaController::class, 'index'])->name('dashboard.bulan');
         Route::get('/dashboard/tahun', fn() => view('dashboard_tahun'))->name('dashboard.tahun');
     });
 

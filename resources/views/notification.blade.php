@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     deleteForms.forEach(form => {
         form.addEventListener('submit', function (e) {
-            e.preventDefault(); // cegah submit langsung
+            e.preventDefault();  
 
             Swal.fire({
                 title: 'Yakin ingin menghapus agenda ini?',
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    form.submit(); // kirim form jika user menekan konfirmasi
+                    form.submit();
                 }
             });
         });

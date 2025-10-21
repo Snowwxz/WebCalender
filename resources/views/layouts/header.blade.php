@@ -19,7 +19,7 @@
         @auth
             {{-- Notification Bell Icon --}}
             <div class="notification-bell">
-                @if (Auth::user()->role === 'admin')
+                @if (Auth::user()->role === 'admin') 
                     <a href="{{ route('approve') }}" class="bell-link" title="Kelola Pengajuan Agenda">
                         <i class="fas fa-bell"></i>
                     </a>
