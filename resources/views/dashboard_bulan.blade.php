@@ -1,6 +1,7 @@
 @extends('layouts.main')
 
 @section('content')
+    @include("show_agenda_modal")
     @include("create_agenda_modal")
     <div class="calendar-page">
         <div class="calendar-main">
@@ -162,6 +163,43 @@
         }
 
         document.addEventListener('DOMContentLoaded', generateMainCalendar);
+
+        // ini modal show anjing
+        function openShowAgendaModal(data) {
+    // Nama agenda
+    document.getElementById('showAgendaName').innerText = data.agenda_name ?? '-';
+
+    // Tanggal
+    document.getElementById('showAgendaDate').innerText = data.date ?? '-';
+
+    // Waktu (kalau ada start dan end time)
+    const timeText = (data.start_time && data.end_time)
+        ? `${data.start_time} - ${data.end_time}`
+        : (data.start_time ?? '-');
+    document.getElementById('showAgendaTime').innerText = timeText;
+
+    // Lokasi
+    document.getElementById('showAgendaLocation').innerText = data.location ?? '-';
+
+    // Penanggung jawab
+    document.getElementById('showAgendaPIC').innerText = data.person_in_charge ?? '-';
+
+    // Deskripsi
+    document.getElementById('showAgendaDesc').innerText = data.description ?? '-';
+
+    // Status (warna disesuaikan)
+    const statusEl = document.getElementById('showAgendaStatus');
+    statusEl.innerText = data.status ?? 'pending';
+    statusEl.className = "badge text-white " +
+        (data.status === 'approved' ? 'bg-success' :
+         data.status === 'rejected' ? 'bg-danger' :
+         'bg-warning text-dark');
+
+    // ✅ Tampilkan modal pakai Bootstrap
+    const modal = new bootstrap.Modal(document.getElementById('showAgendaModal'));
+    modal.show();
+    }
+
     </script>
     @if (session('success'))
         <script>
@@ -182,6 +220,7 @@
                 title: 'Oops...',
                 text: '{{ session('error') }}',
             });
+
         </script>
     @endif
 
