@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Agenda;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -37,6 +38,78 @@ class AgendaController extends Controller
         return view('dashboard_bulan', compact('agenda', 'year', 'month'));
     }
 
+    // 🔥 new method: list() — ambil agenda via /date/{year?}-{month?}-{day?}
+    public function list($params = null)
+    {
+        try {
+            // Pisahkan parameter jadi [year, month, day]
+            $parts = $params ? explode('-', $params) : [];
+
+            $year = $parts[0] ?? null;
+            $month = $parts[1] ?? null;
+            $day = $parts[2] ?? null;
+
+            // Kalau semua kosong → return data HARI INI
+            if (! $year && ! $month && ! $day) {
+                $today = now()->toDateString();
+
+                $agenda = Agenda::with(['user', 'approver'])
+                    ->whereDate('date', $today)
+                    ->orderBy('date', 'desc')
+                    ->get();
+
+                return response()->json([
+                    'requested_date' => $today,
+                    'total' => $agenda->count(),
+                    'data' => $agenda,
+                    'note' => 'Menampilkan agenda untuk hari ini',
+                ]);
+            }
+
+            // Kalau cuma tahun kosong tapi gak semua kosong → fallback tahun terakhir
+            if (! $year && ($month || $day)) {
+                $year = Agenda::selectRaw('YEAR(MAX(date)) as latest_year')->value('latest_year') ?? now()->year;
+            }
+
+            // Bentuk tanggal valid
+            $dateString = sprintf(
+                '%04d-%02d-%02d',
+                $year ?? now()->year,
+                $month ?? 1,
+                $day ?? 1
+            );
+
+            $date = Carbon::parse($dateString);
+
+            // Query fleksibel
+            $query = Agenda::with(['user', 'approver'])
+                ->orderBy('date', 'desc');
+
+            if ($year) {
+                $query->whereYear('date', $year);
+            }
+            if ($month) {
+                $query->whereMonth('date', $month);
+            }
+            if ($day) {
+                $query->whereDay('date', $day);
+            }
+
+            $agenda = $query->get();
+
+            return response()->json([
+                'requested_date' => $date->toDateString(),
+                'total' => $agenda->count(),
+                'data' => $agenda,
+            ]);
+
+        } catch (\Throwable $e) {
+            Log::error('Gagal ambil list agenda: '.$e->getMessage());
+
+            return response()->json(['error' => 'Invalid date format or server error'], 400);
+        }
+    }
+
     // ini buat munculin form create
     public function create()
     {
@@ -59,10 +132,8 @@ class AgendaController extends Controller
         ]);
 
         try {
-            // Ambil user id
             $userId = Auth::id() ?: 1;
 
-            // Simpan ke database
             $agenda = new Agenda;
             $agenda->agenda_name = $validated['agenda_name'];
             $agenda->description = $validated['description'] ?? null;
@@ -83,7 +154,6 @@ class AgendaController extends Controller
                 ->with('success', '✅ Agenda berhasil ditambahkan ke database (status pending).');
 
         } catch (\Throwable $e) {
-            dd($e);
             Log::error('❌ Gagal menyimpan agenda: '.$e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
             ]);
@@ -105,10 +175,8 @@ class AgendaController extends Controller
     // tampilkan form pengeditan
     public function edit($id)
     {
-        // Ambil data agenda sesuai ID
         $agenda = Agenda::findOrFail($id);
 
-        // Kirim ke view edit
         return view('agenda_edit', compact('agenda'));
     }
 
@@ -117,7 +185,6 @@ class AgendaController extends Controller
     {
         $agenda = Agenda::findOrFail($id);
 
-        // Validasi input sama seperti store
         $validated = $request->validate([
             'agenda_name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -126,20 +193,18 @@ class AgendaController extends Controller
             'penanggung_jawab' => 'nullable|string|max:255',
             'instansi_ikut' => 'nullable|string|max:255',
             'status' => 'nullable|string|in:pending,approved,rejected',
-            'waktu_pelaksanaan' => 'nullable|string|max:10', // tambahan kalau pakai field time
+            'waktu_pelaksanaan' => 'nullable|string|max:10',
         ]);
 
-        // Map ke field database
         $agenda->agenda_name = $validated['agenda_name'];
         $agenda->description = $validated['description'] ?? null;
         $agenda->date = $validated['tanggal'];
         $agenda->location = $validated['lokasi'] ?? null;
         $agenda->person_in_charge = $validated['penanggung_jawab'] ?? null;
         $agenda->involved_institution = $validated['instansi_ikut'] ?? null;
-        $agenda->time = $validated['waktu_pelaksanaan'] ?? null; // jika ada kolom waktu
+        $agenda->time = $validated['waktu_pelaksanaan'] ?? null;
         $agenda->status = $validated['status'] ?? $agenda->status;
 
-        // Jika status diubah ke approved, set approved_by
         if (($validated['status'] ?? '') === 'approved' && Auth::check()) {
             $agenda->approved_by = Auth::id();
         }

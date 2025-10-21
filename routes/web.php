@@ -41,6 +41,8 @@ Route::get('/api/agenda/year/{year}', [LandingController::class, 'getByYear'])
     ->where(['year' => '[0-9]{4}']);
 Route::get('/api/agenda/search', [LandingController::class, 'search'])
     ->name('agenda.search');
+Route::get('/api/agenda/list/{params?}', [AgendaController::class, 'list'])->where('params', '.*');
+
 
 
 
