@@ -220,15 +220,22 @@
                     const badge = document.createElement("div");
                     badge.setAttribute("class", "bg-gray-400 text-white mb-2 rounded-sm p-2");
                     badge.innerHTML = filteredAgenda[i].agenda_name;
-                    badge.onclick = () => showAgendaModal(filteredAgenda[i].id_agenda);
+                    badge.onclick = (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        showAgendaModal(filteredAgenda[i].id_agenda);
+                    };
                     dayElement.appendChild(badge);
                 }
 
-                dayElement.addEventListener('click', () => {
+                dayElement.addEventListener('click', (e) => {
+                    e.preventDefault();
                     openModal(`${year}-${month}-${day}`);
                 });
 
-                dayNumber.addEventListener('click', () => {
+                dayNumber.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation(); // 🧨 stop biar ga double trigger
                     window.location.href = `/hari?tanggal=${year}-${month}-${day}`;
                 });
 
