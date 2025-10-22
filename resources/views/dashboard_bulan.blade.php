@@ -1,11 +1,13 @@
 @extends('layouts.main')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/dashboard-bulan.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dashboard-bulan.css') }}">
 @endpush
 
 @section('content')
-    @include("create_agenda_modal")
+    {{-- @include("create_agenda_modal") --}}
+    @include("show_agenda_modal")
+
     <div class="calendar-page">
         <div class="calendar-main">
             <div class="calendar-header">
@@ -50,7 +52,8 @@
             </div>
 
             <div class="modal-body">
-                <form id="agendaForm" action="{{ route('agenda.store') }}" method="POST" onsubmit="return validateAgendaForm()">
+                <form id="agendaForm" action="{{ route('agenda.store') }}" method="POST"
+                    onsubmit="return validateAgendaForm()">
                     @csrf
 
                     <div class="form-grid">
@@ -58,22 +61,26 @@
                         <div class="form-column">
                             <div class="input-group">
                                 <label><i class="fas fa-file-alt"></i> Nama Agenda</label>
-                                <input type="text" name="agenda_name" id="agenda_name" placeholder="Masukkan nama agenda" required>
+                                <input type="text" name="agenda_name" id="agenda_name" placeholder="Masukkan nama agenda"
+                                    required>
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-align-left"></i> Deskripsi Agenda</label>
-                                <textarea name="description" id="description" placeholder="Masukkan deskripsi agenda" required></textarea>
+                                <textarea name="description" id="description" placeholder="Masukkan deskripsi agenda"
+                                    required></textarea>
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-user-tie"></i> Penanggung Jawab</label>
-                                <input type="text" name="person_in_charge" id="person_in_charge" placeholder="Masukkan nama penanggung jawab" required>
+                                <input type="text" name="person_in_charge" id="person_in_charge"
+                                    placeholder="Masukkan nama penanggung jawab" required>
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-people-group"></i> Instansi yang Ikut Serta</label>
-                                <textarea name="involved_institution" id="involved_institution" placeholder="Masukkan instansi yang akan ikut serta" required></textarea>
+                                <textarea name="involved_institution" id="involved_institution"
+                                    placeholder="Masukkan instansi yang akan ikut serta" required></textarea>
                             </div>
                         </div>
 
@@ -96,7 +103,8 @@
 
                             <div class="input-group">
                                 <label><i class="fas fa-location-dot"></i> Lokasi</label>
-                                <input type="text" name="location" id="location" placeholder="Masukkan lokasi agenda" required>
+                                <input type="text" name="location" id="location" placeholder="Masukkan lokasi agenda"
+                                    required>
                             </div>
                         </div>
                     </div>
@@ -120,7 +128,7 @@
 
         let currentDate = new Date(selectedYear, selectedMonth - 1, 1);
 
-       let agenda = {!! json_encode($agenda, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) !!};
+        let agenda = {!! json_encode($agenda, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) !!};
 
 
         /**
@@ -208,23 +216,23 @@
                 dayElement.appendChild(dayNumber);
                 calendarDays.appendChild(dayElement);
 
-                for (let i=0; i<filteredAgenda.length; i++) {
+                for (let i = 0; i < filteredAgenda.length; i++) {
                     const badge = document.createElement("div");
                     badge.setAttribute("class", "bg-gray-400 text-white mb-2 rounded-sm p-2");
                     badge.innerHTML = filteredAgenda[i].agenda_name;
+                    badge.onclick = () => showAgendaModal(filteredAgenda[i].id_agenda);
                     dayElement.appendChild(badge);
                 }
 
                 dayElement.addEventListener('click', () => {
-                    getel("date").value = `${year}-${month}-${day}`;
-                    getel("createAgendaModal").hidden = false;
+                    openModal(`${year}-${month}-${day}`);
                 });
 
                 dayNumber.addEventListener('click', () => {
                     window.location.href = `/hari?tanggal=${year}-${month}-${day}`;
                 });
 
-                
+
             }
         }
 
@@ -234,111 +242,111 @@
             generateMainCalendar();
         }
 
-         // Modal functions
-         function openModal(selectedDate = null) {
-             const modal = document.getElementById('createAgendaModal');
-             const dateInput = document.getElementById('date');
+        // Modal functions
+        function openModal(selectedDate = null) {
+            const modal = document.getElementById('createAgendaModal');
+            const dateInput = document.getElementById('date');
 
-             if (selectedDate && dateInput) {
-                 dateInput.value = selectedDate;
-             }
+            if (selectedDate && dateInput) {
+                dateInput.value = selectedDate;
+            }
 
-             modal.style.display = 'flex';
-             document.body.style.overflow = 'hidden';
-         }
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
 
-         function closeModal() {
-             const modal = document.getElementById('createAgendaModal');
-             modal.style.display = 'none';
-             document.body.style.overflow = 'auto';
+        function closeModal() {
+            const modal = document.getElementById('createAgendaModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
 
-             // Reset form
-             document.getElementById('agendaForm').reset();
-         }
+            // Reset form
+            document.getElementById('agendaForm').reset();
+        }
 
-         // Validasi form
-         function validateAgendaForm() {
-             const inputs = document.querySelectorAll('#createAgendaModal input[required], #createAgendaModal textarea[required]');
-             let valid = true;
+        // Validasi form
+        function validateAgendaForm() {
+            const inputs = document.querySelectorAll('#createAgendaModal input[required], #createAgendaModal textarea[required]');
+            let valid = true;
 
-             inputs.forEach(input => {
-                 if (!input.value.trim()) {
-                     input.style.borderColor = 'red';
-                     valid = false;
-                 } else {
-                     input.style.borderColor = '#d6e0d9';
-                 }
-             });
+            inputs.forEach(input => {
+                if (!input.value.trim()) {
+                    input.style.borderColor = 'red';
+                    valid = false;
+                } else {
+                    input.style.borderColor = '#d6e0d9';
+                }
+            });
 
-             if (!valid) {
-                 alert('Semua field wajib diisi!');
-             }
+            if (!valid) {
+                alert('Semua field wajib diisi!');
+            }
 
-             return valid;
-         }
+            return valid;
+        }
 
-         // Helper function untuk get element
-         function getel(id) {
-             return document.getElementById(id);
-         }
+        // Helper function untuk get element
+        function getel(id) {
+            return document.getElementById(id);
+        }
 
-         document.addEventListener('DOMContentLoaded', function() {
-             generateMainCalendar();
+        document.addEventListener('DOMContentLoaded', function () {
+            generateMainCalendar();
 
-             // Close modal when clicking outside
-             document.getElementById('createAgendaModal').addEventListener('click', (e) => {
-                 if (e.target.id === 'createAgendaModal') {
-                     closeModal();
-                 }
-             });
+            // Close modal when clicking outside
+            document.getElementById('createAgendaModal').addEventListener('click', (e) => {
+                if (e.target.id === 'createAgendaModal') {
+                    closeModal();
+                }
+            });
 
-             // Close modal with Escape key
-             document.addEventListener('keydown', (e) => {
-                 if (e.key === 'Escape') {
-                     closeModal();
-                 }
-             });
-         });
-     </script>
+            // Close modal with Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+            });
+        });
+    </script>
 
-     <script>
+    <script>
         document.addEventListener('DOMContentLoaded', generateMainCalendar);
 
         // ini modal show anjing
         function openShowAgendaModal(data) {
-    // Nama agenda
-    document.getElementById('showAgendaName').innerText = data.agenda_name ?? '-';
+            // Nama agenda
+            document.getElementById('showAgendaName').innerText = data.agenda_name ?? '-';
 
-    // Tanggal
-    document.getElementById('showAgendaDate').innerText = data.date ?? '-';
+            // Tanggal
+            document.getElementById('showAgendaDate').innerText = data.date ?? '-';
 
-    // Waktu (kalau ada start dan end time)
-    const timeText = (data.start_time && data.end_time)
-        ? `${data.start_time} - ${data.end_time}`
-        : (data.start_time ?? '-');
-    document.getElementById('showAgendaTime').innerText = timeText;
+            // Waktu (kalau ada start dan end time)
+            const timeText = (data.start_time && data.end_time)
+                ? `${data.start_time} - ${data.end_time}`
+                : (data.start_time ?? '-');
+            document.getElementById('showAgendaTime').innerText = timeText;
 
-    // Lokasi
-    document.getElementById('showAgendaLocation').innerText = data.location ?? '-';
+            // Lokasi
+            document.getElementById('showAgendaLocation').innerText = data.location ?? '-';
 
-    // Penanggung jawab
-    document.getElementById('showAgendaPIC').innerText = data.person_in_charge ?? '-';
+            // Penanggung jawab
+            document.getElementById('showAgendaPIC').innerText = data.person_in_charge ?? '-';
 
-    // Deskripsi
-    document.getElementById('showAgendaDesc').innerText = data.description ?? '-';
+            // Deskripsi
+            document.getElementById('showAgendaDesc').innerText = data.description ?? '-';
 
-    // Status (warna disesuaikan)
-    const statusEl = document.getElementById('showAgendaStatus');
-    statusEl.innerText = data.status ?? 'pending';
-    statusEl.className = "badge text-white " +
-        (data.status === 'approved' ? 'bg-success' :
-         data.status === 'rejected' ? 'bg-danger' :
-         'bg-warning text-dark');
+            // Status (warna disesuaikan)
+            const statusEl = document.getElementById('showAgendaStatus');
+            statusEl.innerText = data.status ?? 'pending';
+            statusEl.className = "badge text-white " +
+                (data.status === 'approved' ? 'bg-success' :
+                    data.status === 'rejected' ? 'bg-danger' :
+                        'bg-warning text-dark');
 
-    // ✅ Tampilkan modal pakai Bootstrap
-    const modal = new bootstrap.Modal(document.getElementById('showAgendaModal'));
-    modal.show();
-    }
+            // ✅ Tampilkan modal pakai Bootstrap
+            const modal = new bootstrap.Modal(document.getElementById('showAgendaModal'));
+            modal.show();
+        }
 
     </script>
     @if (session('success'))
