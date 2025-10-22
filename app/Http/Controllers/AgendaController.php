@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\Log;
 
 class AgendaController extends Controller
 {
-    // tampilkan daftar agenda
+    /**
+     * ✅ Tampilkan daftar agenda di dashboard.
+     */
     public function index(Request $request)
     {
         $year = $request->query('year', date('Y'));
@@ -22,7 +24,11 @@ class AgendaController extends Controller
             ->orderBy('date', 'desc');
 
         if ($request->query('only_my')) {
+            // Jika user ingin melihat agenda mereka sendiri, tampilkan semua status
             $query->where('id_user', Auth::user()->id_user);
+        } else {
+            // Jika melihat semua agenda, hanya tampilkan yang sudah di-approve
+            $query->where('status', 'approved');
         }
 
         $agenda = $query->get();
@@ -63,7 +69,7 @@ class AgendaController extends Controller
         ]);
 
         try {
-            $agenda = new \App\Models\Agenda();
+            $agenda = new Agenda();
             $agenda->agenda_name = $validated['agenda_name'];
             $agenda->description = $validated['description'];
             $agenda->person_in_charge = $validated['person_in_charge'];
