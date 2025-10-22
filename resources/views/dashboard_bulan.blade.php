@@ -6,7 +6,6 @@
 
 @section('content')
     @include("show_agenda_modal")
-    @include("create_agenda_modal")
     <div class="calendar-page">
         <div class="calendar-main">
             <div class="calendar-header">
