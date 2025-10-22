@@ -31,37 +31,37 @@
                    <div>Rab</div>
                    <div>Kam</div>
                    <div>Jum</div>
-                   <div class="weekend">Sab</div>
-                   <div class="weekend">Min</div>
+                   <div>Sab</div>
+                   <div>Min</div>
                </div>
                <div class="mini-calendar-days" id="miniCalendarDays"></div>
            </div>
        </div>
 
-    <!-- Agenda Section -->
-    <div class="agenda-section">
-        <div class="section-title">
-            <i class="fas fa-list"></i>
-            <span>Kategori Agenda</span>
-        </div>
+       <!-- Agenda Section -->
+       <div class="agenda-section">
+           <div class="section-title">
+               <i class="fas fa-list"></i>
+               <span>Kategori Agenda</span>
+           </div>
 
-        <div class="agenda-categories">
-            <div class="category-item">
-                <input type="checkbox" id="public" checked>
-                <label for="public">
-                    <span class="category-dot public"></span>
-                    <span>Publik</span>
-                </label>
-            </div>
-            @auth
-            <div class="category-item">
-                <input type="checkbox" id="private" checked>
-                <label for="private">
-                    <span class="category-dot private"></span>
-                    <span>Privasi</span>
-                </label>
-            </div>
-            @endauth
-        </div>
-    </div>
-</aside>
+           <div class="agenda-categories">
+               <div class="category-item">
+                   <input type="checkbox" id="public" checked>
+                   <label for="public">
+                       <span class="category-dot public"></span>
+                       <span>Publik</span>
+                   </label>
+               </div>
+               @auth
+                   <div class="category-item">
+                       <input type="checkbox" id="private" checked>
+                       <label for="private">
+                           <span class="category-dot private"></span>
+                           <span>Privasi</span>
+                       </label>
+                   </div>
+               @endauth
+           </div>
+       </div>
+   </aside>
