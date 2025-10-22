@@ -35,6 +35,15 @@
                     <!-- Tanggal akan di-generate lewat JavaScript -->
                 </div>
             </div>
+            <div id="agendaSidebar" class="agenda-sidebar">
+                <div class="sidebar-header">
+                    <h3 id="agendaSidebarDate">Agenda Hari Ini</h3>
+                    <button class="close-sidebar" onclick="document.getElementById('agendaSidebar').classList.remove('active')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="agendaList" class="agenda-list"></div>
+            </div>
         </div>
     </div>
 
@@ -52,8 +61,7 @@
             </div>
 
             <div class="modal-body">
-                <form id="agendaForm" action="{{ route('agenda.store') }}" method="POST"
-                    onsubmit="return validateAgendaForm()">
+                <form id="agendaForm" action="{{ route('agenda.store') }}" method="POST" onsubmit="return validateAgendaForm()">
                     @csrf
 
                     <div class="form-grid">
@@ -130,6 +138,55 @@
 
         let agenda = {!! json_encode($agenda, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) !!};
 
+       function handleFormSubmit(e) {
+    e.preventDefault();
+    if (!validateAgendaForm()) return false;
+
+    const form = e.target;
+    const formData = new FormData(form);
+
+    fetch(form.action, {
+        method: "POST",
+        headers: {
+            "Accept": "application/json",
+            "X-CSRF-TOKEN": document.querySelector('input[name="_token"]').value
+        },
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            // Tambahkan agenda baru langsung ke array lokal
+            agenda.push(data.agenda);
+            generateMainCalendar(); // re-render tampilan kalender
+            closeModal();
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Agenda Ditambahkan!',
+                text: data.message,
+                showConfirmButton: false,
+                timer: 1500
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: data.message
+            });
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Terjadi kesalahan pada server.'
+        });
+    });
+
+    return false;
+    }
 
         /**
      * Filter data agenda berdasarkan tanggal, bulan, dan tahun.
@@ -158,10 +215,6 @@
             });
         }
 
-
-        function showAgenda() {
-
-        }
 
         // Generate main calendar
         function generateMainCalendar() {
@@ -203,43 +256,77 @@
                 dayNumber.className = 'day-number';
                 dayNumber.textContent = date.getDate();
 
-                if (date.getDay() === 0 || date.getDay() === 6) {
-                    dayNumber.classList.add('weekend');
-                }
-
                 const year = date.getFullYear();
                 const month = String(date.getMonth() + 1).padStart(2, '0');
                 const day = String(date.getDate()).padStart(2, '0');
 
-                let filteredAgenda = filterAgenda(agenda, { year, month, day });
-                // console.log(filteredAgenda.length);
+                let filteredAgenda = filterAgenda(agenda, {year, month, day});
+                console.log(filteredAgenda.length);
                 dayElement.appendChild(dayNumber);
-                calendarDays.appendChild(dayElement);
 
-                for (let i = 0; i < filteredAgenda.length; i++) {
-                    const badge = document.createElement("div");
-                    badge.setAttribute("class", "bg-gray-400 text-white mb-2 rounded-sm p-2");
-                    badge.innerHTML = filteredAgenda[i].agenda_name;
-                    badge.onclick = (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        showAgendaModal(filteredAgenda[i].id_agenda);
-                    };
-                    dayElement.appendChild(badge);
-                }
+                 // Buat container untuk agenda items
+                 const agendaContainer = document.createElement("div");
+                 agendaContainer.className = "agenda-container";
 
-                dayElement.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    openModal(`${year}-${month}-${day}`);
-                });
+                 // Tampilkan maksimal 3 agenda
+                 const maxAgenda = 3;
+                 const agendaToShow = filteredAgenda.slice(0, maxAgenda);
 
+                 for (let i=0; i<agendaToShow.length; i++) {
+                     const badge = document.createElement("div");
+
+                     // Tentukan class berdasarkan status agenda
+                     let badgeClass = "text-white mb-2 rounded-sm p-2";
+                     if (agendaToShow[i].status === 'approved') {
+                         badgeClass = "bg-green-500 " + badgeClass; // Hijau untuk approved
+                     } else if (agendaToShow[i].status === 'pending') {
+                         badgeClass = "bg-yellow-500 " + badgeClass; // Kuning untuk pending
+                     } else if (agendaToShow[i].status === 'rejected') {
+                         badgeClass = "bg-red-500 " + badgeClass; // Merah untuk rejected
+                     } else {
+                         badgeClass = "bg-gray-400 " + badgeClass; // Default abu-abu
+                     }
+
+                     badge.setAttribute("class", badgeClass);
+
+                     // Batasi panjang teks agenda (maksimal 20 karakter)
+                     let agendaText = agendaToShow[i].agenda_name;
+                     if (agendaText.length > 20) {
+                         agendaText = agendaText.substring(0, 17) + "...";
+                     }
+
+                     badge.innerHTML = agendaText;
+                     badge.title = `${agendaToShow[i].agenda_name} (Status: ${agendaToShow[i].status})`; // Tooltip dengan status
+                     agendaContainer.appendChild(badge);
+                 }
+
+                 // Tambahkan indikator jika ada agenda lebih dari 3
+                 if (filteredAgenda.length > maxAgenda) {
+                     agendaContainer.classList.add("has-more");
+                 }
+
+                 dayElement.appendChild(agendaContainer);
+
+                             // ✅ Klik di area hari
+                 dayElement.addEventListener('click', (e) => {
+                     // Filter agenda hari ini
+                     let filteredAgenda = filterAgenda(agenda, { year, month, day });
+
+                     // Kalau ada agenda di hari ini, jangan buka modal create
+                     if (filteredAgenda.length > 0) return;
+
+                     // Kalau user klik angka tanggal (bukan area kosong), skip modal
+                     if (e.target.classList.contains('day-number')) return;
+
+                     // Kalau lolos semua kondisi di atas → buka modal create
+                     openModal(`${year}-${month}-${day}`);
+                 });
+
+                // ✅ Klik angka tanggal (langsung buka halaman hari)
                 dayNumber.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation(); // 🧨 stop biar ga double trigger
+                    e.stopPropagation(); // Supaya event klik ini gak nyetrum ke dayElement
                     window.location.href = `/hari?tanggal=${year}-${month}-${day}`;
                 });
-
-
             }
         }
 
@@ -319,41 +406,40 @@
     <script>
         document.addEventListener('DOMContentLoaded', generateMainCalendar);
 
-        // ini modal show anjing
         function openShowAgendaModal(data) {
-            // Nama agenda
-            document.getElementById('showAgendaName').innerText = data.agenda_name ?? '-';
+    // Nama agenda
+    document.getElementById('showAgendaName').innerText = data.agenda_name ?? '-';
 
-            // Tanggal
-            document.getElementById('showAgendaDate').innerText = data.date ?? '-';
+    // Tanggal
+    document.getElementById('showAgendaDate').innerText = data.date ?? '-';
 
-            // Waktu (kalau ada start dan end time)
-            const timeText = (data.start_time && data.end_time)
-                ? `${data.start_time} - ${data.end_time}`
-                : (data.start_time ?? '-');
-            document.getElementById('showAgendaTime').innerText = timeText;
+    // Waktu (kalau ada start dan end time)
+    const timeText = (data.start_time && data.end_time)
+        ? `${data.start_time} - ${data.end_time}`
+        : (data.start_time ?? '-');
+    document.getElementById('showAgendaTime').innerText = timeText;
 
-            // Lokasi
-            document.getElementById('showAgendaLocation').innerText = data.location ?? '-';
+    // Lokasi
+    document.getElementById('showAgendaLocation').innerText = data.location ?? '-';
 
-            // Penanggung jawab
-            document.getElementById('showAgendaPIC').innerText = data.person_in_charge ?? '-';
+    // Penanggung jawab
+    document.getElementById('showAgendaPIC').innerText = data.person_in_charge ?? '-';
 
-            // Deskripsi
-            document.getElementById('showAgendaDesc').innerText = data.description ?? '-';
+    // Deskripsi
+    document.getElementById('showAgendaDesc').innerText = data.description ?? '-';
 
-            // Status (warna disesuaikan)
-            const statusEl = document.getElementById('showAgendaStatus');
-            statusEl.innerText = data.status ?? 'pending';
-            statusEl.className = "badge text-white " +
-                (data.status === 'approved' ? 'bg-success' :
-                    data.status === 'rejected' ? 'bg-danger' :
-                        'bg-warning text-dark');
+    // Status (warna disesuaikan)
+    const statusEl = document.getElementById('showAgendaStatus');
+    statusEl.innerText = data.status ?? 'pending';
+    statusEl.className = "badge text-white " +
+        (data.status === 'approved' ? 'bg-success' :
+         data.status === 'rejected' ? 'bg-danger' :
+         'bg-warning text-dark');
 
-            // ✅ Tampilkan modal pakai Bootstrap
-            const modal = new bootstrap.Modal(document.getElementById('showAgendaModal'));
-            modal.show();
-        }
+    // ✅ Tampilkan modal pakai Bootstrap
+    const modal = new bootstrap.Modal(document.getElementById('showAgendaModal'));
+    modal.show();
+    }
 
     </script>
     @if (session('success'))
@@ -378,5 +464,71 @@
 
         </script>
     @endif
+
+<script>
+    function formatDate(dateString) {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+    return date.toLocaleDateString('id-ID', options);
+    }
+
+    function showAgendaListSidebar(agendaList, date) {
+    const sidebar = document.getElementById("agendaSidebar");
+    const listContainer = document.getElementById("agendaList");
+    const title = document.getElementById("agendaSidebarDate");
+
+    title.textContent = `Agenda ${date}`;
+    listContainer.innerHTML = "";
+
+    if (agendaList.length === 0) {
+        listContainer.innerHTML = "<p>Tidak ada agenda untuk hari ini.</p>";
+        return;
+    }
+
+    // Bikin collapsible list
+    agendaList.forEach((item, index) => {
+        const itemDiv = document.createElement("div");
+        itemDiv.className = "agenda-item";
+
+        const header = document.createElement("div");
+        header.className = "agenda-header";
+        header.innerHTML = `
+            <span class="agenda-title">${item.agenda_name}</span>
+            <span class="status-badge ${item.status}">
+                ${item.status === 'approved' ? '✔ Disetujui' :
+                  item.status === 'pending' ? '⏳ Menunggu' :
+                  item.status === 'rejected' ? '❌ Ditolak' : 'Status tidak dikenal'}
+            </span>
+        `;
+
+        const details = document.createElement("div");
+        details.className = "agenda-details hidden";
+        details.innerHTML = `
+            <p><i class="fas fa-calendar"></i> ${formatDate(item.date)}</p>
+            <p><i class="fas fa-clock"></i> ${item.start_time} - ${item.end_time}</p>
+            <p><i class="fas fa-map-marker-alt"></i> ${item.location}</p>
+            <p><i class="fas fa-user-tie"></i> Penanggung jawab: ${item.person_in_charge || '-'}</p>
+            <p><i class="fas fa-building"></i> Instansi pengaju: ${item.institusi_pengaju || '-'}</p>
+            <p><i class="fas fa-users"></i> Instansi diundang: ${item.involved_institution || '-'}</p>
+            <p><i class="fas fa-align-left"></i> Deskripsi: ${item.description || '-'}</p>
+        `;
+
+        header.addEventListener("click", () => {
+            const currentlyActive = document.querySelector(".agenda-details:not(.hidden)");
+            if (currentlyActive && currentlyActive !== details) {
+                currentlyActive.classList.add("hidden");
+            }
+            details.classList.toggle("hidden");
+        });
+
+        itemDiv.appendChild(header);
+        itemDiv.appendChild(details);
+        listContainer.appendChild(itemDiv);
+    });
+
+    sidebar.classList.add("active");
+}
+</script>
 
 @endsection
