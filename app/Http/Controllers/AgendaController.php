@@ -55,41 +55,58 @@ class AgendaController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'agenda_name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'person_in_charge' => 'nullable|string|max:255',
-            'date' => 'required|date',
-            'start_time' => 'nullable|date_format:H:i',
-            'end_time' => 'nullable|date_format:H:i|after_or_equal:start_time',
-            'location' => 'nullable|string|max:255',
-            'involved_institution' => 'nullable|string|max:500',
-            'is_public' => 'required|in:0,1',
-            'id_unit' => 'required|exists:units,id_unit',
-        ]);
+    $validated = $request->validate([
+        'agenda_name' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'person_in_charge' => 'nullable|string|max:255',
+        'date' => 'required|date',
+        'start_time' => 'nullable|date_format:H:i',
+        'end_time' => 'nullable|date_format:H:i|after_or_equal:start_time',
+        'location' => 'nullable|string|max:255',
+        'involved_institution' => 'nullable|string|max:500',
+        'is_public' => 'required|in:0,1',
+        'id_unit' => 'required|exists:units,id_unit',
+    ]);
 
-        try {
-            $agenda = new Agenda();
-            $agenda->agenda_name = $validated['agenda_name'];
-            $agenda->description = $validated['description'];
-            $agenda->person_in_charge = $validated['person_in_charge'];
-            $agenda->date = $validated['date'];
-            $agenda->start_time = $validated['start_time'];
-            $agenda->end_time = $validated['end_time'];
-            $agenda->location = $validated['location'];
-            $agenda->involved_institution = $validated['involved_institution'];
-            $agenda->is_public = $validated['is_public'];
-            $agenda->id_unit = $validated['id_unit'];
-            $agenda->id_user = Auth::user()->id_user;
-            $agenda->status = 'pending';
+    try {
+        $agenda = new Agenda();
+        $agenda->agenda_name = $validated['agenda_name'];
+        $agenda->description = $validated['description'];
+        $agenda->person_in_charge = $validated['person_in_charge'];
+        $agenda->date = $validated['date'];
+        $agenda->start_time = $validated['start_time'];
+        $agenda->end_time = $validated['end_time'];
+        $agenda->location = $validated['location'];
+        $agenda->involved_institution = $validated['involved_institution'];
+        $agenda->is_public = $validated['is_public'];
+        $agenda->id_unit = $validated['id_unit'];
+        $agenda->id_user = Auth::user()->id_user;
+        $agenda->status = 'pending';
+        $agenda->save();
 
-            $agenda->save();
-
-            return redirect()->back()->with('success', 'Agenda berhasil ditambahkan!');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal menyimpan agenda: ' . $e->getMessage());
+        // ⚙️ Jika request datang via AJAX / fetch
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'agenda' => $agenda,
+                'message' => 'Agenda berhasil ditambahkan (pending approval).',
+            ]);
         }
+
+        // 📄 Kalau request biasa (form HTML)
+        return redirect()->back()->with('success', 'Agenda berhasil ditambahkan!');
+    } catch (\Exception $e) {
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menyimpan agenda: ' . $e->getMessage(),
+            ], 500);
+        }
+
+        return redirect()->back()->with('error', 'Gagal menyimpan agenda: ' . $e->getMessage());
     }
+    }
+
 
 
     /**
