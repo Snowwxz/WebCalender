@@ -1,7 +1,7 @@
 body {
     font-family: 'Poppins', sans-serif;
     margin: 0;
-    background-color: #e6f9f1;
+    background-color: #F3F5F1;
     height: 100vh;
     overflow: hidden;
 }
@@ -19,15 +19,16 @@ body {
     flex-direction: column;
     justify-content: center;
     position: relative;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
 }
 
 .form-wrapper {
-    margin-top: 60px;
+    margin-top: 40px;
 }
 
 .right-section {
     flex: 1;
-    background: linear-gradient(135deg, #e6f9f1 0%, #b2dfdb 100%);
+    background-color: #82A98D;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -36,8 +37,8 @@ body {
 .right-section img {
     width: 90%;
     height: auto;
-    transform: scale(1.8);
-    margin-left: 80px;
+    transform: scale(1.5);
+    margin-left: 60px;
     object-fit: contain;
 }
 
@@ -53,50 +54,59 @@ body {
 }
 
 .btn-custom {
-    background-color: #00796b;
-    color: white;
+    background-color: #82A98D;
+    color: #ffffff;
     font-weight: 600;
     border-radius: 8px;
-    transition: 0.3s ease;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(130, 169, 141, 0.3);
+    border: none;
+    cursor: pointer;
 }
 
 .btn-custom:hover {
-    background-color: #00695c;
-    color: white;
+    background-color: #9BBC9F;
+    color: #000000;
 }
 
+.btn-custom:active {
+    background-color: #6E9579;
+    color: #000000;
+}
+
+
 .form-control:focus {
-    border-color: #00695c !important;
-    box-shadow: 0 0 0 0.2rem rgba(0, 105, 92, 0.25) !important;
+    border-color: #82A98D !important;
+    box-shadow: 0 0 0 0.2rem rgba(130, 169, 141, 0.25) !important;
 }
 
 .form-check-input:checked {
-    background-color: #00695c !important;
-    border-color: #00695c !important;
+    background-color: #82A98D !important;
+    border-color: #82A98D !important;
 }
 
 .form-check-input:focus {
-    box-shadow: 0 0 0 0.2rem rgba(0, 105, 92, 0.25) !important;
-    border-color: #00695c !important;
+    box-shadow: 0 0 0 0.2rem rgba(130, 169, 141, 0.25) !important;
+    border-color: #82A98D !important;
 }
 
 a {
     text-decoration: none;
+    transition: color 0.2s ease;
 }
 
 a:hover {
-    text-decoration: underline;
+    color: #9BBC9F;
 }
 
 .text-signup {
-    color: #00695c;
+    color: #82A98D;
     font-weight: 600;
     text-decoration: none;
-    transition: 0.2s ease;
 }
 
 .text-signup:hover {
-    color: #004d40;
+    color: #9BBC9F;
 }
 
 .text-gray {
@@ -111,26 +121,30 @@ a:hover {
 }
 
 .back-link {
-    display: inline-flex;
+    display: inline-flex; 
     align-items: center;
     font-weight: 500;
     font-size: 16px;
-    color: #004d40;
-    transition: color 0.3s ease;
+    color: #82A98D;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .back-link i {
     font-size: 20px;
     margin-right: 6px;
-    color: #004d40;
+    color: inherit;
     transition: transform 0.2s ease;
 }
 
 .back-link:hover {
-    color: #00796b;
+    color: #000;
 }
 
 .back-link:hover i {
+    color: #000;
     transform: translateX(-3px);
 }
 
@@ -140,20 +154,26 @@ a:hover {
     right: 15px;
     transform: translateY(-50%);
     font-size: 1.2rem;
-    color: #00796b;
+    color: #82A98D;
     cursor: pointer;
     transition: color 0.2s ease;
     z-index: 5;
 }
 
 .password-toggle:hover {
-    color: #004d40;
+    color: #9BBC9F;
 }
 
 input[type="password"] {
     padding-right: 40px;
 }
 
+/* Tambahkan padding supaya ikon tidak menimpa teks */
+input[type="password"] {
+    padding-right: 40px;
+}
+
+/* ====== Hilangkan ikon default browser ====== */
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear {
     display: none !important;

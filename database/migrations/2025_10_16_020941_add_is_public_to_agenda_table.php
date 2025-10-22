@@ -1,22 +1,31 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Tambahkan kolom is_public ke tabel agenda.
+     */
     public function up(): void
     {
         Schema::table('agenda', function (Blueprint $table) {
-            $table->time('start_time')->nullable()->after('date');
-            $table->time('end_time')->nullable()->after('start_time');
+            // Boolean: true = publik, false = privat
+            $table->boolean('is_public')
+                ->default(true)
+                ->after('status'); // taruh setelah kolom status (bisa ubah sesuai kebutuhan)
         });
     }
 
+    /**
+     * Hapus kolom jika di-rollback.
+     */
     public function down(): void
     {
         Schema::table('agenda', function (Blueprint $table) {
-            $table->dropColumn(['start_time', 'end_time']);
+            $table->dropColumn('is_public');
         });
     }
 };

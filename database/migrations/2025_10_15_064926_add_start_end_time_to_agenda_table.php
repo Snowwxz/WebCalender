@@ -1,10 +1,14 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Tambahkan kolom start_time dan end_time ke tabel agenda.
+     */
     public function up(): void
     {
         Schema::table('agenda', function (Blueprint $table) {
@@ -13,6 +17,9 @@ return new class extends Migration
         });
     }
 
+    /**
+     * Hapus kolom jika rollback.
+     */
     public function down(): void
     {
         Schema::table('agenda', function (Blueprint $table) {
