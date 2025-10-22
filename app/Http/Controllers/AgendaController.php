@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Agenda;
+use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -21,132 +22,178 @@ class AgendaController extends Controller
             ->orderBy('date', 'desc');
 
         if ($request->query('only_my')) {
-            $query->where('id_user', Auth::id());
+            $query->where('id_user', Auth::user()->id_user);
         }
 
         $agenda = $query->get();
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() || $request->isJson()) {
             return response()->json($agenda);
         }
 
         return view('dashboard_bulan', compact('agenda', 'year', 'month'));
     }
 
-    // form create
+    /**
+     * ✅ Form pengajuan agenda.
+     */
     public function create()
     {
-        return view('agenda_create', ['agenda' => null]);
+        $units = Unit::orderBy('unit_name', 'asc')->get();
+
+        return view('agenda_create', compact('units'));
     }
 
-    // simpan agenda baru
+    /**
+     * ✅ Simpan agenda baru.
+     */
     public function store(Request $request)
-    { $validated = $request->validate([
-        'agenda_name' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'date' => 'required|date',
-        'start_time' => 'nullable|date_format:H:i',
-        'end_time' => 'nullable|date_format:H:i',
-        'location' => 'nullable|string|max:255',
-        'person_in_charge' => 'nullable|string|max:255',
-        'involved_institution' => 'nullable|string|max:255',
-        'submitted_by' => 'nullable|string|max:255',
-    ]);
-
-    try {
-        $agenda = new Agenda();
-        $agenda->agenda_name = $validated['agenda_name'];
-        $agenda->description = $validated['description'] ?? null;
-        $agenda->date = $validated['date'];
-        $agenda->start_time = $validated['start_time'] ?? null;
-        $agenda->end_time = $validated['end_time'] ?? null;
-        $agenda->location = $validated['location'] ?? null;
-        $agenda->person_in_charge = $validated['person_in_charge'] ?? null;
-        $agenda->involved_institution = $validated['involved_institution'] ?? null;
-        $agenda->submitted_by = $validated['submitted_by'] ?? null;
-        $agenda->status = 'pending';
-        $agenda->id_user = Auth::id() ?: 1;
-        $agenda->approved_by = null;
-        $agenda->save();
-
-        return redirect()->back()->with('success', '✅ Agenda berhasil ditambahkan (status pending).');
-    } catch (\Throwable $e) {
-        Log::error('❌ Gagal menyimpan agenda: ' . $e->getMessage());
-        return back()->withInput()->with('error', 'Gagal menambahkan agenda ke database.');
-    }
-    }
-
-    // lihat detail agenda
-    public function show($id_agenda)
     {
+        $validated = $request->validate([
+            'agenda_name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'person_in_charge' => 'nullable|string|max:255',
+            'date' => 'required|date',
+            'start_time' => 'nullable|date_format:H:i',
+            'end_time' => 'nullable|date_format:H:i|after_or_equal:start_time',
+            'location' => 'nullable|string|max:255',
+            'involved_institution' => 'nullable|string|max:500',
+            'is_public' => 'required|in:0,1',
+            'id_unit' => 'required|exists:units,id_unit',
+        ]);
+
         try {
-            $agenda = Agenda::with(['user', 'approver'])->findOrFail($id_agenda);
-            return response()->json([
-                'success' => true,
-                'data' => $agenda,
-            ]);
+            $agenda = new \App\Models\Agenda();
+            $agenda->agenda_name = $validated['agenda_name'];
+            $agenda->description = $validated['description'];
+            $agenda->person_in_charge = $validated['person_in_charge'];
+            $agenda->date = $validated['date'];
+            $agenda->start_time = $validated['start_time'];
+            $agenda->end_time = $validated['end_time'];
+            $agenda->location = $validated['location'];
+            $agenda->involved_institution = $validated['involved_institution'];
+            $agenda->is_public = $validated['is_public'];
+            $agenda->id_unit = $validated['id_unit'];
+            $agenda->id_user = Auth::user()->id_user;
+            $agenda->status = 'pending';
+
+            $agenda->save();
+
+            return redirect()->back()->with('success', 'Agenda berhasil ditambahkan!');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Agenda tidak ditemukan.',
-            ], 404);
+            return redirect()->back()->with('error', 'Gagal menyimpan agenda: ' . $e->getMessage());
         }
     }
 
-    // form edit
+
+    /**
+     * ✅ Lihat detail agenda (JSON).
+     */
+    public function show($id)
+    {
+        $agenda = Agenda::with(['user', 'approver'])->findOrFail($id);
+        return response()->json($agenda);
+    }
+
+    /**
+     * ✅ Form edit agenda.
+     */
     public function edit($id_agenda)
     {
         $agenda = Agenda::findOrFail($id_agenda);
         return view('agenda_edit', compact('agenda'));
     }
 
-   public function update(Request $request, $id_agenda)
+    /**
+     * ✅ Update agenda (baik dari admin maupun user).
+     */
+    public function update(Request $request, $id_agenda)
     {
-    $agenda = Agenda::findOrFail($id_agenda);
+        $agenda = Agenda::findOrFail($id_agenda);
 
-    // ✅ 1. Validasi input
-    $validated = $request->validate([
-        'agenda_name'        => 'required|string|max:255',
-        'description'        => 'nullable|string',
-        'tanggal'            => 'required|date',
-        'start_time'         => 'nullable|date_format:H:i',
-        'end_time'           => 'nullable|date_format:H:i|after_or_equal:start_time',
-        'lokasi'             => 'nullable|string|max:255',
-        'penanggung_jawab'   => 'nullable|string|max:255',
-        'instansi_ikut'      => 'nullable|string|max:255',
-        'instansi_pengajuan' => 'nullable|string|max:255',
-        'status'             => 'nullable|string|in:pending,approved,rejected',
-    ]);
+        $validated = $request->validate([
+            'agenda_name'        => 'required|string|max:255',
+            'description'        => 'nullable|string',
+            'tanggal'            => 'required|date',
+            'start_time'         => 'nullable|date_format:H:i',
+            'end_time'           => 'nullable|date_format:H:i|after_or_equal:start_time',
+            'lokasi'             => 'nullable|string|max:255',
+            'penanggung_jawab'   => 'nullable|string|max:255',
+            'instansi_ikut'      => 'nullable|string|max:255',
+            'status'             => 'nullable|string|in:pending,approved,rejected',
+            'is_public' => 'required|boolean',
+        ]);
 
-    // ✅ 2. Update semua field yang relevan
-    $agenda->agenda_name          = $validated['agenda_name'];
-    $agenda->description          = $validated['description'] ?? null;
-    $agenda->date                 = $validated['tanggal'];
-    $agenda->start_time           = $validated['start_time'] ?? null;
-    $agenda->end_time             = $validated['end_time'] ?? null;
-    $agenda->location             = $validated['lokasi'] ?? null;
-    $agenda->person_in_charge     = $validated['penanggung_jawab'] ?? null;
-    $agenda->involved_institution = $validated['instansi_ikut'] ?? null;
-    $agenda->submitted_by         = $validated['instansi_pengajuan'] ?? null;
+        $agenda->agenda_name = $validated['agenda_name'];
+        $agenda->description = $validated['description'] ?? null;
+        $agenda->date = $validated['tanggal'];
+        $agenda->start_time = $validated['start_time'] ?? null;
+        $agenda->end_time = $validated['end_time'] ?? null;
+        $agenda->location = $validated['lokasi'] ?? null;
+        $agenda->person_in_charge = $validated['penanggung_jawab'] ?? null;
+        $agenda->involved_institution = $validated['instansi_ikut'] ?? null;
+        $agenda->is_public = $validated['is_public'];
 
-    // ✅ 3. Role-based: hanya admin yang boleh ubah status
-    if (Auth::user()->role === 'admin') {
-        if (isset($validated['status'])) {
-            $agenda->status = $validated['status'];
-            $agenda->approved_by = ($validated['status'] === 'approved') ? Auth::id() : null;
+        // hanya admin yang boleh ubah status
+        if (Auth::user()->role === 'admin') {
+            if (isset($validated['status'])) {
+                $agenda->status = $validated['status'];
+                $agenda->approved_by = ($validated['status'] === 'approved') ? Auth::id() : null;
+            }
         }
+
+        $agenda->save();
+
+        return redirect()
+            ->route('agenda.edit', $agenda->id_agenda)
+            ->with('success', '✅ Agenda berhasil diperbarui.');
     }
 
-    // ✅ 4. Save agenda
-    $agenda->save();
+    public function updateStatus(Request $request, $id_agenda)
+    {
+        $agenda = Agenda::findOrFail($id_agenda);
 
-    // ✅ 5. Redirect balik dengan notifikasi sukses
-    return redirect()
-        ->route('agenda.edit', $agenda->id_agenda)
-        ->with('success', '✅ Agenda berhasil diperbarui.');
+        $request->validate([
+            'status' => 'required|in:approved,rejected'
+        ]);
+
+        if (Auth::user()->role === 'admin') {
+            $agenda->status = $request->status;
+            $agenda->approved_by = ($request->status === 'approved') ? Auth::id() : null;
+            $agenda->save();
+
+            return redirect()->back()->with('success', 'Status agenda berhasil diperbarui!');
+        }
+
+        return redirect()->back()->with('error', 'Anda tidak memiliki izin untuk mengubah status agenda.');
     }
 
-    // notifikasi agenda user
+
+    /**
+     * ✅ Hapus agenda.
+     */
+    public function destroy($id_agenda)
+    {
+        $agenda = Agenda::findOrFail($id_agenda);
+
+        // Validasi: hanya creator & status pending yang bisa hapus
+        if ($agenda->status !== 'pending') {
+            return redirect()->back()->with('error', 'Agenda tidak dapat dihapus karena sudah di-approve atau ditolak.');
+        }
+
+        // Sesuaikan dengan kolom kamu: id_user
+        if ($agenda->id_user !== Auth::user()->id_user) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki izin untuk menghapus agenda ini.');
+        }
+
+        $agenda->delete();
+
+        return redirect()->back()->with('success', 'Agenda berhasil dihapus.');
+    }
+
+    /**
+     * ✅ Notifikasi agenda milik user yang login.
+     */
     public function notification()
     {
         $userId = Auth::id();
@@ -160,24 +207,5 @@ class AgendaController extends Controller
         }
 
         return view('notification', compact('agenda'));
-    }
-
-    public function destroy($id_agenda)
-    {
-    $agenda = Agenda::findOrFail($id_agenda);
-
-    // Validasi: hanya creator & status pending yang bisa hapus
-    if ($agenda->status !== 'pending') {
-        return redirect()->back()->with('error', 'Agenda tidak dapat dihapus karena sudah di-approve atau ditolak.');
-    }
-
-    // Sesuaikan dengan kolom kamu: id_user
-    if ($agenda->id_user !== Auth::user()->id_user) {
-        return redirect()->back()->with('error', 'Anda tidak memiliki izin untuk menghapus agenda ini.');
-    }
-
-    $agenda->delete();
-
-    return redirect()->back()->with('success', 'Agenda berhasil dihapus.');
     }
 }

@@ -5,7 +5,10 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\ApproveController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\UnitController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 // 🔹 LANDING & PUBLIC ROUTES
@@ -47,15 +50,25 @@ Route::get('/api/agenda/year/{year}', [LandingController::class, 'getByYear'])
 Route::get('/api/agenda/search', [LandingController::class, 'search'])
     ->name('agenda.search');
 
+
 // 🔒 DASHBOARD (LOGIN DIBUTUHKAN)
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    // ✅ Default redirect ke dashboard bulan
-    Route::get('/dashboard/bulan', [AgendaController::class, 'index'])->name('dashboard.bulan');
-    Route::get('/dashboard/hari', fn() => view('dashboard_hari'))->name('dashboard.hari');
-    Route::get('/dashboard/tahun', fn() => view('dashboard_tahun'))->name('dashboard.tahun');
+    // ✅ Dashboard utama: arahkan sesuai role user
+    Route::get('/dashboard', function () {
+        $user = Auth::user();
 
-    // ✅ CRUD Agenda (gabungan kamu + temanmu)
+        if ($user->role === 'superadmin') {
+            return redirect()->route('superadmin.dashboard');
+        } elseif ($user->role === 'admin') {
+            return redirect()->route('approve');
+        } else {
+            return redirect()->route('dashboard.bulan');
+        }
+    })->name('dashboard');
+
+
+    // ✅ CRUD Agenda
     Route::prefix('dashboard')->group(function () {
         Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
         Route::get('/agenda/create', [AgendaController::class, 'create'])->name('agenda.create');
@@ -64,12 +77,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/agenda/{id_agenda}/edit', [AgendaController::class, 'edit'])->name('agenda.edit');
         Route::put('/agenda/{id_agenda}', [AgendaController::class, 'update'])->name('agenda.update');
         Route::delete('/agenda/{id_agenda}', [AgendaController::class, 'destroy'])->name('agenda.destroy');
-
-        // 🔔 Notifikasi user
         Route::get('notification', [AgendaController::class, 'notification'])->name('agenda.notification');
     });
+
+    // ✅ Route khusus tiap role
     Route::middleware('role:user')->group(function () {
-        Route::get('/dashboard', fn() => view('dashboard_bulan'))->name('user.dashboard');
+        Route::get('/dashboard/hari', fn() => view('dashboard_hari'))->name('dashboard.hari');
+        Route::get('/dashboard/bulan', [AgendaController::class, 'index'])->name('dashboard.bulan');
+        Route::get('/dashboard/tahun', fn() => view('dashboard_tahun'))->name('dashboard.tahun');
     });
 
     Route::middleware('role:admin')->group(function () {
@@ -77,9 +92,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::middleware('role:superadmin')->group(function () {
-        Route::get('/superadmin', fn() => view('super_admin'))->name('superadmin.dashboard');
+        Route::get('/superadmin', [UserController::class, 'index'])->name('superadmin.dashboard');
+
+        Route::delete('/superadmin/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+        Route::put('/superadmin/users/{id}', [UserController::class, 'update'])->name('users.update');
+
+        Route::post('/superadmin/units', [UnitController::class, 'store'])->name('units.store');
+
+        Route::prefix('superadmin')->group(function () {
+            Route::resource('units', UnitController::class);
+        });
     });
 });
+
 
 // 🔹 AUTH ROUTES
 Route::get('/register', fn() => view('auth.register'))->name('register.form');
@@ -92,14 +117,14 @@ Route::post('/logout', [AuthController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
 
+
 // 🔹 PROFILE ROUTES + APPROVE
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // // 🔔 APPROVE ROUTE
-    // Route::get('/approve', [ApproveController::class, 'index'])->name('approve');
-    // Route::put('/approve/agenda/{id_agenda}', [AgendaController::class, 'update'])->name('approve.update');
-
+    Route::get('/approve', [ApproveController::class, 'index'])->name('approve');
+    Route::put('/approve/agenda/{id_agenda}', [AgendaController::class, 'update'])->name('approve.update');
+    Route::put('/agenda/{id_agenda}/status', [AgendaController::class, 'updateStatus'])->name('agenda.updateStatus');
 });

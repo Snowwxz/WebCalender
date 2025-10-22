@@ -7,24 +7,37 @@
     </div>
 
     <div class="header-center">
-        <div class="search-container">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" placeholder="Search" class="search-input">
-        </div>
+        @if (!request()->routeIs('approve'))
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="Search" class="search-input">
+            </div>
+        @endif
     </div>
 
     <div class="header-right">
         @auth
+            {{-- Notification Bell Icon --}}
+            <div class="notification-bell">
+                @if (Auth::user()->role === 'admin') 
+                    <a href="{{ route('approve') }}" class="bell-link" title="Kelola Pengajuan Agenda">
+                        <i class="fas fa-bell"></i>
+                    </a>
+                @else
+                    <a href="{{ route('agenda.notification') }}" class="bell-link" title="Notifikasi Agenda Saya">
+                        <i class="fas fa-bell"></i>
+                    </a>
+                @endif
+            </div>
+
             {{-- User Profile Section for authenticated users --}}
-           {{-- Tombol Tambah Agenda (hanya tampil kalau login) --}}
-        <div class="add-agenda-btn" style="margin-right: 1rem;">
-            <button
-                class="btn-create-agenda"
-                title="Tambah Agenda"
-                onclick="window.location.href='{{ route('agenda.create') }}'">
-                <i class="fas fa-plus"></i>
-            </button>
-        </div>
+            {{-- Tombol Tambah Agenda (hanya tampil kalau login) --}}
+            <div class="add-agenda-btn" style="margin-right: 1rem;">
+                <button class="btn-create-agenda" title="Tambah Agenda"
+                    onclick="window.location.href='{{ route('agenda.create') }}'">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
 
          {{-- 🔔 Tombol Notifikasi Agenda Pending --}}
         <div class="notification-btn" style="margin-right: 1rem;">
