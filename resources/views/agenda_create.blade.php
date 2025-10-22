@@ -44,18 +44,41 @@
 
                 <form action="{{ route('agenda.store') }}" method="POST">
                     @csrf
+                    
+                    @if ($errors->any())
+                        <div class="alert alert-danger" style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                            <h4>Terjadi kesalahan:</h4>
+                            <ul style="margin: 0; padding-left: 20px;">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    @if (session('success'))
+                        <div class="alert alert-success" style="background: #d1fae5; border: 1px solid #86efac; color: #065f46; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    @if (session('error'))
+                        <div class="alert alert-error" style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                            {{ session('error') }}
+                        </div>
+                    @endif
 
                     <div class="form-grid">
                         <!-- Kolom kiri -->
                         <div class="form-column">
                             <div class="input-group">
                                 <label><i class="fas fa-file-alt"></i> Nama Agenda</label>
-                                <input type="text" name="agenda_name" placeholder="Masukkan nama agenda" required>
+                                <input type="text" name="agenda_name" placeholder="Masukkan nama agenda" value="{{ old('agenda_name') }}" required>
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-align-left"></i> Deskripsi Agenda</label>
-                                <textarea name="description" placeholder="Masukkan deskripsi agenda"></textarea>
+                                <textarea name="description" placeholder="Masukkan deskripsi agenda">{{ old('description') }}</textarea>
                             </div>
 
                             <div class="input-group">
@@ -63,7 +86,7 @@
                                 <select name="id_unit" required>
                                     <option value="">-- Pilih Instansi Pengaju --</option>
                                     @foreach ($units as $unit)
-                                        <option value="{{ $unit->id_unit }}">{{ $unit->unit_name }}</option>
+                                        <option value="{{ $unit->id_unit }}" {{ old('id_unit') == $unit->id_unit ? 'selected' : '' }}>{{ $unit->unit_name }}</option>
                                     @endforeach
                                 </select>
                             </div>
