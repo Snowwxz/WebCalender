@@ -2,6 +2,7 @@
 
 @section('content')
     @include("create_agenda_modal")
+    @include("show_agenda_modal")
     <div class="calendar-page">
         <div class="calendar-main">
             <div class="calendar-header">
@@ -70,6 +71,10 @@
         }
 
 
+        function showAgenda() {
+
+        }
+
         // Generate main calendar
         function generateMainCalendar() {
             const monthYear = document.getElementById('currentMonthYear');
@@ -118,28 +123,33 @@
                 const month = String(date.getMonth() + 1).padStart(2, '0');
                 const day = String(date.getDate()).padStart(2, '0');
 
-                let filteredAgenda = filterAgenda(agenda, {year, month, day});
-                console.log(filteredAgenda.length);
+                let filteredAgenda = filterAgenda(agenda, { year, month, day });
+                // console.log(filteredAgenda.length);
                 dayElement.appendChild(dayNumber);
                 calendarDays.appendChild(dayElement);
 
-                for (let i=0; i<filteredAgenda.length; i++) {
+                for (let i = 0; i < filteredAgenda.length; i++) {
                     const badge = document.createElement("div");
-                    badge.setAttribute("class", "bg-gray-400 text-white mb-2 rounded-sm p-2");
+                    badge.setAttribute("class", "bg-gray-400 text-white mb-2 rounded-sm p-2 cursor-pointer");
                     badge.innerHTML = filteredAgenda[i].agenda_name;
+                    // console.log(filteredAgenda)
+                    badge.onclick = () => showAgendaModal(filteredAgenda[i].id_agenda);
                     dayElement.appendChild(badge);
                 }
 
-                dayElement.addEventListener('click', () => {
-                    getel("date").value = `${year}-${month}-${day}`;
-                    getel("createAgendaModal").hidden = false;
+                dayElement.addEventListener('click', (event) => {
+                    // Only open create modal if the click is not on an agenda badge
+                    if (!event.target.classList.contains('cursor-pointer')) {
+                        getel("date").value = `${year}-${month}-${day}`;
+                        getel("createAgendaModal").hidden = false;
+                    }
                 });
 
                 dayNumber.addEventListener('click', () => {
                     window.location.href = `/hari?tanggal=${year}-${month}-${day}`;
                 });
 
-                
+
             }
         }
 
