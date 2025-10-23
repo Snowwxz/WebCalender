@@ -90,7 +90,6 @@
                                         {{ ucfirst($agenda->status) }}
                                     </div>
                                 </div>
-
                                 <!-- Card Content -->
                                 <div class="card-content">
                                     <div class="details-grid">
@@ -162,7 +161,6 @@
                                         </span>
                                     </div>
 
-                                    {{-- Tombol hanya muncul jika status masih pending --}}
                                     @if ($agenda->status === 'pending')
                                         <div class="approval-actions">
                                             <form action="{{ route('agenda.updateStatus', $agenda->id_agenda) }}"
