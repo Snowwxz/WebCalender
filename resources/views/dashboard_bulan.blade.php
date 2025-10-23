@@ -136,6 +136,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // ✅ Ambil dari URL (?bulan=3&tahun=2025) biar nggak selalu Oktober
         const urlParams = new URLSearchParams(window.location.search);
@@ -223,8 +224,8 @@
             });
         }
 
-            // generate main calender
-            function generateMainCalendar() {
+        // Generate main calendar
+        function generateMainCalendar() {
             const monthYear = document.getElementById('currentMonthYear');
             const calendarDays = document.getElementById('calendarDays');
 
@@ -318,7 +319,20 @@
 
                 calendarDays.appendChild(dayElement);
             }
-            }
+        }
+
+        // Change month function
+        function changeMonth(direction) {
+            currentDate.setMonth(currentDate.getMonth() + direction);
+            
+            // Update URL
+            const newMonth = currentDate.getMonth() + 1;
+            const newYear = currentDate.getFullYear();
+            const newUrl = `/dashboard/bulan?bulan=${newMonth - 1}&tahun=${newYear}`;
+            window.history.pushState({}, '', newUrl);
+            
+            generateMainCalendar();
+        }
 
          // Modal functions
          function openModal(selectedDate = null) {
