@@ -366,6 +366,7 @@
                  }
              });
          });
+         
      </script>
 
      <script>
@@ -384,13 +385,28 @@
         document.getElementById('showAgendaPIC').innerText = data.person_in_charge ?? '-';
         document.getElementById('showAgendaDesc').innerText = data.description ?? '-';
 
+            // === Navigasi Bulan (Panah Kiri/Kanan) ===
+        function changeMonth(direction) {
+            // Update bulan berdasarkan arah (−1: mundur, +1: maju)
+            currentDate.setMonth(currentDate.getMonth() + direction);
+
+            // Regenerate kalender utama
+            generateMainCalendar();
+
+            // Update URL tanpa reload halaman
+            const newMonth = currentDate.getMonth() + 1;
+            const newYear = currentDate.getFullYear();
+            const newUrl = ?bulan=${newMonth}&tahun=${newYear};
+            window.history.pushState({}, '', newUrl);
+        }
+
         const statusEl = document.getElementById('showAgendaStatus');
         statusEl.innerText = data.status ?? 'pending';
         statusEl.className = "badge text-white " +
             (data.status === 'approved' ? 'bg-success' :
              data.status === 'rejected' ? 'bg-danger' : 'bg-warning text-dark');
 
-        // ✅ Bootstrap modal init
+
         const modal = new bootstrap.Modal(document.getElementById('showAgendaModal'));
         modal.show();
         }
