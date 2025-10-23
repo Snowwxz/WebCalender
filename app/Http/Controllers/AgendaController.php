@@ -27,20 +27,23 @@ class AgendaController extends Controller
             // Jika user ingin melihat agenda mereka sendiri, tampilkan semua status
             $query->where('id_user', Auth::user()->id_user);
         } else {
-            // Untuk user biasa, tampilkan agenda mereka sendiri (semua status) + agenda approved dari user lain
+            // Untuk user biasa, tampilkan agenda mereka sendiri (pending + approved) + agenda approved dari user lain
             $query->where(function($q) {
-                $q->where('id_user', Auth::user()->id_user) // Agenda user sendiri (semua status)
-                  ->orWhere('status', 'approved'); // Agenda approved dari user lain
+                $q->where(function($subQ) {
+                    $subQ->where('id_user', Auth::user()->id_user) // Agenda user sendiri
+                         ->whereIn('status', ['pending', 'approved']); // Hanya pending dan approved
+                })->orWhere('status', 'approved'); // Agenda approved dari user lain
             });
         }
 
         $agenda = $query->get();
+        $units = Unit::orderBy('unit_name', 'asc')->get();
 
         if ($request->wantsJson() || $request->isJson()) {
             return response()->json($agenda);
         }
 
-        return view('dashboard_bulan', compact('agenda', 'year', 'month'));
+        return view('dashboard_bulan', compact('agenda', 'year', 'month', 'units'));
     }
 
     /**
