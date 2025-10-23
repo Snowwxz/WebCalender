@@ -35,12 +35,13 @@ class AgendaController extends Controller
         }
 
         $agenda = $query->get();
+        $units = Unit::orderBy('unit_name', 'asc')->get();
 
         if ($request->wantsJson() || $request->isJson()) {
             return response()->json($agenda);
         }
 
-        return view('dashboard_bulan', compact('agenda', 'year', 'month'));
+        return view('dashboard_bulan', compact('agenda', 'year', 'month', 'units'));
     }
 
     /**

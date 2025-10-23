@@ -123,7 +123,7 @@
 }
 
 .mini-calendar-weekdays .weekend {
-    color: #6c757d;
+    color: #ff6b6b;
 }
 
 .mini-calendar-days {
@@ -172,6 +172,12 @@
     color: #ff6b6b;
 }
 
+.mini-day.weekend:hover:not(.today) {
+    background-color: rgba(130, 169, 141, 0.3);
+    color: #ff6b6b;
+    font-weight: 500;
+}
+
 .mini-day:hover:not(.today) {
     background-color: rgba(130, 169, 141, 0.3);
     color: #82A98D;
@@ -182,6 +188,17 @@
 .mini-day.weekend:hover:not(.today) {
     background-color: rgba(130, 169, 141, 0.3);
     color: #ff6b6b;
+    font-weight: 500;
+}
+
+/* Hari Sabtu tidak dianggap weekend (warna hitam) */
+.mini-day.saturday {
+    color: #000000 !important;
+}
+
+.mini-day.saturday:hover:not(.today) {
+    background-color: rgba(130, 169, 141, 0.3);
+    color: #82A98D !important;
     font-weight: 500;
 }
 
