@@ -26,7 +26,7 @@
                 <div class="month-header">Januari</div>
                 <div class="month-grid">
                     <div class="month-weekdays">
-                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div>M</div>
+                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div class="weekend">M</div>
                     </div>
                     <div class="month-days">
                     </div>
@@ -37,7 +37,7 @@
                 <div class="month-header">Februari</div>
                 <div class="month-grid">
                     <div class="month-weekdays">
-                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div>M</div>
+                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div class="weekend">M</div>
                     </div>
                     <div class="month-days">
                     </div>
@@ -48,7 +48,7 @@
                 <div class="month-header">Maret</div>
                 <div class="month-grid">
                     <div class="month-weekdays">
-                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div>M</div>
+                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div class="weekend">M</div>
                     </div>
                     <div class="month-days">
                     </div>
@@ -59,7 +59,7 @@
                 <div class="month-header">April</div>
                 <div class="month-grid">
                     <div class="month-weekdays">
-                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div>M</div>
+                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div class="weekend">M</div>
                     </div>
                     <div class="month-days">
                     </div>
@@ -70,7 +70,7 @@
                 <div class="month-header">Mei</div>
                 <div class="month-grid">
                     <div class="month-weekdays">
-                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div>M</div>
+                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div class="weekend">M</div>
                     </div>
                     <div class="month-days">
                     </div>
@@ -81,7 +81,7 @@
                 <div class="month-header">Juni</div>
                 <div class="month-grid">
                     <div class="month-weekdays">
-                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div>M</div>
+                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div class="weekend">M</div>
                     </div>
                     <div class="month-days">
                     </div>
@@ -92,7 +92,7 @@
                 <div class="month-header">Juli</div>
                 <div class="month-grid">
                     <div class="month-weekdays">
-                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div>M</div>
+                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div class="weekend">M</div>
                     </div>
                     <div class="month-days">
                     </div>
@@ -103,7 +103,7 @@
                 <div class="month-header">Agustus</div>
                 <div class="month-grid">
                     <div class="month-weekdays">
-                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div>M</div>
+                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div class="weekend">M</div>
                     </div>
                     <div class="month-days">
                     </div>
@@ -114,7 +114,7 @@
                 <div class="month-header">September</div>
                 <div class="month-grid">
                     <div class="month-weekdays">
-                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div>M</div>
+                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div class="weekend">M</div>
                     </div>
                     <div class="month-days">
                     </div>
@@ -125,7 +125,7 @@
                 <div class="month-header">Oktober</div>
                 <div class="month-grid">
                     <div class="month-weekdays">
-                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div>M</div>
+                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div class="weekend">M</div>
                     </div>
                     <div class="month-days">
                     </div>
@@ -136,7 +136,7 @@
                 <div class="month-header">November</div>
                 <div class="month-grid">
                     <div class="month-weekdays">
-                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div>M</div>
+                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div class="weekend">M</div>
                     </div>
                     <div class="month-days">
                     </div>
@@ -147,7 +147,7 @@
                 <div class="month-header">Desember</div>
                 <div class="month-grid">
                     <div class="month-weekdays">
-                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div>M</div>
+                        <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div class="weekend">M</div>
                     </div>
                     <div class="month-days">
                     </div>
@@ -177,7 +177,15 @@ function generateMonthDays(monthIndex, year) {
 
     monthDaysContainer.innerHTML = '';
 
-    for (let i = 0; i < 42; i++) {
+    // Hitung berapa hari yang perlu ditampilkan
+    const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+    const firstDayOfMonth = new Date(year, monthIndex, 1).getDay();
+    const startDay = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1; // Konversi ke Senin = 0
+    const totalDays = startDay + daysInMonth;
+    const weeksNeeded = Math.ceil(totalDays / 7);
+    const daysToShow = weeksNeeded * 7;
+
+    for (let i = 0; i < daysToShow; i++) {
         const date = new Date(startDate);
         date.setDate(startDate.getDate() + i);
 
@@ -187,6 +195,13 @@ function generateMonthDays(monthIndex, year) {
 
         if (date.getMonth() !== monthIndex) {
             dayElement.classList.add('other-month');
+        }
+
+        // Tandai weekend (hanya Minggu) dan Sabtu
+        if (date.getDay() === 0) {
+            dayElement.classList.add('weekend');
+        } else if (date.getDay() === 6) {
+            dayElement.classList.add('saturday');
         }
 
         // Highlight hari ini

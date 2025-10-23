@@ -70,7 +70,7 @@
 }
 
 .calendar-weekdays .weekend {
-    color: #6c757d;
+    color: #ff6b6b;
 }
 
 .calendar-days {
@@ -174,6 +174,25 @@
 .calendar-day.weekend:hover .day-number {
     background-color: rgba(130, 169, 141, 0.25);
     color: #ff6b6b;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    font-weight: 700;
+}
+
+/* Hari Sabtu tidak dianggap weekend (warna hitam) */
+.calendar-day.saturday .day-number {
+    color: #333 !important;
+    font-weight: 600;
+}
+
+.calendar-day.saturday:hover .day-number {
+    background-color: rgba(130, 169, 141, 0.25);
+    color: #82A98D !important;
     border-radius: 50%;
     width: 24px;
     height: 24px;
@@ -606,7 +625,7 @@
 
 .modal-body .form-submit {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     gap: 15px;
     margin-top: 30px;
     padding-top: 25px;

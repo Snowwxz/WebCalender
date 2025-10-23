@@ -32,7 +32,7 @@
                    <div>Kam</div>
                    <div>Jum</div>
                    <div>Sab</div>
-                   <div>Min</div>
+                   <div class="weekend">Min</div>
                </div>
                <div class="mini-calendar-days" id="miniCalendarDays"></div>
            </div>

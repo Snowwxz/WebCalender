@@ -26,7 +26,7 @@
                     <div>Rab</div>
                     <div>Kam</div>
                     <div>Jum</div>
-                    <div class="weekend">Sab</div>
+                    <div>Sab</div>
                     <div class="weekend">Min</div>
                 </div>
                 <div class="calendar-days" id="calendarDays">
@@ -79,9 +79,11 @@
                     dayElement.classList.add('other-month');
                 }
 
-                // Tandai Sabtu & Minggu
-                if (date.getDay() === 0 || date.getDay() === 6) {
+                // Tandai Minggu sebagai weekend, Sabtu sebagai hari biasa
+                if (date.getDay() === 0) {
                     dayElement.classList.add('weekend');
+                } else if (date.getDay() === 6) {
+                    dayElement.classList.add('saturday');
                 }
 
                 // Tandai tanggal hari ini
