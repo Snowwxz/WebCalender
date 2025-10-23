@@ -172,6 +172,12 @@
     color: #ff6b6b;
 }
 
+.mini-day.weekend:hover:not(.today) {
+    background-color: rgba(130, 169, 141, 0.3);
+    color: #ff6b6b;
+    font-weight: 500;
+}
+
 .mini-day:hover:not(.today) {
     background-color: rgba(130, 169, 141, 0.3);
     color: #82A98D;
