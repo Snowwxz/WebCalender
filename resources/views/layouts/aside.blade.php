@@ -31,7 +31,7 @@
                    <div>Rab</div>
                    <div>Kam</div>
                    <div>Jum</div>
-                   <div class="weekend">Sab</div>
+                   <div>Sab</div>
                    <div class="weekend">Min</div>
                </div>
                <div class="mini-calendar-days" id="miniCalendarDays"></div>

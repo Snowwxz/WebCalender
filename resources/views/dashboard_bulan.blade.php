@@ -26,7 +26,7 @@
                     <div>Rab</div>
                     <div>Kam</div>
                     <div>Jum</div>
-                    <div class="weekend">Sab</div>
+                    <div>Sab</div>
                     <div class="weekend">Min</div>
                 </div>
                 <div class="calendar-days" id="calendarDays">
@@ -53,7 +53,7 @@
                     <i class="fas fa-calendar-plus"></i>
                     <span>Buat Agenda Baru</span>
                 </div>
-                <button class="modal-close" onclick="closeModal()">
+                <button class="modal-close" onclick="closeModal()" style="color: #dc3545;">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -74,13 +74,26 @@
                             </div>
 
                             <div class="input-group">
-                                <label><i class="fas fa-user-tie"></i> Penanggung Jawab</label>
-                                <input type="text" name="person_in_charge" id="person_in_charge" placeholder="Masukkan nama penanggung jawab" required>
+                                <label><i class="fas fa-building"></i> Nama Instansi (Pengaju)</label>
+                                <select name="id_unit" id="id_unit" required>
+                                    <option value="">-- Pilih Instansi Pengaju --</option>
+                                    @foreach ($units as $unit)
+                                        <option value="{{ $unit->id_unit }}">{{ $unit->unit_name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
 
                             <div class="input-group">
-                                <label><i class="fas fa-people-group"></i> Instansi yang Ikut Serta</label>
-                                <textarea name="involved_institution" id="involved_institution" placeholder="Masukkan instansi yang akan ikut serta" required></textarea>
+                                <label><i class="fas fa-user-tie"></i> Penanggung Jawab</label>
+                                <input type="text" name="person_in_charge" id="person_in_charge" placeholder="Masukkan nama penanggung jawab">
+                            </div>
+
+                            <div class="input-group">
+                                <label><i class="fas fa-eye"></i> Kategori Agenda</label>
+                                <select name="is_public" id="is_public">
+                                    <option value="1">Public</option>
+                                    <option value="0">Private</option>
+                                </select>
                             </div>
                         </div>
 
@@ -93,23 +106,27 @@
 
                             <div class="input-group">
                                 <label><i class="fas fa-clock"></i> Waktu Mulai</label>
-                                <input type="time" name="start_time" id="start_time" required>
+                                <input type="time" name="start_time" id="start_time">
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-clock"></i> Waktu Selesai</label>
-                                <input type="time" name="end_time" id="end_time" required>
+                                <input type="time" name="end_time" id="end_time">
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-location-dot"></i> Lokasi</label>
-                                <input type="text" name="location" id="location" placeholder="Masukkan lokasi agenda" required>
+                                <input type="text" name="location" id="location" placeholder="Masukkan lokasi kegiatan">
+                            </div>
+
+                            <div class="input-group">
+                                <label><i class="fas fa-people-group"></i> Instansi yang Ikut Serta</label>
+                                <textarea name="involved_institution" id="involved_institution" placeholder="Masukkan instansi yang akan ikut serta"></textarea>
                             </div>
                         </div>
                     </div>
 
                     <div class="form-submit">
-                        <button type="button" class="btn-secondary" onclick="closeModal()">Batal</button>
                         <button type="submit" class="btn-primary">
                             <i class="fas fa-paper-plane"></i> Ajukan Agenda
                         </button>
@@ -234,8 +251,10 @@
                     dayElement.classList.add('other-month');
                 }
 
-                if (date.getDay() === 0 || date.getDay() === 6) {
+                if (date.getDay() === 0) {
                     dayElement.classList.add('weekend');
+                } else if (date.getDay() === 6) {
+                    dayElement.classList.add('saturday');
                 }
 
                 if (date.toDateString() === new Date().toDateString()) {
@@ -246,6 +265,15 @@
                 dayNumber.className = 'day-number';
                 dayNumber.textContent = date.getDate();
 
+<<<<<<< HEAD
+=======
+                if (date.getDay() === 0) {
+                    dayNumber.classList.add('weekend');
+                } else if (date.getDay() === 6) {
+                    dayNumber.classList.add('saturday');
+                }
+
+>>>>>>> 27a7ed32fdad8b2b3240c9311b811c9dfbe1cf28
                 const year = date.getFullYear();
                 const month = String(date.getMonth() + 1).padStart(2, '0');
                 const day = String(date.getDate()).padStart(2, '0');
