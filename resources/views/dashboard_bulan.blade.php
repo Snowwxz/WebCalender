@@ -346,7 +346,6 @@
      <script>
         document.addEventListener('DOMContentLoaded', generateMainCalendar);
 
-        // ini modal show anjing
         function openShowAgendaModal(data) {
     // Nama agenda
     document.getElementById('showAgendaName').innerText = data.agenda_name ?? '-';
