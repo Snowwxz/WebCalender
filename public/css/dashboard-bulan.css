@@ -689,7 +689,10 @@
         opacity: 0;
         transform: translateY(-30px) scale(0.9);
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> ef49d6169a388492881426d3f8a8721a83e6d0a5
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -798,4 +801,79 @@
     .modal-body .input-group {
         margin-bottom: 20px;
     }
+}
+
+/* sidebar khusus show agenda */
+#agendaSidebar {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 400px;
+    height: 100%;
+    background: #fff;
+    box-shadow: -2px 0 8px rgba(0,0,0,0.2);
+    overflow-y: auto;
+    transition: right 0.3s ease-in-out;
+    z-index: 100;
+    padding: 20px;
+}
+#agendaSidebar.active {
+    right: 0;
+}
+.agenda-item {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 10px 0;
+}
+.agenda-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+.agenda-title {
+    font-weight: 600;
+    color: #333;
+}
+.agenda-details {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #555;
+    padding-left: 10px;
+    line-height: 1.4;
+}
+.agenda-details.hidden {
+    display: none;
+}
+
+/* === STATUS BADGE === */
+.status-badge {
+    font-size: 0.8rem;
+    border-radius: 9999px;
+    padding: 3px 8px;
+    color: white;
+}
+.status-badge.approved { background-color: #16a34a; }
+.status-badge.pending { background-color: #eab308; }
+.status-badge.rejected { background-color: #dc2626; }
+
+/* === BADGE PILL DI KALENDER === */
+.agenda-count-badge {
+    display: inline-block;
+    border-radius: 9999px;
+    padding: 4px 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.agenda-count-badge:hover {
+    transform: scale(1.05);
+}
+
+/* Container buat badge di tanggal */
+.agenda-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 4px;
 }

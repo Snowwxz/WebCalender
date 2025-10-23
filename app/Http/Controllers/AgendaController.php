@@ -27,12 +27,10 @@ class AgendaController extends Controller
             // Jika user ingin melihat agenda mereka sendiri, tampilkan semua status
             $query->where('id_user', Auth::user()->id_user);
         } else {
-            // Untuk user biasa, tampilkan agenda mereka sendiri (pending + approved) + agenda approved dari user lain
-            $query->where(function($q) {
-                $q->where(function($subQ) {
-                    $subQ->where('id_user', Auth::user()->id_user) // Agenda user sendiri
-                         ->whereIn('status', ['pending', 'approved']); // Hanya pending dan approved
-                })->orWhere('status', 'approved'); // Agenda approved dari user lain
+            // Untuk user biasa, tampilkan agenda mereka sendiri (semua status) + agenda approved dari user lain
+            $query->where(function ($q) {
+                $q->where('id_user', Auth::user()->id_user) // Agenda user sendiri (semua status)
+                    ->orWhere('status', 'approved'); // Agenda approved dari user lain
             });
         }
 
@@ -61,26 +59,20 @@ class AgendaController extends Controller
      */
     public function store(Request $request)
     {
-        // Log request data untuk debugging
-        Log::info('Create Agenda Request Data:', $request->all());
-        Log::info('User ID:', ['id' => Auth::user()->id_user]);
+        $validated = $request->validate([
+            'agenda_name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'person_in_charge' => 'nullable|string|max:255',
+            'date' => 'required|date',
+            'start_time' => 'nullable|date_format:H:i',
+            'end_time' => 'nullable|date_format:H:i|after_or_equal:start_time',
+            'location' => 'nullable|string|max:255',
+            'involved_institution' => 'nullable|string|max:500',
+            'is_public' => 'required|in:0,1',
+            'id_unit' => 'required|exists:units,id_unit',
+        ]);
 
         try {
-            $validated = $request->validate([
-                'agenda_name' => 'required|string|max:255',
-                'description' => 'nullable|string',
-                'person_in_charge' => 'nullable|string|max:255',
-                'date' => 'required|date',
-                'start_time' => 'nullable|date_format:H:i',
-                'end_time' => 'nullable|date_format:H:i|after_or_equal:start_time',
-                'location' => 'nullable|string|max:255',
-                'involved_institution' => 'nullable|string|max:500',
-                'is_public' => 'required|in:0,1',
-                'id_unit' => 'required|exists:units,id_unit',
-            ]);
-
-            Log::info('Validation passed:', $validated);
-
             $agenda = new Agenda();
             $agenda->agenda_name = $validated['agenda_name'];
             $agenda->description = $validated['description'];
@@ -94,20 +86,31 @@ class AgendaController extends Controller
             $agenda->id_unit = $validated['id_unit'];
             $agenda->id_user = Auth::user()->id_user;
             $agenda->status = 'pending';
-
             $agenda->save();
-            
-            Log::info('Agenda saved successfully:', ['id' => $agenda->id_agenda]);
 
+            // ⚙️ Jika request datang via AJAX / fetch
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'agenda' => $agenda,
+                    'message' => 'Agenda berhasil ditambahkan (pending approval).',
+                ]);
+            }
+
+            // 📄 Kalau request biasa (form HTML)
             return redirect()->back()->with('success', 'Agenda berhasil ditambahkan!');
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            Log::error('Validation failed:', $e->errors());
-            return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            Log::error('Failed to save agenda:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            return redirect()->back()->with('error', 'Gagal menyimpan agenda: ' . $e->getMessage())->withInput();
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menyimpan agenda: ' . $e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Gagal menyimpan agenda: ' . $e->getMessage());
         }
     }
+
 
 
     /**
@@ -115,18 +118,8 @@ class AgendaController extends Controller
      */
     public function show($id)
     {
-        try {
-            $agenda = Agenda::with(['user', 'approver'])->findOrFail(id: $id);
-            return response()->json([
-                'success' => true,
-                'data' => $agenda,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Agenda tidak ditemukan.',
-            ], 404);
-        }
+        $agenda = Agenda::with(['user', 'approver'])->findOrFail($id);
+        return response()->json($agenda);
     }
 
     /**

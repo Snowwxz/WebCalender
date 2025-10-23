@@ -12,13 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('agenda', function (Blueprint $table) {
-           if (Schema::hasColumn('agenda', 'time')) {
-                $table->dropColumn('time');
-            }
-
-            // Tambahkan kolom baru
-            $table->time('start_time')->nullable()->after('date');
-            $table->time('end_time')->nullable()->after('start_time');
+             $table->dropColumn('submitted_by');
         });
     }
 
@@ -28,8 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('agenda', function (Blueprint $table) {
-          $table->dropColumn(['start_time', 'end_time']);
-            $table->time('time')->nullable()->after('date');
+           $table->string('submitted_by')->nullable();
         });
     }
 };
