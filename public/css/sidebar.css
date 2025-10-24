@@ -212,58 +212,88 @@
     padding: 15px;
 }
 
-.category-title {
-    font-size: 12px;
-    color: #6c757d;
-    margin-bottom: 12px;
-    font-weight: 500;
-}
-
 .category-item {
-    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    user-select: none;
 }
 
 .category-item input[type="checkbox"] {
     display: none;
 }
 
-.category-item label {
+.custom-checkbox {
+    width: 24px;
+    height: 24px;
+    border: 2.5px solid #343a40;
+    border-radius: 8px;
     display: flex;
     align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    font-size: 13px;
-    color: #333;
-    padding: 4px 0;
+    justify-content: center;
+    position: relative;
+    transition: all 0.25s ease;
+    background-color: transparent;
 }
 
-.category-dot {
-    width: 8px;
-    height: 8px;
+.custom-checkbox::after {
+    content: "";
+    position: absolute;
+    width: 7px;
+    height: 12px;
+    border-right: 2.5px solid #333;
+    border-bottom: 2.5px solid #333;
+    transform: rotate(45deg) scale(0);
+    transition: transform 0.2s ease-in-out;
+}
+
+.category-item.public .custom-checkbox {
+    border-color: #A8E6A3;
+}
+
+.category-item.private .custom-checkbox {
+    border-color: #FFB67E;
+}
+
+.category-item.public input:checked + .custom-checkbox {
+    background-color: #A8E6A3;
+    border-color: #A8E6A3;
+}
+
+.category-item.private input:checked + .custom-checkbox {
+    background-color: #FFB67E;
+    border-color: #FFB67E;
+}
+
+.category-item input:checked + .custom-checkbox::after {
+    transform: rotate(45deg) scale(1);
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    display: inline-block;
 }
 
-.category-dot.public {
-    background-color: #28a745;
+.category-item.public .dot {
+    background-color: #A8E6A3;
 }
 
-.category-dot.private {
-    background-color: #fd7e14;
+.category-item.private .dot {
+    background-color: #FFB67E;
 }
 
-.add-category-btn {
-    background: none;
-    border: none;
-    color: #6c757d;
-    font-size: 12px;
-    cursor: pointer;
-    padding: 4px 0;
-    margin-top: 8px;
-}
-
-.add-category-btn:hover {
+.text {
     color: #333;
+    font-weight: 500;
+}
+
+.category-item:hover .custom-checkbox {
+    transform: scale(1.05);
 }
 
 @media (max-width: 768px) {
