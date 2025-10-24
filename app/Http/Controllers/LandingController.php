@@ -36,7 +36,6 @@ class LandingController extends Controller
         return response()->json($agenda);
     }
 
-
     // ambil semua agenda di tanggal tertentu (untuk modal show)
     public function getByDate($date)
     {
@@ -63,7 +62,6 @@ class LandingController extends Controller
         return response()->json($agenda);
     }
 
-
     public function getByYear($year)
     {
         $cacheKey = "agenda_year_{$year}";
@@ -79,8 +77,6 @@ class LandingController extends Controller
 
         return response()->json($agenda);
     }
-
-
 
     // fitur search
     public function search(Request $request)

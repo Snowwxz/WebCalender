@@ -810,7 +810,7 @@
     box-shadow: -2px 0 8px rgba(0,0,0,0.2);
     overflow-y: auto;
     transition: right 0.3s ease-in-out;
-    z-index: 100;
+    z-index: 10000;
     padding: 20px;
 }
 #agendaSidebar.active {

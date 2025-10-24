@@ -26,7 +26,7 @@
                     <div>Rab</div>
                     <div>Kam</div>
                     <div>Jum</div>
-                    <div class="weekend">Sab</div>
+                    <div>Sab</div>
                     <div class="weekend">Min</div>
                 </div>
                 <div class="calendar-days" id="calendarDays">
@@ -54,15 +54,14 @@
                     <i class="fas fa-calendar-plus"></i>
                     <span>Buat Agenda Baru</span>
                 </div>
-                <button class="modal-close" onclick="closeModal()">
+                <button class="modal-close" onclick="closeModal()" style="color: #dc3545;">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
 
             <div class="modal-body">
-                <form id="agendaForm" action="{{ route('agenda.store') }}" method="POST" onsubmit="return validateAgendaForm()">
-                    @csrf
-
+                <form id="agendaForm" action="{{ route('agenda.store') }}" method="POST"
+                    onsubmit="return handleFormSubmit(event)">
                     <div class="form-grid">
                         <!-- Kolom kiri -->
                         <div class="form-column">
@@ -78,13 +77,27 @@
                             </div>
 
                             <div class="input-group">
-                                <label><i class="fas fa-user-tie"></i> Penanggung Jawab</label>
-                                <input type="text" name="person_in_charge" id="person_in_charge" placeholder="Masukkan nama penanggung jawab" required>
+                                <label><i class="fas fa-building"></i> Nama Instansi (Pengaju)</label>
+                                <select name="id_unit" id="id_unit" required>
+                                    <option value="">-- Pilih Instansi Pengaju --</option>
+                                    @foreach ($units as $unit)
+                                        <option value="{{ $unit->id_unit }}">{{ $unit->unit_name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
 
                             <div class="input-group">
-                                <label><i class="fas fa-people-group"></i> Instansi yang Ikut Serta</label>
-                                <textarea name="involved_institution" id="involved_institution" placeholder="Masukkan instansi yang akan ikut serta" required></textarea>
+                                <label><i class="fas fa-user-tie"></i> Penanggung Jawab</label>
+                                <input type="text" name="person_in_charge" id="person_in_charge"
+                                    placeholder="Masukkan nama penanggung jawab">
+                            </div>
+
+                            <div class="input-group">
+                                <label><i class="fas fa-eye"></i> Kategori Agenda</label>
+                                <select name="is_public" id="is_public">
+                                    <option value="1">Public</option>
+                                    <option value="0">Private</option>
+                                </select>
                             </div>
                         </div>
 
@@ -97,23 +110,27 @@
 
                             <div class="input-group">
                                 <label><i class="fas fa-clock"></i> Waktu Mulai</label>
-                                <input type="time" name="start_time" id="start_time" required>
+                                <input type="time" name="start_time" id="start_time">
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-clock"></i> Waktu Selesai</label>
-                                <input type="time" name="end_time" id="end_time" required>
+                                <input type="time" name="end_time" id="end_time">
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-location-dot"></i> Lokasi</label>
-                                <input type="text" name="location" id="location" placeholder="Masukkan lokasi agenda" required>
+                                <input type="text" name="location" id="location" placeholder="Masukkan lokasi kegiatan">
+                            </div>
+
+                            <div class="input-group">
+                                <label><i class="fas fa-people-group"></i> Instansi yang Ikut Serta</label>
+                                <textarea name="involved_institution" id="involved_institution" placeholder="Masukkan instansi yang akan ikut serta"></textarea>
                             </div>
                         </div>
                     </div>
 
                     <div class="form-submit">
-                        <button type="button" class="btn-secondary" onclick="closeModal()">Batal</button>
                         <button type="submit" class="btn-primary">
                             <i class="fas fa-paper-plane"></i> Ajukan Agenda
                         </button>
@@ -123,6 +140,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // ✅ Ambil dari URL (?bulan=3&tahun=2025) biar nggak selalu Oktober
         const urlParams = new URLSearchParams(window.location.search);
@@ -214,8 +232,7 @@
             });
         }
 
-
-        // Generate main calendar
+        // generate main calender
         function generateMainCalendar() {
             const monthYear = document.getElementById('currentMonthYear');
             const calendarDays = document.getElementById('calendarDays');
@@ -244,8 +261,10 @@
                     dayElement.classList.add('other-month');
                 }
 
-                if (date.getDay() === 0 || date.getDay() === 6) {
+                if (date.getDay() === 0) {
                     dayElement.classList.add('weekend');
+                } else if (date.getDay() === 6) {
+                    dayElement.classList.add('saturday');
                 }
 
                 if (date.toDateString() === new Date().toDateString()) {
@@ -255,10 +274,6 @@
                 const dayNumber = document.createElement('div');
                 dayNumber.className = 'day-number';
                 dayNumber.textContent = date.getDate();
-
-                if (date.getDay() === 0 || date.getDay() === 6) {
-                    dayNumber.classList.add('weekend');
-                }
 
                 const year = date.getFullYear();
                 const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -270,75 +285,56 @@
                     day
                 });
                 dayElement.appendChild(dayNumber);
-                calendarDays.appendChild(dayElement);
 
-                 // Buat container untuk agenda items
-                 const agendaContainer = document.createElement("div");
-                 agendaContainer.className = "agenda-container";
+                // === BADGE GENERATOR ===
+                if (filteredAgenda.length > 0) {
+                    const agendaContainer = document.createElement("div");
+                    agendaContainer.className = "agenda-container";
 
-                 // Tampilkan maksimal 3 agenda
-                 const maxAgenda = 3;
-                 const agendaToShow = filteredAgenda.slice(0, maxAgenda);
+                    const badge = document.createElement("div");
+                    const hasApproved = filteredAgenda.some(a => a.status === 'approved');
+                    const hasPending = filteredAgenda.some(a => a.status === 'pending');
+                    const hasRejected = filteredAgenda.some(a => a.status === 'rejected');
 
-                 for (let i=0; i<agendaToShow.length; i++) {
-                     const badge = document.createElement("div");
+                    let badgeColor = "bg-gray-400";
+                    if (hasApproved) badgeColor = "bg-green-500";
+                    else if (hasPending) badgeColor = "bg-yellow-500";
+                    else if (hasRejected) badgeColor = "bg-red-500";
 
-                     // Tentukan class berdasarkan status agenda
-                     let badgeClass = "text-white mb-2 rounded-sm p-2";
-                     if (agendaToShow[i].status === 'approved') {
-                         badgeClass = "bg-green-500 " + badgeClass; // Hijau untuk approved
-                     } else if (agendaToShow[i].status === 'pending') {
-                         badgeClass = "bg-yellow-500 " + badgeClass; // Kuning untuk pending
-                     } else if (agendaToShow[i].status === 'rejected') {
-                         badgeClass = "bg-red-500 " + badgeClass; // Merah untuk rejected
-                     } else {
-                         badgeClass = "bg-gray-400 " + badgeClass; // Default abu-abu
-                     }
+                    badge.className = `agenda-count-badge ${badgeColor}`;
+                    badge.textContent = filteredAgenda.length > 1 ?
+                        `${filteredAgenda.length} Kegiatan` :
+                        filteredAgenda[0].agenda_name;
 
-                     badge.setAttribute("class", badgeClass);
+                    badge.title = `${filteredAgenda.length} agenda hari ini`;
 
-                     // Batasi panjang teks agenda (maksimal 20 karakter)
-                     let agendaText = agendaToShow[i].agenda_name;
-                     if (agendaText.length > 20) {
-                         agendaText = agendaText.substring(0, 17) + "...";
-                     }
+                    badge.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        showAgendaListSidebar(filteredAgenda, `${year}-${month}-${day}`);
+                    });
 
-                     badge.innerHTML = agendaText;
-                     badge.title = `${agendaToShow[i].agenda_name} (Status: ${agendaToShow[i].status})`; // Tooltip dengan status
-                     agendaContainer.appendChild(badge);
-                 }
+                    agendaContainer.appendChild(badge);
+                    dayElement.appendChild(agendaContainer);
+                }
 
-                 // Tambahkan indikator jika ada agenda lebih dari 3
-                 if (filteredAgenda.length > maxAgenda) {
-                     agendaContainer.classList.add("has-more");
-                 }
+                // Klik tanggal -> buka modal create (kalau belum ada agenda)
+                dayElement.addEventListener('click', (e) => {
+                    if (filteredAgenda.length === 0) {
+                        openModal(`${year}-${month}-${day}`);
+                    }
+                });
 
-                 dayElement.appendChild(agendaContainer);
-
-                             // ✅ Klik di area hari
-                 dayElement.addEventListener('click', (e) => {
-                     // Filter agenda hari ini
-                     let filteredAgenda = filterAgenda(agenda, { year, month, day });
-
-                     // Kalau ada agenda di hari ini, jangan buka modal create
-                     if (filteredAgenda.length > 0) return;
-
-                     // Kalau user klik angka tanggal (bukan area kosong), skip modal
-                     if (e.target.classList.contains('day-number')) return;
-
-                     // Kalau lolos semua kondisi di atas → buka modal create
-                     openModal(`${year}-${month}-${day}`);
-                 });
-
-                // ✅ Klik angka tanggal (langsung buka halaman hari)
+                // Klik angka tanggal -> buka halaman harian
                 dayNumber.addEventListener('click', (e) => {
-                    e.stopPropagation(); // Supaya event klik ini gak nyetrum ke dayElement
+                    e.stopPropagation();
                     window.location.href = `/hari?tanggal=${year}-${month}-${day}`;
                 });
+
+                calendarDays.appendChild(dayElement);
             }
         }
 
-        // Change month
+        // Change month function
         function changeMonth(direction) {
             currentDate.setMonth(currentDate.getMonth() + direction);
 
