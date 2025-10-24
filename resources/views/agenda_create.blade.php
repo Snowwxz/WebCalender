@@ -43,7 +43,7 @@
 
                 <form action="{{ route('agenda.store') }}" method="POST">
                     @csrf
-                    
+
                     @if ($errors->any())
                         <div class="alert alert-danger" style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
                             <h4>Terjadi kesalahan:</h4>
@@ -99,8 +99,8 @@
                             <div class="input-group">
                                 <label><i class="fas fa-eye"></i> Kategori Agenda</label>
                                 <select name="is_public">
-                                    <option value="1">Public</option>
-                                    <option value="0">Private</option>
+                                    <option value="1">Publik</option>
+                                    <option value="0">Privasi</option>
                                 </select>
                             </div>
                         </div>

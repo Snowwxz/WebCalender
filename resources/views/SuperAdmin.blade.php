@@ -49,12 +49,9 @@
                                         <td>••••••••</td>
                                         <td>{{ ucfirst($user->role) }}</td>
                                         <td>
-                                            <button type="button" class="btn-edit"
-                                                data-id="{{ $user->id_user }}"
-                                                data-name="{{ $user->name }}"
-                                                data-username="{{ $user->username }}"
-                                                data-email="{{ $user->email }}"
-                                                data-role="{{ $user->role }}"
+                                            <button type="button" class="btn-edit" data-id="{{ $user->id_user }}"
+                                                data-name="{{ $user->name }}" data-username="{{ $user->username }}"
+                                                data-email="{{ $user->email }}" data-role="{{ $user->role }}"
                                                 onclick="openEditModal(this)">
                                                 Edit
                                             </button>
@@ -107,10 +104,8 @@
                                         <td>{{ $unit->unit_name }}</td>
                                         <td>{{ $unit->address ?? '-' }}</td>
                                         <td>
-                                            <button type="button" class="btn-edit"
-                                                data-id="{{ $unit->id_unit }}"
-                                                data-name="{{ $unit->unit_name }}"
-                                                data-address="{{ $unit->address }}"
+                                            <button type="button" class="btn-edit" data-id="{{ $unit->id_unit }}"
+                                                data-name="{{ $unit->unit_name }}" data-address="{{ $unit->address }}"
                                                 onclick="openEditUnitModal(this)">
                                                 Edit
                                             </button>
@@ -289,12 +284,14 @@
         }
 
         // Tutup modal jika klik area luar
-        window.addEventListener('click', function (e) {
+        window.addEventListener('click', function(e) {
             const modals = document.querySelectorAll('.user-form-modal');
             modals.forEach(modal => {
                 if (e.target === modal) modal.classList.remove('show');
             });
         });
     </script>
+
 </body>
+
 </html>
