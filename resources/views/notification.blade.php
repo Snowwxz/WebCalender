@@ -110,7 +110,7 @@
                                             <div class="detail-item">
                                                 <i class="fas fa-eye"></i>
                                                 <span>
-                                                    <strong>Status:</strong>
+                                                    <strong>Status Publikasi:</strong>
                                                     {{ $agenda->is_public ? 'Publik' : 'Privat' }}
                                                 </span>
                                             </div>
@@ -173,9 +173,10 @@
                                             </form>
                                         </div>
                                     </div>
-                                </div>
+                                </div> <!-- tutup .card-content -->
+                            </div> <!-- ✅ tutup .notification-card di sini -->
                         @endforeach
-                    </div>
+                    </div> <!-- tutup .notification-list -->
                 @endif
             </div>
         </main>
