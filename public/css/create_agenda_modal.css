@@ -91,32 +91,6 @@
     border-radius: 8px;
 }
 
-/* Button Create Agenda - Make it round for create agenda page */
-.btn-create-agenda {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    background: #f8f9fa;
-    border: 1px solid #e5e7eb;
-    border-radius: 50% !important;
-    color: #6b7280;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    position: relative;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.btn-create-agenda:hover {
-    background: #e9ecef;
-    color: #374151;
-    border-color: #d1d5db;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
 /* Responsive biar aman di layar kecil */
 @media (max-width: 768px) {
     #createAgendaModal .form-grid {

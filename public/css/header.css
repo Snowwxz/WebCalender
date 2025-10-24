@@ -82,7 +82,6 @@
         align-items: center;
     }
 
-    /* === Bell & Tambah Agenda - Hover & Active Konsisten === */
     .bell-link,
     .btn-create-agenda {
         display: flex;
@@ -98,42 +97,34 @@
         text-decoration: none;
     }
 
-    /* Hover & active (warna dasar baru) */
     .bell-link:hover,
     .btn-create-agenda:hover,
     .bell-link.active,
     .btn-create-agenda.active {
         background-color: #E8F3EC;
-        /* versi muda dari #82A98D */
         color: #82A98D;
-        /* warna utama */
     }
 
-    /* Efek kecil saat hover ikon */
     .bell-link:hover i,
     .btn-create-agenda:hover i {
         transform: scale(1.05);
         transition: transform 0.2s ease;
     }
 
-    /* Spasi antar ikon */
     .notification-bell,
     .add-agenda-btn {
         margin-right: 10px;
     }
 
-    /* Hover hanya berlaku kalau belum aktif */
     .bell-link:hover:not(.active),
     .btn-create-agenda:hover:not(.active) {
         background-color: #E8F3EC;
         color: #82A98D;
     }
 
-    /* Saat sudah aktif, tidak berubah warna saat dihover */
     .bell-link.active:hover,
     .btn-create-agenda.active:hover {
         background-color: #DDEBE1;
-        /* sedikit lebih gelap biar beda dikit dari hover */
         color: #82A98D;
         cursor: default;
     }
@@ -393,6 +384,15 @@
     .dropdown-form {
         margin: 0;
     }
+
+    .swal2-container {
+        z-index: 99999 !important;
+    }
+
+    .swal2-top {
+        top: 50px !important;
+    }
+
 
     @media (max-width: 768px) {
         .header {
