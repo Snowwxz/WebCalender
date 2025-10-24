@@ -1,5 +1,4 @@
-    /* Header Styles */
-    .header {
+.header {
         background: white;
         border-bottom: 1px solid #e9ecef;
         padding: 15px 30px;
@@ -8,7 +7,8 @@
         justify-content: space-between;
         position: sticky;
         top: 0;
-        z-index: 1001;
+        position: relative;
+        z-index: 9999 !important;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 
@@ -77,55 +77,56 @@
         gap: 20px;
     }
 
-    /* Notification Bell Styles */
     .notification-bell {
         display: flex;
         align-items: center;
     }
 
-    .bell-link {
+    .bell-link,
+    .btn-create-agenda {
         display: flex;
         align-items: center;
         justify-content: center;
         width: 40px;
         height: 40px;
-        background: #f8f9fa;
-        border: 1px solid #e5e7eb;
         border-radius: 50%;
-        color: #6b7280;
+        color: #555;
+        background-color: transparent;
+        transition: all 0.25s ease;
+        font-size: 18px;
         text-decoration: none;
-        transition: all 0.2s ease;
-        position: relative;
     }
 
-    .bell-link:hover {
-        background: #e9ecef;
-        color: #374151;
-        border-color: #d1d5db;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    .bell-link:hover,
+    .btn-create-agenda:hover,
+    .bell-link.active,
+    .btn-create-agenda.active {
+        background-color: #E8F3EC;
+        color: #82A98D;
     }
 
-    .bell-link i {
-        font-size: 16px;
+    .bell-link:hover i,
+    .btn-create-agenda:hover i {
+        transform: scale(1.05);
+        transition: transform 0.2s ease;
     }
 
-    /* Notification Badge (optional - for future use) */
-    .bell-link::after {
-        content: '';
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        width: 8px;
-        height: 8px;
-        background: #ef4444;
-        border-radius: 50%;
-        display: none;
-        /* Hidden by default, can be shown when there are notifications */
+    .notification-bell,
+    .add-agenda-btn {
+        margin-right: 10px;
     }
 
-    .bell-link.has-notifications::after {
-        display: block;
+    .bell-link:hover:not(.active),
+    .btn-create-agenda:hover:not(.active) {
+        background-color: #E8F3EC;
+        color: #82A98D;
+    }
+
+    .bell-link.active:hover,
+    .btn-create-agenda.active:hover {
+        background-color: #DDEBE1;
+        color: #82A98D;
+        cursor: default;
     }
 
     .search-container {
@@ -203,7 +204,6 @@
         transform: translateX(3px);
     }
 
-    /* User Profile Section */
     .user-profile-section {
         position: relative;
         display: flex;
@@ -314,7 +314,6 @@
         opacity: 0;
     }
 
-    /* Dropdown Menu */
     .user-dropdown {
         position: absolute;
         top: 100%;
@@ -386,7 +385,15 @@
         margin: 0;
     }
 
-    /* Responsive Header */
+    .swal2-container {
+        z-index: 99999 !important;
+    }
+
+    .swal2-top {
+        top: 50px !important;
+    }
+
+
     @media (max-width: 768px) {
         .header {
             padding: 15px 20px;

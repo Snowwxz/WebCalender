@@ -110,6 +110,9 @@
                                                 <span><strong>Tanggal:</strong>
                                                     {{ \Carbon\Carbon::parse($agenda->date)->format('l, d F Y') }}</span>
                                             </div>
+                                        </div>
+
+                                        <div class="details-right">
                                             <div class="detail-item">
                                                 <i class="fas fa-clock"></i>
                                                 <span><strong>Waktu Pelaksanaan:</strong>
@@ -125,8 +128,7 @@
                                                     @endif
                                                 </span>
                                             </div>
-                                        </div>
-                                        <div class="details-right">
+
                                             <div class="detail-item">
                                                 <i class="fas fa-map-marker-alt"></i>
                                                 <span><strong>Lokasi:</strong> {{ $agenda->location ?? '-' }}</span>
