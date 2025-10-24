@@ -18,9 +18,7 @@ class AgendaController extends Controller
         $year = $request->query('year', date('Y'));
         $month = $request->query('month', date('m'));
 
-        $query = Agenda::with(['user', 'approver'])
-            ->whereYear('date', $year)
-            ->whereMonth('date', $month)
+        $query = Agenda::with(['user', 'approver', 'unit'])
             ->orderBy('date', 'desc');
 
         if ($request->query('only_my')) {
@@ -88,7 +86,7 @@ class AgendaController extends Controller
             $agenda->status = 'pending';
             $agenda->save();
 
-            // ⚙️ Jika request datang via AJAX / fetch
+            // ⚙ Jika request datang via AJAX / fetch
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => true,
@@ -118,7 +116,8 @@ class AgendaController extends Controller
      */
     public function show($id)
     {
-        $agenda = Agenda::with(['user', 'approver'])->findOrFail($id);
+        $agenda = Agenda::with(['user', 'approver', 'unit'])->findOrFail($id);
+
         return response()->json($agenda);
     }
 
@@ -234,5 +233,45 @@ class AgendaController extends Controller
         }
 
         return view('notification', compact('agenda'));
+    }
+
+    /**
+     * ✅ Ambil daftar agenda berdasarkan tanggal (untuk klik kalender).
+     * Digunakan di dashboard user (AJAX).
+     */
+    public function getAgendaByDate(Request $request)
+    {
+        $date = $request->input('date');
+
+        if (!$date) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tanggal tidak diberikan.'
+            ], 400);
+        }
+
+        $agenda = Agenda::with(['unit', 'user', 'approver'])
+            ->whereDate('date', $date)
+            ->where(function ($q) {
+                $q->where('id_user', Auth::user()->id_user)
+                    ->orWhere('status', 'approved'); // hanya tampilkan approved dari user lain
+            })
+            ->orderBy('start_time', 'asc')
+            ->get();
+
+        // Kalau kosong, tetap kasih response clean biar frontend gak error
+        if ($agenda->isEmpty()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Tidak ada agenda di tanggal ini.',
+                'data' => []
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Agenda berhasil diambil.',
+            'data' => $agenda
+        ]);
     }
 }

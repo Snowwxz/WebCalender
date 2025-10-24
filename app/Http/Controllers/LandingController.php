@@ -17,6 +17,10 @@ class LandingController extends Controller
     // ambil semua agenda dalam satu bulan
     public function getByMonth($year, $month)
     {
+        if (!is_numeric($year) || !is_numeric($month) || $month < 1 || $month > 12) {
+            return response()->json(['error' => 'Parameter tahun atau bulan tidak valid.'], 400);
+        }
+
         $cacheKey = "agenda_month_{$year}_{$month}";
         $agenda = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($year, $month) {
             return Agenda::query()
@@ -32,21 +36,25 @@ class LandingController extends Controller
         return response()->json($agenda);
     }
 
+
     // ambil semua agenda di tanggal tertentu (untuk modal show)
     public function getByDate($date)
     {
-        // validasi format tanggal biar gak error
         if (!strtotime($date)) {
             return response()->json(['error' => 'Format tanggal tidak valid.'], 400);
         }
 
-        $agenda = Agenda::query()
-            ->select('id', 'judul', 'tanggal', 'lokasi', 'jam_mulai', 'jam_selesai', 'deskripsi')
-            ->whereDate('tanggal', $date)
-            ->where('status', 'approved')
-            ->where('visibility', 'public')
-            ->orderBy('jam_mulai', 'asc')
-            ->get();
+        $cacheKey = "agenda_date_{$date}";
+
+        $agenda = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($date) {
+            return Agenda::query()
+                ->select('id', 'judul', 'tanggal', 'lokasi', 'jam_mulai', 'jam_selesai', 'deskripsi')
+                ->whereDate('tanggal', $date)
+                ->where('status', 'approved')
+                ->where('visibility', 'public')
+                ->orderBy('jam_mulai', 'asc')
+                ->get();
+        });
 
         if ($agenda->isEmpty()) {
             return response()->json(['message' => 'Tidak ada agenda di tanggal ini.']);
@@ -55,17 +63,23 @@ class LandingController extends Controller
         return response()->json($agenda);
     }
 
+
     public function getByYear($year)
     {
-        $agenda = Agenda::select('id', 'judul', 'tanggal', 'lokasi')
-            ->whereYear('tanggal', $year)
-            ->where('status', 'approved')
-            ->where('visibility', 'public')
-            ->orderBy('tanggal', 'asc')
-            ->get();
+        $cacheKey = "agenda_year_{$year}";
+
+        $agenda = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($year) {
+            return Agenda::select('id', 'judul', 'tanggal', 'lokasi')
+                ->whereYear('tanggal', $year)
+                ->where('status', 'approved')
+                ->where('visibility', 'public')
+                ->orderBy('tanggal', 'asc')
+                ->get();
+        });
 
         return response()->json($agenda);
     }
+
 
 
     // fitur search

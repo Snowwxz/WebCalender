@@ -233,7 +233,8 @@
                 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
                 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
             ];
-            monthYear.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+            monthYear.textContent = monthNames[currentDate.getMonth()] + ' ' + currentDate.getFullYear();
+
 
             const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
             const startDate = new Date(firstDay);
@@ -324,13 +325,13 @@
         // Change month function
         function changeMonth(direction) {
             currentDate.setMonth(currentDate.getMonth() + direction);
-            
+
             // Update URL
             const newMonth = currentDate.getMonth() + 1;
             const newYear = currentDate.getFullYear();
-            const newUrl = `/dashboard/bulan?bulan=${newMonth - 1}&tahun=${newYear}`;
+            const newUrl = `/dashboard/bulan?bulan=${newMonth}&tahun=${newYear}`;
             window.history.pushState({}, '', newUrl);
-            
+
             generateMainCalendar();
         }
 
