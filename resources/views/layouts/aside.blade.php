@@ -46,21 +46,20 @@
            </div>
 
            <div class="agenda-categories">
-               <div class="category-item">
-                   <input type="checkbox" id="public" checked>
-                   <label for="public">
-                       <span class="category-dot public"></span>
-                       <span>Publik</span>
-                   </label>
-               </div>
+               <label class="category-item public">
+                   <input type="checkbox" checked>
+                   <span class="custom-checkbox"></span>
+                   <span class="dot"></span>
+                   <span class="text">Publik</span>
+               </label>
+
                @auth
-                   <div class="category-item">
-                       <input type="checkbox" id="private" checked>
-                       <label for="private">
-                           <span class="category-dot private"></span>
-                           <span>Privasi</span>
-                       </label>
-                   </div>
+                   <label class="category-item private">
+                       <input type="checkbox" checked>
+                       <span class="custom-checkbox"></span>
+                       <span class="dot"></span>
+                       <span class="text">Privasi</span>
+                   </label>
                @endauth
            </div>
        </div>

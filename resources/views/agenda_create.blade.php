@@ -41,7 +41,7 @@
                     Platform untuk mengajukan dan mengelola agenda kegiatan instansi
                 </p>
 
-                <form action="{{ route('agenda.store') }}" method="POST">
+                <form action="{{ route('agenda.store') }}" method="POST" id="agendaForm">
                     @csrf
                     
                     @if ($errors->any())
@@ -77,7 +77,7 @@
 
                             <div class="input-group">
                                 <label><i class="fas fa-align-left"></i> Deskripsi Agenda</label>
-                                <textarea name="description" placeholder="Masukkan deskripsi agenda">{{ old('description') }}</textarea>
+                                <textarea name="description" placeholder="Masukkan deskripsi agenda" required>{{ old('description') }}</textarea>
                             </div>
 
                             <div class="input-group">
@@ -93,7 +93,7 @@
                             <div class="input-group">
                                 <label><i class="fas fa-user-tie"></i> Penanggung Jawab</label>
                                 <input type="text" name="person_in_charge"
-                                    placeholder="Masukkan nama penanggung jawab">
+                                    placeholder="Masukkan nama penanggung jawab" required>
                             </div>
 
                             <div class="input-group">
@@ -114,22 +114,22 @@
 
                             <div class="input-group">
                                 <label><i class="fas fa-clock"></i> Waktu Mulai</label>
-                                <input type="time" name="start_time">
+                                <input type="time" name="start_time" required>
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-clock"></i> Waktu Selesai</label>
-                                <input type="time" name="end_time">
+                                <input type="time" name="end_time" required>
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-location-dot"></i> Lokasi</label>
-                                <input type="text" name="location" placeholder="Masukkan lokasi kegiatan">
+                                <input type="text" name="location" placeholder="Masukkan lokasi kegiatan" required>
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-people-group"></i> Instansi yang Ikut Serta</label>
-                                <textarea name="involved_institution" placeholder="Masukkan instansi yang akan ikut serta"></textarea>
+                                <textarea name="involved_institution" placeholder="Masukkan instansi yang akan ikut serta" required></textarea>
                             </div>
                         </div>
                     </div>
@@ -181,6 +181,79 @@
                 dropdown.classList.remove('show');
                 profile.classList.remove('active');
             }
+        });
+
+        // Form validation
+        document.getElementById('agendaForm').addEventListener('submit', function(e) {
+            const requiredFields = [
+                'agenda_name',
+                'description', 
+                'id_unit',
+                'person_in_charge',
+                'date',
+                'start_time',
+                'end_time',
+                'location',
+                'involved_institution'
+            ];
+
+            let isValid = true;
+            let emptyFields = [];
+
+            requiredFields.forEach(fieldName => {
+                const field = document.querySelector(`[name="${fieldName}"]`);
+                if (field && (!field.value || field.value.trim() === '')) {
+                    isValid = false;
+                    emptyFields.push(fieldName);
+                    
+                    // Highlight empty field
+                    field.style.borderColor = '#ef4444';
+                    field.style.backgroundColor = '#fef2f2';
+                } else if (field) {
+                    // Reset styling for filled fields
+                    field.style.borderColor = '';
+                    field.style.backgroundColor = '';
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                alert('Mohon lengkapi semua field yang wajib diisi:\n\n' + 
+                      emptyFields.map(field => {
+                          const labels = {
+                              'agenda_name': 'Nama Agenda',
+                              'description': 'Deskripsi Agenda',
+                              'id_unit': 'Nama Instansi',
+                              'person_in_charge': 'Penanggung Jawab',
+                              'date': 'Tanggal',
+                              'start_time': 'Waktu Mulai',
+                              'end_time': 'Waktu Selesai',
+                              'location': 'Lokasi',
+                              'involved_institution': 'Instansi yang Ikut Serta'
+                          };
+                          return '• ' + (labels[field] || field);
+                      }).join('\n'));
+            }
+        });
+
+        // Real-time validation
+        document.querySelectorAll('input[required], textarea[required], select[required]').forEach(field => {
+            field.addEventListener('blur', function() {
+                if (this.value.trim() === '') {
+                    this.style.borderColor = '#ef4444';
+                    this.style.backgroundColor = '#fef2f2';
+                } else {
+                    this.style.borderColor = '#10b981';
+                    this.style.backgroundColor = '#f0fdf4';
+                }
+            });
+
+            field.addEventListener('input', function() {
+                if (this.value.trim() !== '') {
+                    this.style.borderColor = '#10b981';
+                    this.style.backgroundColor = '#f0fdf4';
+                }
+            });
         });
     </script>
 
