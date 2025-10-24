@@ -17,30 +17,35 @@
 
     <div class="header-right">
         @auth
-            {{-- Notification Bell Icon (hidden on super admin page) --}}
+            {{-- Jangan tampilkan di halaman superadmin --}}
             @if (!request()->routeIs('superadmin*'))
                 <div class="notification-bell">
                     @if (Auth::user()->role === 'admin')
-                        <a href="{{ route('approve') }}" class="bell-link" title="Kelola Pengajuan Agenda">
+                        <a href="{{ route('approve') }}"
+                            class="bell-link {{ request()->routeIs('approve') ? 'active' : '' }}"
+                            title="Kelola Pengajuan Agenda">
                             <i class="fas fa-bell"></i>
                         </a>
-                    @else
-                        <a href="{{ route('agenda.notification') }}" class="bell-link" title="Notifikasi Agenda Saya">
+                    @elseif(Auth::user()->role === 'user')
+                        <a href="{{ route('agenda.notification') }}"
+                            class="bell-link {{ request()->routeIs('agenda.notification') ? 'active' : '' }}"
+                            title="Notifikasi Agenda Saya">
                             <i class="fas fa-bell"></i>
                         </a>
                     @endif
                 </div>
 
-                {{-- Tombol Tambah Agenda (hidden on super admin page) --}}
-                <div class="add-agenda-btn" style="margin-right: 1rem;">
-                    <button
-                        class="btn-create-agenda"
-                        title="Tambah Agenda"
-                        onclick="window.location.href='{{ route('agenda.create') }}'">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                </div>
-            @endif
+               {{-- Tombol tambah agenda (jangan tampil di superadmin) --}}
+               @if(Auth::user()->role !== 'superadmin')
+               <div class="add-agenda-btn">
+                   <a href="{{ route('agenda.create') }}"
+                      class="btn-create-agenda {{ request()->routeIs('agenda.create') ? 'active' : '' }}"
+                      title="Tambah Agenda">
+                       <i class="fas fa-plus"></i>
+                   </a>
+               </div>
+           @endif
+       @endif
 
             {{-- user profile section --}}
             <div class="user-profile-section">
@@ -82,8 +87,7 @@
                     </form>
                 </div>
             </div>
-        @else
-            {{-- Login Button for guests --}}
+            @else
             <div class="login-section">
                 <button class="login-btn" onclick="window.location.href='/login'">
                     <i class="fas fa-sign-in-alt"></i>
@@ -92,7 +96,6 @@
             </div>
         @endauth
     </div>
-
 </header>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
