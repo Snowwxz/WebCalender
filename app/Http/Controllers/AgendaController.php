@@ -19,8 +19,6 @@ class AgendaController extends Controller
         $month = $request->query('month', date('m'));
 
         $query = Agenda::with(['user', 'approver', 'unit'])
-            ->whereYear('date', $year)
-            ->whereMonth('date', $month)
             ->orderBy('date', 'desc');
 
         if ($request->query('only_my')) {
