@@ -26,7 +26,7 @@
                     <div>Rab</div>
                     <div>Kam</div>
                     <div>Jum</div>
-                    <div class="weekend">Sab</div>
+                    <div>Sab</div>
                     <div class="weekend">Min</div>
                 </div>
                 <div class="calendar-days" id="calendarDays">
@@ -37,91 +37,118 @@
     </div>
 
     <script>
-        // Ambil bulan dari controller, kalau tidak ada pakai bulan saat ini
         const selectedMonth = {{ $month ?? date('n') }};
-        const selectedYear = {{ $year ?? date('Y') }};
+const selectedYear = {{ $year ?? date('Y') }};
+let currentDate = new Date(selectedYear, selectedMonth - 1, 1);
+let agendaData = [];
 
-        // Set tanggal awal ke tanggal 1 bulan yang dipilih
-        let currentDate = new Date(selectedYear, selectedMonth - 1, 1);
+// === Ambil agenda publik dari backend ===
+async function fetchAgenda(year, month) {
+    try {
+        const response = await fetch(`/api/agenda/${year}/${month}`);
+        if (!response.ok) throw new Error('Gagal memuat agenda.');
+        const data = await response.json();
+        agendaData = data;
+    } catch (error) {
+        console.error('Fetch agenda gagal:', error);
+        agendaData = []; // pastikan tidak undefined
+    } finally {
+        // 🔥 Selalu render kalender, apapun hasil fetch-nya!
+        generateMainCalendar();
+    }
+}
 
-        // === FUNGSI UTAMA: Generate Kalender ===
-        function generateMainCalendar() {
-            const monthYear = document.getElementById('currentMonthYear');
-            const calendarDays = document.getElementById('calendarDays');
+// === Filter agenda untuk tanggal tertentu ===
+function getAgendaForDate(dateObj) {
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
+    return agendaData.filter(a => a.tanggal.startsWith(dateStr) && a.status === 'disetujui' && a.sifat === 'publik');
+}
 
-            // Nama-nama bulan
-            const monthNames = [
-                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-            ];
+// === Generate Kalender ===
+function generateMainCalendar() {
+    const monthYear = document.getElementById('currentMonthYear');
+    const calendarDays = document.getElementById('calendarDays');
 
-            // Ganti teks bulan & tahun di header
-            monthYear.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+    const monthNames = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
 
-            // Tentukan hari pertama dan mulai dari Senin
-            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-            const startDate = new Date(firstDay);
-            startDate.setDate(startDate.getDate() - (firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1));
+    monthYear.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
 
-            // Kosongkan isi sebelumnya
-            calendarDays.innerHTML = '';
+    const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const startDate = new Date(firstDay);
+    startDate.setDate(startDate.getDate() - (firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1));
 
-            // Loop untuk 5 minggu (35 hari)
-            for (let i = 0; i < 35; i++) {
-                const date = new Date(startDate);
-                date.setDate(startDate.getDate() + i);
+    calendarDays.innerHTML = '';
+
+    // loop 35 hari seperti aslinya
+    for (let i = 0; i < 35; i++) {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
 
         const dayElement = document.createElement('div');
         dayElement.className = 'calendar-day';
 
-                // Tandai kalau tanggal bukan dari bulan yang sedang ditampilkan
-                if (date.getMonth() !== currentDate.getMonth()) {
-                    dayElement.classList.add('other-month');
-                }
+        if (date.getMonth() !== currentDate.getMonth()) {
+            dayElement.classList.add('other-month');
+        }
+        if (date.getDay() === 0) dayElement.classList.add('weekend');
+        else if (date.getDay() === 6) dayElement.classList.add('saturday');
+        if (date.toDateString() === new Date().toDateString()) dayElement.classList.add('today');
 
-                // Tandai Sabtu & Minggu
-                if (date.getDay() === 0 || date.getDay() === 6) {
-                    dayElement.classList.add('weekend');
-                }
+        const dayNumber = document.createElement('div');
+        dayNumber.className = 'day-number';
+        dayNumber.textContent = date.getDate();
+        dayElement.appendChild(dayNumber);
 
-                // Tandai tanggal hari ini
-                if (date.toDateString() === new Date().toDateString()) {
-                    dayElement.classList.add('today');
-                }
+        // badge agenda publik disetujui
+        const agendaToday = getAgendaForDate(date);
+        if (agendaToday.length > 0) {
+            const badge = document.createElement('div');
+            badge.className = 'agenda-badge bg-green-500';
+            badge.textContent = agendaToday.length > 1
+                ? `${agendaToday.length} Kegiatan`
+                : agendaToday[0].judul;
 
-                // Tampilkan angka tanggal
-                const dayNumber = document.createElement('div');
-                dayNumber.className = 'day-number';
-                dayNumber.textContent = date.getDate();
+            badge.addEventListener('click', e => {
+                e.stopPropagation();
+                const titles = agendaToday.map(a => `• ${a.judul} (${a.lokasi})`).join('\n');
+                alert(`Agenda Publik:\n${titles}`);
+            });
 
-                // Klik tanggal → buka halaman /hari?tanggal=yyyy-mm-dd
-                dayElement.addEventListener('click', () => {
-                    const year = date.getFullYear();
-                    const month = String(date.getMonth() + 1).padStart(2, '0');
-                    const day = String(date.getDate()).padStart(2, '0');
-                    window.location.href = `/hari?tanggal=${year}-${month}-${day}`;
-                });
-
-                dayElement.appendChild(dayNumber);
-                calendarDays.appendChild(dayElement);
-            }
+            dayElement.appendChild(badge);
         }
 
-        // === FUNGSI GANTI BULAN ===
-        function changeMonth(direction) {
-            currentDate.setMonth(currentDate.getMonth() + direction);
-
-            const newMonth = currentDate.getMonth() + 1;
-            const newYear = currentDate.getFullYear();
-            const newUrl = `/bulan?bulan=${newMonth - 1}&tahun=${newYear}`;
-            window.history.pushState({}, '', newUrl);
-
-            generateMainCalendar();
-        }
-
-        // === INISIALISASI ===
-        document.addEventListener('DOMContentLoaded', function() {
-            generateMainCalendar();
+        dayElement.addEventListener('click', () => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            window.location.href = `/hari?tanggal=${year}-${month}-${day}`;
         });
+
+        calendarDays.appendChild(dayElement);
+    }
+}
+
+// === Ganti Bulan ===
+function changeMonth(direction) {
+    currentDate.setMonth(currentDate.getMonth() + direction);
+    const newMonth = currentDate.getMonth() + 1;
+    const newYear = currentDate.getFullYear();
+    fetchAgenda(newYear, newMonth);
+}
+
+// === Inisialisasi ===
+document.addEventListener('DOMContentLoaded', function() {
+    // 🔥 tampilkan tanggal dulu biar gak kosong,
+    // lalu fetch agenda dan update badge
+    generateMainCalendar();
+    fetchAgenda(selectedYear, selectedMonth);
+});
+
     </script>
 @endsection

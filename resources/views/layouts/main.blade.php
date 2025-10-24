@@ -81,8 +81,10 @@
                     dayElement.classList.add('today');
                 }
 
-                if (date.getDay() === 0 || date.getDay() === 6) {
+                if (date.getDay() === 0) {
                     dayElement.classList.add('weekend');
+                } else if (date.getDay() === 6) {
+                    dayElement.classList.add('saturday');
                 }
 
                 miniCalendar.appendChild(dayElement);
