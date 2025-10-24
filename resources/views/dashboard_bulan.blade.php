@@ -1,11 +1,11 @@
 @extends('layouts.main')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/dashboard-bulan.css') }}">
+<link rel="stylesheet" href="{{ asset('css/dashboard-bulan.css') }}">
 @endpush
 
 @section('content')
-    @include('show_agenda_modal')
+    @include("show_agenda_modal")
     <div class="calendar-page">
         <div class="calendar-main">
             <div class="calendar-header">
@@ -36,8 +36,7 @@
             <div id="agendaSidebar" class="agenda-sidebar">
                 <div class="sidebar-header">
                     <h3 id="agendaSidebarDate">Agenda Hari Ini</h3>
-                    <button class="close-sidebar"
-                        onclick="document.getElementById('agendaSidebar').classList.remove('active')">
+                    <button class="close-sidebar" onclick="document.getElementById('agendaSidebar').classList.remove('active')">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -60,15 +59,13 @@
             </div>
 
             <div class="modal-body">
-                <form id="agendaForm" action="{{ route('agenda.store') }}" method="POST"
-                    onsubmit="return handleFormSubmit(event)">
+               <form id="agendaForm" action="{{ route('agenda.store') }}" method="POST" onsubmit="return handleFormSubmit(event)">
                     <div class="form-grid">
                         <!-- Kolom kiri -->
                         <div class="form-column">
                             <div class="input-group">
                                 <label><i class="fas fa-file-alt"></i> Nama Agenda</label>
-                                <input type="text" name="agenda_name" id="agenda_name" placeholder="Masukkan nama agenda"
-                                    required>
+                                <input type="text" name="agenda_name" id="agenda_name" placeholder="Masukkan nama agenda" required>
                             </div>
 
                             <div class="input-group">
@@ -149,75 +146,71 @@
 
         let currentDate = new Date(selectedYear, selectedMonth - 1, 1);
 
-        let agenda = {!! json_encode($agenda, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) !!};
+       let agenda = {!! json_encode($agenda, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) !!};
 
-        function handleFormSubmit(e) {
-            e.preventDefault();
-            if (!validateAgendaForm()) return false;
+       function handleFormSubmit(e) {
+    e.preventDefault();
+    if (!validateAgendaForm()) return false;
 
-            const form = e.target;
-            const formData = new FormData(form);
+    const form = e.target;
+    const formData = new FormData(form);
 
-            fetch(form.action, {
-                    method: "POST",
-                    headers: {
-                        "Accept": "application/json",
-                        "X-CSRF-TOKEN": document.querySelector('input[name="_token"]').value
-                    },
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        // Tambahkan agenda baru langsung ke array lokal
-                        agenda.push(data.agenda);
-                        generateMainCalendar(); // re-render tampilan kalender
-                        closeModal();
+    fetch(form.action, {
+        method: "POST",
+        headers: {
+            "Accept": "application/json",
+            "X-CSRF-TOKEN": document.querySelector('input[name="_token"]').value
+        },
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            // Tambahkan agenda baru langsung ke array lokal
+            agenda.push(data.agenda);
+            generateMainCalendar(); // re-render tampilan kalender
+            closeModal();
 
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Agenda Ditambahkan!',
-                            text: data.message,
-                            showConfirmButton: false,
-                            timer: 1500
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal!',
-                            text: data.message
-                        });
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: 'Terjadi kesalahan pada server.'
-                    });
-                });
-
-            return false;
+            Swal.fire({
+                icon: 'success',
+                title: 'Agenda Ditambahkan!',
+                text: data.message,
+                showConfirmButton: false,
+                timer: 1500
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: data.message
+            });
         }
+    })
+    .catch(err => {
+        console.error(err);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Terjadi kesalahan pada server.'
+        });
+    });
+
+    return false;
+    }
 
         /**
-         * Filter data agenda berdasarkan tanggal, bulan, dan tahun.
-         * @param {Array} agendaList - Array of agenda objects.
-         * @param {Object} options - Filter options (year, month, day).
-         * @returns {Array} - Data agenda yang sesuai filter.
-         *
-         * Contoh:
-         * filterAgenda(agendaList, { year: 2025, month: 10, day: 16 });
-         * filterAgenda(agendaList, { month: 10 }); // semua agenda bulan Oktober
-         * filterAgenda(agendaList, { year: 2025 }); // semua agenda tahun 2025
-         */
+     * Filter data agenda berdasarkan tanggal, bulan, dan tahun.
+     * @param {Array} agendaList - Array of agenda objects.
+     * @param {Object} options - Filter options (year, month, day).
+     * @returns {Array} - Data agenda yang sesuai filter.
+     *
+     * Contoh:
+     * filterAgenda(agendaList, { year: 2025, month: 10, day: 16 });
+     * filterAgenda(agendaList, { month: 10 }); // semua agenda bulan Oktober
+     * filterAgenda(agendaList, { year: 2025 }); // semua agenda tahun 2025
+     */
         function filterAgenda(agendaList, options = {}) {
-            const {
-                year,
-                month,
-                day
-            } = options;
+            const { year, month, day } = options;
 
             return agendaList.filter(item => {
                 const date = new Date(item.date);
@@ -241,12 +234,12 @@
                 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
                 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
             ];
-            monthYear.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+            monthYear.textContent = monthNames[currentDate.getMonth()] + ' ' + currentDate.getFullYear();
+
 
             const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
             const startDate = new Date(firstDay);
-            startDate.setDate(startDate.getDate() - (firstDay.getDay() === 0 ? 6 : firstDay.getDay() -
-                1)); // Mulai dari Senin
+            startDate.setDate(startDate.getDate() - (firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1)); // Mulai dari Senin
 
             calendarDays.innerHTML = '';
 
@@ -279,11 +272,7 @@
                 const month = String(date.getMonth() + 1).padStart(2, '0');
                 const day = String(date.getDate()).padStart(2, '0');
 
-                const filteredAgenda = filterAgenda(agenda, {
-                    year,
-                    month,
-                    day
-                });
+                const filteredAgenda = filterAgenda(agenda, { year, month, day });
                 dayElement.appendChild(dayNumber);
 
                 // === BADGE GENERATOR ===
@@ -341,110 +330,106 @@
             // Update URL
             const newMonth = currentDate.getMonth() + 1;
             const newYear = currentDate.getFullYear();
-            const newUrl = `/dashboard/bulan?bulan=${newMonth - 1}&tahun=${newYear}`;
+            const newUrl = `/dashboard/bulan?bulan=${newMonth}&tahun=${newYear}`;
             window.history.pushState({}, '', newUrl);
 
             generateMainCalendar();
         }
 
-        // Modal functions
-        function openModal(selectedDate = null) {
-            const modal = document.getElementById('createAgendaModal');
-            const dateInput = document.getElementById('date');
-            const form = document.getElementById('agendaForm');
+         // Modal functions
+         function openModal(selectedDate = null) {
+             const modal = document.getElementById('createAgendaModal');
+             const dateInput = document.getElementById('date');
 
-            if (form) form.reset();
+             if (selectedDate && dateInput) {
+                 dateInput.value = selectedDate;
+             }
 
-            if (selectedDate && dateInput) {
-                dateInput.value = selectedDate;
-            }
+             modal.style.display = 'flex';
+             document.body.style.overflow = 'hidden';
+         }
 
-            modal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
+         function closeModal() {
+             const modal = document.getElementById('createAgendaModal');
+             modal.style.display = 'none';
+             document.body.style.overflow = 'auto';
 
-        function closeModal() {
-            const modal = document.getElementById('createAgendaModal');
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
+             // Reset form
+             document.getElementById('agendaForm').reset();
+         }
 
-            // Reset form
-            document.getElementById('agendaForm').reset();
-        }
+         // Validasi form
+         function validateAgendaForm() {
+             const inputs = document.querySelectorAll('#createAgendaModal input[required], #createAgendaModal textarea[required]');
+             let valid = true;
 
-        // Validasi form
-        function validateAgendaForm() {
-            const inputs = document.querySelectorAll(
-                '#createAgendaModal input[required], #createAgendaModal textarea[required]');
-            let valid = true;
+             inputs.forEach(input => {
+                 if (!input.value.trim()) {
+                     input.style.borderColor = 'red';
+                     valid = false;
+                 } else {
+                     input.style.borderColor = '#d6e0d9';
+                 }
+             });
 
-            inputs.forEach(input => {
-                if (!input.value.trim()) {
-                    input.style.borderColor = 'red';
-                    valid = false;
-                } else {
-                    input.style.borderColor = '#d6e0d9';
-                }
-            });
+             if (!valid) {
+                 alert('Semua field wajib diisi!');
+             }
 
-            if (!valid) {
-                alert('Semua field wajib diisi!');
-            }
+             return valid;
+         }
 
-            return valid;
-        }
+         // Helper function untuk get element
+         function getel(id) {
+             return document.getElementById(id);
+         }
 
-        // Helper function untuk get element
-        function getel(id) {
-            return document.getElementById(id);
-        }
+         document.addEventListener('DOMContentLoaded', function() {
+             generateMainCalendar();
 
-        document.addEventListener('DOMContentLoaded', function() {
-            generateMainCalendar();
+             // Close modal when clicking outside
+             document.getElementById('createAgendaModal').addEventListener('click', (e) => {
+                 if (e.target.id === 'createAgendaModal') {
+                     closeModal();
+                 }
+             });
 
-            // Close modal when clicking outside
-            document.getElementById('createAgendaModal').addEventListener('click', (e) => {
-                if (e.target.id === 'createAgendaModal') {
-                    closeModal();
-                }
-            });
+             // Close modal with Escape key
+             document.addEventListener('keydown', (e) => {
+                 if (e.key === 'Escape') {
+                     closeModal();
+                 }
+             });
+         });
+     </script>
 
-            // Close modal with Escape key
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    closeModal();
-                }
-            });
-        });
-
-    </script>
-
-    <script>
+     <script>
         document.addEventListener('DOMContentLoaded', generateMainCalendar);
 
         function openShowAgendaModal(data) {
-            document.getElementById('showAgendaName').innerText = data.agenda_name ?? '-';
-            document.getElementById('showAgendaDate').innerText = data.date ?? '-';
+        document.getElementById('showAgendaName').innerText = data.agenda_name ?? '-';
+        document.getElementById('showAgendaDate').innerText = data.date ?? '-';
 
-            const timeText = (data.start_time && data.end_time) ?
-                `${data.start_time} - ${data.end_time}` :
-                (data.start_time ?? '-');
-            document.getElementById('showAgendaTime').innerText = timeText;
+        const timeText = (data.start_time && data.end_time)
+            ? `${data.start_time} - ${data.end_time}`
+            : (data.start_time ?? '-');
+        document.getElementById('showAgendaTime').innerText = timeText;
 
-            document.getElementById('showAgendaLocation').innerText = data.location ?? '-';
-            document.getElementById('showAgendaPIC').innerText = data.person_in_charge ?? '-';
-            document.getElementById('showAgendaDesc').innerText = data.description ?? '-';
+        document.getElementById('showAgendaLocation').innerText = data.location ?? '-';
+        document.getElementById('showAgendaPIC').innerText = data.person_in_charge ?? '-';
+        document.getElementById('showAgendaDesc').innerText = data.description ?? '-';
 
-            const statusEl = document.getElementById('showAgendaStatus');
-            statusEl.innerText = data.status ?? 'pending';
-            statusEl.className = "badge text-white " +
-                (data.status === 'approved' ? 'bg-success' :
-                    data.status === 'rejected' ? 'bg-danger' : 'bg-warning text-dark');
+        const statusEl = document.getElementById('showAgendaStatus');
+        statusEl.innerText = data.status ?? 'pending';
+        statusEl.className = "badge text-white " +
+            (data.status === 'approved' ? 'bg-success' :
+             data.status === 'rejected' ? 'bg-danger' : 'bg-warning text-dark');
 
-            // ✅ Bootstrap modal init
-            const modal = new bootstrap.Modal(document.getElementById('showAgendaModal'));
-            modal.show();
+        // ✅ Bootstrap modal init
+        const modal = new bootstrap.Modal(document.getElementById('showAgendaModal'));
+        modal.show();
         }
+
     </script>
     @if (session('success'))
         <script>
@@ -465,43 +450,39 @@
                 title: 'Oops...',
                 text: '{{ session('error') }}',
             });
+
         </script>
     @endif
 
-    {{-- ini khusus tanggal di dalam show --}}
-    <script>
-        function formatDate(dateString) {
-            if (!dateString) return "-";
-            const date = new Date(dateString);
-            const options = {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-            };
-            return date.toLocaleDateString('id-ID', options);
-        }
+<script>
+    function formatDate(dateString) {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+    return date.toLocaleDateString('id-ID', options);
+    }
 
-        function showAgendaListSidebar(agendaList, date) {
-            const sidebar = document.getElementById("agendaSidebar");
-            const listContainer = document.getElementById("agendaList");
-            const title = document.getElementById("agendaSidebarDate");
+    function showAgendaListSidebar(agendaList, date) {
+    const sidebar = document.getElementById("agendaSidebar");
+    const listContainer = document.getElementById("agendaList");
+    const title = document.getElementById("agendaSidebarDate");
 
-            title.textContent = `Agenda ${date}`;
-            listContainer.innerHTML = "";
+    title.textContent = `Agenda ${date}`;
+    listContainer.innerHTML = "";
 
-            if (agendaList.length === 0) {
-                listContainer.innerHTML = "<p>Tidak ada agenda untuk hari ini.</p>";
-                return;
-            }
+    if (agendaList.length === 0) {
+        listContainer.innerHTML = "<p>Tidak ada agenda untuk hari ini.</p>";
+        return;
+    }
 
-            // Bikin collapsible list
-            agendaList.forEach((item, index) => {
-                const itemDiv = document.createElement("div");
-                itemDiv.className = "agenda-item";
+    // Bikin collapsible list
+    agendaList.forEach((item, index) => {
+        const itemDiv = document.createElement("div");
+        itemDiv.className = "agenda-item";
 
-                const header = document.createElement("div");
-                header.className = "agenda-header";
-                header.innerHTML = `
+        const header = document.createElement("div");
+        header.className = "agenda-header";
+        header.innerHTML = `
             <span class="agenda-title">${item.agenda_name}</span>
             <span class="status-badge ${item.status}">
                 ${item.status === 'approved' ? '✔ Disetujui' :
@@ -510,9 +491,9 @@
             </span>
         `;
 
-                const details = document.createElement("div");
-                details.className = "agenda-details hidden";
-                details.innerHTML = `
+        const details = document.createElement("div");
+        details.className = "agenda-details hidden";
+        details.innerHTML = `
             <p><i class="fas fa-calendar"></i> ${formatDate(item.date)}</p>
             <p><i class="fas fa-clock"></i> ${item.start_time} - ${item.end_time}</p>
             <p><i class="fas fa-map-marker-alt"></i> ${item.location}</p>
@@ -522,20 +503,21 @@
             <p><i class="fas fa-align-left"></i> Deskripsi: ${item.description || '-'}</p>
         `;
 
-                header.addEventListener("click", () => {
-                    const currentlyActive = document.querySelector(".agenda-details:not(.hidden)");
-                    if (currentlyActive && currentlyActive !== details) {
-                        currentlyActive.classList.add("hidden");
-                    }
-                    details.classList.toggle("hidden");
-                });
+        header.addEventListener("click", () => {
+            const currentlyActive = document.querySelector(".agenda-details:not(.hidden)");
+            if (currentlyActive && currentlyActive !== details) {
+                currentlyActive.classList.add("hidden");
+            }
+            details.classList.toggle("hidden");
+        });
 
-                itemDiv.appendChild(header);
-                itemDiv.appendChild(details);
-                listContainer.appendChild(itemDiv);
-            });
+        itemDiv.appendChild(header);
+        itemDiv.appendChild(details);
+        listContainer.appendChild(itemDiv);
+    });
 
-            sidebar.classList.add("active");
-        }
-    </script>
+    sidebar.classList.add("active");
+}
+</script>
+
 @endsection
