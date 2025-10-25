@@ -26,6 +26,7 @@ body {
     display: flex;
     flex: 1;
     align-items: flex-start;
+    margin-top: 72px;
 }
 
 /* Main Content */
@@ -34,6 +35,9 @@ body {
     padding: 30px;
     background: white;
     overflow-y: auto;
+    margin-left: 280px;
+    height: calc(100vh - 72px);
+    box-sizing: border-box;
 }
 
 /* Calendar Page */
@@ -295,6 +299,48 @@ body {
 
 .visible {
     display: block !important;
+}
+
+/* Responsive adjustments for fixed layout */
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 70px;
+        padding: 20px;
+    }
+    
+    .sidebar.collapsed + .main-content {
+        margin-left: 70px;
+    }
+    
+    .calendar-page,
+    .day-view-page,
+    .year-view-page {
+        margin: -20px;
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        margin-left: 0;
+        padding: 15px;
+    }
+    
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .calendar-page,
+    .day-view-page,
+    .year-view-page {
+        margin: -15px;
+        padding: 15px;
+    }
 }
 
 @media (max-width: 768px) {

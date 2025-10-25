@@ -1,7 +1,10 @@
 /* Dashboard Hari Styles */
 .day-view-page {
-    height: 100%;
+    height: calc(100vh - 72px);
     overflow: hidden;
+    margin: -30px;
+    padding: 30px;
+    box-sizing: border-box;
 }
 
 .day-view-main {
@@ -14,6 +17,7 @@
     flex: 1;
     display: flex;
     overflow: hidden;
+    max-height: calc(100vh - 200px);
 }
 
 .time-column {
@@ -21,6 +25,10 @@
     background: #f8f9fa;
     border-right: 1px solid #e9ecef;
     overflow-y: auto;
+    height: calc(100vh - 200px);
+    position: sticky;
+    left: 0;
+    z-index: 10;
 }
 
 .time-slot {
@@ -37,6 +45,7 @@
 .day-column {
     flex: 1;
     overflow-y: auto;
+    height: calc(100vh - 200px);
 }
 
 .hour-slot {
@@ -82,6 +91,11 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+    padding: 10px 0;
 }
 
 .month-navigation {
