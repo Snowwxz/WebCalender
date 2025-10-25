@@ -90,7 +90,6 @@
                                         {{ ucfirst($agenda->status) }}
                                     </div>
                                 </div>
-
                                 <!-- Card Content -->
                                 <div class="card-content">
                                     <div class="details-grid">
@@ -109,8 +108,11 @@
                                             <div class="detail-item">
                                                 <i class="fas fa-calendar-alt"></i>
                                                 <span><strong>Tanggal:</strong>
-                                                    {{ \Carbon\Carbon::parse($agenda->date)->format('l, d F Y') }}</span>
+                                                    {{ \Carbon\Carbon::parse($agenda->date)->locale('id')->translatedFormat('l, d F Y') }}</span>
                                             </div>
+                                        </div>
+
+                                        <div class="details-right">
                                             <div class="detail-item">
                                                 <i class="fas fa-clock"></i>
                                                 <span><strong>Waktu Pelaksanaan:</strong>
@@ -126,8 +128,7 @@
                                                     @endif
                                                 </span>
                                             </div>
-                                        </div>
-                                        <div class="details-right">
+
                                             <div class="detail-item">
                                                 <i class="fas fa-map-marker-alt"></i>
                                                 <span><strong>Lokasi:</strong> {{ $agenda->location ?? '-' }}</span>
@@ -141,8 +142,8 @@
                                         <div class="detail-item">
                                             <i class="fas fa-eye"></i>
                                             <span>
-                                                <strong>Status Publikasi:</strong>
-                                                {{ $agenda->is_public ? 'Publik' : 'Privat' }}
+                                                <strong>Status:</strong>
+                                                {{ $agenda->is_public ? 'Publik' : 'Privasi' }}
                                             </span>
                                         </div>
                                     </div>
@@ -158,11 +159,10 @@
                                         </span>
                                         <span class="submission-time">
                                             &nbsp;Diajukan
-                                            {{ \Carbon\Carbon::parse($agenda->created_at)->diffForHumans() }}
+                                            {{ \Carbon\Carbon::parse($agenda->created_at)->locale('id')->diffForHumans() }}
                                         </span>
                                     </div>
 
-                                    {{-- Tombol hanya muncul jika status masih pending --}}
                                     @if ($agenda->status === 'pending')
                                         <div class="approval-actions">
                                             <form action="{{ route('agenda.updateStatus', $agenda->id_agenda) }}"

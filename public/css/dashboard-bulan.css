@@ -1,4 +1,3 @@
-/* Dashboard Bulan Styles */
 .calendar-main {
     background: white;
 }
@@ -42,7 +41,6 @@
     margin: 0;
 }
 
-/* Calendar Grid */
 .calendar-grid {
     background: white;
     border: 1px solid #e9ecef;
@@ -72,7 +70,7 @@
 }
 
 .calendar-weekdays .weekend {
-    color: #6c757d;
+    color: #ff6b6b;
 }
 
 .calendar-days {
@@ -117,27 +115,149 @@
 }
 
 .day-number {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
     font-size: 14px;
     font-weight: 600;
     color: #333;
-    margin-bottom: 6px;
-    flex-shrink: 0;
-    line-height: 1;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: color 0.25s ease, transform 0.25s ease;
+}
+
+.day-number::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: transparent;
+    border-radius: 50%;
+    transform: scale(0.6);
+    opacity: 0;
+    transition: all 0.25s ease;
+    z-index: -1;
+}
+
+/* Saat hover */
+.day-number:hover {
+    color: #82A98D;
+    transform: scale(1.1);
+}
+
+.day-number:hover::before {
+    background-color: #e8f5e9;
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Saat diklik (aktif) */
+.day-number.active {
+    color: #82A98D;
+    font-weight: 700;
+}
+
+.day-number.active::before {
+    background-color: #e8f5e9;
+    transform: scale(1);
+    opacity: 1;
 }
 
 .calendar-day.weekend .day-number {
-    color: #6c757d;
+    color: #ff6b6b;
+    font-weight: 600;
 }
 
-.calendar-day.other-month.weekend .day-number {
-    color: #adb5bd;
+.calendar-day.weekend:hover .day-number {
+    background-color: rgba(130, 169, 141, 0.25);
+    color: #ff6b6b;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    font-weight: 700;
+}
+
+/* Hari Sabtu tidak dianggap weekend (warna hitam) */
+.calendar-day.saturday .day-number {
+    color: #333 !important;
+    font-weight: 600;
+}
+
+.calendar-day.saturday:hover .day-number {
+    background-color: rgba(130, 169, 141, 0.25);
+    color: #82A98D !important;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    font-weight: 700;
 }
 
 .calendar-day.other-month .day-number {
-    color: #adb5bd;
+    color: #c8d0c8 !important;
+    opacity: 0.6;
+    pointer-events: none;
 }
 
-/* Today Highlight */
+.calendar-day.other-month .day-number:hover,
+.calendar-day.other-month.weekend .day-number:hover {
+    background-color: transparent !important;
+    color: #c8d0c8 !important;
+    transform: none;
+}
+
+.calendar-day.other-month .day-number::before {
+    background-color: transparent !important;
+}
+
+.calendar-day.other-month .day-number {
+    color: #c8d0c8 !important;
+    background-color: transparent !important;
+    opacity: 0.6;
+    font-weight: 600;
+}
+
+.calendar-day.other-month:hover .day-number {
+    background-color: transparent !important;
+    color: #c8d0c8 !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.day-number.today {
+    color: #82A98D;
+    font-weight: 700;
+    background-color: #e8f5e9;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+}
+
+.day-number.today:hover {
+    color: #82A98D;
+    background-color: #e8f5e9;
+    transform: scale(1.05);
+}
+
+.calendar-day.weekend .day-number.today {
+    color: #ff6b6b;
+    background-color: rgba(130, 169, 141, 0.25);
+}
+
 .calendar-day.today .day-number {
     position: relative;
     color: #82A98D;
@@ -155,7 +275,18 @@
     margin-bottom: 6px;
 }
 
-/* Agenda Items */
+.calendar-day:hover .day-number {
+    background-color: #e8f5e9;
+    color: #82A98D;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+
 .agenda-item {
     font-size: 11px;
     padding: 4px 6px;
@@ -209,6 +340,76 @@
     transform: translateX(1px);
 }
 
+/* Status Agenda Colors */
+.bg-green-500 {
+    background-color: #10b981 !important;
+    color: white !important;
+    font-size: 9px;
+    padding: 3px 5px;
+    margin-bottom: 2px;
+    border-radius: 3px;
+    line-height: 1.1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    max-width: 100%;
+    flex-shrink: 0;
+    word-break: break-word;
+}
+
+.bg-yellow-500 {
+    background-color: #f59e0b !important;
+    color: white !important;
+    font-size: 9px;
+    padding: 3px 5px;
+    margin-bottom: 2px;
+    border-radius: 3px;
+    line-height: 1.1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    max-width: 100%;
+    flex-shrink: 0;
+    word-break: break-word;
+}
+
+.bg-red-500 {
+    background-color: #ef4444 !important;
+    color: white !important;
+    font-size: 9px;
+    padding: 3px 5px;
+    margin-bottom: 2px;
+    border-radius: 3px;
+    line-height: 1.1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    max-width: 100%;
+    flex-shrink: 0;
+    word-break: break-word;
+}
+
+.bg-green-500:hover {
+    background-color: #059669 !important;
+    transform: translateX(1px);
+}
+
+.bg-yellow-500:hover {
+    background-color: #d97706 !important;
+    transform: translateX(1px);
+}
+
+.bg-red-500:hover {
+    background-color: #dc2626 !important;
+    transform: translateX(1px);
+}
+
 /* Container untuk agenda items */
 .agenda-container {
     flex: 1;
@@ -241,30 +442,6 @@
     display: flex;
     gap: 10px;
     align-items: center;
-}
-
-.btn-create-agenda {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    background: #f8f9fa;
-    border: 1px solid #e5e7eb;
-    border-radius: 50%;
-    color: #6b7280;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    position: relative;
-    font-size: 16px;
-}
-
-.btn-create-agenda:hover {
-    background: #e9ecef;
-    color: #374151;
-    border-color: #d1d5db;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Modal Google Calendar Style */
@@ -424,7 +601,7 @@
 
 .modal-body .form-submit {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     gap: 15px;
     margin-top: 30px;
     padding-top: 25px;
@@ -474,16 +651,21 @@
 
 /* Animations */
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes slideIn {
-    from { 
+    from {
         opacity: 0;
         transform: translateY(-30px) scale(0.9);
     }
-    to { 
+    to {
         opacity: 1;
         transform: translateY(0) scale(1);
     }
@@ -591,4 +773,79 @@
     .modal-body .input-group {
         margin-bottom: 20px;
     }
+}
+
+/* sidebar khusus show agenda */
+#agendaSidebar {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 400px;
+    height: 100%;
+    background: #fff;
+    box-shadow: -2px 0 8px rgba(0,0,0,0.2);
+    overflow-y: auto;
+    transition: right 0.3s ease-in-out;
+    z-index: 100;
+    padding: 20px;
+}
+#agendaSidebar.active {
+    right: 0;
+}
+.agenda-item {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 10px 0;
+}
+.agenda-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+.agenda-title {
+    font-weight: 600;
+    color: #333;
+}
+.agenda-details {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #555;
+    padding-left: 10px;
+    line-height: 1.4;
+}
+.agenda-details.hidden {
+    display: none;
+}
+
+/* === STATUS BADGE === */
+.status-badge {
+    font-size: 0.8rem;
+    border-radius: 9999px;
+    padding: 3px 8px;
+    color: white;
+}
+.status-badge.approved { background-color: #16a34a; }
+.status-badge.pending { background-color: #eab308; }
+.status-badge.rejected { background-color: #dc2626; }
+
+/* === BADGE PILL DI KALENDER === */
+.agenda-count-badge {
+    display: inline-block;
+    border-radius: 9999px;
+    padding: 4px 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.agenda-count-badge:hover {
+    transform: scale(1.05);
+}
+
+/* Container buat badge di tanggal */
+.agenda-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 4px;
 }

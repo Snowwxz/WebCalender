@@ -12,10 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('agenda', function (Blueprint $table) {
-              // Boolean: true = publik, false = privat
-            $table->boolean('is_public')
-                ->default(true)
-                ->after('status'); // taruh setelah kolom status (bisa ubah sesuai kebutuhan)
+            $table->string('involved_institution')->nullable();
+            $table->string('submitted_by')->nullable()->after('involved_institution');
         });
     }
 
@@ -25,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('agenda', function (Blueprint $table) {
-            $table->dropColumn('is_public');
+            $table->dropColumn('submitted_by');
         });
     }
 };

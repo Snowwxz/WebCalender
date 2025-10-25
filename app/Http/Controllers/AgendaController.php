@@ -7,6 +7,7 @@ use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class AgendaController extends Controller
 {
@@ -18,23 +19,21 @@ class AgendaController extends Controller
         $year = $request->query('year', date('Y'));
         $month = $request->query('month', date('m'));
 
-        $query = Agenda::with(['user', 'approver'])
-            ->whereYear('date', $year)
-            ->whereMonth('date', $month)
+        // 🔥 Hanya ambil agenda yang sudah disetujui admin
+        $query = Agenda::with(['user', 'approver', 'unit'])
+            ->where('status', 'approved')
             ->orderBy('date', 'desc');
 
-        if ($request->query('only_my')) {
-            $query->where('id_user', Auth::user()->id_user);
-        }
-
         $agenda = $query->get();
+        $units = Unit::orderBy('unit_name', 'asc')->get();
 
         if ($request->wantsJson() || $request->isJson()) {
             return response()->json($agenda);
         }
 
-        return view('dashboard_bulan', compact('agenda', 'year', 'month'));
+        return view('dashboard_bulan', compact('agenda', 'year', 'month', 'units'));
     }
+
 
     /**
      * ✅ Form pengajuan agenda.
@@ -78,14 +77,31 @@ class AgendaController extends Controller
             $agenda->id_unit = $validated['id_unit'];
             $agenda->id_user = Auth::user()->id_user;
             $agenda->status = 'pending';
-
             $agenda->save();
 
+            // ⚙ Jika request datang via AJAX / fetch
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'agenda' => $agenda,
+                    'message' => 'Agenda berhasil ditambahkan (pending approval).',
+                ]);
+            }
+
+            // 📄 Kalau request biasa (form HTML)
             return redirect()->back()->with('success', 'Agenda berhasil ditambahkan!');
         } catch (\Exception $e) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menyimpan agenda: ' . $e->getMessage(),
+                ], 500);
+            }
+
             return redirect()->back()->with('error', 'Gagal menyimpan agenda: ' . $e->getMessage());
         }
     }
+
 
 
     /**
@@ -93,7 +109,8 @@ class AgendaController extends Controller
      */
     public function show($id)
     {
-        $agenda = Agenda::with(['user', 'approver'])->findOrFail($id);
+        $agenda = Agenda::with(['user', 'approver', 'unit'])->findOrFail($id);
+
         return response()->json($agenda);
     }
 
@@ -209,5 +226,143 @@ class AgendaController extends Controller
         }
 
         return view('notification', compact('agenda'));
+    }
+
+    /**
+     * ✅ Ambil daftar agenda berdasarkan tanggal (untuk klik kalender).
+     * Digunakan di dashboard user (AJAX).
+     */
+    public function getAgendaByDate(Request $request)
+    {
+        $date = $request->input('date');
+
+        if (!$date) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tanggal tidak diberikan.'
+            ], 400);
+        }
+
+        $agenda = Agenda::with(['unit', 'user', 'approver'])
+            ->whereDate('date', $date)
+            ->where(function ($q) {
+                $q->where('id_user', Auth::user()->id_user)
+                    ->orWhere('status', 'approved'); // hanya tampilkan approved dari user lain
+            })
+            ->orderBy('start_time', 'asc')
+            ->get();
+
+        // Kalau kosong, tetap kasih response clean biar frontend gak error
+        if ($agenda->isEmpty()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Tidak ada agenda di tanggal ini.',
+                'data' => []
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Agenda berhasil diambil.',
+            'data' => $agenda
+        ]);
+    }
+
+    public function list($params = null)
+    {
+        try {
+            $parts = $params ? explode('-', $params) : [];
+
+            // 1. Validasi dan Konversi Parameter ke Integer
+            // Pastikan nilai yang diambil ada dan numerik
+            $year = (isset($parts[0]) && is_numeric($parts[0])) ? (int) $parts[0] : null;
+            $month = (isset($parts[1]) && is_numeric($parts[1])) ? (int) $parts[1] : null;
+            $day = (isset($parts[2]) && is_numeric($parts[2])) ? (int) $parts[2] : null;
+
+            // Kasus 1: Tidak ada parameter yang diberikan (URL: /api/agenda/list/)
+            if (! $year && ! $month && ! $day) {
+                $today = now()->toDateString();
+
+                $agenda = Agenda::with(['user', 'approver'])
+                    ->whereDate('date', $today)
+                    ->orderBy('date', 'desc')
+                    ->get();
+
+                return response()->json([
+                    'requested_date' => $today,
+                    'total' => $agenda->count(),
+                    'data' => $agenda,
+                    'note' => 'Menampilkan agenda untuk hari ini',
+                ]);
+            }
+
+            // Kasus 2: Ada parameter, tentukan nilai fallback
+            $currentYear = now()->year;
+
+            // Jika tahun kosong, gunakan tahun terakhir dari data atau tahun saat ini.
+            if (! $year) {
+                $year = Agenda::selectRaw('YEAR(MAX(date)) as latest_year')->value('latest_year') ?? $currentYear;
+            }
+
+            // Terapkan nilai fallback untuk bulan dan hari jika kosong
+            $targetYear = $year;
+            $targetMonth = $month ?? 1;
+            $targetDay = $day ?? 1;
+
+            // 2. Validasi Tanggal Kalender (Penting untuk mencegah "Invalid date format")
+            if (!checkdate($targetMonth, $targetDay, $targetYear)) {
+                $errorMessage = "Invalid date components provided: Year=$targetYear, Month=$targetMonth, Day=$targetDay. The date does not exist (e.g., Feb 30th).";
+                Log::warning('Agenda List Error: ' . $errorMessage);
+
+                return response()->json(['error' => 'Invalid date format: Date components are out of calendar range.'], 400);
+            }
+
+            // Bentuk tanggal valid untuk respons
+            $dateString = sprintf(
+                '%04d-%02d-%02d',
+                $targetYear,
+                $targetMonth,
+                $targetDay
+            );
+            $date = Carbon::parse($dateString);
+
+            // 3. Query Fleksibel
+            $query = Agenda::with(['user', 'approver'])
+                ->orderBy('date', 'desc');
+
+            // Selalu filter berdasarkan tahun (karena sudah ada fallback-nya)
+            $query->whereYear('date', $targetYear);
+
+            // Filter hanya berdasarkan bulan dan hari jika parameter tersebut diberikan
+            if ($month) {
+                $query->whereMonth('date', $targetMonth);
+            }
+            if ($day) {
+                $query->whereDay('date', $targetDay);
+            }
+
+            $agenda = $query->get();
+
+            return response()->json([
+                'requested_date' => $date->toDateString(),
+                'total' => $agenda->count(),
+                'data' => $agenda,
+            ]);
+        } catch (\Throwable $e) {
+            // Blok ini akan menangkap semua error server (masalah DB, Model, Relationship)
+
+            // Log pesan error penuh (penting untuk debugging)
+            Log::error('Gagal ambil list agenda: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+
+            // MENGEMBALIKAN ERROR EKSPLISIT:
+            return response()->json([
+                'error' => 'Server Error Occurred.',
+                'exception_message' => $e->getMessage(), // <-- PESAN ERROR ASLI DARI LARAVEL/PHP
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                // Di lingkungan dev, Anda juga bisa menyertakan trace:
+                // 'trace' => $e->getTraceAsString()
+            ], 500);
+        }
     }
 }

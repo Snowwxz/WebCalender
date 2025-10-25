@@ -12,7 +12,6 @@
     <link rel="stylesheet" href="{{ asset('css/agenda-create.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-
 <body>
     <div class="app-container">
         @include('layouts.header')
@@ -42,20 +41,43 @@
                     Platform untuk mengajukan dan mengelola agenda kegiatan instansi
                 </p>
 
-                <form action="{{ route('agenda.store') }}" method="POST">
+                <form action="{{ route('agenda.store') }}" method="POST" id="agendaForm">
                     @csrf
+
+                    @if ($errors->any())
+                        <div class="alert alert-danger" style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                            <h4>Terjadi kesalahan:</h4>
+                            <ul style="margin: 0; padding-left: 20px;">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    @if (session('success'))
+                        <div class="alert alert-success" style="background: #d1fae5; border: 1px solid #86efac; color: #065f46; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    @if (session('error'))
+                        <div class="alert alert-error" style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                            {{ session('error') }}
+                        </div>
+                    @endif
 
                     <div class="form-grid">
                         <!-- Kolom kiri -->
                         <div class="form-column">
                             <div class="input-group">
                                 <label><i class="fas fa-file-alt"></i> Nama Agenda</label>
-                                <input type="text" name="agenda_name" placeholder="Masukkan nama agenda" required>
+                                <input type="text" name="agenda_name" placeholder="Masukkan nama agenda" value="{{ old('agenda_name') }}" required>
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-align-left"></i> Deskripsi Agenda</label>
-                                <textarea name="description" placeholder="Masukkan deskripsi agenda"></textarea>
+                                <textarea name="description" placeholder="Masukkan deskripsi agenda" required>{{ old('description') }}</textarea>
                             </div>
 
                             <div class="input-group">
@@ -63,7 +85,7 @@
                                 <select name="id_unit" required>
                                     <option value="">-- Pilih Instansi Pengaju --</option>
                                     @foreach ($units as $unit)
-                                        <option value="{{ $unit->id_unit }}">{{ $unit->unit_name }}</option>
+                                        <option value="{{ $unit->id_unit }}" {{ old('id_unit') == $unit->id_unit ? 'selected' : '' }}>{{ $unit->unit_name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -71,14 +93,14 @@
                             <div class="input-group">
                                 <label><i class="fas fa-user-tie"></i> Penanggung Jawab</label>
                                 <input type="text" name="person_in_charge"
-                                    placeholder="Masukkan nama penanggung jawab">
+                                    placeholder="Masukkan nama penanggung jawab" required>
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-eye"></i> Kategori Agenda</label>
                                 <select name="is_public">
-                                    <option value="1">Public</option>
-                                    <option value="0">Private</option>
+                                    <option value="1">Publik</option>
+                                    <option value="0">Privasi</option>
                                 </select>
                             </div>
                         </div>
@@ -92,22 +114,22 @@
 
                             <div class="input-group">
                                 <label><i class="fas fa-clock"></i> Waktu Mulai</label>
-                                <input type="time" name="start_time">
+                                <input type="time" name="start_time" required>
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-clock"></i> Waktu Selesai</label>
-                                <input type="time" name="end_time">
+                                <input type="time" name="end_time" required>
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-location-dot"></i> Lokasi</label>
-                                <input type="text" name="location" placeholder="Masukkan lokasi kegiatan">
+                                <input type="text" name="location" placeholder="Masukkan lokasi kegiatan" required>
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-people-group"></i> Instansi yang Ikut Serta</label>
-                                <textarea name="involved_institution" placeholder="Masukkan instansi yang akan ikut serta"></textarea>
+                                <textarea name="involved_institution" placeholder="Masukkan instansi yang akan ikut serta" required></textarea>
                             </div>
                         </div>
                     </div>
@@ -159,6 +181,79 @@
                 dropdown.classList.remove('show');
                 profile.classList.remove('active');
             }
+        });
+
+        // Form validation
+        document.getElementById('agendaForm').addEventListener('submit', function(e) {
+            const requiredFields = [
+                'agenda_name',
+                'description', 
+                'id_unit',
+                'person_in_charge',
+                'date',
+                'start_time',
+                'end_time',
+                'location',
+                'involved_institution'
+            ];
+
+            let isValid = true;
+            let emptyFields = [];
+
+            requiredFields.forEach(fieldName => {
+                const field = document.querySelector(`[name="${fieldName}"]`);
+                if (field && (!field.value || field.value.trim() === '')) {
+                    isValid = false;
+                    emptyFields.push(fieldName);
+                    
+                    // Highlight empty field
+                    field.style.borderColor = '#ef4444';
+                    field.style.backgroundColor = '#fef2f2';
+                } else if (field) {
+                    // Reset styling for filled fields
+                    field.style.borderColor = '';
+                    field.style.backgroundColor = '';
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                alert('Mohon lengkapi semua field yang wajib diisi:\n\n' + 
+                      emptyFields.map(field => {
+                          const labels = {
+                              'agenda_name': 'Nama Agenda',
+                              'description': 'Deskripsi Agenda',
+                              'id_unit': 'Nama Instansi',
+                              'person_in_charge': 'Penanggung Jawab',
+                              'date': 'Tanggal',
+                              'start_time': 'Waktu Mulai',
+                              'end_time': 'Waktu Selesai',
+                              'location': 'Lokasi',
+                              'involved_institution': 'Instansi yang Ikut Serta'
+                          };
+                          return '• ' + (labels[field] || field);
+                      }).join('\n'));
+            }
+        });
+
+        // Real-time validation
+        document.querySelectorAll('input[required], textarea[required], select[required]').forEach(field => {
+            field.addEventListener('blur', function() {
+                if (this.value.trim() === '') {
+                    this.style.borderColor = '#ef4444';
+                    this.style.backgroundColor = '#fef2f2';
+                } else {
+                    this.style.borderColor = '#10b981';
+                    this.style.backgroundColor = '#f0fdf4';
+                }
+            });
+
+            field.addEventListener('input', function() {
+                if (this.value.trim() !== '') {
+                    this.style.borderColor = '#10b981';
+                    this.style.backgroundColor = '#f0fdf4';
+                }
+            });
         });
     </script>
 
