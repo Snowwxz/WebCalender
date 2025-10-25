@@ -19,19 +19,10 @@ class AgendaController extends Controller
         $year = $request->query('year', date('Y'));
         $month = $request->query('month', date('m'));
 
+        // 🔥 Hanya ambil agenda yang sudah disetujui admin
         $query = Agenda::with(['user', 'approver', 'unit'])
+            ->where('status', 'approved')
             ->orderBy('date', 'desc');
-
-        if ($request->query('only_my')) {
-            // Jika user ingin melihat agenda mereka sendiri, tampilkan semua status
-            $query->where('id_user', Auth::user()->id_user);
-        } else {
-            // Untuk user biasa, tampilkan agenda mereka sendiri (semua status) + agenda approved dari user lain
-            $query->where(function ($q) {
-                $q->where('id_user', Auth::user()->id_user) // Agenda user sendiri (semua status)
-                    ->orWhere('status', 'approved'); // Agenda approved dari user lain
-            });
-        }
 
         $agenda = $query->get();
         $units = Unit::orderBy('unit_name', 'asc')->get();
@@ -42,6 +33,7 @@ class AgendaController extends Controller
 
         return view('dashboard_bulan', compact('agenda', 'year', 'month', 'units'));
     }
+
 
     /**
      * ✅ Form pengajuan agenda.
@@ -356,7 +348,6 @@ class AgendaController extends Controller
                 'total' => $agenda->count(),
                 'data' => $agenda,
             ]);
-
         } catch (\Throwable $e) {
             // Blok ini akan menangkap semua error server (masalah DB, Model, Relationship)
 

@@ -1,6 +1,7 @@
    @php
-       $isDashboard = request()->is('dashboard*');
+       $isDashboard = (Auth::check() && request()->is('dashboard*')) || Auth::check();
    @endphp
+
 
    <aside class="sidebar">
        <div class="nav-tabs">
