@@ -91,8 +91,8 @@
                             <div class="input-group">
                                 <label><i class="fas fa-eye"></i> Kategori Agenda</label>
                                 <select name="is_public" id="is_public">
-                                    <option value="1">Public</option>
-                                    <option value="0">Private</option>
+                                    <option value="1">Publik</option>
+                                    <option value="0">Privasi</option>
                                 </select>
                             </div>
                         </div>

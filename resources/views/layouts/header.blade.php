@@ -98,6 +98,23 @@
     </div>
 </header>
 
+<script>
+    function toggleDropdown() {
+        const dropdown = document.getElementById('userDropdown');
+        dropdown.classList.toggle('show');
+    }
+
+    // Tutup dropdown kalau klik di luar area
+    window.addEventListener('click', function (e) {
+        const dropdown = document.getElementById('userDropdown');
+        const userProfile = document.querySelector('.user-profile');
+
+        if (dropdown && !userProfile.contains(e.target)) {
+            dropdown.classList.remove('show');
+        }
+    });
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
