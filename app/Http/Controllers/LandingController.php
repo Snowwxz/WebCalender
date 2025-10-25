@@ -13,15 +13,48 @@ class LandingController extends Controller
      */
     public function index(Request $request)
     {
-        $month = $request->query('month', date('n'));
-        $year = $request->query('year', date('Y'));
+        // Ambil bulan & tahun dari query string (default: bulan & tahun sekarang)
+        $month = (int) $request->query('month', date('n'));
+        $year  = (int) $request->query('year', date('Y'));
 
-        // Kirim nilai default agar JS di Blade gak error
-        return view('landing', compact('month', 'year'));
+        // Validasi input
+        if ($month < 1 || $month > 12) $month = date('n');
+        if ($year < 2000 || $year > date('Y') + 2) $year = date('Y');
+
+        // Key cache unik per bulan-tahun
+        $cacheKey = "landing_agenda_{$year}_{$month}";
+
+        // Ambil data dari cache kalau ada (biar ringan)
+        $agenda = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($year, $month) {
+            return Agenda::with('unit:id_unit,unit_name')
+                ->select(
+                    'id_agenda',
+                    'agenda_name',
+                    'date',
+                    'location',
+                    'start_time',
+                    'end_time',
+                    'person_in_charge',
+                    'involved_institution',
+                    'description',
+                    'status',
+                    'is_public',
+                    'id_unit'
+                )
+                ->whereYear('date', $year)
+                ->whereMonth('date', $month)
+                ->where('status', 'approved')
+                ->where('is_public', 1)
+                ->orderBy('date', 'asc')
+                ->get();
+        });
+
+        // Kirim ke Blade
+        return view('landing', compact('month', 'year', 'agenda'));
     }
 
     /**
-     * ✅ API: Ambil semua agenda publik dalam satu bulan
+     * ✅ API: Ambil semua agenda publik dalam satu bulan (AJAX)
      * Endpoint: /api/agenda/{year}/{month}
      */
     public function getByMonth($year, $month)
@@ -30,19 +63,31 @@ class LandingController extends Controller
             return response()->json(['error' => 'Format tahun/bulan tidak valid.'], 400);
         }
 
-        $agenda = Agenda::whereYear('date', $year)
-            ->whereMonth('date', $month)
-            ->where('status', 'approved')
-            ->where('is_public', 1)
-            ->orderBy('date', 'asc')
-            ->get([
-                'id_agenda',
-                'agenda_name as judul',
-                'date as tanggal',
-                'location as lokasi',
-                'status',
-                'is_public'
-            ]);
+        $cacheKey = "api_agenda_{$year}_{$month}";
+
+        $agenda = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($year, $month) {
+            return Agenda::with('unit:id_unit,unit_name')
+                ->select(
+                    'id_agenda',
+                    'agenda_name',
+                    'date',
+                    'location',
+                    'start_time',
+                    'end_time',
+                    'person_in_charge',
+                    'involved_institution',
+                    'description',
+                    'status',
+                    'is_public',
+                    'id_unit'
+                )
+                ->whereYear('date', $year)
+                ->whereMonth('date', $month)
+                ->where('status', 'approved')
+                ->where('is_public', 1)
+                ->orderBy('date', 'asc')
+                ->get();
+        });
 
         return response()->json($agenda);
     }
@@ -59,14 +104,17 @@ class LandingController extends Controller
         $cacheKey = "agenda_date_{$date}";
 
         $agenda = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($date) {
-            return Agenda::select(
+            return Agenda::with('unit:id_unit,unit_name')
+                ->select(
                     'id_agenda',
-                    'agenda_name as judul',
-                    'date as tanggal',
-                    'location as lokasi',
-                    'start_time as jam_mulai',
-                    'end_time as jam_selesai',
-                    'description as deskripsi'
+                    'agenda_name',
+                    'date',
+                    'location',
+                    'start_time',
+                    'end_time',
+                    'person_in_charge',
+                    'involved_institution',
+                    'description'
                 )
                 ->whereDate('date', $date)
                 ->where('status', 'approved')
@@ -96,9 +144,9 @@ class LandingController extends Controller
         $agenda = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($year) {
             return Agenda::select(
                     'id_agenda',
-                    'agenda_name as judul',
-                    'date as tanggal',
-                    'location as lokasi'
+                    'agenda_name',
+                    'date',
+                    'location'
                 )
                 ->whereYear('date', $year)
                 ->where('status', 'approved')
@@ -111,7 +159,7 @@ class LandingController extends Controller
     }
 
     /**
-     * ✅ API: Pencarian agenda publik (search bar)
+     * ✅ API: Pencarian agenda publik (search bar di landing)
      */
     public function search(Request $request)
     {
@@ -121,18 +169,22 @@ class LandingController extends Controller
             return response()->json(['error' => 'Minimal 2 karakter untuk pencarian.'], 400);
         }
 
-        $agenda = Agenda::select(
+        $agenda = Agenda::with('unit:id_unit,unit_name')
+            ->select(
                 'id_agenda',
-                'agenda_name as judul',
-                'date as tanggal',
-                'location as lokasi'
+                'agenda_name',
+                'date',
+                'location',
+                'start_time',
+                'end_time',
+                'description'
             )
             ->where('status', 'approved')
             ->where('is_public', 1)
             ->where(function ($query) use ($keyword) {
                 $query->where('agenda_name', 'like', "%{$keyword}%")
-                      ->orWhere('location', 'like', "%{$keyword}%")
-                      ->orWhereRaw("DATE_FORMAT(date, '%Y-%m-%d') LIKE ?", ["%{$keyword}%"]);
+                    ->orWhere('location', 'like', "%{$keyword}%")
+                    ->orWhereRaw("DATE_FORMAT(date, '%Y-%m-%d') LIKE ?", ["%{$keyword}%"]);
             })
             ->orderBy('date', 'asc')
             ->limit(50)
