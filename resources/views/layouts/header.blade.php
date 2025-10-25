@@ -35,17 +35,16 @@
                     @endif
                 </div>
 
-               {{-- Tombol tambah agenda (jangan tampil di superadmin) --}}
-               @if(Auth::user()->role !== 'superadmin')
-               <div class="add-agenda-btn">
-                   <a href="{{ route('agenda.create') }}"
-                      class="btn-create-agenda {{ request()->routeIs('agenda.create') ? 'active' : '' }}"
-                      title="Tambah Agenda">
-                       <i class="fas fa-plus"></i>
-                   </a>
-               </div>
-           @endif
-       @endif
+                {{-- Tombol tambah agenda (jangan tampil di superadmin) --}}
+                @if (Auth::user()->role !== 'superadmin')
+                    <div class="add-agenda-btn {{ request()->routeIs('agenda.create') ? 'active' : '' }}">
+                        <a href="{{ route('agenda.create') }}" class="agenda-badge" title="Tambah Agenda">
+                            <i class="fas fa-plus"></i>
+                            <span>Tambah Agenda</span>
+                        </a>
+                    </div>
+                @endif
+            @endif
 
             {{-- user profile section --}}
             <div class="user-profile-section">
@@ -87,7 +86,7 @@
                     </form>
                 </div>
             </div>
-            @else
+        @else
             <div class="login-section">
                 <button class="login-btn" onclick="window.location.href='/login'">
                     <i class="fas fa-sign-in-alt"></i>
@@ -105,7 +104,7 @@
     }
 
     // Tutup dropdown kalau klik di luar area
-    window.addEventListener('click', function (e) {
+    window.addEventListener('click', function(e) {
         const dropdown = document.getElementById('userDropdown');
         const userProfile = document.querySelector('.user-profile');
 

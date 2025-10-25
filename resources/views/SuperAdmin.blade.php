@@ -49,20 +49,22 @@
                                         <td>••••••••</td>
                                         <td>{{ ucfirst($user->role) }}</td>
                                         <td>
-                                            <button type="button" class="btn-edit" data-id="{{ $user->id_user }}"
+                                            <!-- Tombol Edit -->
+                                            <button type="button" class="btn-icon-edit" data-id="{{ $user->id_user }}"
                                                 data-name="{{ $user->name }}" data-username="{{ $user->username }}"
                                                 data-email="{{ $user->email }}" data-role="{{ $user->role }}"
                                                 onclick="openEditModal(this)">
-                                                Edit
+                                                <i class="fas fa-pen"></i>
                                             </button>
 
+                                            <!-- Tombol Hapus -->
                                             <form action="{{ route('users.destroy', $user->id_user) }}" method="POST"
                                                 style="display:inline;">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn-delete"
+                                                <button type="submit" class="btn-icon-delete"
                                                     onclick="return confirm('Yakin ingin menghapus user ini?')">
-                                                    Hapus
+                                                    <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
                                         </td>
@@ -104,19 +106,19 @@
                                         <td>{{ $unit->unit_name }}</td>
                                         <td>{{ $unit->address ?? '-' }}</td>
                                         <td>
-                                            <button type="button" class="btn-edit" data-id="{{ $unit->id_unit }}"
+                                            <button type="button" class="btn-icon-edit" data-id="{{ $unit->id_unit }}"
                                                 data-name="{{ $unit->unit_name }}" data-address="{{ $unit->address }}"
                                                 onclick="openEditUnitModal(this)">
-                                                Edit
+                                                <i class="fas fa-pen"></i>
                                             </button>
 
                                             <form action="{{ route('units.destroy', $unit->id_unit) }}" method="POST"
                                                 style="display:inline;">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn-delete"
+                                                <button type="submit" class="btn-icon-delete"
                                                     onclick="return confirm('Yakin ingin menghapus OPD ini?')">
-                                                    Hapus
+                                                    <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
                                         </td>
@@ -138,9 +140,13 @@
     <div id="editModal" class="user-form-modal">
         <div class="user-form-content">
             <div class="user-form-header">
-                <h2 class="user-form-title">Edit User</h2>
+                <h2 class="user-form-title">
+                    <i class="fas fa-pen" style="margin-right: 8px; color:#82A98D;"></i>
+                    Edit User
+                </h2>
                 <button class="close-modal" onclick="closeEditModal()">&times;</button>
             </div>
+
             <form id="editForm" method="POST">
                 @csrf
                 @method('PUT')
@@ -174,7 +180,6 @@
                 </div>
 
                 <div class="user-form-actions">
-                    <button type="button" class="btn-cancel" onclick="closeEditModal()">Batal</button>
                     <button type="submit" class="btn-save">Simpan</button>
                 </div>
             </form>
@@ -185,7 +190,10 @@
     <div id="addUnitModal" class="user-form-modal">
         <div class="user-form-content">
             <div class="user-form-header">
-                <h2 class="user-form-title">Tambah OPD</h2>
+                <h2 class="user-form-title">
+                    <i class="fas fa-plus" style="margin-right: 8px; color:#82A98D;"></i>
+                    Tambah OPD
+                </h2>
                 <button class="close-modal" onclick="closeAddUnitModal()">&times;</button>
             </div>
             <form action="{{ route('units.store') }}" method="POST">
@@ -201,7 +209,6 @@
                 </div>
 
                 <div class="user-form-actions">
-                    <button type="button" class="btn-cancel" onclick="closeAddUnitModal()">Batal</button>
                     <button type="submit" class="btn-save">Simpan</button>
                 </div>
             </form>
@@ -212,7 +219,10 @@
     <div id="editUnitModal" class="user-form-modal">
         <div class="user-form-content">
             <div class="user-form-header">
-                <h2 class="user-form-title">Edit OPD</h2>
+                <h2 class="user-form-title">
+                    <i class="fas fa-pen" style="margin-right: 8px; color:#82A98D;"></i>
+                    Edit OPD
+                </h2>
                 <button class="close-modal" onclick="closeEditUnitModal()">&times;</button>
             </div>
             <form id="editUnitForm" method="POST">
@@ -230,7 +240,6 @@
                 </div>
 
                 <div class="user-form-actions">
-                    <button type="button" class="btn-cancel" onclick="closeEditUnitModal()">Batal</button>
                     <button type="submit" class="btn-save">Simpan</button>
                 </div>
             </form>
