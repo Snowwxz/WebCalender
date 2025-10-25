@@ -105,13 +105,13 @@
                                             <div class="detail-item">
                                                 <i class="fas fa-calendar-alt"></i>
                                                 <span><strong>Tanggal:</strong>
-                                                    {{ \Carbon\Carbon::parse($agenda->date)->format('l, d F Y') }}</span>
+                                                    {{ \Carbon\Carbon::parse($agenda->date)->locale('id')->translatedFormat('l, d F Y') }}</span>
                                             </div>
                                             <div class="detail-item">
                                                 <i class="fas fa-eye"></i>
                                                 <span>
-                                                    <strong>Status Publikasi:</strong>
-                                                    {{ $agenda->is_public ? 'Publik' : 'Privat' }}
+                                                    <strong>Status:</strong>
+                                                    {{ $agenda->is_public ? 'Publik' : 'Privasi' }}
                                                 </span>
                                             </div>
                                         </div>
@@ -151,7 +151,7 @@
                                             <span>{{ $agenda->submitted_by ?? '-' }}</span>
                                             <span class="submission-time">
                                                 Diajukan
-                                                {{ \Carbon\Carbon::parse($agenda->created_at)->diffForHumans() }}
+                                                {{ \Carbon\Carbon::parse($agenda->created_at)->locale('id')->diffForHumans() }}
                                             </span>
                                         </div>
 

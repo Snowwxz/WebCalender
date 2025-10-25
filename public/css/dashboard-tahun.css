@@ -72,8 +72,8 @@
 }
 
 .month-day {
-    width: 28px;
-    height: 28px;
+    width: 25px;
+    height: 25px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -134,8 +134,6 @@
     color: #82A98D;
     font-weight: 700;
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
 }
 
 .event-dot {
