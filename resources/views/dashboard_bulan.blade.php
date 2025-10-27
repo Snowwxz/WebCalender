@@ -411,6 +411,8 @@
                 if (e.target.id === 'createAgendaModal') {
                     closeModal();
                 }
+
+
             });
 
             // Close modal with Escape key
@@ -421,6 +423,147 @@
             });
         });
     </script>
+
+    <script>
+        // === 🔹 STATUS FILTER KATEGORI ===
+        let showPublic = true;
+        let showPrivate = true;
+
+        // Fungsi untuk update status checkbox
+        function initCategoryFilter() {
+            const publicCheckbox = document.querySelector('.category-item.public input');
+            const privateCheckbox = document.querySelector('.category-item.private input');
+
+            // Saat pertama kali, kedua kategori aktif
+            publicCheckbox.checked = true;
+            privateCheckbox.checked = true;
+
+            // Event listener untuk ubah filter
+            publicCheckbox.addEventListener('change', () => {
+                showPublic = publicCheckbox.checked;
+                generateMainCalendar(); // render ulang
+            });
+
+            privateCheckbox.addEventListener('change', () => {
+                showPrivate = privateCheckbox.checked;
+                generateMainCalendar(); // render ulang
+            });
+        }
+
+        // Modifikasi sedikit fungsi filterAgenda agar cek kategori juga
+        function getFilteredAgendaForDay(year, month, day) {
+            return agenda.filter(item => {
+                const date = new Date(item.date);
+                if (isNaN(date)) return false;
+
+                const matchYear = date.getFullYear() === Number(year);
+                const matchMonth = date.getMonth() + 1 === Number(month);
+                const matchDay = date.getDate() === Number(day);
+
+                // Filter kategori publik/privasi
+                const isPublic = item.is_public == 1;
+                const kategoriMatch = (isPublic && showPublic) || (!isPublic && showPrivate);
+
+                return matchYear && matchMonth && matchDay && kategoriMatch;
+            });
+        }
+
+        // 🔸 Update bagian generateMainCalendar() yang ambil filteredAgenda
+        const oldGenerateMainCalendar = generateMainCalendar;
+        generateMainCalendar = function() {
+            const monthYear = document.getElementById('currentMonthYear');
+            const calendarDays = document.getElementById('calendarDays');
+
+            const monthNames = [
+                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+            ];
+            monthYear.textContent = monthNames[currentDate.getMonth()] + ' ' + currentDate.getFullYear();
+
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - (firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1));
+
+            calendarDays.innerHTML = '';
+
+            for (let i = 0; i < 35; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+
+                if (date.getMonth() !== currentDate.getMonth()) {
+                    dayElement.classList.add('other-month');
+                }
+
+                if (date.getDay() === 0) dayElement.classList.add('weekend');
+                else if (date.getDay() === 6) dayElement.classList.add('saturday');
+
+                if (date.toDateString() === new Date().toDateString()) {
+                    dayElement.classList.add('today');
+                }
+
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'day-number';
+                dayNumber.textContent = date.getDate();
+
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+
+                // 🔹 Ganti sini pakai fungsi baru yang sudah include kategori
+                const filteredAgenda = getFilteredAgendaForDay(year, month, day);
+                dayElement.appendChild(dayNumber);
+
+                if (filteredAgenda.length > 0) {
+                    const agendaContainer = document.createElement("div");
+                    agendaContainer.className = "agenda-container";
+                    const badge = document.createElement("div");
+
+                    const hasApproved = filteredAgenda.some(a => a.status === 'approved');
+                    const hasPending = filteredAgenda.some(a => a.status === 'pending');
+                    const hasRejected = filteredAgenda.some(a => a.status === 'rejected');
+
+                    let badgeColor = "bg-gray-400";
+
+                    if (hasRejected) badgeColor = "bg-red-500";
+                    else if (hasPending) badgeColor = "bg-yellow-500";
+                    else if (hasApproved) {
+                        const isPublic = filteredAgenda.some(a => a.is_public == 1);
+                        badgeColor = isPublic ? "bg-green-500" : "bg-orange-500";
+                    }
+
+                    badge.className = `agenda-count-badge ${badgeColor}`;
+                    badge.textContent = filteredAgenda.length > 1 ?
+                        `${filteredAgenda.length} Kegiatan` :
+                        filteredAgenda[0].agenda_name;
+
+                    badge.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        showAgendaListSidebar(filteredAgenda, `${year}-${month}-${day}`);
+                    });
+
+                    agendaContainer.appendChild(badge);
+                    dayElement.appendChild(agendaContainer);
+                }
+
+                dayNumber.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    window.location.href = `/hari?tanggal=${year}-${month}-${day}`;
+                });
+
+                calendarDays.appendChild(dayElement);
+            }
+        };
+
+        // Jalankan saat halaman siap
+        document.addEventListener('DOMContentLoaded', () => {
+            initCategoryFilter();
+            generateMainCalendar();
+        });
+    </script>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', generateMainCalendar);
