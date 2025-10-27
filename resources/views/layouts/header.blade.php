@@ -8,42 +8,38 @@
 
     <div class="header-center">
         @if (!request()->routeIs('approve'))
-            <div class="search-container">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" placeholder="Search" class="search-input">
-            </div>
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" placeholder="Search" class="search-input">
+        </div>
         @endif
     </div>
 
     <div class="header-right">
         @auth
-            {{-- Jangan tampilkan di halaman superadmin --}}
+            {{-- Notification Bell Icon --}}
             @if (!request()->routeIs('superadmin*'))
                 <div class="notification-bell">
                     @if (Auth::user()->role === 'admin')
-                        <a href="{{ route('approve') }}"
-                            class="bell-link {{ request()->routeIs('approve') ? 'active' : '' }}"
-                            title="Kelola Pengajuan Agenda">
+                        <a href="{{ route('approve') }}" class="bell-link" title="Kelola Pengajuan Agenda">
                             <i class="fas fa-bell"></i>
                         </a>
-                    @elseif(Auth::user()->role === 'user')
-                        <a href="{{ route('agenda.notification') }}"
-                            class="bell-link {{ request()->routeIs('agenda.notification') ? 'active' : '' }}"
-                            title="Notifikasi Agenda Saya">
+                    @else
+                        <a href="{{ route('agenda.notification') }}" class="bell-link" title="Notifikasi Agenda Saya">
                             <i class="fas fa-bell"></i>
                         </a>
                     @endif
                 </div>
+            @endif
 
-                {{-- Tombol tambah agenda (jangan tampil di superadmin) --}}
-                @if (Auth::user()->role !== 'superadmin')
-                    <div class="add-agenda-btn {{ request()->routeIs('agenda.create') ? 'active' : '' }}">
-                        <a href="{{ route('agenda.create') }}" class="agenda-badge" title="Tambah Agenda">
-                            <i class="fas fa-plus"></i>
-                            <span>Tambah Agenda</span>
-                        </a>
-                    </div>
-                @endif
+            {{-- Tombol tambah agenda (jangan tampil di superadmin) --}}
+            @if (Auth::user()->role !== 'superadmin')
+                <div class="add-agenda-btn {{ request()->routeIs('agenda.create') ? 'active' : '' }}">
+                    <a href="{{ route('agenda.create') }}" class="agenda-badge" title="Tambah Agenda">
+                        <i class="fas fa-plus"></i>
+                        <span>Tambah Agenda</span>
+                    </a>
+                </div>
             @endif
 
             {{-- user profile section --}}
@@ -95,6 +91,7 @@
             </div>
         @endauth
     </div>
+
 </header>
 
 <script>
