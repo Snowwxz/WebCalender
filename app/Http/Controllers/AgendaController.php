@@ -276,6 +276,41 @@ class AgendaController extends Controller
         ]);
     }
 
+    public function getByDateDashboard(Request $request)
+    {
+        $tanggal = $request->query('tanggal');
+
+        $agendas = Agenda::whereDate('start_date', $tanggal)
+            ->orWhereDate('end_date', $tanggal)
+            ->get(['id_agenda', 'judul as title', 'start_time', 'end_time', 'kategori']);
+
+        $agendas->transform(function ($agenda) {
+            $agenda->color = $agenda->kategori === 'Publik' ? '#3a7bd5' : '#f39c12';
+            return $agenda;
+        });
+
+        return response()->json($agendas);
+    }
+
+
+    public function getAgendaHari(Request $request)
+    {
+        $date = $request->query('tanggal', date('Y-m-d'));
+        $userId = Auth::user()->id_user;
+
+        $agenda = Agenda::whereDate('date', $date)
+            ->where('status', 'approved')
+            ->where(function ($q) use ($userId) {
+                $q->where('is_public', 1)
+                    ->orWhere('id_user', $userId);
+            })
+            ->orderBy('start_time', 'asc')
+            ->get(['id_agenda as id', 'agenda_name as title', 'start_time', 'end_time', 'is_public']);
+
+        return response()->json($agenda);
+    }
+
+
     public function list($params = null)
     {
         try {

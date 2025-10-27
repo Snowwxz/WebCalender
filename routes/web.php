@@ -78,7 +78,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/agenda/{id_agenda}', [AgendaController::class, 'update'])->name('agenda.update');
         Route::delete('/agenda/{id_agenda}', [AgendaController::class, 'destroy'])->name('agenda.destroy');
         Route::get('notification', [AgendaController::class, 'notification'])->name('agenda.notification');
+
+
+        Route::get('/hari/data', [AgendaController::class, 'getAgendaHari'])->name('agenda.hari');
     });
+
+    Route::get('/dashboard/hari/data', [AgendaController::class, 'getByDateDashboard'])
+        ->name('dashboard.hari.data');
 
     // ✅ Route khusus tiap role
     Route::middleware('role:user')->group(function () {
