@@ -894,3 +894,8 @@
     justify-content: center;
     margin-top: 4px;
 }
+
+.bg-orange-500 {
+    background-color: #f97316 !important; /* warna oranye */
+    color: white !important;
+}
