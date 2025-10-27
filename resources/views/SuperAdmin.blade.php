@@ -299,53 +299,48 @@
         });
     </script>
 
-    <!-- SweetAlert -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
-            // ======= FUNGSI KONFIRMASI DENGAN TEMPLATE =======
+            // ==== FUNGSI KONFIRMASI ====
             function showConfirmation({
                 title,
                 text,
                 confirmText,
                 form
             }) {
-                Swal.fire({
-                    title: title,
-                    text: text,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: confirmText,
-                    cancelButtonText: 'Batal',
-                    background: '#FFEDE5',
-                    color: '#333',
-                    position: 'top', // ✅ muncul di bagian atas
-                    showClass: {
-                        popup: 'animate-popup'
-                    },
-                    hideClass: {
-                        popup: 'animate-popup-hide'
-                    },
-                    backdrop: false, // ✅ tanpa background gelap
-                    customClass: {
-                        popup: 'notif-swal-popup',
-                        title: 'notif-swal-title',
-                        confirmButton: 'notif-swal-confirm',
-                        cancelButton: 'notif-swal-cancel'
-                    },
-                    didOpen: () => {
-                        // ✅ geser sedikit biar pas di bawah navbar
-                        const popup = Swal.getPopup();
-                        popup.style.marginTop = '75px';
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) form.submit();
+                const popup = document.createElement('div');
+                popup.className = 'toastify-popup';
+                popup.innerHTML = `
+                    <p class="toastify-title">${text}</p>
+                    <div class="toastify-btn-group">
+                        <button class="btn-confirm">${confirmText}</button>
+                        <button class="btn-cancel">Batal</button>
+                    </div>
+                `;
+                document.body.appendChild(popup);
+                popup.classList.add('toastify-popup-show');
+
+                popup.querySelector('.btn-cancel').addEventListener('click', () => {
+                    popup.classList.remove('toastify-popup-show');
+                    popup.classList.add('toastify-popup-hide');
+                    setTimeout(() => popup.remove(), 250);
+                });
+
+                popup.querySelector('.btn-confirm').addEventListener('click', () => {
+                    popup.classList.remove('toastify-popup-show');
+                    popup.classList.add('toastify-popup-hide');
+                    setTimeout(() => {
+                        popup.remove();
+                        form.submit();
+                    }, 200);
                 });
             }
 
-            // ======= TAMBAH OPD =======
+            // ==== KONFIRMASI TAMBAH/EDIT ====
             const addUnitForm = document.querySelector('#addUnitModal form');
             if (addUnitForm) {
                 addUnitForm.addEventListener('submit', function(e) {
@@ -359,7 +354,6 @@
                 });
             }
 
-            // ======= EDIT USER =======
             const editUserForm = document.getElementById('editForm');
             if (editUserForm) {
                 editUserForm.addEventListener('submit', function(e) {
@@ -373,7 +367,6 @@
                 });
             }
 
-            // ======= EDIT OPD =======
             const editUnitForm = document.getElementById('editUnitForm');
             if (editUnitForm) {
                 editUnitForm.addEventListener('submit', function(e) {
@@ -387,9 +380,12 @@
                 });
             }
 
-            // ======= HAPUS USER =======
-            document.querySelectorAll('form[action*="users"]').forEach(form => {
-                if (form.method === 'post' && form.querySelector('input[name="_method"][value="DELETE"]')) {
+            // ==== KONFIRMASI HAPUS ====
+            document.querySelectorAll('form').forEach(form => {
+                const action = form.getAttribute('action') || '';
+                const isDelete = form.querySelector('input[name="_method"][value="DELETE"]');
+
+                if (isDelete && action.includes('/superadmin/users/')) {
                     form.addEventListener('submit', function(e) {
                         e.preventDefault();
                         showConfirmation({
@@ -400,11 +396,8 @@
                         });
                     });
                 }
-            });
 
-            // ======= HAPUS OPD =======
-            document.querySelectorAll('form[action*="units"]').forEach(form => {
-                if (form.method === 'post' && form.querySelector('input[name="_method"][value="DELETE"]')) {
+                if (isDelete && action.includes('/superadmin/units/')) {
                     form.addEventListener('submit', function(e) {
                         e.preventDefault();
                         showConfirmation({
@@ -417,125 +410,153 @@
                 }
             });
 
-            // ======= SWEETALERT BERHASIL (dari session) =======
+            // ==== POPUP SUKSES ====
             @if (session('success'))
-                Swal.fire({
-                    title: 'Berhasil!',
-                    text: '{{ session('success') }}',
-                    icon: 'success',
-                    confirmButtonText: 'OK',
-                    background: '#E8FFF1',
-                    color: '#333',
-                    position: 'top',
-                    backdrop: false, // ✅ tanpa background gelap
-                    showClass: {
-                        popup: 'animate-popup'
-                    },
-                    hideClass: {
-                        popup: 'animate-popup-hide'
-                    },
-                    customClass: {
-                        popup: 'notif-swal-popup',
-                        title: 'notif-swal-title',
-                        confirmButton: 'notif-swal-confirm',
-                    },
-                    didOpen: () => {
-                        const popup = Swal.getPopup();
-                        popup.style.marginTop = '75px';
-                    }
-                });
+                showSuccessToast("{{ session('success') }}");
             @endif
+
+            function showSuccessToast(message) {
+                const popup = document.createElement('div');
+                popup.className = 'toastify-popup toastify-success';
+                popup.innerHTML = `<p class="toastify-title">${message}</p>`;
+                document.body.appendChild(popup);
+
+                popup.classList.add('toastify-popup-show');
+                setTimeout(() => {
+                    popup.classList.remove('toastify-popup-show');
+                    popup.classList.add('toastify-popup-hide');
+                    setTimeout(() => popup.remove(), 300);
+                }, 2000);
+            }
         });
     </script>
 
+
     <style>
-        /* ===== SWEETALERT CUSTOM STYLE ===== */
-        .notif-swal-popup {
-            width: 260px !important;
-            /* ✅ lebih kecil */
-            border-radius: 14px !important;
-            padding: 1rem 1.2rem !important;
+        .toastify-popup {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #FFF1E6;
+            border: 1px solid #F7B7B7;
+            border-radius: 12px;
+            padding: 14px 18px;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
             font-family: 'Poppins', sans-serif;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-            border: 1px solid #fbd3c4;
+            color: #333;
+            text-align: center;
+            width: 260px;
+            opacity: 0;
+            z-index: 9999;
         }
 
-        .notif-swal-title {
-            font-size: 0.9rem !important;
-            font-weight: 600 !important;
-            color: #3d3d3d !important;
-            margin-bottom: 0.4rem !important;
+        .toastify-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 12px;
         }
 
-        .notif-swal-confirm {
-            background-color: #F47C7C !important;
-            color: white !important;
-            border-radius: 8px !important;
-            padding: 6px 14px !important;
-            font-size: 0.8rem !important;
-            border: none !important;
+        .toastify-btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .toastify-btn-group button {
+            border: none;
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
             transition: all 0.25s ease;
         }
 
-        .notif-swal-confirm:hover {
-            background-color: #ff6b6b !important;
+        .toastify-btn-group .btn-confirm {
+            background: #F47C7C;
+            color: white;
+        }
+
+        .toastify-btn-group .btn-confirm:hover {
+            background: #ff6b6b;
             transform: scale(1.05);
         }
 
-        .notif-swal-cancel {
-            background-color: #f8f8f8 !important;
-            color: #444 !important;
-            border-radius: 8px !important;
-            padding: 6px 14px !important;
-            font-size: 0.8rem !important;
-            border: none !important;
-            transition: all 0.25s ease;
+        .toastify-btn-group .btn-cancel {
+            background: #f8f8f8;
+            color: #444;
         }
 
-        .notif-swal-cancel:hover {
-            background-color: #ededed !important;
+        .toastify-btn-group .btn-cancel:hover {
+            background: #ededed;
             transform: scale(1.03);
         }
 
-        /* ===== ANIMASI POPUP ===== */
-        @keyframes popupIn {
+        /* Animasi */
+        .toastify-popup-show {
+            animation: toastIn 0.35s ease forwards;
+        }
+
+        .toastify-popup-hide {
+            animation: toastOut 0.25s ease forwards;
+        }
+
+        .toastify-success {
+            background: #E6F9EE;
+            border: 1px solid #C4E7D0;
+            color: #256D43;
+            border-radius: 12px;
+            padding: 0 20px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 40px;
+            line-height: 40px;
+            max-width: 90%;
+            white-space: nowrap;
+            top: 90px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        body,
+        .toastify-popup,
+        .toastify-title,
+        .toastify-btn-group button {
+            font-family: 'Poppins', sans-serif !important;
+        }
+
+        @keyframes toastIn {
             0% {
                 opacity: 0;
-                transform: scale(0.9) translateY(-15px);
+                transform: translate(-50%, -15px) scale(0.95);
             }
 
             70% {
                 opacity: 1;
-                transform: scale(1.05) translateY(0);
+                transform: translate(-50%, 3px) scale(1.03);
             }
 
             100% {
                 opacity: 1;
-                transform: scale(1);
+                transform: translate(-50%, 0) scale(1);
             }
         }
 
-        @keyframes popupOut {
+        @keyframes toastOut {
             from {
                 opacity: 1;
-                transform: scale(1);
+                transform: translate(-50%, 0) scale(1);
             }
 
             to {
                 opacity: 0;
-                transform: scale(0.9);
+                transform: translate(-50%, -10px) scale(0.95);
             }
         }
-
-        .animate-popup {
-            animation: popupIn 0.35s ease forwards;
-        }
-
-        .animate-popup-hide {
-            animation: popupOut 0.25s ease forwards !important;
-        }
     </style>
-
 
 </body>
 

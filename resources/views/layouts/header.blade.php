@@ -8,10 +8,10 @@
 
     <div class="header-center">
         @if (!request()->routeIs('approve'))
-        <div class="search-container">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" placeholder="Search" class="search-input">
-        </div>
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="Search" class="search-input">
+            </div>
         @endif
     </div>
 
@@ -111,7 +111,10 @@
     });
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Tambahkan Toastify CSS & JS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const logoutForm = document.querySelector('.dropdown-form');
@@ -119,73 +122,133 @@
         logoutForm.addEventListener('submit', function(e) {
             e.preventDefault();
 
-            Swal.fire({
-                title: 'Konfirmasi Logout',
-                text: 'Yakin ingin keluar dari akun?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Ya, keluar',
-                cancelButtonText: 'Batal',
-                toast: true,
-                position: 'top',
-                background: '#FFF1E6',
-                color: '#333',
-                customClass: {
-                    popup: 'notif-swal-popup',
-                    title: 'notif-swal-title',
-                    confirmButton: 'notif-swal-confirm',
-                    cancelButton: 'notif-swal-cancel'
+            // ======== ISI TOAST CUSTOM ========
+            const toastContent = document.createElement('div');
+            toastContent.innerHTML = `
+                <div style="
+                    font-family: 'Poppins', sans-serif;
+                    color: #2F3E35;
+                    font-weight: 500;
+                    font-size: 15px;
+                    margin-bottom: 12px;
+                ">
+                    Yakin ingin keluar dari akun?
+                </div>
+                <div style="display: flex; gap: 8px; justify-content: center;">
+                    <button id="confirmLogout" style="
+                        background: #F7B7B7;
+                        border: none;
+                        padding: 7px 16px;
+                        border-radius: 8px;
+                        color: #7A1C1C;
+                        font-weight: 600;
+                        font-family: 'Poppins', sans-serif;
+                        cursor: pointer;
+                        transition: all 0.25s ease;
+                    "
+                    onmouseover="this.style.background='#F4A8A8'; this.style.color='#691414';"
+                    onmouseout="this.style.background='#F7B7B7'; this.style.color='#7A1C1C';"
+                    onmousedown="this.style.background='#E68D8D'; this.style.color='#5C1111';"
+                    onmouseup="this.style.background='#F4A8A8'; this.style.color='#691414';">
+                        Ya, keluar
+                    </button>
+
+                    <button id="cancelLogout" style="
+                        background: #E6E7E8;
+                        border: none;
+                        padding: 7px 16px;
+                        border-radius: 8px;
+                        color: #2F3E35;
+                        font-weight: 600;
+                        font-family: 'Poppins', sans-serif;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                    "
+                    onmouseover="this.style.background='#D9DADB';"
+                    onmouseout="this.style.background='#E6E7E8';">
+                        Batal
+                    </button>
+
+                </div>
+            `;
+
+            const toast = Toastify({
+                node: toastContent,
+                duration: -1,
+                gravity: "top",
+                position: "center",
+                stopOnFocus: true,
+                close: false,
+                offset: {
+                    x: 0,
+                    y: 20
                 },
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    logoutForm.submit();
-                }
+                style: {
+                    background: "#FFF1E6",
+                    border: "1px solid #F7B7B7",
+                    borderRadius: "12px",
+                    padding: "18px 24px",
+                    boxShadow: "0 6px 20px rgba(0, 0, 0, 0.08)",
+                    textAlign: "center",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    animation: "fadeIn 0.3s ease",
+                },
+            }).showToast();
+
+            toastContent.querySelector('#confirmLogout').addEventListener('click', () => {
+                toast.hideToast();
+
+                // Simpan pesan ke localStorage biar bisa ditampilkan di halaman berikutnya
+                localStorage.setItem('logoutSuccess', 'Berhasil keluar dari akun!');
+
+                // Kirim form logout (redirect ke halaman login)
+                logoutForm.submit();
+            });
+
+
+            toastContent.querySelector('#cancelLogout').addEventListener('click', () => {
+                toast.hideToast();
             });
         });
     });
+
+    // ======== TOAST SUKSES (senada tema hijau pastel) ========
+    function showSuccessToast(message) {
+        const successToast = document.createElement('div');
+        successToast.innerHTML = `
+            <div style="
+                font-family: 'Poppins', sans-serif;
+                font-weight: 500;
+                font-size: 15px;
+                color: #2F3E35;
+            ">
+                ${message}
+            </div>
+        `;
+
+        Toastify({
+            node: successToast,
+            duration: 2500,
+            gravity: "top",
+            position: "center",
+            close: false,
+            offset: {
+                x: 0,
+                y: 20
+            },
+            style: {
+                background: "#FFF1E6",
+                border: "1px solid #F7B7B7",
+                borderRadius: "10px",
+                padding: "14px 28px",
+                boxShadow: "0 6px 14px rgba(0,0,0,0.08)",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                animation: "fadeIn 0.3s ease",
+            }
+        }).showToast();
+    }
 </script>
-
-<style>
-    .notif-swal-popup {
-        width: 280px !important;
-        border-radius: 12px !important;
-        padding: 1rem 1.2rem !important;
-        font-family: 'Poppins', sans-serif;
-        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
-        border: 1px solid #f5dada;
-    }
-
-    .notif-swal-title {
-        font-size: 0.95rem !important;
-        font-weight: 600 !important;
-        color: #444 !important;
-    }
-
-    .notif-swal-confirm {
-        background-color: #F47C7C !important;
-        color: white !important;
-        border-radius: 6px !important;
-        padding: 4px 10px !important;
-        font-size: 0.75rem !important;
-        border: none !important;
-        transition: background-color 0.2s ease;
-    }
-
-    .notif-swal-confirm:hover {
-        background-color: #ff6b6b !important;
-    }
-
-    .notif-swal-cancel {
-        background-color: #f1f1f1 !important;
-        color: #444 !important;
-        border-radius: 6px !important;
-        padding: 4px 10px !important;
-        font-size: 0.75rem !important;
-        border: none !important;
-        transition: background-color 0.2s ease;
-    }
-
-    .notif-swal-cancel:hover {
-        background-color: #e6e6e6 !important;
-    }
-</style>
