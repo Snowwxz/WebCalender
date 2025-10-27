@@ -532,15 +532,15 @@
 
                 const header = document.createElement("div");
                 header.className = "agenda-header";
-                header.innerHTML = `
-            <span class="agenda-title">${item.agenda_name}</span>
-            <span class="status-badge ${item.status}">
-                ${item.status === 'approved' ? '✔ Disetujui' :
-                item.status === 'pending' ? '⏳ Menunggu' :
-                item.status === 'rejected' ? '❌ Ditolak' : 'Status tidak dikenal'}
-            </span>
-        </div>
-    `;
+                            header.innerHTML = `
+                <span class="agenda-item-title">${item.agenda_name}</span>
+                <span class="agenda-item-status ${item.status}">
+                    ${item.status === 'approved' ? '✔ Disetujui' :
+                    item.status === 'pending' ? '⏳ Menunggu' :
+                    item.status === 'rejected' ? '❌ Ditolak' : 'Status tidak dikenal'}
+                </span>
+            `;
+
                 // ✅ YANG TADI HILANG (INI KUNCI NYA)
                 itemDiv.appendChild(header);
 

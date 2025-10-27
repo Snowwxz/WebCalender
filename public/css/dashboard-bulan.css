@@ -844,8 +844,48 @@
 .agenda-header {
     display: flex;
     justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    gap: 10px;
+}
+
+/* Judul fleksibel & wrap */
+.agenda-item-title {
+    flex: 1;
+    white-space: normal;
+    word-wrap: break-word;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+/* Badge tetap di kanan, gak boleh ketendang */
+.agenda-item-status {
+    flex-shrink: 0;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    display: inline-flex;
     align-items: center;
-    cursor: pointer;
+    height: fit-content;
+}
+
+/* Warna status */
+.agenda-item-status.approved {
+    background: #22c55e33;
+    border: 1px solid #22c55e;
+    color: #15803d;
+}
+
+.agenda-item-status.pending {
+    background: #fef08a;
+    border: 1px solid #eab308;
+    color: #a16207;
+}
+
+.agenda-item-status.rejected {
+    background: #fecaca;
+    border: 1px solid #dc2626;
+    color: #991b1b;
 }
 .agenda-title {
     font-weight: 600;
