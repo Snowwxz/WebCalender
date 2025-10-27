@@ -62,8 +62,7 @@
                                                 style="display:inline;">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn-icon-delete"
-                                                    onclick="return confirm('Yakin ingin menghapus user ini?')">
+                                                <button type="submit" class="btn-icon-delete">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
@@ -116,8 +115,7 @@
                                                 style="display:inline;">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn-icon-delete"
-                                                    onclick="return confirm('Yakin ingin menghapus OPD ini?')">
+                                                <button type="submit" class="btn-icon-delete">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
@@ -300,6 +298,244 @@
             });
         });
     </script>
+
+    <!-- SweetAlert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // ======= FUNGSI KONFIRMASI DENGAN TEMPLATE =======
+            function showConfirmation({
+                title,
+                text,
+                confirmText,
+                form
+            }) {
+                Swal.fire({
+                    title: title,
+                    text: text,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: confirmText,
+                    cancelButtonText: 'Batal',
+                    background: '#FFEDE5',
+                    color: '#333',
+                    position: 'top', // ✅ muncul di bagian atas
+                    showClass: {
+                        popup: 'animate-popup'
+                    },
+                    hideClass: {
+                        popup: 'animate-popup-hide'
+                    },
+                    backdrop: false, // ✅ tanpa background gelap
+                    customClass: {
+                        popup: 'notif-swal-popup',
+                        title: 'notif-swal-title',
+                        confirmButton: 'notif-swal-confirm',
+                        cancelButton: 'notif-swal-cancel'
+                    },
+                    didOpen: () => {
+                        // ✅ geser sedikit biar pas di bawah navbar
+                        const popup = Swal.getPopup();
+                        popup.style.marginTop = '75px';
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) form.submit();
+                });
+            }
+
+            // ======= TAMBAH OPD =======
+            const addUnitForm = document.querySelector('#addUnitModal form');
+            if (addUnitForm) {
+                addUnitForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    showConfirmation({
+                        title: 'Konfirmasi Tambah OPD',
+                        text: 'Yakin ingin menambahkan data OPD?',
+                        confirmText: 'Ya, simpan',
+                        form: addUnitForm
+                    });
+                });
+            }
+
+            // ======= EDIT USER =======
+            const editUserForm = document.getElementById('editForm');
+            if (editUserForm) {
+                editUserForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    showConfirmation({
+                        title: 'Konfirmasi Edit User',
+                        text: 'Yakin ingin menyimpan perubahan data user?',
+                        confirmText: 'Ya, simpan',
+                        form: editUserForm
+                    });
+                });
+            }
+
+            // ======= EDIT OPD =======
+            const editUnitForm = document.getElementById('editUnitForm');
+            if (editUnitForm) {
+                editUnitForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    showConfirmation({
+                        title: 'Konfirmasi Edit OPD',
+                        text: 'Yakin ingin menyimpan perubahan data OPD?',
+                        confirmText: 'Ya, simpan',
+                        form: editUnitForm
+                    });
+                });
+            }
+
+            // ======= HAPUS USER =======
+            document.querySelectorAll('form[action*="users"]').forEach(form => {
+                if (form.method === 'post' && form.querySelector('input[name="_method"][value="DELETE"]')) {
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        showConfirmation({
+                            title: 'Konfirmasi Hapus User',
+                            text: 'Yakin ingin menghapus user ini?',
+                            confirmText: 'Ya, hapus',
+                            form: form
+                        });
+                    });
+                }
+            });
+
+            // ======= HAPUS OPD =======
+            document.querySelectorAll('form[action*="units"]').forEach(form => {
+                if (form.method === 'post' && form.querySelector('input[name="_method"][value="DELETE"]')) {
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        showConfirmation({
+                            title: 'Konfirmasi Hapus OPD',
+                            text: 'Yakin ingin menghapus data OPD ini?',
+                            confirmText: 'Ya, hapus',
+                            form: form
+                        });
+                    });
+                }
+            });
+
+            // ======= SWEETALERT BERHASIL (dari session) =======
+            @if (session('success'))
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: '{{ session('success') }}',
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    background: '#E8FFF1',
+                    color: '#333',
+                    position: 'top',
+                    backdrop: false, // ✅ tanpa background gelap
+                    showClass: {
+                        popup: 'animate-popup'
+                    },
+                    hideClass: {
+                        popup: 'animate-popup-hide'
+                    },
+                    customClass: {
+                        popup: 'notif-swal-popup',
+                        title: 'notif-swal-title',
+                        confirmButton: 'notif-swal-confirm',
+                    },
+                    didOpen: () => {
+                        const popup = Swal.getPopup();
+                        popup.style.marginTop = '75px';
+                    }
+                });
+            @endif
+        });
+    </script>
+
+    <style>
+        /* ===== SWEETALERT CUSTOM STYLE ===== */
+        .notif-swal-popup {
+            width: 260px !important;
+            /* ✅ lebih kecil */
+            border-radius: 14px !important;
+            padding: 1rem 1.2rem !important;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+            border: 1px solid #fbd3c4;
+        }
+
+        .notif-swal-title {
+            font-size: 0.9rem !important;
+            font-weight: 600 !important;
+            color: #3d3d3d !important;
+            margin-bottom: 0.4rem !important;
+        }
+
+        .notif-swal-confirm {
+            background-color: #F47C7C !important;
+            color: white !important;
+            border-radius: 8px !important;
+            padding: 6px 14px !important;
+            font-size: 0.8rem !important;
+            border: none !important;
+            transition: all 0.25s ease;
+        }
+
+        .notif-swal-confirm:hover {
+            background-color: #ff6b6b !important;
+            transform: scale(1.05);
+        }
+
+        .notif-swal-cancel {
+            background-color: #f8f8f8 !important;
+            color: #444 !important;
+            border-radius: 8px !important;
+            padding: 6px 14px !important;
+            font-size: 0.8rem !important;
+            border: none !important;
+            transition: all 0.25s ease;
+        }
+
+        .notif-swal-cancel:hover {
+            background-color: #ededed !important;
+            transform: scale(1.03);
+        }
+
+        /* ===== ANIMASI POPUP ===== */
+        @keyframes popupIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.9) translateY(-15px);
+            }
+
+            70% {
+                opacity: 1;
+                transform: scale(1.05) translateY(0);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes popupOut {
+            from {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            to {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+        }
+
+        .animate-popup {
+            animation: popupIn 0.35s ease forwards;
+        }
+
+        .animate-popup-hide {
+            animation: popupOut 0.25s ease forwards !important;
+        }
+    </style>
+
 
 </body>
 

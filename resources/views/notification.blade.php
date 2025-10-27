@@ -84,7 +84,19 @@
                                         <p class="card-description">{{ $agenda->description ?? '-' }}</p>
                                     </div>
                                     <div class="status-badge {{ $agenda->status }}">
-                                        {{ ucfirst($agenda->status) }}
+                                        @switch($agenda->status)
+                                            @case('pending')
+                                                Menunggu
+                                                @break
+                                            @case('approved')
+                                                Disetujui
+                                                @break
+                                            @case('rejected')
+                                                Ditolak
+                                                @break
+                                            @default
+                                                {{ ucfirst($agenda->status) }}
+                                        @endswitch
                                     </div>
                                 </div>
 
