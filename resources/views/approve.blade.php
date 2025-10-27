@@ -17,7 +17,7 @@
     <div class="app-container">
         @include('layouts.header')
 
-        <main class="main-content">
+        <main class="main-content" style="margin-left: 0; width: 100%; overflow-x: hidden;">
             <div class="approval-page">
                 <div class="approval-header">
                     @if (Auth::user()->role !== 'admin')

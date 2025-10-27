@@ -17,7 +17,7 @@
     <div class="app-container">
         @include('layouts.header')
 
-        <main class="main-content">
+        <main class="main-content" style="margin-left: 0; width: 100%; padding: 30px 0 0 0;">
             <div class="notification-page">
                 <div class="notification-header">
                     <div>

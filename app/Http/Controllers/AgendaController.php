@@ -19,9 +19,15 @@ class AgendaController extends Controller
         $year = $request->query('year', date('Y'));
         $month = $request->query('month', date('m'));
 
+        $userId = Auth::user()->id_user;
+
         // 🔥 Hanya ambil agenda yang sudah disetujui admin
         $query = Agenda::with(['user', 'approver', 'unit'])
             ->where('status', 'approved')
+            ->where(function ($q) use ($userId) {
+                $q->where('is_public', 1) // publik, semua bisa lihat
+                    ->orWhere('id_user', $userId); // private tapi milik sendiri
+            })
             ->orderBy('date', 'desc');
 
         $agenda = $query->get();
@@ -235,6 +241,7 @@ class AgendaController extends Controller
     public function getAgendaByDate(Request $request)
     {
         $date = $request->input('date');
+        $userId = Auth::user()->id_user;
 
         if (!$date) {
             return response()->json([
@@ -245,10 +252,11 @@ class AgendaController extends Controller
 
         $agenda = Agenda::with(['unit', 'user', 'approver'])
             ->whereDate('date', $date)
-            ->where(function ($q) {
-                $q->where('id_user', Auth::user()->id_user)
-                    ->orWhere('status', 'approved'); // hanya tampilkan approved dari user lain
+            ->where(function ($q) use ($userId) {
+                $q->where('is_public', 1) // publik
+                    ->orWhere('id_user', $userId); // private tapi milik sendiri
             })
+            ->where('status', 'approved')
             ->orderBy('start_time', 'asc')
             ->get();
 

@@ -34,7 +34,23 @@
     <script>
         // Toggle sidebar
         function toggleSidebar() {
-            document.querySelector('.sidebar').classList.toggle('collapsed');
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            
+            // Check if mobile view
+            if (window.innerWidth <= 480) {
+                sidebar.classList.toggle('show');
+                return;
+            }
+            
+            sidebar.classList.toggle('collapsed');
+            
+            // Adjust main content margin based on sidebar state
+            if (sidebar.classList.contains('collapsed')) {
+                mainContent.style.marginLeft = '70px';
+            } else {
+                mainContent.style.marginLeft = '280px';
+            }
         }
 
         // Switch view
@@ -93,7 +109,34 @@
         // Initialize mini calendar when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
             window.generateMiniCalendar();
+            
+            // Initialize responsive behavior
+            handleResize();
         });
+        
+        // Handle window resize
+        function handleResize() {
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            
+            if (window.innerWidth <= 480) {
+                // Mobile: hide sidebar by default
+                sidebar.classList.remove('show');
+                mainContent.style.marginLeft = '0';
+            } else if (window.innerWidth <= 768) {
+                // Tablet: collapsed sidebar
+                sidebar.classList.add('collapsed');
+                sidebar.classList.remove('show');
+                mainContent.style.marginLeft = '70px';
+            } else {
+                // Desktop: full sidebar
+                sidebar.classList.remove('collapsed', 'show');
+                mainContent.style.marginLeft = '280px';
+            }
+        }
+        
+        // Listen for window resize
+        window.addEventListener('resize', handleResize);
 
         // User dropdown functionality
         function toggleDropdown() {
