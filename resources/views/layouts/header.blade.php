@@ -8,10 +8,10 @@
 
     <div class="header-center">
         @if (!request()->routeIs('approve'))
-        <div class="search-container">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" placeholder="Search" class="search-input">
-        </div>
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="Search" class="search-input">
+            </div>
         @endif
     </div>
 
@@ -116,6 +116,12 @@
     document.addEventListener('DOMContentLoaded', function() {
         const logoutForm = document.querySelector('.dropdown-form');
 
+        // ✅ Safety check
+        if (!logoutForm) {
+            console.warn("dropdown-form tidak ditemukan di halaman ini.");
+            return;
+        }
+
         logoutForm.addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -126,8 +132,8 @@
                 showCancelButton: true,
                 confirmButtonText: 'Ya, keluar',
                 cancelButtonText: 'Batal',
-                toast: true,
-                position: 'top',
+                toast: false, // ❗ Logout dialog tidak cocok pakai toast
+                position: 'center',
                 background: '#FFF1E6',
                 color: '#333',
                 customClass: {
@@ -141,8 +147,11 @@
                     logoutForm.submit();
                 }
             });
+
+             showConfirm();
         });
-    });
+
+    }); // ✅ INI YANG TADI HILANG
 </script>
 
 <style>
