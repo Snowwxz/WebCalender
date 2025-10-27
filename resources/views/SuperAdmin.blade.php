@@ -26,8 +26,15 @@
 
                 <!-- Tabel User -->
                 <div class="admin-card">
+                    <div class="admin-table-header">
+                        <div class="search-container" style="margin-bottom: 12px;">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="searchInput" placeholder="Search" class="search-input">
+                        </div>
+                    </div>
+
                     <div class="admin-table-wrap">
-                        <table class="admin-table">
+                        <table class="admin-table" id="userTable">
                             <thead>
                                 <tr>
                                     <th>No</th>
@@ -90,7 +97,7 @@
                         <span>Daftar OPD</span>
                     </div>
                     <div class="admin-table-wrap">
-                        <table class="admin-table">
+                        <table class="admin-table" id="unitTable">
                             <thead>
                                 <tr>
                                     <th>No</th>
@@ -298,6 +305,53 @@
             modals.forEach(modal => {
                 if (e.target === modal) modal.classList.remove('show');
             });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const userTable = document.getElementById('userTable');
+            const unitTable = document.getElementById('unitTable');
+
+            if (!searchInput) return;
+
+            searchInput.addEventListener('keyup', function(e) {
+                const value = e.target.value.toLowerCase();
+
+                // Kalau input kosong → tampilkan semua baris langsung
+                if (value === '') {
+                    showAllRows(userTable);
+                    showAllRows(unitTable);
+                    return;
+                }
+
+                // Kalau ditekan Enter → baru filter
+                if (e.key === 'Enter') {
+                    filterTable(userTable, value);
+                    filterTable(unitTable, value);
+                }
+            });
+
+            // Fungsi untuk menampilkan semua baris
+            function showAllRows(table) {
+                if (!table) return;
+                const rows = table.getElementsByTagName('tr');
+                for (let i = 1; i < rows.length; i++) {
+                    rows[i].style.display = '';
+                }
+            }
+
+            // Fungsi untuk memfilter isi tabel
+            function filterTable(table, searchText) {
+                if (!table) return;
+                const rows = table.getElementsByTagName('tr');
+                for (let i = 1; i < rows.length; i++) {
+                    const row = rows[i];
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchText) ? '' : 'none';
+                }
+            }
         });
     </script>
 

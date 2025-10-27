@@ -1025,3 +1025,7 @@
     white-space: pre-line; /* <— Biar line break tetap terlihat */
 }
 
+.bg-orange-500 {
+    background-color: #f97316 !important; /* warna oranye */
+    color: white !important;
+}

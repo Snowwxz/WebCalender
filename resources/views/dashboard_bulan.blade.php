@@ -293,14 +293,24 @@
                     agendaContainer.className = "agenda-container";
 
                     const badge = document.createElement("div");
+
+                    // Cek status dan tipe agenda
                     const hasApproved = filteredAgenda.some(a => a.status === 'approved');
                     const hasPending = filteredAgenda.some(a => a.status === 'pending');
                     const hasRejected = filteredAgenda.some(a => a.status === 'rejected');
 
+                    // Tentukan warna badge
                     let badgeColor = "bg-gray-400";
-                    if (hasApproved) badgeColor = "bg-green-500";
-                    else if (hasPending) badgeColor = "bg-yellow-500";
-                    else if (hasRejected) badgeColor = "bg-red-500";
+
+                    if (hasRejected) {
+                        badgeColor = "bg-red-500"; // ditolak
+                    } else if (hasPending) {
+                        badgeColor = "bg-yellow-500"; // menunggu
+                    } else if (hasApproved) {
+                        // Jika sudah approved → cek publik atau privasi
+                        const isPublic = filteredAgenda.some(a => a.is_public == 1);
+                        badgeColor = isPublic ? "bg-green-500" : "bg-orange-500";
+                    }
 
                     badge.className = `agenda-count-badge ${badgeColor}`;
                     badge.textContent = filteredAgenda.length > 1 ?
@@ -317,13 +327,6 @@
                     agendaContainer.appendChild(badge);
                     dayElement.appendChild(agendaContainer);
                 }
-
-                // Klik tanggal -> buka modal create (kalau belum ada agenda)
-                dayElement.addEventListener('click', (e) => {
-                    if (filteredAgenda.length === 0) {
-                        openModal(`${year}-${month}-${day}`);
-                    }
-                });
 
                 // Klik angka tanggal -> buka halaman harian
                 dayNumber.addEventListener('click', (e) => {
@@ -543,6 +546,25 @@
 
                 // ✅ YANG TADI HILANG (INI KUNCI NYA)
                 itemDiv.appendChild(header);
+                const details = document.createElement("div");
+                details.className = "agenda-details hidden";
+                details.innerHTML = `
+    <p><i class="fas fa-calendar"></i> ${formatDate(item.date)}</p>
+    <p><i class="fas fa-clock"></i> ${item.start_time} - ${item.end_time}</p>
+    <p><i class="fas fa-map-marker-alt"></i> ${item.location}</p>
+    <p><i class="fas fa-user-tie"></i> Penanggung jawab: ${item.person_in_charge || '-'}</p>
+    <p><i class="fas fa-building"></i> Instansi pengaju: ${item.institusi_pengaju || '-'}</p>
+    <p><i class="fas fa-users"></i> Instansi diundang: ${item.involved_institution || '-'}</p>
+    <p>
+    <i class="fas ${item.is_public == 1 ? 'fa-eye' : 'fa-lock'}"></i>
+    Status:
+    <span style="font-weight:600; color:${item.is_public == 1 ? 'green' : '#ff9800'};">
+        ${item.is_public == 1 ? 'Publik' : 'Privasi'}
+    </span>
+</p>
+    <p><i class="fas fa-align-left"></i> Deskripsi: ${item.description || '-'}</p>
+`;
+
 
                 // **THIS IS THE IMPORTANT PART**
                 itemDiv.addEventListener("click", () => {

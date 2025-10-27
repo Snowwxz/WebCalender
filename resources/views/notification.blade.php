@@ -62,8 +62,35 @@
 
                 @php
                     $status = request('status', 'all');
+                    $query = request('q', '');
+
                     $filtered = $status === 'all' ? $agenda : $agenda->where('status', $status);
+
+                    if ($query) {
+                        $filtered = $filtered->filter(function ($item) use ($query) {
+                            return stripos($item->agenda_name, $query) !== false ||
+                                stripos($item->description ?? '', $query) !== false ||
+                                stripos($item->submitted_by ?? '', $query) !== false ||
+                                stripos($item->person_in_charge ?? '', $query) !== false;
+                        });
+                    }
+
                 @endphp
+
+                <!-- 🔍 Search bar -->
+                <div class="search-bar" style="margin: 20px auto; max-width: 400px; text-align:center;">
+                    <form method="GET" action="{{ route('agenda.notification') }}">
+                        <input type="hidden" name="status" value="{{ request('status', 'all') }}">
+                        <input type="text" name="q" placeholder="Cari agenda, instansi, atau deskripsi..."
+                            value="{{ request('q') }}"
+                            style="width: 80%; padding: 8px 10px; border-radius: 8px; border: 1px solid #ccc;">
+                        <button type="submit"
+                            style="padding: 8px 14px; border: none; border-radius: 8px; background-color: #007bff; color: white;">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                </div>
+
 
                 @if ($filtered->isEmpty())
                     <div class="notification-empty">
@@ -248,6 +275,22 @@
             @endif
         });
     </script>
-</body>
 
+    <script>
+        // 🔁 Reload otomatis saat search dikosongkan
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.querySelector('input[name="q"]');
+            if (!searchInput) return;
+
+            searchInput.addEventListener('input', function() {
+                if (this.value.trim() === '') {
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete('q');
+                    window.location.href = url.toString();
+                }
+            });
+        });
+    </script>
+
+</body>
 </html>
