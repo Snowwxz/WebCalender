@@ -13,11 +13,7 @@ use Illuminate\Http\Request;
 
 // 🔹 LANDING & PUBLIC ROUTES
 Route::get('/', [LandingController::class, 'index'])->name('landing.index');
-
-Route::get('/landing', function (Request $request) {
-    $month = $request->query('month');
-    return view('landing', ['month' => $month]);
-});
+Route::get('/bulan', [LandingController::class, 'index'])->name('landing.bulan');
 
 Route::get('/hari', function (Request $request) {
     $tanggal = $request->query('tanggal');
@@ -25,14 +21,6 @@ Route::get('/hari', function (Request $request) {
 });
 
 Route::get('/tahun', fn() => view('landing_tahun'))->name('landing.tahun');
-
-Route::get('/bulan', function (Request $request) {
-    $bulanIndex = $request->query('bulan');
-    $month = isset($bulanIndex) ? ((int)$bulanIndex + 1) : null;
-    $year = (int)$request->query('tahun', date('Y'));
-
-    return view('landing', compact('month', 'year'));
-})->name('landing.bulan');
 
 // 🔹 LANDING PAGE API
 Route::prefix('/api/agenda')->group(function () {
