@@ -7,13 +7,14 @@
     </div>
 
     <div class="header-center">
-        @if (!request()->routeIs('approve'))
-        <div class="search-container">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" placeholder="Search" class="search-input">
-        </div>
+        @if (!request()->routeIs('approve') && !request()->routeIs('agenda.notification') && !request()->routeIs('superadmin.*'))
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="Search" class="search-input">
+            </div>
         @endif
     </div>
+
 
     <div class="header-right">
         @auth

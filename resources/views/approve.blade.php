@@ -217,6 +217,19 @@
                 }
             });
         </script>
+
+        <script>
+            // 🔎 Auto reload saat search bar dikosongkan
+            document.querySelector('input[name="q"]').addEventListener('input', function() {
+                if (this.value.trim() === '') {
+                    // Ambil URL tanpa parameter 'q'
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete('q');
+                    window.location.href = url.toString();
+                }
+            });
+        </script>
+
 </body>
 
 </html>
