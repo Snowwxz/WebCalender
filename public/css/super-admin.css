@@ -428,3 +428,45 @@
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+    .notif-swal-popup {
+        width: 280px !important;
+        border-radius: 12px !important;
+        padding: 1rem 1.2rem !important;
+        font-family: 'Poppins', sans-serif;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+        border: 1px solid #f5dada;
+    }
+
+    .notif-swal-title {
+        font-size: 0.95rem !important;
+        font-weight: 600 !important;
+        color: #444 !important;
+    }
+
+    .notif-swal-confirm {
+        background-color: #F47C7C !important;
+        color: white !important;
+        border-radius: 6px !important;
+        padding: 4px 10px !important;
+        font-size: 0.75rem !important;
+        border: none !important;
+        transition: background-color 0.2s ease;
+    }
+
+    .notif-swal-confirm:hover {
+        background-color: #ff6b6b !important;
+    }
+
+    .notif-swal-cancel {
+        background-color: #f8f8f8 !important;
+        color: #444 !important;
+        border-radius: 6px !important;
+        padding: 4px 10px !important;
+        font-size: 0.75rem !important;
+        border: none !important;
+        transition: background-color 0.2s ease;
+    }
+
+    .notif-swal-cancel:hover {
+        background-color: #ededed !important;
+    }
