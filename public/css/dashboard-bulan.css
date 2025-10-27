@@ -849,8 +849,10 @@
 }
 .agenda-title {
     font-weight: 600;
-    color: #333;
+    color: #111827;  /* bukan #333 dan bukan inherit */
+    font-size: 14px;
 }
+
 .agenda-details {
     margin-top: 10px;
     font-size: 0.9rem;
@@ -930,14 +932,19 @@
 }
 
 .agenda-item {
-    padding: 8px;
-    border-bottom: 1px solid #e5e5e5;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: #fff;
+    margin-bottom: 8px;
     cursor: pointer;
+    transition: 0.2s;
+    border: 1px solid #E5E7EB;
 }
 
 .agenda-item:hover {
-    background: #f6f6f6;
+    background: #F7F8FA;
 }
+
 
 .agenda-clickable {
     cursor: pointer;
@@ -971,5 +978,10 @@
     opacity: 0;
     pointer-events: none;
     transform: translateX(40px);
+}
+#showAgendaDesc {
+    color: #374151 !important;
+    font-size: 14px;
+    white-space: pre-line; /* <— Biar line break tetap terlihat */
 }
 

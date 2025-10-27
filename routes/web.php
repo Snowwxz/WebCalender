@@ -80,6 +80,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('notification', [AgendaController::class, 'notification'])->name('agenda.notification');
     });
 
+
     // ✅ Route khusus tiap role
     Route::middleware('role:user')->group(function () {
         Route::get('/dashboard/hari', fn() => view('dashboard_hari'))->name('dashboard.hari');
@@ -88,7 +89,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::middleware('role:admin')->group(function () {
-        Route::get('/approve', fn() => view('approve'))->name('admin.dashboard');
     });
 
     Route::middleware('role:superadmin')->group(function () {

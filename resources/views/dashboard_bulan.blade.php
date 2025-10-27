@@ -526,12 +526,13 @@
             }
 
             // Bikin collapsible list
-            agendaList.forEach((item) => {
+            agendaList.forEach((item, index) => {
                 const itemDiv = document.createElement("div");
-                itemDiv.className = "agenda-item agenda-clickable";
+                itemDiv.className = "agenda-item";
 
-                itemDiv.innerHTML = `
-        <div class="agenda-header">
+                const header = document.createElement("div");
+                header.className = "agenda-header";
+                header.innerHTML = `
             <span class="agenda-title">${item.agenda_name}</span>
             <span class="status-badge ${item.status}">
                 ${item.status === 'approved' ? '✔ Disetujui' :
@@ -540,6 +541,8 @@
             </span>
         </div>
     `;
+                // ✅ YANG TADI HILANG (INI KUNCI NYA)
+                itemDiv.appendChild(header);
 
                 // **THIS IS THE IMPORTANT PART**
                 itemDiv.addEventListener("click", () => {

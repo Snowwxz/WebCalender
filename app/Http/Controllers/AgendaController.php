@@ -276,6 +276,36 @@ class AgendaController extends Controller
         ]);
     }
 
+
+
+    public function getAgendaHari(Request $request)
+    {
+        $date = $request->query('tanggal', date('Y-m-d'));
+        $userId = Auth::user()->id_user;
+
+        $agenda = Agenda::whereDate('date', $date)
+            ->where('status', 'approved')
+            ->where(function ($q) use ($userId) {
+                $q->where('is_public', 1)
+                    ->orWhere('id_user', $userId);
+            })
+            ->orderBy('start_time', 'asc')
+            ->get(['id_agenda as id', 'agenda_name as title', 'start_time', 'end_time', 'location', 'is_public']);
+
+        // Tambahkan warna otomatis buat bedain publik/privat
+        $agenda->transform(function ($item) {
+            $item->color = $item->is_public ? '#3a7bd5' : '#f39c12';
+            return $item;
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $agenda,
+        ]);
+    }
+
+
+
     public function list($params = null)
     {
         try {
