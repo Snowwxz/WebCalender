@@ -18,6 +18,11 @@
     line-height: 1.6;
 }
 
+/* Fix for content being covered by fixed header */
+.app-container .main-content {
+    padding-top: 90px;
+}
+
 .approve-content {
     background: #f8f9fa;
     border-radius: 8px;
@@ -53,8 +58,12 @@
 }
 
 .approval-page {
-    max-width: 1100px;
+    max-width: 1200px;
     margin: 0 auto;
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+    padding-top: 0;
 }
 
 .approval-header {
@@ -62,6 +71,7 @@
     flex-direction: column;
     gap: 10px;
     margin-bottom: 16px;
+    width: 100%;
 }
 
 .title-wrap .page-title {
@@ -79,6 +89,7 @@
 .status-tabs-wrap {
     display: flex;
     justify-content: center;
+    width: 100%;
 }
 
 .status-tabs {
@@ -240,6 +251,7 @@
     border: 1px dashed #e5e7eb;
     border-radius: 12px;
     background: #fafafa;
+    width: 100%;
 }
 
 .approval-empty .empty-icon {
@@ -272,6 +284,7 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
+    width: 100%;
 }
 
 .approval-card {
@@ -455,7 +468,12 @@
 
 @media (max-width: 768px) {
     .approval-page {
-        padding: 0 4px;
+        padding: 15px;
+        width: 100%;
+    }
+
+    .approval-card {
+        padding: 16px;
     }
 
     .approval-search {
@@ -484,5 +502,19 @@
     .approval-actions {
         width: 100%;
         justify-content: flex-start;
+    }
+
+    .status-tabs-wrap {
+        padding: 0;
+    }
+
+    .status-tabs {
+        padding: 6px 4px;
+        gap: 6px;
+    }
+
+    .status-tab {
+        padding: 6px 12px;
+        font-size: 12px;
     }
 }

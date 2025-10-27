@@ -18,13 +18,6 @@
     <div class="header-right">
         @auth
             {{-- Notification Bell Icon --}}
-            <div class="notification-bell">
-                <a href="{{ route('approve') }}" class="bell-link" title="Notifications">
-                    <i class="fas fa-bell"></i>
-                </a>
-            </div>
-
-            {{-- Notification Bell Icon (hidden on super admin page) --}}
             @if (!request()->routeIs('superadmin*'))
                 <div class="notification-bell">
                     @if (Auth::user()->role === 'admin')
@@ -39,15 +32,15 @@
                 </div>
             @endif
 
-                {{-- Tombol tambah agenda (jangan tampil di superadmin) --}}
-                @if (Auth::user()->role !== 'superadmin')
-                    <div class="add-agenda-btn {{ request()->routeIs('agenda.create') ? 'active' : '' }}">
-                        <a href="{{ route('agenda.create') }}" class="agenda-badge" title="Tambah Agenda">
-                            <i class="fas fa-plus"></i>
-                            <span>Tambah Agenda</span>
-                        </a>
-                    </div>
-                @endif
+            {{-- Tombol tambah agenda (jangan tampil di superadmin) --}}
+            @if (Auth::user()->role !== 'superadmin')
+                <div class="add-agenda-btn {{ request()->routeIs('agenda.create') ? 'active' : '' }}">
+                    <a href="{{ route('agenda.create') }}" class="agenda-badge" title="Tambah Agenda">
+                        <i class="fas fa-plus"></i>
+                        <span>Tambah Agenda</span>
+                    </a>
+                </div>
+            @endif
 
             {{-- user profile section --}}
             <div class="user-profile-section">

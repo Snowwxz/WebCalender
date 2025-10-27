@@ -1,14 +1,9 @@
 /* Dashboard Hari Styles */
 .day-view-page {
-    height: calc(100vh - 72px);
-    overflow: hidden;
-    margin: -30px;
-    padding: 30px;
-    box-sizing: border-box;
+    min-height: 100%;
 }
 
 .day-view-main {
-    height: 100%;
     display: flex;
     flex-direction: column;
 }
@@ -16,19 +11,14 @@
 .day-grid {
     flex: 1;
     display: flex;
-    overflow: hidden;
-    max-height: calc(100vh - 200px);
+    height: calc(24 * 60px);
 }
 
 .time-column {
     width: 80px;
     background: #f8f9fa;
     border-right: 1px solid #e9ecef;
-    overflow-y: auto;
-    height: calc(100vh - 200px);
-    position: sticky;
-    left: 0;
-    z-index: 10;
+    height: calc(24 * 60px);
 }
 
 .time-slot {
@@ -44,8 +34,7 @@
 
 .day-column {
     flex: 1;
-    overflow-y: auto;
-    height: calc(100vh - 200px);
+    height: calc(24 * 60px);
 }
 
 .hour-slot {
@@ -91,11 +80,6 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
-    position: sticky;
-    top: 0;
-    background: white;
-    z-index: 10;
-    padding: 10px 0;
 }
 
 .month-navigation {
@@ -179,14 +163,23 @@
         order: 2;
     }
 
+    .day-grid {
+        height: calc(24 * 50px);
+    }
+
     .time-column {
         width: 60px;
+        height: calc(24 * 50px);
     }
 
     .time-slot {
         height: 50px;
         padding: 6px;
         font-size: 11px;
+    }
+
+    .day-column {
+        height: calc(24 * 50px);
     }
 
     .hour-slot {
@@ -217,14 +210,23 @@
         font-size: 20px;
     }
 
+    .day-grid {
+        height: calc(24 * 40px);
+    }
+
     .time-column {
         width: 50px;
+        height: calc(24 * 40px);
     }
 
     .time-slot {
         height: 40px;
         padding: 4px;
         font-size: 10px;
+    }
+
+    .day-column {
+        height: calc(24 * 40px);
     }
 
     .hour-slot {
