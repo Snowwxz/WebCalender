@@ -17,7 +17,7 @@
     <div class="app-container">
         @include('layouts.header')
 
-        <main class="main-content" style="margin-left: 0; width: 100%; padding: 30px 0 0 0;">
+        <main class="main-content" style="margin-left: 0; width: 100%; padding: 70px 0 0 0;">
             <div class="notification-page">
                 <div class="notification-header">
                     <div>
@@ -111,7 +111,19 @@
                                         <p class="card-description">{{ $agenda->description ?? '-' }}</p>
                                     </div>
                                     <div class="status-badge {{ $agenda->status }}">
-                                        {{ ucfirst($agenda->status) }}
+                                        @switch($agenda->status)
+                                            @case('pending')
+                                                Menunggu
+                                                @break
+                                            @case('approved')
+                                                Disetujui
+                                                @break
+                                            @case('rejected')
+                                                Ditolak
+                                                @break
+                                            @default
+                                                {{ ucfirst($agenda->status) }}
+                                        @endswitch
                                     </div>
                                 </div>
 

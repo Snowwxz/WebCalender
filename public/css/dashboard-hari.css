@@ -152,7 +152,53 @@
 }
 
 /* Responsive Day View */
+@media (max-width: 1024px) {
+    .day-view-main {
+        padding: 10px;
+    }
+
+    .month-year {
+        font-size: 20px;
+    }
+
+    .nav-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+    .day-grid {
+        height: calc(24 * 55px);
+    }
+
+    .time-column {
+        width: 70px;
+        height: calc(24 * 55px);
+    }
+
+    .time-slot {
+        height: 55px;
+        padding: 6px;
+        font-size: 11px;
+    }
+
+    .day-column {
+        height: calc(24 * 55px);
+    }
+
+    .hour-slot {
+        height: 55px;
+    }
+
+    .event-item {
+        font-size: 11px;
+        padding: 3px 6px;
+    }
+}
+
 @media (max-width: 768px) {
+    .day-view-main {
+        padding: 10px;
+    }
     .calendar-header {
         flex-direction: column;
         gap: 15px;
@@ -190,9 +236,73 @@
         font-size: 11px;
         padding: 3px 6px;
     }
+
+    .month-year {
+        font-size: 18px;
+    }
+
+    .nav-btn {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+@media (max-width: 640px) {
+    .day-view-main {
+        padding: 5px;
+    }
+
+    .calendar-header {
+        padding: 0 10px;
+        margin-bottom: 15px;
+    }
+
+    .month-navigation {
+        gap: 10px;
+    }
+
+    .nav-btn {
+        width: 30px;
+        height: 30px;
+    }
+
+    .month-year {
+        font-size: 16px;
+    }
+
+    .day-grid {
+        height: calc(24 * 45px);
+    }
+
+    .time-column {
+        width: 50px;
+        height: calc(24 * 45px);
+    }
+
+    .time-slot {
+        height: 45px;
+        padding: 4px;
+        font-size: 10px;
+    }
+
+    .day-column {
+        height: calc(24 * 45px);
+    }
+
+    .hour-slot {
+        height: 45px;
+    }
+
+    .event-item {
+        font-size: 10px;
+        padding: 2px 4px;
+    }
 }
 
 @media (max-width: 480px) {
+    .day-view-main {
+        padding: 3px;
+    }
     .calendar-header {
         padding: 0 10px;
     }

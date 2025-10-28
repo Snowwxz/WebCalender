@@ -5,6 +5,7 @@
     padding: 60px 20px;
     background: #ffffff;
     min-height: calc(100vh - 150px);
+    margin-top: 70px;
 }
 
 .agenda-form-card {

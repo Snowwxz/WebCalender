@@ -267,16 +267,49 @@
 }
 
 /* Responsive Year View */
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
+    .year-view-main {
+        padding: 10px;
+    }
+
+    .month-year {
+        font-size: 22px;
+    }
+
     .year-grid {
         grid-template-columns: repeat(3, 1fr);
         grid-template-rows: repeat(4, 1fr);
         gap: 15px;
         padding: 15px;
     }
+
+    .month-card {
+        padding: 12px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .year-view-main {
+        padding: 10px;
+    }
+
+    .nav-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+    .year-grid {
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+        gap: 12px;
+        padding: 12px;
+    }
 }
 
 @media (max-width: 768px) {
+    .year-view-main {
+        padding: 10px;
+    }
     .calendar-header {
         flex-direction: column;
         gap: 15px;
@@ -316,9 +349,72 @@
         width: 3px;
         height: 3px;
     }
+
+    .month-year {
+        font-size: 18px;
+    }
+
+    .nav-btn {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+@media (max-width: 640px) {
+    .year-view-main {
+        padding: 5px;
+    }
+
+    .calendar-header {
+        padding: 0 10px;
+        margin-bottom: 15px;
+    }
+
+    .month-navigation {
+        gap: 10px;
+    }
+
+    .nav-btn {
+        width: 30px;
+        height: 30px;
+    }
+
+    .month-year {
+        font-size: 16px;
+    }
+
+    .year-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(6, 1fr);
+        gap: 8px;
+        padding: 8px;
+    }
+
+    .month-card {
+        padding: 10px;
+    }
+
+    .month-header {
+        font-size: 12px;
+    }
+
+    .month-weekdays>div {
+        font-size: 8px;
+        padding: 2px;
+    }
+
+    .month-day {
+        width: 18px;
+        height: 18px;
+        font-size: 9px;
+    }
 }
 
 @media (max-width: 480px) {
+    .year-view-main {
+        padding: 3px;
+    }
+
     .calendar-header {
         padding: 0 10px;
     }
