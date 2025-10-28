@@ -10,7 +10,8 @@ class ApproveController extends Controller
     public function index(Request $request)
     {
         $status = $request->query('status', 'all');
-        $search = $request->query('q'); // 🔍 ambil kata kunci pencarian
+        $search = $request->query('q');
+        $sort = $request->query('sort', 'newest_submitted'); // default
 
         // Hitung jumlah agenda per status
         $countAll = Agenda::count();
@@ -18,27 +19,49 @@ class ApproveController extends Controller
         $countApproved = Agenda::where('status', 'approved')->count();
         $countRejected = Agenda::where('status', 'rejected')->count();
 
-        // Ambil agenda sesuai filter
-        $agendaQuery = Agenda::with('unit', 'user') // relasi untuk akses nama instansi & user
-            ->orderBy('date', 'desc');
+        // Base query
+        $agendaQuery = Agenda::with('unit', 'user');
 
         // Filter status
         if ($status !== 'all') {
             $agendaQuery->where('status', $status);
         }
 
-        // 🔍 Filter pencarian
+        // Pencarian
         if (!empty($search)) {
             $agendaQuery->where(function ($q) use ($search) {
                 $q->where('agenda_name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('location', 'like', "%{$search}%")
-                  ->orWhere('person_in_charge', 'like', "%{$search}%")
-                  ->orWhere('involved_institution', 'like', "%{$search}%")
-                  ->orWhereHas('unit', function ($unitQuery) use ($search) {
-                      $unitQuery->where('unit_name', 'like', "%{$search}%");
-                  });
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('location', 'like', "%{$search}%")
+                    ->orWhere('person_in_charge', 'like', "%{$search}%")
+                    ->orWhere('involved_institution', 'like', "%{$search}%")
+                    ->orWhereHas('unit', function ($unitQuery) use ($search) {
+                        $unitQuery->where('unit_name', 'like', "%{$search}%");
+                    });
             });
+        }
+
+        // 🔽 Sorting Options
+        switch ($sort) {
+            case 'oldest_submitted':
+                $agendaQuery->orderBy('created_at', 'asc');
+                break;
+
+            case 'newest_submitted':
+                $agendaQuery->orderBy('created_at', 'desc');
+                break;
+
+            case 'earliest_event':
+                $agendaQuery->orderBy('date', 'asc');
+                break;
+
+            case 'latest_event':
+                $agendaQuery->orderBy('date', 'desc');
+                break;
+
+            default:
+                $agendaQuery->orderBy('created_at', 'desc');
+                break;
         }
 
         $agendas = $agendaQuery->get();
