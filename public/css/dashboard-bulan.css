@@ -778,19 +778,64 @@
 /* sidebar khusus show agenda */
 #agendaSidebar {
     position: fixed;
-    top: 0;
+    top: 72px;
     right: -400px;
     width: 400px;
-    height: 100%;
+    height: calc(100% - 72px);
     background: #fff;
     box-shadow: -2px 0 8px rgba(0,0,0,0.2);
     overflow-y: auto;
     transition: right 0.3s ease-in-out;
-    z-index: 100;
-    padding: 20px;
+    z-index: 10000;
+    padding: 0;
 }
 #agendaSidebar.active {
     right: 0;
+}
+
+/* Sidebar header agar terlihat rapi */
+#agendaSidebar .sidebar-header {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+#agendaSidebar .sidebar-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+#agendaSidebar .close-sidebar {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+#agendaSidebar .close-sidebar:hover {
+    background: #e9ecef;
+    color: #333;
+}
+
+#agendaSidebar .agenda-list {
+    padding: 20px;
 }
 .agenda-item {
     border-bottom: 1px solid #e5e7eb;
