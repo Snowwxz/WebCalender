@@ -65,15 +65,37 @@
                         <form method="GET" action="{{ route('approve') }}">
                             <input type="hidden" name="status" value="{{ request('status', 'all') }}">
                             <div class="search-input-wrap">
-                                <input type="text" name="q" placeholder="Cari agenda, instansi, atau deskripsi..."
-                                    value="{{ request('q') }}">
+                                <input type="text" name="q"
+                                    placeholder="Cari agenda, instansi, atau deskripsi..." value="{{ request('q') }}">
                                 <button type="submit">
                                     <i class="fas fa-search"></i>
                                 </button>
-                            </div>
                         </form>
                     </div>
                 </div>
+                    <div class="sort-container">
+                  <form method="GET" action="{{ route('approve') }}" class="sort-form">
+                        <input type="hidden" name="status" value="{{ request('status', 'all') }}">
+                        <input type="hidden" name="q" value="{{ request('q') }}">
+                        <select name="sort" onchange="this.form.submit()" class="sort-select">
+                            <option value="newest_submitted"
+                                {{ request('sort') == 'newest_submitted' ? 'selected' : '' }}>
+                                📥 Paling Baru Diajukan
+                            </option>
+                            <option value="oldest_submitted"
+                                {{ request('sort') == 'oldest_submitted' ? 'selected' : '' }}>
+                                🕰️ Paling Lama Diajukan
+                            </option>
+                            <option value="earliest_event" {{ request('sort') == 'earliest_event' ? 'selected' : '' }}>
+                                📅 Tanggal Pelaksanaan Terdekat
+                            </option>
+                            <option value="latest_event" {{ request('sort') == 'latest_event' ? 'selected' : '' }}>
+                                📆 Tanggal Pelaksanaan Terjauh
+                            </option>
+                        </select>
+                    </form>
+                    </div>
+
 
                 @if ($agendas->isEmpty())
                     <div class="approval-empty">
