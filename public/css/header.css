@@ -12,11 +12,48 @@
     z-index: 9999;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     height: 72px;
+    gap: 15px;
+}
+
+.header-left,
+.header-right {
+    flex-shrink: 0;
+}
+
+.header-center {
+    flex: 1;
+    min-width: 0;
 }
 
 .header-left {
     display: flex;
     align-items: center;
+    gap: 15px;
+}
+
+.sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    color: #6c757d;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 18px;
+}
+
+.sidebar-toggle:hover {
+    background: #f8f9fa;
+    border-color: #d1d5db;
+    color: #82A98D;
+}
+
+.sidebar-toggle:active {
+    transform: scale(0.95);
 }
 
 .logo-section {
@@ -467,24 +504,73 @@
 
 @media (max-width: 768px) {
     .header {
-        padding: 15px 20px;
-        flex-wrap: wrap;
-        gap: 15px;
+        padding: 12px 15px;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .header-left {
+        gap: 10px;
+        flex-shrink: 0;
+    }
+
+    .logo-section {
+        gap: 8px;
+    }
+
+    .logo-text {
+        display: none;
+    }
+
+    .logo-img {
+        width: 32px;
+        height: 32px;
+    }
+
+    .sidebar-toggle {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
     }
 
     .header-center {
-        order: 3;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .search-container {
         width: 100%;
-        justify-content: center;
+        padding: 8px 12px;
     }
 
     .search-input {
-        width: 150px;
+        width: 100%;
+    }
+
+    .header-right {
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    .notification-bell {
+        margin-right: 0;
     }
 
     .user-profile {
         padding: 6px 8px;
         gap: 8px;
+    }
+
+    /* Hide text in agenda badge on mobile */
+    .agenda-badge span {
+        display: none;
+    }
+
+    .agenda-badge {
+        padding: 8px;
+        min-width: 36px;
+        min-height: 36px;
+        justify-content: center;
     }
 
     .user-avatar {
@@ -526,20 +612,108 @@
 
 @media (max-width: 480px) {
     .header {
-        padding: 10px 15px;
+        padding: 10px 12px;
+        gap: 6px;
+        height: auto;
+        min-height: 60px;
     }
 
-    .nav-tabs {
-        width: 100%;
-        justify-content: center;
+    .sidebar-toggle {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+        flex-shrink: 0;
     }
 
-    .nav-tab {
+    .header-left {
+        gap: 6px;
+        flex-shrink: 0;
+    }
+
+    .logo-section {
+        gap: 6px;
+    }
+
+    .logo-img {
+        width: 28px;
+        height: 28px;
+    }
+
+    .logo-text {
+        display: none;
+    }
+
+    .header-center {
         flex: 1;
-        text-align: center;
+        min-width: 0;
+    }
+
+    .search-container {
+        width: 100%;
+        padding: 6px 10px;
+    }
+
+    .search-icon {
+        margin-right: 8px;
+        font-size: 14px;
     }
 
     .search-input {
-        width: 120px;
+        width: 100%;
+        font-size: 12px;
+    }
+
+    .header-right {
+        gap: 4px;
+        flex-shrink: 0;
+    }
+
+    .notification-bell {
+        margin-right: 0;
+    }
+
+    .bell-link {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+
+    .agenda-badge {
+        padding: 6px;
+        min-width: 32px;
+        min-height: 32px;
+    }
+
+    .agenda-badge i {
+        font-size: 14px;
+    }
+
+    .agenda-badge span {
+        display: none;
+    }
+
+    .user-profile {
+        padding: 4px;
+        gap: 4px;
+        border: none;
+        box-shadow: none;
+        background: transparent;
+    }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+    }
+
+    .profile-initials {
+        font-size: 12px;
+    }
+
+    .user-info {
+        display: none;
+    }
+
+    .dropdown-arrow {
+        display: none;
     }
 }

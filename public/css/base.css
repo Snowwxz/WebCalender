@@ -44,6 +44,13 @@ body {
 /* Calendar Page */
 .calendar-page {
     max-width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.calendar-page > * {
+    width: 100%;
+    max-width: 100%;
 }
 
 /* Common Button Styles */
@@ -303,14 +310,9 @@ body {
 }
 
 /* Responsive adjustments for fixed layout */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .main-content {
-        margin-left: 70px;
         padding: 20px;
-    }
-    
-    .sidebar.collapsed + .main-content {
-        margin-left: 70px;
     }
     
     .calendar-page,
@@ -321,10 +323,30 @@ body {
     }
 }
 
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 70px;
+        padding: 15px;
+    }
+    
+    .sidebar.collapsed + .main-content {
+        margin-left: 70px;
+    }
+    
+    .calendar-page,
+    .day-view-page,
+    .year-view-page {
+        margin: -15px;
+        padding: 15px;
+    }
+}
+
 @media (max-width: 480px) {
     .main-content {
         margin-left: 0;
-        padding: 15px;
+        padding: 10px;
+        display: flex;
+        justify-content: center;
     }
     
     .sidebar {
@@ -339,8 +361,19 @@ body {
     .calendar-page,
     .day-view-page,
     .year-view-page {
-        margin: -15px;
-        padding: 15px;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .calendar-page {
+        display: flex;
+        justify-content: center;
+    }
+
+    .calendar-page > * {
+        width: 100%;
     }
 }
 
