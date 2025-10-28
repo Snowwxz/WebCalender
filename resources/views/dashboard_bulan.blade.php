@@ -331,7 +331,7 @@
                 // Klik angka tanggal -> buka halaman harian
                 dayNumber.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    window.location.href = `/hari?tanggal=${year}-${month}-${day}`;
+                    window.location.href = `/dashboard/hari?tanggal=${year}-${month}-${day}`;
                 });
 
                 calendarDays.appendChild(dayElement);
@@ -594,7 +594,7 @@
 
                 dayNumber.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    window.location.href = `/hari?tanggal=${year}-${month}-${day}`;
+                    window.location.href = `/dashboard/hari?tanggal=${year}-${month}-${day}`;
                 });
 
                 calendarDays.appendChild(dayElement);
