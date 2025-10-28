@@ -12,6 +12,8 @@
     flex: 1;
     display: flex;
     height: calc(24 * 60px);
+    overflow-y: auto; /* Allow scrolling through 24 hours */
+    position: relative;
 }
 
 .time-column {
@@ -35,6 +37,7 @@
 .day-column {
     flex: 1;
     height: calc(24 * 60px);
+    position: relative; /* Needed so absolute .event-item positions inside this column */
 }
 
 .hour-slot {
@@ -55,6 +58,7 @@
     font-weight: 500;
     cursor: pointer;
     z-index: 1;
+    min-height: 24px; /* Ensure zero-duration events are visible */
 }
 
 .event-item.orange {

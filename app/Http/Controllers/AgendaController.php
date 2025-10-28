@@ -94,8 +94,8 @@ class AgendaController extends Controller
                 ]);
             }
 
-            // 📄 Kalau request biasa (form HTML)
-            return redirect()->back()->with('success', 'Agenda berhasil ditambahkan!');
+            // 📄 Kalau request biasa (form HTML) → kembali ke Dashboard Bulan
+            return redirect()->route('dashboard.bulan')->with('success', 'Agenda berhasil ditambahkan!');
         } catch (\Exception $e) {
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json([

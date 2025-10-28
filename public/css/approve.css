@@ -560,3 +560,39 @@
         font-size: 12px;
     }
 }
+/* Flex container biar sejajar */
+.search-sort-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px; /* jarak antar elemen */
+    margin-top: 12px;
+    flex-wrap: wrap; /* responsif di layar kecil */
+}
+
+/* Form search tetap proporsional */
+.search-form {
+    flex: 1;
+    max-width: 600px;
+}
+
+/* Sorting di kanan */
+.sort-form {
+    flex-shrink: 0;
+}
+
+/* Dropdown styling */
+.sort-select {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.sort-select:hover {
+    border-color: #999;
+}
+

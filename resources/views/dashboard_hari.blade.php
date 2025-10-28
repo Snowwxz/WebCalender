@@ -88,26 +88,32 @@
                     dayColumn.querySelectorAll('.event-item').forEach(e => e.remove());
 
                     const res = await fetch(`/dashboard/hari/data?tanggal=${dateString}`);
-                    const data = await res.json();
+                    const json = await res.json();
+                    const items = Array.isArray(json) ? json : (Array.isArray(json.data) ? json.data : []);
 
-                    data.forEach(event => {
+                    items.forEach(event => {
                         const eventEl = document.createElement('div');
                         eventEl.classList.add('event-item');
                         eventEl.style.backgroundColor = event.color || '#3a7bd5';
 
-                        const start = new Date(`1970-01-01T${event.start_time}`);
-                        const end = new Date(`1970-01-01T${event.end_time}`);
-                        const duration = (end - start) / (1000 * 60);
+                        // Normalize times: if missing, default to all-day block at 08:00-09:00
+                        const startTimeStr = event.start_time && /^\d{2}:\d{2}/.test(event.start_time) ? event.start_time : '08:00:00';
+                        const endTimeStr = event.end_time && /^\d{2}:\d{2}/.test(event.end_time) ? event.end_time : '09:00:00';
+
+                        const start = new Date(`1970-01-01T${startTimeStr}`);
+                        const end = new Date(`1970-01-01T${endTimeStr}`);
+                        let duration = (end - start) / (1000 * 60);
+                        if (!isFinite(duration) || duration <= 0) duration = 30; // minimum 30 minutes
 
                         const pxPerMinute = 1;
                         const top = start.getHours() * 60 * pxPerMinute + start.getMinutes() * pxPerMinute;
-                        const height = duration * pxPerMinute;
+                        const height = Math.max(duration * pxPerMinute, 24);
 
                         eventEl.style.top = `${top}px`;
                         eventEl.style.height = `${height}px`;
                         eventEl.innerHTML = `
-                    <strong>${event.title}</strong><br>
-                    <small>${event.start_time} - ${event.end_time}</small>
+                    <strong>${event.title || event.agenda_name || 'Agenda'}</strong><br>
+                    <small>${(event.start_time || startTimeStr).slice(0,5)} - ${(event.end_time || endTimeStr).slice(0,5)}</small>
                 `;
 
                         dayColumn.appendChild(eventEl);
