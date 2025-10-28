@@ -1,50 +1,50 @@
-<!-- Sidebar Modal -->
-<div
-    class="mt-32 fixed right-0 top-0 bg-white rounded-l-2xl shadow-xl w-full max-w-2xl p-6 overflow-y-auto max-h-screen z-50"
-    id="showAgendaModal"
-    hidden
->
-    <!-- Header -->
-    <div class="flex justify-between items-start border-b pb-4 mb-4 z-50">
-        <div>
-            <h2 class="text-lg font-bold" id="agendaTitle">Agenda</h2>
-            <p class="text-gray-500 text-sm">Detail Informasi Agenda</p>
-        </div>
-        <button onclick="getel('showAgendaModal').hidden = true;" class="text-gray-500 hover:text-black text-2xl leading-none">&times;</button>
-    </div>
+<!-- Modal Show Agenda -->
+<div class="modal fade" id="showAgendaModal" tabindex="-1" aria-labelledby="showAgendaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-3">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold" id="showAgendaLabel">
+                    Detail Agenda: <span id="showAgendaName">-</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
 
-    <!-- Badge -->
-    <span id="agendaStatus" class="bg-green-200 text-green-800 text-sm px-3 py-1 rounded-full font-semibold"></span>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="fw-semibold">Tanggal</label>
+                    <p id="showAgendaDate" class="form-control-plaintext mb-0">-</p>
+                </div>
 
-    <!-- Content -->
-    <div class="mt-4 space-y-4">
-        <p class="font-semibold" id="agendaName"></p>
+                <div class="mb-3">
+                    <label class="fw-semibold">Waktu</label>
+                    <p id="showAgendaTime" class="form-control-plaintext mb-0">-</p>
+                </div>
 
-        <div class="space-y-3 text-sm text-gray-700">
-            <div>
-                <span class="font-semibold block text-gray-900">📅 Tanggal:</span>
-                <span id="agendaDate"></span>
+                <div class="mb-3">
+                    <label class="fw-semibold">Deskripsi</label>
+                    <p id="showAgendaDesc" class="form-control-plaintext mb-0">-</p>
+                </div>
+
+                <div class="mb-3">
+                    <label class="fw-semibold">Lokasi</label>
+                    <p id="showAgendaLocation" class="form-control-plaintext mb-0">-</p>
+                </div>
+
+                <div class="mb-3">
+                    <label class="fw-semibold">Penanggung Jawab</label>
+                    <p id="showAgendaPIC" class="form-control-plaintext mb-0">-</p>
+                </div>
+
+                <div class="mb-3">
+                    <label class="fw-semibold">Status</label>
+                    <p id="showAgendaStatus" class="badge bg-warning text-dark">-</p>
+                </div>
             </div>
-            <div>
-                <span class="font-semibold block text-gray-900">🕒 Waktu:</span>
-                <span id="agendaTime"></span>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
             </div>
-            <div>
-                <span class="font-semibold block text-gray-900">📍 Lokasi:</span>
-                <span id="agendaLocation"></span>
-            </div>
-            <div>
-                <span class="font-semibold block text-gray-900">🏢 Instansi:</span>
-                <span id="agendaInstitution"></span>
-            </div>
-            <div>
-                <span class="font-semibold block text-gray-900">👥 Penanggung Jawab:</span>
-                <span id="agendaPIC"></span>
-            </div>
-            <div>
-                <span class="font-semibold block text-gray-900">📝 Deskripsi:</span>
-                <span id="agendaDescription"></span>
-            </div>
+
         </div>
     </div>
 

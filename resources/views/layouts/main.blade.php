@@ -17,8 +17,18 @@
 </head>
 <body>
     <div class="app-container">
-        {{-- Header --}}
-        @include('layouts.header')
+        {{-- Header (dinamis sesuai role) --}}
+        @auth
+            @if (Auth::user()->role === 'superadmin')
+                @include('layouts.header')
+            @elseif (Auth::user()->role === 'admin')
+                @include('layouts.header')
+            @else
+                @include('layouts.header')
+            @endif
+        @else
+            @include('layouts.header')
+        @endauth
 
         <div class="main-wrapper">
             {{-- Sidebar --}}
@@ -31,11 +41,86 @@
         </div>
     </div>
 
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Toggle sidebar
         function toggleSidebar() {
-            document.querySelector('.sidebar').classList.toggle('collapsed');
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const toggleBtn = document.querySelector('.sidebar-toggle');
+
+            // Check if mobile view
+            if (window.innerWidth <= 480) {
+                sidebar.classList.toggle('show');
+                // persist mobile/tablet sidebar open state
+                localStorage.setItem('sidebarShow', sidebar.classList.contains('show') ? '1' : '0');
+                // Add overlay on mobile
+                if (sidebar.classList.contains('show')) {
+                    createOverlay();
+                } else {
+                    removeOverlay();
+                }
+                return;
+            }
+
+            // Check if tablet view
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('show');
+                // persist mobile/tablet sidebar open state
+                localStorage.setItem('sidebarShow', sidebar.classList.contains('show') ? '1' : '0');
+                // Also add overlay on tablet
+                if (sidebar.classList.contains('show')) {
+                    createOverlay();
+                } else {
+                    removeOverlay();
+                }
+                return;
+            }
+
+            // Desktop view - toggle collapsed state
+            sidebar.classList.toggle('collapsed');
+            // persist desktop collapsed state
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed') ? '1' : '0');
+            // Adjust main content margin based on sidebar state
+            if (sidebar.classList.contains('collapsed')) {
+                mainContent.style.marginLeft = '70px';
+            } else {
+                mainContent.style.marginLeft = '280px';
+            }
+        }
+
+        // Close sidebar on mobile/tablet
+        function closeSidebarOnMobile() {
+            const sidebar = document.querySelector('.sidebar');
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('show');
+                localStorage.setItem('sidebarShow', '0');
+                removeOverlay();
+            }
+        }
+
+        // Create overlay for mobile sidebar
+        function createOverlay() {
+            if (document.getElementById('sidebar-overlay')) return;
+
+            const overlay = document.createElement('div');
+            overlay.id = 'sidebar-overlay';
+            overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9998;';
+            overlay.onclick = function() {
+                document.querySelector('.sidebar').classList.remove('show');
+                localStorage.setItem('sidebarShow', '0');
+                removeOverlay();
+            };
+            document.body.appendChild(overlay);
+        }
+
+        // Remove overlay
+        function removeOverlay() {
+            const overlay = document.getElementById('sidebar-overlay');
+            if (overlay) {
+                overlay.remove();
+            }
         }
 
         // Switch view
@@ -91,10 +176,91 @@
             }
         }
 
+        // Apply saved sidebar state based on viewport
+        function applySavedSidebarState() {
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const savedCollapsed = localStorage.getItem('sidebarCollapsed'); // '1' or '0'
+            const savedShow = localStorage.getItem('sidebarShow'); // '1' or '0'
+
+            if (window.innerWidth > 1024) {
+                // Desktop: use collapsed state
+                if (savedCollapsed === '1') {
+                    sidebar.classList.add('collapsed');
+                    sidebar.classList.remove('show');
+                    mainContent.style.marginLeft = '70px';
+                } else {
+                    sidebar.classList.remove('collapsed');
+                    sidebar.classList.remove('show');
+                    mainContent.style.marginLeft = '280px';
+                }
+            } else if (window.innerWidth <= 768) {
+                // Mobile/Tablet: use show state, default closed if none
+                if (savedShow === '1') {
+                    sidebar.classList.add('show');
+                } else {
+                    sidebar.classList.remove('show');
+                }
+            } else {
+                // Large tablet (769-1024) keep closed unless explicitly saved open
+                if (savedShow === '1') {
+                    sidebar.classList.add('show');
+                } else {
+                    sidebar.classList.remove('show');
+                }
+            }
+        }
+
         // Initialize mini calendar when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
             window.generateMiniCalendar();
+
+            // Initialize responsive behavior
+            handleResize();
+            // Re-apply saved state after initial sizing
+            applySavedSidebarState();
         });
+
+        // Handle window resize
+        function handleResize() {
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+
+            if (window.innerWidth <= 480) {
+                // Mobile: hide sidebar by default
+                sidebar.classList.remove('show');
+                sidebar.classList.remove('collapsed');
+                mainContent.style.marginLeft = '0';
+                removeOverlay();
+            } else if (window.innerWidth <= 768) {
+                // Tablet: hide sidebar by default
+                sidebar.classList.remove('collapsed');
+                sidebar.classList.remove('show');
+                mainContent.style.marginLeft = '0';
+                removeOverlay();
+            } else if (window.innerWidth <= 1024) {
+                // Large tablet: hide sidebar by default
+                sidebar.classList.remove('show');
+                mainContent.style.marginLeft = '0';
+                removeOverlay();
+            } else {
+                // Desktop: check if collapsed or not
+                const isCollapsed = sidebar.classList.contains('collapsed');
+                sidebar.classList.remove('show');
+                if (isCollapsed) {
+                    mainContent.style.marginLeft = '70px';
+                } else {
+                    mainContent.style.marginLeft = '280px';
+                }
+                removeOverlay();
+            }
+
+            // After base adjustments, re-apply saved state
+            applySavedSidebarState();
+        }
+
+        // Listen for window resize
+        window.addEventListener('resize', handleResize);
 
         // User dropdown functionality
         function toggleDropdown() {

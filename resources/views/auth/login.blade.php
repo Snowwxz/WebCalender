@@ -76,71 +76,97 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Toastify -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             @if ($errors->any())
-                Swal.fire({
-                    title: 'Login Gagal',
-                    text: 'Email atau password salah!',
-                    icon: 'error',
-                    toast: true,
-                    position: 'top',
-                    background: '#FFF1E6',
-                    color: '#333',
-                    customClass: {
-                        popup: 'notif-swal-popup',
-                        title: 'notif-swal-title',
-                        confirmButton: 'notif-swal-confirm',
-                    },
-                    confirmButtonText: 'OK',
-                });
+                showErrorToast("Email atau password salah!");
             @endif
         });
+
+        // ====== TOAST ERROR DENGAN BUTTON ======
+        function showErrorToast(message) {
+            const toastContent = document.createElement('div');
+            toastContent.style.display = "flex";
+            toastContent.style.flexDirection = "column";
+            toastContent.style.alignItems = "center";
+            toastContent.style.gap = "8px";
+
+            // Judul & pesan
+            const title = document.createElement('div');
+            title.innerText = "Login Gagal";
+            title.style.fontFamily = "Poppins, sans-serif";
+            title.style.fontWeight = "600";
+            title.style.fontSize = "15px";
+            title.style.color = "#7A1C1C";
+
+            const text = document.createElement('div');
+            text.innerText = message;
+            text.style.fontFamily = "Poppins, sans-serif";
+            text.style.fontSize = "14px";
+            text.style.color = "#2F3E35";
+            text.style.textAlign = "center";
+
+            // Tombol OK
+            const button = document.createElement('button');
+            button.innerText = "Ya";
+            button.style.fontFamily = "Poppins, sans-serif";
+            button.style.fontSize = "13px";
+            button.style.fontWeight = "500";
+            button.style.backgroundColor = "#F47C7C";
+            button.style.color = "white";
+            button.style.border = "none";
+            button.style.borderRadius = "6px";
+            button.style.padding = "5px 14px";
+            button.style.cursor = "pointer";
+            button.style.transition = "background 0.2s ease";
+
+            button.addEventListener('mouseenter', () => {
+                button.style.backgroundColor = "#ff6b6b";
+            });
+            button.addEventListener('mouseleave', () => {
+                button.style.backgroundColor = "#F47C7C";
+            });
+
+            // Buat Toastify
+            const toast = Toastify({
+                node: toastContent,
+                duration: -1, // biar gak auto hilang
+                gravity: "top",
+                position: "center",
+                close: false,
+                offset: {
+                    x: 0,
+                    y: 20
+                },
+                style: {
+                    background: "#FFF1E6",
+                    border: "1px solid #F7B7B7",
+                    borderRadius: "12px",
+                    padding: "18px 24px",
+                    boxShadow: "0 6px 14px rgba(0,0,0,0.08)",
+                    textAlign: "center",
+                },
+            });
+
+            // Tutup kalau tombol diklik
+            button.addEventListener('click', () => {
+                toast.hideToast();
+            });
+
+            // Masukkan elemen ke dalam toast
+            toastContent.appendChild(title);
+            toastContent.appendChild(text);
+            toastContent.appendChild(button);
+
+            // Tampilkan
+            toast.showToast();
+        }
     </script>
 
-    <style>
-        .notif-swal-popup {
-            width: 280px !important;
-            border-radius: 12px !important;
-            padding: 1rem 1.2rem !important;
-            font-family: 'Poppins', sans-serif;
-            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
-            border: 1px solid #f5dada;
-        }
-
-        .notif-swal-title {
-            font-size: 0.95rem !important;
-            font-weight: 600 !important;
-            color: #444 !important;
-        }
-
-        .notif-swal-confirm {
-            background-color: #F47C7C !important;
-            color: white !important;
-            border-radius: 6px !important;
-            padding: 4px 10px !important;
-            font-size: 0.75rem !important;
-            border: none !important;
-            transition: background-color 0.2s ease;
-        }
-
-        .notif-swal-confirm:hover {
-            background-color: #ff6b6b !important;
-        }
-    </style>
-
-    <script>
-        const togglePassword = document.getElementById('togglePassword');
-        const password = document.getElementById('password');
-
-        togglePassword.addEventListener('click', function() {
-            const isPassword = password.getAttribute('type') === 'password';
-            password.setAttribute('type', isPassword ? 'text' : 'password');
-            this.classList.toggle('bi-eye');
-            this.classList.toggle('bi-eye-slash');
-        });
-    </script>
 </body>
 
 </html>

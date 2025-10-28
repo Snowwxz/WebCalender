@@ -1,12 +1,18 @@
 .year-view-page {
-    height: 100%;
-    overflow: hidden;
+    height: calc(100vh - 72px);
+    overflow: visible;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
 }
 
 .year-view-main {
-    height: 100%;
+    height: auto;
     display: flex;
     flex-direction: column;
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 .year-grid {
@@ -14,29 +20,32 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(3, 1fr);
-    gap: 15px;
-    padding: 15px;
-    overflow-y: auto;
+    gap: 10px;
+    padding: 5px;
+    overflow: visible;
     max-width: 100%;
     box-sizing: border-box;
+    height: auto;
+    min-height: calc(100vh - 200px);
+    margin: 0;
 }
 
 .month-card {
     background: white;
     border: 1px solid #e9ecef;
     border-radius: 8px;
-    padding: 12px;
+    padding: 10px;
     display: flex;
     flex-direction: column;
-    min-height: 200px;
-    max-height: 250px;
+    min-height: 160px;
+    max-height: 180px;
 }
 
 .month-header {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
     color: #333;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
     text-align: center;
 }
 
@@ -49,15 +58,15 @@
 .month-weekdays {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    margin-bottom: 6px;
+    margin-bottom: 4px;
 }
 
 .month-weekdays>div {
     text-align: center;
-    font-size: 9px;
+    font-size: 8px;
     font-weight: 600;
     color: #6c757d;
-    padding: 2px;
+    padding: 1px;
 }
 
 .month-weekdays .weekend {
@@ -72,12 +81,12 @@
 }
 
 .month-day {
-    width: 28px;
-    height: 28px;
+    width: 20px;
+    height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 9px;
     color: #333;
     position: relative;
     cursor: pointer;
@@ -134,8 +143,6 @@
     color: #82A98D;
     font-weight: 700;
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
 }
 
 .event-dot {
@@ -180,9 +187,13 @@
 
 .calendar-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
-    margin-bottom: 30px;
+    margin: 0;
+    padding: 0;
+    position: relative; /* ubah dari sticky/fixed */
+    background: none;   /* hilangkan background putih jika ada */
+    box-shadow: none;   /* hilangkan garis bawah */
 }
 
 .month-navigation {
@@ -256,16 +267,49 @@
 }
 
 /* Responsive Year View */
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
+    .year-view-main {
+        padding: 10px;
+    }
+
+    .month-year {
+        font-size: 22px;
+    }
+
     .year-grid {
         grid-template-columns: repeat(3, 1fr);
         grid-template-rows: repeat(4, 1fr);
         gap: 15px;
         padding: 15px;
     }
+
+    .month-card {
+        padding: 12px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .year-view-main {
+        padding: 10px;
+    }
+
+    .nav-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+    .year-grid {
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+        gap: 12px;
+        padding: 12px;
+    }
 }
 
 @media (max-width: 768px) {
+    .year-view-main {
+        padding: 10px;
+    }
     .calendar-header {
         flex-direction: column;
         gap: 15px;
@@ -305,9 +349,72 @@
         width: 3px;
         height: 3px;
     }
+
+    .month-year {
+        font-size: 18px;
+    }
+
+    .nav-btn {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+@media (max-width: 640px) {
+    .year-view-main {
+        padding: 5px;
+    }
+
+    .calendar-header {
+        padding: 0 10px;
+        margin-bottom: 15px;
+    }
+
+    .month-navigation {
+        gap: 10px;
+    }
+
+    .nav-btn {
+        width: 30px;
+        height: 30px;
+    }
+
+    .month-year {
+        font-size: 16px;
+    }
+
+    .year-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(6, 1fr);
+        gap: 8px;
+        padding: 8px;
+    }
+
+    .month-card {
+        padding: 10px;
+    }
+
+    .month-header {
+        font-size: 12px;
+    }
+
+    .month-weekdays>div {
+        font-size: 8px;
+        padding: 2px;
+    }
+
+    .month-day {
+        width: 18px;
+        height: 18px;
+        font-size: 9px;
+    }
 }
 
 @media (max-width: 480px) {
+    .year-view-main {
+        padding: 3px;
+    }
+
     .calendar-header {
         padding: 0 10px;
     }

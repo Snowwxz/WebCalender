@@ -16,7 +16,8 @@ Route::get('/', [LandingController::class, 'index'])->name('landing.index');
 
 Route::get('/landing', function (Request $request) {
     $month = $request->query('month');
-    return view('landing', ['month' => $month]);
+    $year = $request->query('year', date('Y'));
+    return view('landing', ['month' => $month, 'year' => (int)$year]);
 });
 
 Route::get('/hari', function (Request $request) {
@@ -52,7 +53,6 @@ Route::get('/api/agenda/search', [LandingController::class, 'search'])
 Route::get('/api/agenda/list/{params?}', [AgendaController::class, 'list'])->where('params', '.*');
 
 
-
 // 🔒 DASHBOARD (LOGIN DIBUTUHKAN)
 Route::middleware(['auth', 'verified'])->group(function () {
 
@@ -60,11 +60,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
         $user = Auth::user();
 
-        if ($user->role === 'superadmin') {
-            return redirect()->route('superadmin.dashboard');
-        } elseif ($user->role === 'admin') {
-            return redirect()->route('approve');
-        } else {
+        if (in_array($user->role, ['admin', 'superadmin', 'user'])) {
             return redirect()->route('dashboard.bulan');
         }
     })->name('dashboard');
@@ -82,16 +78,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('notification', [AgendaController::class, 'notification'])->name('agenda.notification');
     });
 
+
     // ✅ Route khusus tiap role
-    Route::middleware('role:user')->group(function () {
+    Route::middleware('role:superadmin,admin,user')->group(function () {
         Route::get('/dashboard/hari', fn() => view('dashboard_hari'))->name('dashboard.hari');
+        Route::get('/dashboard/hari/data', [AgendaController::class, 'getAgendaHari'])->name('dashboard.hari.data');
         Route::get('/dashboard/bulan', [AgendaController::class, 'index'])->name('dashboard.bulan');
         Route::get('/dashboard/tahun', fn() => view('dashboard_tahun'))->name('dashboard.tahun');
     });
 
-    Route::middleware('role:admin')->group(function () {
-        Route::get('/approve', fn() => view('approve'))->name('admin.dashboard');
-    });
+    Route::middleware('role:admin')->group(function () {});
 
     Route::middleware('role:superadmin')->group(function () {
         Route::get('/superadmin', [UserController::class, 'index'])->name('superadmin.dashboard');

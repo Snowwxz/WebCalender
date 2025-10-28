@@ -1,6 +1,7 @@
    @php
-       $isDashboard = request()->is('dashboard*');
+       $isDashboard = (Auth::check() && request()->is('dashboard*')) || Auth::check();
    @endphp
+
 
    <aside class="sidebar">
        <div class="nav-tabs">
@@ -46,8 +47,8 @@
            </div>
 
            <div class="agenda-categories">
-               <label class="category-item public">
-                   <input type="checkbox" checked>
+               <label class="category-item public {{ !$isDashboard ? 'disabled' : '' }}">
+                   <input type="checkbox" checked {{ !$isDashboard ? 'disabled' : '' }}>
                    <span class="custom-checkbox"></span>
                    <span class="dot"></span>
                    <span class="text">Publik</span>

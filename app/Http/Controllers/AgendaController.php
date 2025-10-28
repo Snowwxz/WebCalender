@@ -19,29 +19,34 @@ class AgendaController extends Controller
         $year = $request->query('year', date('Y'));
         $month = $request->query('month', date('m'));
 
+        $user = Auth::user(); // ambil user login
+        $userId = $user->id_user;
+
+        // 🔹 Base query
         $query = Agenda::with(['user', 'approver', 'unit'])
+            ->where('status', 'approved')
             ->orderBy('date', 'desc');
 
-        if ($request->query('only_my')) {
-            // Jika user ingin melihat agenda mereka sendiri, tampilkan semua status
-            $query->where('id_user', Auth::user()->id_user);
-        } else {
-            // Untuk user biasa, tampilkan agenda mereka sendiri (semua status) + agenda approved dari user lain
-            $query->where(function ($q) {
-                $q->where('id_user', Auth::user()->id_user) // Agenda user sendiri (semua status)
-                    ->orWhere('status', 'approved'); // Agenda approved dari user lain
+        // 🔹 Kalau bukan superadmin, batasi hanya publik atau milik sendiri
+        if ($user->role !== 'superadmin') {
+            $query->where(function ($q) use ($userId) {
+                $q->where('is_public', 1)
+                    ->orWhere('id_user', $userId);
             });
         }
 
         $agenda = $query->get();
         $units = Unit::orderBy('unit_name', 'asc')->get();
 
+        // 🔹 Response JSON (misal untuk AJAX)
         if ($request->wantsJson() || $request->isJson()) {
             return response()->json($agenda);
         }
 
         return view('dashboard_bulan', compact('agenda', 'year', 'month', 'units'));
     }
+
+
 
     /**
      * ✅ Form pengajuan agenda.
@@ -96,8 +101,8 @@ class AgendaController extends Controller
                 ]);
             }
 
-            // 📄 Kalau request biasa (form HTML)
-            return redirect()->back()->with('success', 'Agenda berhasil ditambahkan!');
+            // 📄 Kalau request biasa (form HTML) → kembali ke Dashboard Bulan
+            return redirect()->route('dashboard.bulan')->with('success', 'Agenda berhasil ditambahkan!');
         } catch (\Exception $e) {
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json([
@@ -243,6 +248,7 @@ class AgendaController extends Controller
     public function getAgendaByDate(Request $request)
     {
         $date = $request->input('date');
+        $userId = Auth::user()->id_user;
 
         if (!$date) {
             return response()->json([
@@ -253,10 +259,11 @@ class AgendaController extends Controller
 
         $agenda = Agenda::with(['unit', 'user', 'approver'])
             ->whereDate('date', $date)
-            ->where(function ($q) {
-                $q->where('id_user', Auth::user()->id_user)
-                    ->orWhere('status', 'approved'); // hanya tampilkan approved dari user lain
+            ->where(function ($q) use ($userId) {
+                $q->where('is_public', 1) // publik
+                    ->orWhere('id_user', $userId); // private tapi milik sendiri
             })
+            ->where('status', 'approved')
             ->orderBy('start_time', 'asc')
             ->get();
 
@@ -275,6 +282,37 @@ class AgendaController extends Controller
             'data' => $agenda
         ]);
     }
+
+
+
+
+    public function getAgendaHari(Request $request)
+    {
+        $date = $request->query('tanggal', date('Y-m-d'));
+        $userId = Auth::user()->id_user;
+
+        $agenda = Agenda::whereDate('date', $date)
+            ->where('status', 'approved')
+            ->where(function ($q) use ($userId) {
+                $q->where('is_public', 1)
+                    ->orWhere('id_user', $userId);
+            })
+            ->orderBy('start_time', 'asc')
+            ->get(['id_agenda as id', 'agenda_name as title', 'start_time', 'end_time', 'location', 'is_public']);
+
+        // Tambahkan warna otomatis buat bedain publik/privat
+        $agenda->transform(function ($item) {
+            $item->color = $item->is_public ? '#3a7bd5' : '#f39c12';
+            return $item;
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $agenda,
+        ]);
+    }
+
+
 
     public function list($params = null)
     {
@@ -356,7 +394,6 @@ class AgendaController extends Controller
                 'total' => $agenda->count(),
                 'data' => $agenda,
             ]);
-
         } catch (\Throwable $e) {
             // Blok ini akan menangkap semua error server (masalah DB, Model, Relationship)
             

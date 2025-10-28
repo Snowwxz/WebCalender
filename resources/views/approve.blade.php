@@ -17,7 +17,7 @@
     <div class="app-container">
         @include('layouts.header')
 
-        <main class="main-content">
+        <main class="main-content" style="margin-left: 0; width: 100%; overflow-x: hidden;">
             <div class="approval-page">
                 <div class="approval-header">
                     @if (Auth::user()->role !== 'admin')
@@ -61,12 +61,41 @@
                         </div>
                     </div>
 
-                    <form class="approval-search" method="GET" action="{{ route('approve') }}">
-                        <input type="hidden" name="status" value="{{ $status }}" />
-                        <i class="fas fa-search"></i>
-                        <input type="text" name="q" placeholder="Search" value="{{ request('q') }}" />
-                    </form>
+                    <div class="search-bar">
+                        <form method="GET" action="{{ route('approve') }}">
+                            <input type="hidden" name="status" value="{{ request('status', 'all') }}">
+                            <div class="search-input-wrap">
+                                <input type="text" name="q"
+                                    placeholder="Cari agenda, instansi, atau deskripsi..." value="{{ request('q') }}">
+                                <button type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                        </form>
+                    </div>
                 </div>
+                    <div class="sort-container">
+                  <form method="GET" action="{{ route('approve') }}" class="sort-form">
+                        <input type="hidden" name="status" value="{{ request('status', 'all') }}">
+                        <input type="hidden" name="q" value="{{ request('q') }}">
+                        <select name="sort" onchange="this.form.submit()" class="sort-select">
+                            <option value="newest_submitted"
+                                {{ request('sort') == 'newest_submitted' ? 'selected' : '' }}>
+                                📥 Paling Baru Diajukan
+                            </option>
+                            <option value="oldest_submitted"
+                                {{ request('sort') == 'oldest_submitted' ? 'selected' : '' }}>
+                                🕰️ Paling Lama Diajukan
+                            </option>
+                            <option value="earliest_event" {{ request('sort') == 'earliest_event' ? 'selected' : '' }}>
+                                📅 Tanggal Pelaksanaan Terdekat
+                            </option>
+                            <option value="latest_event" {{ request('sort') == 'latest_event' ? 'selected' : '' }}>
+                                📆 Tanggal Pelaksanaan Terjauh
+                            </option>
+                        </select>
+                    </form>
+                    </div>
+
 
                 @if ($agendas->isEmpty())
                     <div class="approval-empty">
@@ -87,7 +116,22 @@
                                         <p class="card-description">{{ $agenda->description ?? '-' }}</p>
                                     </div>
                                     <div class="status-badge {{ $agenda->status }}">
-                                        {{ ucfirst($agenda->status) }}
+                                        @switch($agenda->status)
+                                            @case('pending')
+                                                Menunggu
+                                            @break
+
+                                            @case('approved')
+                                                Disetujui
+                                            @break
+
+                                            @case('rejected')
+                                                Ditolak
+                                            @break
+
+                                            @default
+                                                {{ ucfirst($agenda->status) }}
+                                        @endswitch
                                     </div>
                                 </div>
                                 <!-- Card Content -->
@@ -108,7 +152,7 @@
                                             <div class="detail-item">
                                                 <i class="fas fa-calendar-alt"></i>
                                                 <span><strong>Tanggal:</strong>
-                                                    {{ \Carbon\Carbon::parse($agenda->date)->format('l, d F Y') }}</span>
+                                                    {{ \Carbon\Carbon::parse($agenda->date)->locale('id')->translatedFormat('l, d F Y') }}</span>
                                             </div>
                                         </div>
 
@@ -142,8 +186,8 @@
                                         <div class="detail-item">
                                             <i class="fas fa-eye"></i>
                                             <span>
-                                                <strong>Status Publikasi:</strong>
-                                                {{ $agenda->is_public ? 'Publik' : 'Privat' }}
+                                                <strong>Status:</strong>
+                                                {{ $agenda->is_public ? 'Publik' : 'Privasi' }}
                                             </span>
                                         </div>
                                     </div>
@@ -159,7 +203,7 @@
                                         </span>
                                         <span class="submission-time">
                                             &nbsp;Diajukan
-                                            {{ \Carbon\Carbon::parse($agenda->created_at)->diffForHumans() }}
+                                            {{ \Carbon\Carbon::parse($agenda->created_at)->locale('id')->diffForHumans() }}
                                         </span>
                                     </div>
 
@@ -217,6 +261,19 @@
                 }
             });
         </script>
+
+        <script>
+            // 🔎 Auto reload saat search bar dikosongkan
+            document.querySelector('input[name="q"]').addEventListener('input', function() {
+                if (this.value.trim() === '') {
+                    // Ambil URL tanpa parameter 'q'
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete('q');
+                    window.location.href = url.toString();
+                }
+            });
+        </script>
+
 </body>
 
 </html>

@@ -1,11 +1,9 @@
 /* Dashboard Hari Styles */
 .day-view-page {
-    height: 100%;
-    overflow: hidden;
+    min-height: 100%;
 }
 
 .day-view-main {
-    height: 100%;
     display: flex;
     flex-direction: column;
 }
@@ -13,14 +11,16 @@
 .day-grid {
     flex: 1;
     display: flex;
-    overflow: hidden;
+    height: calc(24 * 60px);
+    overflow-y: auto; /* Allow scrolling through 24 hours */
+    position: relative;
 }
 
 .time-column {
     width: 80px;
     background: #f8f9fa;
     border-right: 1px solid #e9ecef;
-    overflow-y: auto;
+    height: calc(24 * 60px);
 }
 
 .time-slot {
@@ -36,7 +36,8 @@
 
 .day-column {
     flex: 1;
-    overflow-y: auto;
+    height: calc(24 * 60px);
+    position: relative; /* Needed so absolute .event-item positions inside this column */
 }
 
 .hour-slot {
@@ -46,17 +47,24 @@
     padding: 2px;
 }
 
+.day-column {
+    position: relative;
+    height: 1440px;
+    /* 24 jam × 60 menit (1px per menit) */
+}
+
 .event-item {
     position: absolute;
-    left: 2px;
-    right: 2px;
-    padding: 4px 8px;
-    border-radius: 4px;
+    left: 80px;
+    /* biar gak nabrak jam di kiri */
+    width: calc(100% - 100px);
+    background-color: #3a7bd5;
     color: white;
     font-size: 12px;
     font-weight: 500;
     cursor: pointer;
     z-index: 1;
+    min-height: 24px; /* Ensure zero-duration events are visible */
 }
 
 .event-item.orange {
@@ -67,10 +75,6 @@
     background: #4caf50;
 }
 
-.event-time {
-    font-size: 10px;
-    opacity: 0.9;
-}
 
 .event-title {
     font-weight: 600;
@@ -153,8 +157,49 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+
 /* Responsive Day View */
+@media (max-width: 1024px) {
+    .day-view-main {
+        padding: 10px;
+    }
+
+    .month-year {
+        font-size: 20px;
+    }
+
+    .nav-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+    .day-grid {
+        height: calc(24 * 55px);
+    }
+
+    .time-column {
+        width: 70px;
+        height: calc(24 * 55px);
+    }
+
+    .time-slot {
+        height: 55px;
+        padding: 6px;
+        font-size: 11px;
+    }
+
+
+    .hour-slot {
+        height: 55px;
+    }
+
+}
+
 @media (max-width: 768px) {
+    .day-view-main {
+        padding: 10px;
+    }
+
     .calendar-header {
         flex-direction: column;
         gap: 15px;
@@ -165,8 +210,13 @@
         order: 2;
     }
 
+    .day-grid {
+        height: calc(24 * 50px);
+    }
+
     .time-column {
         width: 60px;
+        height: calc(24 * 50px);
     }
 
     .time-slot {
@@ -175,17 +225,71 @@
         font-size: 11px;
     }
 
+
     .hour-slot {
         height: 50px;
     }
 
-    .event-item {
-        font-size: 11px;
-        padding: 3px 6px;
+
+    .month-year {
+        font-size: 18px;
+    }
+
+    .nav-btn {
+        width: 30px;
+        height: 30px;
     }
 }
 
+@media (max-width: 640px) {
+    .day-view-main {
+        padding: 5px;
+    }
+
+    .calendar-header {
+        padding: 0 10px;
+        margin-bottom: 15px;
+    }
+
+    .month-navigation {
+        gap: 10px;
+    }
+
+    .nav-btn {
+        width: 30px;
+        height: 30px;
+    }
+
+    .month-year {
+        font-size: 16px;
+    }
+
+    .day-grid {
+        height: calc(24 * 45px);
+    }
+
+    .time-column {
+        width: 50px;
+        height: calc(24 * 45px);
+    }
+
+    .time-slot {
+        height: 45px;
+        padding: 4px;
+        font-size: 10px;
+    }
+
+    .hour-slot {
+        height: 45px;
+    }
+
+}
+
 @media (max-width: 480px) {
+    .day-view-main {
+        padding: 3px;
+    }
+
     .calendar-header {
         padding: 0 10px;
     }
@@ -203,8 +307,13 @@
         font-size: 20px;
     }
 
+    .day-grid {
+        height: calc(24 * 40px);
+    }
+
     .time-column {
         width: 50px;
+        height: calc(24 * 40px);
     }
 
     .time-slot {
@@ -213,12 +322,10 @@
         font-size: 10px;
     }
 
+
     .hour-slot {
         height: 40px;
     }
 
-    .event-item {
-        font-size: 10px;
-        padding: 2px 4px;
-    }
+
 }

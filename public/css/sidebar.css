@@ -3,15 +3,83 @@
     background: white;
     border-right: 1px solid #e9ecef;
     padding: 20px;
-    overflow-y: auto;
+    overflow-y: hidden;
     transition: all 0.3s ease;
-    position: sticky;
+    position: fixed;
     top: 72px;
-    max-height: calc(100vh - 72px);
+    left: 0;
+    height: calc(100vh - 72px);
+    z-index: 10000;
 }
 
 .sidebar.collapsed {
     width: 70px;
+    padding: 20px 10px;
+}
+
+.sidebar.collapsed .section-title span {
+    display: none;
+}
+
+.sidebar.collapsed .mini-calendar-header,
+.sidebar.collapsed .mini-calendar-weekdays,
+.sidebar.collapsed .mini-calendar-days {
+    display: none;
+}
+
+.sidebar.collapsed .mini-calendar {
+    padding: 0;
+}
+
+.sidebar.collapsed .section-title {
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.sidebar.collapsed .section-title i {
+    font-size: 20px;
+    color: #6E9579;
+}
+
+.sidebar.collapsed .mini-calendar-section,
+.sidebar.collapsed .agenda-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.sidebar.collapsed .agenda-categories {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.sidebar.collapsed .category-item {
+    justify-content: center;
+    width: 50px;
+    margin: 0 auto 15px;
+}
+
+.sidebar.collapsed .category-item .text {
+    display: none;
+}
+
+.sidebar.collapsed .category-item .dot {
+    display: none;
+}
+
+.sidebar.collapsed .category-item .custom-checkbox {
+    width: 30px;
+    height: 30px;
+}
+
+.sidebar.collapsed .category-item.public .custom-checkbox {
+    border-width: 3px;
+}
+
+.sidebar.collapsed .category-item.private .custom-checkbox {
+    border-width: 3px;
 }
 
 .sidebar .nav-tabs {
@@ -64,12 +132,20 @@
 .sidebar.collapsed .nav-tabs {
     flex-direction: column;
     gap: 2px;
+    padding: 8px 4px;
 }
 
 .sidebar.collapsed .nav-tab {
-    padding: 8px;
-    font-size: 10px;
-    border-radius: 4px;
+    padding: 10px;
+    font-size: 13px;
+    border-radius: 6px;
+    line-height: 1.2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .section-title {
@@ -129,18 +205,18 @@
 .mini-calendar-days {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 2px;
+    gap: 3px;
     justify-items: center;
     align-items: center;
 }
 
 .mini-day {
-    width: 30px;
-    height: 30px;
+    width: 25px;
+    height: 25px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 11px;
     cursor: pointer;
     border-radius: 50%;
     transition: all 0.2s ease;
@@ -296,14 +372,65 @@
     transform: scale(1.05);
 }
 
+.category-item.disabled {
+    pointer-events: none;
+}
+
+.category-item.disabled .custom-checkbox,
+.category-item.disabled .text,
+.category-item.disabled .dot {
+    cursor: not-allowed;
+}
+
+/* Hide sidebar completely when not shown on mobile/tablet */
+@media (max-width: 1024px) {
+    .sidebar {
+        z-index: 10000 !important;
+    }
+
+    .sidebar:not(.show):not(.collapsed) {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar.show {
+        transform: translateX(0);
+    }
+}
+
 @media (max-width: 768px) {
     .sidebar {
-        width: 70px;
+        width: 280px;
+        z-index: 10000 !important;
+    }
+
+    .sidebar:not(.show):not(.collapsed) {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.show {
+        transform: translateX(0);
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar {
+        width: 280px;
+        z-index: 10000 !important;
+    }
+
+    .sidebar:not(.show):not(.collapsed) {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.show {
+        transform: translateX(0);
+        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
     }
 
     .sidebar .brand h2,
     .section-title span,
     .category-item label span {
-        display: none;
+        display: block;
     }
 }

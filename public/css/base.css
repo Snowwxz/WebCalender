@@ -26,6 +26,7 @@ body {
     display: flex;
     flex: 1;
     align-items: flex-start;
+    margin-top: 72px;
 }
 
 /* Main Content */
@@ -34,10 +35,21 @@ body {
     padding: 30px;
     background: white;
     overflow-y: auto;
+    overflow-x: hidden;
+    margin-left: 280px;
+    height: calc(100vh - 72px);
+    box-sizing: border-box;
 }
 
 /* Calendar Page */
 .calendar-page {
+    max-width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.calendar-page > * {
+    width: 100%;
     max-width: 100%;
 }
 
@@ -295,6 +307,74 @@ body {
 
 .visible {
     display: block !important;
+}
+
+/* Responsive adjustments for fixed layout */
+@media (max-width: 1024px) {
+    .main-content {
+        padding: 20px;
+    }
+    
+    .calendar-page,
+    .day-view-page,
+    .year-view-page {
+        margin: -20px;
+        padding: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 70px;
+        padding: 15px;
+    }
+    
+    .sidebar.collapsed + .main-content {
+        margin-left: 70px;
+    }
+    
+    .calendar-page,
+    .day-view-page,
+    .year-view-page {
+        margin: -15px;
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        margin-left: 0;
+        padding: 10px;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .calendar-page,
+    .day-view-page,
+    .year-view-page {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .calendar-page {
+        display: flex;
+        justify-content: center;
+    }
+
+    .calendar-page > * {
+        width: 100%;
+    }
 }
 
 @media (max-width: 768px) {

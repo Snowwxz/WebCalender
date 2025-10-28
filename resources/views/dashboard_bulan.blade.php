@@ -32,13 +32,11 @@
                     <div class="weekend">Min</div>
                 </div>
                 <div class="calendar-days" id="calendarDays">
-                    <!-- Tanggal akan di-generate lewat JavaScript -->
-                </div>
+                    </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Create Agenda -->
     <div class="modal-overlay" id="createAgendaModal" style="display: none;">
         <div class="modal-container">
             <div class="modal-header">
@@ -57,7 +55,6 @@
                     @csrf
 
                     <div class="form-grid">
-                        <!-- Kolom kiri -->
                         <div class="form-column">
                             <div class="input-group">
                                 <label><i class="fas fa-file-alt"></i> Nama Agenda</label>
@@ -92,7 +89,6 @@
                             </div>
                         </div>
 
-                        <!-- Kolom kanan -->
                         <div class="form-column">
                             <div class="input-group">
                                 <label><i class="fas fa-calendar-day"></i> Tanggal</label>
@@ -137,20 +133,23 @@
 
         let agenda = {!! json_encode($agenda, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) !!};
 
-
         /**
-     * Filter data agenda berdasarkan tanggal, bulan, dan tahun.
-     * @param {Array} agendaList - Array of agenda objects.
-     * @param {Object} options - Filter options (year, month, day).
-     * @returns {Array} - Data agenda yang sesuai filter.
-     *
-     * Contoh:
-     * filterAgenda(agendaList, { year: 2025, month: 10, day: 16 });
-     * filterAgenda(agendaList, { month: 10 }); // semua agenda bulan Oktober
-     * filterAgenda(agendaList, { year: 2025 }); // semua agenda tahun 2025
-     */
+         * Filter data agenda berdasarkan tanggal, bulan, dan tahun.
+         * @param {Array} agendaList - Array of agenda objects.
+         * @param {Object} options - Filter options (year, month, day).
+         * @returns {Array} - Data agenda yang sesuai filter.
+         *
+         * Contoh:
+         * filterAgenda(agendaList, { year: 2025, month: 10, day: 16 });
+         * filterAgenda(agendaList, { month: 10 }); // semua agenda bulan Oktober
+         * filterAgenda(agendaList, { year: 2025 }); // semua agenda tahun 2025
+         */
         function filterAgenda(agendaList, options = {}) {
-            const { year, month, day } = options;
+            const {
+                year,
+                month,
+                day
+            } = options;
 
             return agendaList.filter(item => {
                 const date = new Date(item.date);
@@ -165,8 +164,8 @@
             });
         }
 
-            // generate main calender
-            function generateMainCalendar() {
+        // generate main calender
+        function generateMainCalendar() {
             const monthYear = document.getElementById('currentMonthYear');
             const calendarDays = document.getElementById('calendarDays');
 
@@ -179,7 +178,8 @@
 
             const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
             const startDate = new Date(firstDay);
-            startDate.setDate(startDate.getDate() - (firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1)); // Mulai dari Senin
+            startDate.setDate(startDate.getDate() - (firstDay.getDay() === 0 ? 6 : firstDay.getDay() -
+                1)); // Mulai dari Senin
 
             calendarDays.innerHTML = '';
 
@@ -235,6 +235,7 @@
 
                 dayElement.addEventListener('click', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     openModal(`${year}-${month}-${day}`);
                 });
 
@@ -246,12 +247,12 @@
 
 
             }
-            }
+        }
 
-         // Modal functions
-         function openModal(selectedDate = null) {
-             const modal = document.getElementById('createAgendaModal');
-             const dateInput = document.getElementById('date');
+        // Modal functions
+        function openModal(selectedDate = null) {
+            const modal = document.getElementById('createAgendaModal');
+            const dateInput = document.getElementById('date');
 
             if (selectedDate && dateInput) {
                 dateInput.value = selectedDate;
@@ -353,29 +354,5 @@
             const modal = new bootstrap.Modal(document.getElementById('showAgendaModal'));
             modal.show();
         }
-
     </script>
-    @if (session('success'))
-        <script>
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: '{{ session('success') }}',
-                showConfirmButton: false,
-                timer: 2000
-            });
-        </script>
-    @endif
-
-    @if (session('error'))
-        <script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: '{{ session('error') }}',
-            });
-
-        </script>
-    @endif
-
 @endsection

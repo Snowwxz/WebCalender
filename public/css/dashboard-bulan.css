@@ -1,5 +1,7 @@
 .calendar-main {
     background: white;
+    max-width: 100%;
+    margin: 0 auto;
 }
 
 .calendar-header {
@@ -317,82 +319,59 @@
 }
 
 /* Agenda Badge */
-.bg-gray-400 {
-    background-color: #6E9579 !important;
-    color: white !important;
+.bg-gray-400,
+.bg-green-500,
+.bg-yellow-500,
+.bg-red-500,
+.bg-orange-500 {
+    display: block;
     font-size: 9px;
-    padding: 3px 5px;
-    margin-bottom: 2px;
-    border-radius: 3px;
-    line-height: 1.1;
+    padding: 4px 6px;
+    margin-bottom: 3px;
+    border-radius: 4px;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+    text-align: left;
+    font-weight: 500;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    max-width: 100%;
-    flex-shrink: 0;
-    word-break: break-word;
+    min-width: 0;
 }
 
-.bg-gray-400:hover {
-    background-color: #5c8068 !important;
-    transform: translateX(1px);
+.bg-gray-400 {
+    background-color: #6E9579 !important;
+    color: white !important;
 }
 
 /* Status Agenda Colors */
 .bg-green-500 {
     background-color: #10b981 !important;
     color: white !important;
-    font-size: 9px;
-    padding: 3px 5px;
-    margin-bottom: 2px;
-    border-radius: 3px;
-    line-height: 1.1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    max-width: 100%;
-    flex-shrink: 0;
-    word-break: break-word;
 }
 
 .bg-yellow-500 {
     background-color: #f59e0b !important;
     color: white !important;
-    font-size: 9px;
-    padding: 3px 5px;
-    margin-bottom: 2px;
-    border-radius: 3px;
-    line-height: 1.1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    max-width: 100%;
-    flex-shrink: 0;
-    word-break: break-word;
 }
 
 .bg-red-500 {
     background-color: #ef4444 !important;
     color: white !important;
-    font-size: 9px;
-    padding: 3px 5px;
-    margin-bottom: 2px;
-    border-radius: 3px;
-    line-height: 1.1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    max-width: 100%;
-    flex-shrink: 0;
-    word-break: break-word;
+}
+
+.bg-orange-500 {
+    background-color: #f97316 !important;
+    color: white !important;
+}
+
+/* Remove duplicate definitions below */
+
+.bg-gray-400:hover {
+    background-color: #5c8068 !important;
+    transform: translateX(1px);
 }
 
 .bg-green-500:hover {
@@ -410,6 +389,11 @@
     transform: translateX(1px);
 }
 
+.bg-orange-500:hover {
+    background-color: #ea580c !important;
+    transform: translateX(1px);
+}
+
 /* Container untuk agenda items */
 .agenda-container {
     flex: 1;
@@ -418,11 +402,21 @@
     flex-direction: column;
     gap: 2px;
     max-height: calc(100% - 25px);
+    width: 100%;
 }
 
 /* Batasi jumlah agenda yang ditampilkan */
-.agenda-container .bg-gray-400:nth-child(n+4) {
+.agenda-container .agenda-count-badge:nth-child(n+3) {
     display: none;
+}
+
+/* Tampilkan indikator jika ada lebih dari 2 agenda */
+.agenda-container:has(.agenda-count-badge:nth-child(3))::after {
+    content: "...";
+    font-size: 8px;
+    color: #6c757d;
+    text-align: center;
+    padding: 1px 0;
 }
 
 /* Tampilkan indikator jika ada agenda lebih dari 3 */
@@ -672,7 +666,30 @@
 }
 
 /* Responsive Month View */
+@media (max-width: 1024px) {
+    .calendar-main {
+        padding: 10px;
+    }
+
+    .month-year {
+        font-size: 20px;
+    }
+
+    .nav-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+    .calendar-day {
+        min-height: 100px;
+    }
+}
+
 @media (max-width: 768px) {
+    .calendar-main {
+        padding: 10px;
+    }
+
     .calendar-header {
         flex-direction: column;
         gap: 15px;
@@ -689,17 +706,24 @@
 
     .calendar-day {
         min-height: 80px;
-        padding: 8px;
+        padding: 5px;
+    }
+
+    .day-number {
+        font-size: 13px;
+        width: 26px;
+        height: 26px;
     }
 
     .agenda-item {
-        font-size: 10px;
+        font-size: 9px;
         padding: 3px 4px;
+        margin-bottom: 3px;
     }
 
     .calendar-weekdays>div {
         padding: 10px 5px;
-        font-size: 12px;
+        font-size: 11px;
     }
 
     /* Modal responsive */
@@ -731,22 +755,84 @@
     .btn-primary {
         width: 100%;
         padding: 14px 25px;
+        font-size: 0.9rem;
+    }
+
+    /* Sidebar for mobile */
+    #agendaSidebar {
+        width: 100%;
+        top: 0;
+        left: -100%;
+        height: 100%;
+    }
+
+    #agendaSidebar.active {
+        left: 0;
+        right: auto;
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
+    .calendar-main {
+        padding: 8px;
+        margin: 0 auto;
+        max-width: 100%;
+    }
+
+    .calendar-page {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
+    .calendar-header {
+        margin-bottom: 15px;
+    }
+
+    .month-year {
+        font-size: 18px;
+    }
+
+    .nav-btn {
+        width: 30px;
+        height: 30px;
+    }
+
     .calendar-day {
         min-height: 60px;
-        padding: 5px;
+        padding: 3px;
     }
 
     .day-number {
-        font-size: 12px;
+        font-size: 11px;
+        width: 22px;
+        height: 22px;
     }
 
     .agenda-item {
-        font-size: 9px;
+        font-size: 8px;
         padding: 2px 3px;
+    }
+
+    .calendar-weekdays>div {
+        padding: 8px 3px;
+        font-size: 10px;
+    }
+
+    /* Event badges di mobile */
+    .agenda-count-badge,
+    .bg-gray-400,
+    .bg-green-500,
+    .bg-yellow-500,
+    .bg-red-500,
+    .bg-orange-500 {
+        font-size: 8px !important;
+        padding: 3px 4px !important;
+        line-height: 1.1 !important;
+        border-radius: 3px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
     }
 
     /* Modal mobile kecil */
@@ -755,6 +841,7 @@
         height: 100%;
         border-radius: 0;
         max-height: 100vh;
+        margin: 0;
     }
 
     .modal-header {
@@ -762,35 +849,175 @@
     }
 
     .modal-body {
-        padding: 20px;
+        padding: 15px;
         max-height: calc(100vh - 100px);
     }
 
     .modal-title {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
     }
 
     .modal-body .input-group {
-        margin-bottom: 20px;
+        margin-bottom: 15px;
+    }
+
+    .modal-body .input-group label {
+        font-size: 0.9rem;
+    }
+
+    .modal-body input[type="text"],
+    .modal-body input[type="date"],
+    .modal-body input[type="time"],
+    .modal-body textarea,
+    .modal-body select {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .calendar-main {
+        padding: 8px 4px;
+        margin: 0 auto;
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .calendar-page {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    .calendar-header {
+        gap: 10px;
+    }
+
+    .month-year {
+        font-size: 16px;
+    }
+
+    .nav-btn {
+        width: 28px;
+        height: 28px;
+    }
+
+    .calendar-day {
+        min-height: 50px;
+        padding: 2px;
+    }
+
+    .day-number {
+        font-size: 10px;
+        width: 20px;
+        height: 20px;
+    }
+
+    .agenda-item {
+        font-size: 7px;
+        padding: 1px 2px;
+    }
+
+    .calendar-weekdays>div {
+        padding: 6px 2px;
+        font-size: 9px;
+    }
+
+    /* Event badges di mobile phone */
+    .agenda-count-badge,
+    .bg-gray-400,
+    .bg-green-500,
+    .bg-yellow-500,
+    .bg-red-500,
+    .bg-orange-500 {
+        font-size: 7px !important;
+        padding: 2px 3px !important;
+        line-height: 1.1 !important;
+        border-radius: 2px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        margin-bottom: 2px !important;
+    }
+
+    .calendar-day {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .day-number {
+        margin-bottom: 2px;
+    }
+
+    .agenda-container {
+        flex: 1;
+        overflow: visible;
+        gap: 1px;
     }
 }
 
 /* sidebar khusus show agenda */
 #agendaSidebar {
     position: fixed;
-    top: 0;
+    top: 72px;
     right: -400px;
     width: 400px;
-    height: 100%;
+    height: calc(100% - 72px);
     background: #fff;
     box-shadow: -2px 0 8px rgba(0,0,0,0.2);
     overflow-y: auto;
     transition: right 0.3s ease-in-out;
-    z-index: 100;
+    z-index: 10000;
     padding: 20px;
 }
 #agendaSidebar.active {
     right: 0;
+}
+
+/* Sidebar header agar terlihat rapi */
+#agendaSidebar .sidebar-header {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+#agendaSidebar .sidebar-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+#agendaSidebar .close-sidebar {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+#agendaSidebar .close-sidebar:hover {
+    background: #e9ecef;
+    color: #333;
+}
+
+#agendaSidebar .agenda-list {
+    padding: 20px;
 }
 .agenda-item {
     border-bottom: 1px solid #e5e7eb;
@@ -799,13 +1026,60 @@
 .agenda-header {
     display: flex;
     justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    gap: 10px;
+}
+
+/* Judul fleksibel & wrap */
+.agenda-item-title {
+    flex: 1;
+    white-space: normal;
+    word-wrap: break-word;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+/* Badge tetap di kanan, gak boleh ketendang */
+.agenda-item-status {
+    flex-shrink: 0;
+}
+
+/* Panah di kanan */
+.agenda-item-arrow {
+    flex-shrink: 0;
+    color: #6c757d;
+    display: inline-flex;
     align-items: center;
-    cursor: pointer;
+    margin-left: 10px;
+    font-size: 14px;
+    height: fit-content;
+}
+
+/* Warna status */
+.agenda-item-status.approved {
+    background: #22c55e33;
+    border: 1px solid #22c55e;
+    color: #15803d;
+}
+
+.agenda-item-status.pending {
+    background: #fef08a;
+    border: 1px solid #eab308;
+    color: #a16207;
+}
+
+.agenda-item-status.rejected {
+    background: #fecaca;
+    border: 1px solid #dc2626;
+    color: #991b1b;
 }
 .agenda-title {
     font-weight: 600;
-    color: #333;
+    color: #111827;  /* bukan #333 dan bukan inherit */
+    font-size: 14px;
 }
+
 .agenda-details {
     margin-top: 10px;
     font-size: 0.9rem;
@@ -848,4 +1122,106 @@
     display: flex;
     justify-content: center;
     margin-top: 4px;
+}
+
+.agenda-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.agenda-modal {
+    background: #fff;
+    width: 50%;
+    max-width: 700px;
+    border-radius: 12px;
+    padding: 20px;
+    animation: fadeIn .2s ease-in-out;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 12px;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.agenda-item {
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: #fff;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+    border: 1px solid #E5E7EB;
+}
+
+.agenda-item:hover {
+    background: #F7F8FA;
+}
+
+
+.agenda-clickable {
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.agenda-clickable:hover {
+    background: #f2f4f6;
+}
+
+#showAgendaModal .modal-content {
+    animation: fadeIn 0.3s ease;
+}
+
+#showAgendaModal .modal-body {
+    font-size: 0.95rem;
+    line-height: 1.45;
+}
+
+/* Ensure Bootstrap modal/backdrop overlay above header/sidebar */
+.modal-backdrop {
+    z-index: 11000 !important;
+}
+
+.modal {
+    z-index: 11001 !important;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Biar sidebar ngilang halus waktu modal muncul */
+#agendaSidebar {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+#agendaSidebar.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(40px);
+}
+#showAgendaDesc {
+    color: #374151 !important;
+    font-size: 14px;
+    white-space: pre-line; /* <— Biar line break tetap terlihat */
+}
+
+.bg-orange-500 {
+    background-color: #f97316 !important; /* warna oranye */
+    color: white !important;
 }
