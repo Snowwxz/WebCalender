@@ -52,6 +52,8 @@
             // Check if mobile view
             if (window.innerWidth <= 480) {
                 sidebar.classList.toggle('show');
+                // persist mobile/tablet sidebar open state
+                localStorage.setItem('sidebarShow', sidebar.classList.contains('show') ? '1' : '0');
                 // Add overlay on mobile
                 if (sidebar.classList.contains('show')) {
                     createOverlay();
@@ -64,6 +66,8 @@
             // Check if tablet view
             if (window.innerWidth <= 768) {
                 sidebar.classList.toggle('show');
+                // persist mobile/tablet sidebar open state
+                localStorage.setItem('sidebarShow', sidebar.classList.contains('show') ? '1' : '0');
                 // Also add overlay on tablet
                 if (sidebar.classList.contains('show')) {
                     createOverlay();
@@ -75,7 +79,13 @@
 
             // Desktop view - toggle collapsed state
             sidebar.classList.toggle('collapsed');
+<<<<<<< HEAD
 
+=======
+            // persist desktop collapsed state
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed') ? '1' : '0');
+            
+>>>>>>> a09645d248ab492f61e61504c83b6278e51ec799
             // Adjust main content margin based on sidebar state
             if (sidebar.classList.contains('collapsed')) {
                 mainContent.style.marginLeft = '70px';
@@ -89,6 +99,7 @@
             const sidebar = document.querySelector('.sidebar');
             if (window.innerWidth <= 768) {
                 sidebar.classList.remove('show');
+                localStorage.setItem('sidebarShow', '0');
                 removeOverlay();
             }
         }
@@ -102,6 +113,7 @@
             overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9998;';
             overlay.onclick = function() {
                 document.querySelector('.sidebar').classList.remove('show');
+                localStorage.setItem('sidebarShow', '0');
                 removeOverlay();
             };
             document.body.appendChild(overlay);
@@ -168,12 +180,49 @@
             }
         }
 
+        // Apply saved sidebar state based on viewport
+        function applySavedSidebarState() {
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const savedCollapsed = localStorage.getItem('sidebarCollapsed'); // '1' or '0'
+            const savedShow = localStorage.getItem('sidebarShow'); // '1' or '0'
+
+            if (window.innerWidth > 1024) {
+                // Desktop: use collapsed state
+                if (savedCollapsed === '1') {
+                    sidebar.classList.add('collapsed');
+                    sidebar.classList.remove('show');
+                    mainContent.style.marginLeft = '70px';
+                } else {
+                    sidebar.classList.remove('collapsed');
+                    sidebar.classList.remove('show');
+                    mainContent.style.marginLeft = '280px';
+                }
+            } else if (window.innerWidth <= 768) {
+                // Mobile/Tablet: use show state, default closed if none
+                if (savedShow === '1') {
+                    sidebar.classList.add('show');
+                } else {
+                    sidebar.classList.remove('show');
+                }
+            } else {
+                // Large tablet (769-1024) keep closed unless explicitly saved open
+                if (savedShow === '1') {
+                    sidebar.classList.add('show');
+                } else {
+                    sidebar.classList.remove('show');
+                }
+            }
+        }
+
         // Initialize mini calendar when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
             window.generateMiniCalendar();
 
             // Initialize responsive behavior
             handleResize();
+            // Re-apply saved state after initial sizing
+            applySavedSidebarState();
         });
 
         // Handle window resize
@@ -209,6 +258,9 @@
                 }
                 removeOverlay();
             }
+
+            // After base adjustments, re-apply saved state
+            applySavedSidebarState();
         }
 
         // Listen for window resize

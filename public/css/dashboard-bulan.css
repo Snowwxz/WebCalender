@@ -1191,6 +1191,15 @@
     line-height: 1.45;
 }
 
+/* Ensure Bootstrap modal/backdrop overlay above header/sidebar */
+.modal-backdrop {
+    z-index: 11000 !important;
+}
+
+.modal {
+    z-index: 11001 !important;
+}
+
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }

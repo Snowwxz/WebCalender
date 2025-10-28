@@ -12,6 +12,8 @@
     flex: 1;
     display: flex;
     height: calc(24 * 60px);
+    overflow-y: auto; /* Allow scrolling through 24 hours */
+    position: relative;
 }
 
 .time-column {
@@ -30,6 +32,12 @@
     display: flex;
     align-items: flex-start;
     justify-content: flex-end;
+}
+
+.day-column {
+    flex: 1;
+    height: calc(24 * 60px);
+    position: relative; /* Needed so absolute .event-item positions inside this column */
 }
 
 .hour-slot {
@@ -52,11 +60,11 @@
     width: calc(100% - 100px);
     background-color: #3a7bd5;
     color: white;
-    border-radius: 8px;
-    padding: 4px 8px;
-    font-size: 13px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    z-index: 1;
+    min-height: 24px; /* Ensure zero-duration events are visible */
 }
 
 .event-item.orange {
