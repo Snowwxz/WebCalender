@@ -47,6 +47,7 @@
     </div>
 
     <script>
+        
         const urlParams = new URLSearchParams(window.location.search);
         let selectedMonth = parseInt(urlParams.get('bulan')) || parseInt(urlParams.get('month')) || new Date().getMonth() + 1;
         let selectedYear = parseInt(urlParams.get('tahun')) || parseInt(urlParams.get('year')) || new Date().getFullYear();
