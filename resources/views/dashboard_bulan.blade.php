@@ -537,7 +537,7 @@
                         publicBadge.textContent = publicAgenda.length > 1 ?
                             `${publicAgenda.length} Kegiatan` :
                             publicAgenda[0].agenda_name;
-                        
+
                         publicBadge.addEventListener('click', (e) => {
                             e.stopPropagation();
                             showAgendaListSidebar(publicAgenda, `${year}-${month}-${day}`);
@@ -550,7 +550,7 @@
                         privateBadge.textContent = privateAgenda.length > 1 ?
                             `${privateAgenda.length} Kegiatan` :
                             privateAgenda[0].agenda_name;
-                        
+
                         privateBadge.addEventListener('click', (e) => {
                             e.stopPropagation();
                             showAgendaListSidebar(privateAgenda, `${year}-${month}-${day}`);

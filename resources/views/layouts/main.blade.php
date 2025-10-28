@@ -16,8 +16,18 @@
 </head>
 <body>
     <div class="app-container">
-        {{-- Header --}}
-        @include('layouts.header')
+        {{-- Header (dinamis sesuai role) --}}
+        @auth
+            @if (Auth::user()->role === 'superadmin')
+                @include('layouts.header')
+            @elseif (Auth::user()->role === 'admin')
+                @include('layouts.header')
+            @else
+                @include('layouts.header')
+            @endif
+        @else
+            @include('layouts.header')
+        @endauth
 
         <div class="main-wrapper">
             {{-- Sidebar --}}
@@ -30,6 +40,7 @@
         </div>
     </div>
 
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Toggle sidebar
@@ -37,7 +48,7 @@
             const sidebar = document.querySelector('.sidebar');
             const mainContent = document.querySelector('.main-content');
             const toggleBtn = document.querySelector('.sidebar-toggle');
-            
+
             // Check if mobile view
             if (window.innerWidth <= 480) {
                 sidebar.classList.toggle('show');
@@ -51,7 +62,7 @@
                 }
                 return;
             }
-            
+
             // Check if tablet view
             if (window.innerWidth <= 768) {
                 sidebar.classList.toggle('show');
@@ -65,12 +76,16 @@
                 }
                 return;
             }
-            
+
             // Desktop view - toggle collapsed state
             sidebar.classList.toggle('collapsed');
+<<<<<<< HEAD
+
+=======
             // persist desktop collapsed state
             localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed') ? '1' : '0');
             
+>>>>>>> a09645d248ab492f61e61504c83b6278e51ec799
             // Adjust main content margin based on sidebar state
             if (sidebar.classList.contains('collapsed')) {
                 mainContent.style.marginLeft = '70px';
@@ -92,7 +107,7 @@
         // Create overlay for mobile sidebar
         function createOverlay() {
             if (document.getElementById('sidebar-overlay')) return;
-            
+
             const overlay = document.createElement('div');
             overlay.id = 'sidebar-overlay';
             overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9998;';
@@ -203,18 +218,18 @@
         // Initialize mini calendar when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
             window.generateMiniCalendar();
-            
+
             // Initialize responsive behavior
             handleResize();
             // Re-apply saved state after initial sizing
             applySavedSidebarState();
         });
-        
+
         // Handle window resize
         function handleResize() {
             const sidebar = document.querySelector('.sidebar');
             const mainContent = document.querySelector('.main-content');
-            
+
             if (window.innerWidth <= 480) {
                 // Mobile: hide sidebar by default
                 sidebar.classList.remove('show');
@@ -247,7 +262,7 @@
             // After base adjustments, re-apply saved state
             applySavedSidebarState();
         }
-        
+
         // Listen for window resize
         window.addEventListener('resize', handleResize);
 

@@ -47,12 +47,18 @@
     padding: 2px;
 }
 
+.day-column {
+    position: relative;
+    height: 1440px;
+    /* 24 jam × 60 menit (1px per menit) */
+}
+
 .event-item {
     position: absolute;
-    left: 2px;
-    right: 2px;
-    padding: 4px 8px;
-    border-radius: 4px;
+    left: 80px;
+    /* biar gak nabrak jam di kiri */
+    width: calc(100% - 100px);
+    background-color: #3a7bd5;
     color: white;
     font-size: 12px;
     font-weight: 500;
@@ -69,10 +75,6 @@
     background: #4caf50;
 }
 
-.event-time {
-    font-size: 10px;
-    opacity: 0.9;
-}
 
 .event-title {
     font-weight: 600;
@@ -155,6 +157,7 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+
 /* Responsive Day View */
 @media (max-width: 1024px) {
     .day-view-main {
@@ -185,24 +188,18 @@
         font-size: 11px;
     }
 
-    .day-column {
-        height: calc(24 * 55px);
-    }
 
     .hour-slot {
         height: 55px;
     }
 
-    .event-item {
-        font-size: 11px;
-        padding: 3px 6px;
-    }
 }
 
 @media (max-width: 768px) {
     .day-view-main {
         padding: 10px;
     }
+
     .calendar-header {
         flex-direction: column;
         gap: 15px;
@@ -228,18 +225,11 @@
         font-size: 11px;
     }
 
-    .day-column {
-        height: calc(24 * 50px);
-    }
 
     .hour-slot {
         height: 50px;
     }
 
-    .event-item {
-        font-size: 11px;
-        padding: 3px 6px;
-    }
 
     .month-year {
         font-size: 18px;
@@ -289,24 +279,17 @@
         font-size: 10px;
     }
 
-    .day-column {
-        height: calc(24 * 45px);
-    }
-
     .hour-slot {
         height: 45px;
     }
 
-    .event-item {
-        font-size: 10px;
-        padding: 2px 4px;
-    }
 }
 
 @media (max-width: 480px) {
     .day-view-main {
         padding: 3px;
     }
+
     .calendar-header {
         padding: 0 10px;
     }
@@ -339,32 +322,10 @@
         font-size: 10px;
     }
 
-    .day-column {
-        height: calc(24 * 40px);
-    }
 
     .hour-slot {
         height: 40px;
     }
 
-    .event-item {
-        font-size: 10px;
-        padding: 2px 4px;
-    }
-
-    .event-item {
-    position: absolute;
-    left: 4px;
-    right: 4px;
-    border-radius: 6px;
-    padding: 4px 6px;
-    font-size: 12px;
-    color: white;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    z-index: 2;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
 
 }
