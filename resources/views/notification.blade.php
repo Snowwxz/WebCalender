@@ -76,18 +76,17 @@
                     }
 
                 @endphp
-
-                <!-- 🔍 Search bar -->
-                <div class="search-bar" style="margin: 20px auto; max-width: 400px; text-align:center;">
+                
+                <div class="search-bar">
                     <form method="GET" action="{{ route('agenda.notification') }}">
                         <input type="hidden" name="status" value="{{ request('status', 'all') }}">
-                        <input type="text" name="q" placeholder="Cari agenda, instansi, atau deskripsi..."
-                            value="{{ request('q') }}"
-                            style="width: 80%; padding: 8px 10px; border-radius: 8px; border: 1px solid #ccc;">
-                        <button type="submit"
-                            style="padding: 8px 14px; border: none; border-radius: 8px; background-color: #007bff; color: white;">
-                            <i class="fas fa-search"></i>
-                        </button>
+                        <div class="search-input-wrap">
+                            <input type="text" name="q" placeholder="Cari agenda, instansi, atau deskripsi..."
+                                value="{{ request('q') }}">
+                            <button type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
                     </form>
                 </div>
 
@@ -114,13 +113,16 @@
                                         @switch($agenda->status)
                                             @case('pending')
                                                 Menunggu
-                                                @break
+                                            @break
+
                                             @case('approved')
                                                 Disetujui
-                                                @break
+                                            @break
+
                                             @case('rejected')
                                                 Ditolak
-                                                @break
+                                            @break
+
                                             @default
                                                 {{ ucfirst($agenda->status) }}
                                         @endswitch
@@ -305,4 +307,5 @@
     </script>
 
 </body>
+
 </html>

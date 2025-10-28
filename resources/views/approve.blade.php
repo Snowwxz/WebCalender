@@ -61,11 +61,18 @@
                         </div>
                     </div>
 
-                    <form class="approval-search" method="GET" action="{{ route('approve') }}">
-                        <input type="hidden" name="status" value="{{ $status }}" />
-                        <i class="fas fa-search"></i>
-                        <input type="text" name="q" placeholder="Search" value="{{ request('q') }}" />
-                    </form>
+                    <div class="search-bar">
+                        <form method="GET" action="{{ route('approve') }}">
+                            <input type="hidden" name="status" value="{{ request('status', 'all') }}">
+                            <div class="search-input-wrap">
+                                <input type="text" name="q" placeholder="Cari agenda, instansi, atau deskripsi..."
+                                    value="{{ request('q') }}">
+                                <button type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
 
                 @if ($agendas->isEmpty())
@@ -90,13 +97,16 @@
                                         @switch($agenda->status)
                                             @case('pending')
                                                 Menunggu
-                                                @break
+                                            @break
+
                                             @case('approved')
                                                 Disetujui
-                                                @break
+                                            @break
+
                                             @case('rejected')
                                                 Ditolak
-                                                @break
+                                            @break
+
                                             @default
                                                 {{ ucfirst($agenda->status) }}
                                         @endswitch

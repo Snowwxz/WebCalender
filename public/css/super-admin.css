@@ -409,6 +409,13 @@ body .app-container > .main-content {
     margin-top: 70px;
 }
 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+#editModal input,
+#editModal label {
+    font-family: 'Poppins', sans-serif !important;
+}
+
 @media (max-width: 768px) {
     .super-admin-page {
         padding: 15px;
