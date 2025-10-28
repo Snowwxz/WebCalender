@@ -19,26 +19,33 @@ class AgendaController extends Controller
         $year = $request->query('year', date('Y'));
         $month = $request->query('month', date('m'));
 
-        $userId = Auth::user()->id_user;
+        $user = Auth::user(); // ambil user login
+        $userId = $user->id_user;
 
-        // 🔥 Hanya ambil agenda yang sudah disetujui admin
+        // 🔹 Base query
         $query = Agenda::with(['user', 'approver', 'unit'])
             ->where('status', 'approved')
-            ->where(function ($q) use ($userId) {
-                $q->where('is_public', 1) // publik, semua bisa lihat
-                    ->orWhere('id_user', $userId); // private tapi milik sendiri
-            })
             ->orderBy('date', 'desc');
+
+        // 🔹 Kalau bukan superadmin, batasi hanya publik atau milik sendiri
+        if ($user->role !== 'superadmin') {
+            $query->where(function ($q) use ($userId) {
+                $q->where('is_public', 1)
+                    ->orWhere('id_user', $userId);
+            });
+        }
 
         $agenda = $query->get();
         $units = Unit::orderBy('unit_name', 'asc')->get();
 
+        // 🔹 Response JSON (misal untuk AJAX)
         if ($request->wantsJson() || $request->isJson()) {
             return response()->json($agenda);
         }
 
         return view('dashboard_bulan', compact('agenda', 'year', 'month', 'units'));
     }
+
 
 
     /**
