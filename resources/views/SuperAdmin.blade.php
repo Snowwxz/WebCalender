@@ -19,18 +19,23 @@
             <div class="approval-page">
                 <div class="approval-header">
                     <div class="title-wrap">
-                        <h1 class="page-title">Daftar User</h1>
+                        <h1 class="page-title">Daftar User dan OPD</h1>
                         <p class="page-subtitle">Kelola akun pengguna dan organisasi perangkat daerah</p>
+                    </div>
+                </div>
+
+                <div class="search-section">
+                    <div class="search-box">
+                        <input type="text" id="globalSearch" class="search-input" placeholder="Cari User ataupun OPD...">
+                        <button class="search-btn"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
 
                 <!-- Tabel User -->
                 <div class="admin-card">
-                    <div class="admin-table-header">
-                        <div class="search-container" style="margin-bottom: 12px;">
-                            <i class="fas fa-search search-icon"></i>
-                            <input type="text" id="searchInput" placeholder="Search" class="search-input">
-                        </div>
+                    <div class="section-title">
+                        <i class="fas fa-users"></i>
+                        <span>Daftar User</span>
                     </div>
 
                     <div class="admin-table-wrap">
@@ -250,6 +255,27 @@
             </form>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const globalSearch = document.getElementById('globalSearch');
+
+            globalSearch.addEventListener('keyup', function() {
+                const query = globalSearch.value.toLowerCase();
+
+                // Semua tabel yang ingin difilter
+                const allTables = document.querySelectorAll('table');
+
+                allTables.forEach(table => {
+                    const rows = table.querySelectorAll('tbody tr');
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(query) ? '' : 'none';
+                    });
+                });
+            });
+        });
+    </script>
 
     <script>
         // === Modal Edit User ===

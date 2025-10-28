@@ -48,7 +48,8 @@
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        let selectedMonth = parseInt(urlParams.get('bulan')) || parseInt(urlParams.get('month')) || new Date().getMonth() + 1;
+        let selectedMonth = parseInt(urlParams.get('bulan')) || parseInt(urlParams.get('month')) || new Date().getMonth() +
+            1;
         let selectedYear = parseInt(urlParams.get('tahun')) || parseInt(urlParams.get('year')) || new Date().getFullYear();
 
         let currentDate = new Date(selectedYear, selectedMonth - 1, 1);
@@ -250,6 +251,14 @@
                     const sidebar = document.getElementById('agendaSidebar');
                     if (sidebar) sidebar.classList.remove('hidden');
                 });
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const message = localStorage.getItem('logoutSuccess');
+            if (message) {
+                showSuccessToast(message);
+                localStorage.removeItem('logoutSuccess'); // hapus supaya nggak muncul lagi nanti
             }
         });
     </script>
