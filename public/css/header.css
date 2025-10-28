@@ -274,6 +274,19 @@
     position: relative;
 }
 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+.user-dropdown input[type="checkbox"],
+.user-dropdown input[type="radio"] {
+    display: none;
+}
+
+.user-dropdown .dropdown-item {
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 500;
+    color: #374151;
+}
+
 .profile-image {
     width: 100%;
     height: 100%;

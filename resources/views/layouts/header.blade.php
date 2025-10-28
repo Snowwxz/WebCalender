@@ -9,14 +9,6 @@
         </div>
     </div>
 
-    <div class="header-center">
-        @if (!request()->routeIs('approve'))
-            <div class="search-container">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" placeholder="Search" class="search-input">
-            </div>
-        @endif
-    </div>
 
 
     <div class="header-right">
@@ -25,11 +17,15 @@
             @if (!request()->routeIs('superadmin*'))
                 <div class="notification-bell">
                     @if (Auth::user()->role === 'admin')
-                        <a href="{{ route('approve') }}" class="bell-link" title="Kelola Pengajuan Agenda">
+                        <a href="{{ route('approve') }}"
+                            class="bell-link {{ request()->routeIs('approve') ? 'active' : '' }}"
+                            title="Notifikasi Agenda Saya">
                             <i class="fas fa-bell"></i>
                         </a>
                     @else
-                        <a href="{{ route('agenda.notification') }}" class="bell-link" title="Notifikasi Agenda Saya">
+                        <a href="{{ route('agenda.notification') }}"
+                            class="bell-link {{ request()->routeIs('agenda.notification') ? 'active' : '' }}"
+                            title="Notifikasi Agenda Saya">
                             <i class="fas fa-bell"></i>
                         </a>
                     @endif
