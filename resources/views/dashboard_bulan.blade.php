@@ -5,7 +5,7 @@
 @endpush
 
 @section('content')
-    @include('show_agenda_modal')
+    @include('show_agenda_modal_dashboard')
     <div class="calendar-page">
         <div class="calendar-main">
             <div class="calendar-header">
@@ -516,32 +516,79 @@
                 if (filteredAgenda.length > 0) {
                     const agendaContainer = document.createElement("div");
                     agendaContainer.className = "agenda-container";
-                    const badge = document.createElement("div");
+
+                    // Pisahkan agenda publik dan privasi
+                    const publicAgenda = filteredAgenda.filter(a => a.is_public == 1);
+                    const privateAgenda = filteredAgenda.filter(a => a.is_public == 0);
 
                     const hasApproved = filteredAgenda.some(a => a.status === 'approved');
                     const hasPending = filteredAgenda.some(a => a.status === 'pending');
                     const hasRejected = filteredAgenda.some(a => a.status === 'rejected');
 
                     let badgeColor = "bg-gray-400";
-
                     if (hasRejected) badgeColor = "bg-red-500";
                     else if (hasPending) badgeColor = "bg-yellow-500";
-                    else if (hasApproved) {
+
+                    // Jika approved dan ada publik DAN privasi → tampilkan badge terpisah
+                    if (hasApproved && publicAgenda.length > 0 && privateAgenda.length > 0) {
+                        // Badge publik
+                        const publicBadge = document.createElement("div");
+                        publicBadge.className = `agenda-count-badge bg-green-500`;
+                        publicBadge.textContent = publicAgenda.length > 1 ?
+                            `${publicAgenda.length} Kegiatan` :
+                            publicAgenda[0].agenda_name;
+                        
+                        publicBadge.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            showAgendaListSidebar(publicAgenda, `${year}-${month}-${day}`);
+                        });
+                        agendaContainer.appendChild(publicBadge);
+
+                        // Badge privasi
+                        const privateBadge = document.createElement("div");
+                        privateBadge.className = `agenda-count-badge bg-orange-500`;
+                        privateBadge.textContent = privateAgenda.length > 1 ?
+                            `${privateAgenda.length} Kegiatan` :
+                            privateAgenda[0].agenda_name;
+                        
+                        privateBadge.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            showAgendaListSidebar(privateAgenda, `${year}-${month}-${day}`);
+                        });
+                        agendaContainer.appendChild(privateBadge);
+                    }
+                    // Jika approved tapi hanya publik ATAU privasi saja
+                    else if (hasApproved && filteredAgenda.length > 0) {
+                        const badge = document.createElement("div");
                         const isPublic = filteredAgenda.some(a => a.is_public == 1);
-                        badgeColor = isPublic ? "bg-green-500" : "bg-orange-500";
+                        badge.className = `agenda-count-badge ${isPublic ? "bg-green-500" : "bg-orange-500"}`;
+                        badge.textContent = filteredAgenda.length > 1 ?
+                            `${filteredAgenda.length} Kegiatan` :
+                            filteredAgenda[0].agenda_name;
+
+                        badge.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            showAgendaListSidebar(filteredAgenda, `${year}-${month}-${day}`);
+                        });
+
+                        agendaContainer.appendChild(badge);
+                    }
+                    // Jika tidak ada approved (pending/rejected)
+                    else if (!hasApproved && filteredAgenda.length > 0) {
+                        const badge = document.createElement("div");
+                        badge.className = `agenda-count-badge ${badgeColor}`;
+                        badge.textContent = filteredAgenda.length > 1 ?
+                            `${filteredAgenda.length} Kegiatan` :
+                            filteredAgenda[0].agenda_name;
+
+                        badge.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            showAgendaListSidebar(filteredAgenda, `${year}-${month}-${day}`);
+                        });
+
+                        agendaContainer.appendChild(badge);
                     }
 
-                    badge.className = `agenda-count-badge ${badgeColor}`;
-                    badge.textContent = filteredAgenda.length > 1 ?
-                        `${filteredAgenda.length} Kegiatan` :
-                        filteredAgenda[0].agenda_name;
-
-                    badge.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        showAgendaListSidebar(filteredAgenda, `${year}-${month}-${day}`);
-                    });
-
-                    agendaContainer.appendChild(badge);
                     dayElement.appendChild(agendaContainer);
                 }
 
@@ -567,11 +614,8 @@
 
         function openShowAgendaModal(data) {
             document.getElementById('showAgendaName').innerText = data.agenda_name ?? '-';
-
-            // ✅ Format tanggal jadi: 16 Oktober 2025
             document.getElementById('showAgendaDate').innerText = formatDate(data.date);
 
-            // ✅ Format waktu
             const timeText = (data.start_time && data.end_time) ?
                 `${data.start_time} - ${data.end_time}` :
                 (data.start_time ?? '-');
@@ -581,33 +625,30 @@
             document.getElementById('showAgendaPIC').innerText = data.person_in_charge ?? '-';
             document.getElementById('showAgendaDesc').innerText = data.description ?? '-';
 
-            // involved_institution and unit
             const involved = data.involved_institution ?? '-';
             const unitName = data.unit && data.unit.unit_name ? data.unit.unit_name : '-';
-            // Optionally show both in description area or append to location
-            // If you want a dedicated field (add to blade), set element by id, e.g. showAgendaUnit/showAgendaInvolved
+
             const unitEl = document.getElementById('showAgendaUnit');
             if (unitEl) unitEl.innerText = unitName;
 
             const involvedEl = document.getElementById('showAgendaInvolved');
             if (involvedEl) involvedEl.innerText = involved;
 
-            // is_public label (if you added UI spot)
             const accessEl = document.getElementById('showAgendaAccess');
-            if (accessEl) accessEl.innerText = data.is_public_label ?? (data.is_public == 1 ? 'Publik' : 'Privasi');
+            if (accessEl) accessEl.innerText = data.is_public == 1 ? 'Publik' : 'Privasi';
 
-            // ✅ Status badge rapi
             const statusEl = document.getElementById('showAgendaStatus');
-            statusEl.innerText =
-                data.status === 'approved' ? 'Disetujui' :
-                data.status === 'pending' ? 'Menunggu' :
-                data.status === 'rejected' ? 'Ditolak' : 'Tidak Diketahui';
+            if (statusEl) {
+                statusEl.innerText =
+                    data.status === 'approved' ? 'Disetujui' :
+                    data.status === 'pending' ? 'Menunggu' :
+                    data.status === 'rejected' ? 'Ditolak' : 'Tidak Diketahui';
 
-            statusEl.className = "badge rounded-pill px-3 py-2 text-white " +
-                (data.status === 'approved' ? 'bg-success' :
-                    data.status === 'rejected' ? 'bg-danger' : 'bg-warning text-dark');
+                statusEl.className = "badge rounded-pill px-3 py-2 text-white " +
+                    (data.status === 'approved' ? 'bg-success' :
+                        data.status === 'rejected' ? 'bg-danger' : 'bg-warning text-dark');
+            }
 
-            // ✅ Bootstrap modal init
             new bootstrap.Modal(document.getElementById('showAgendaModal')).show();
         }
     </script>
@@ -678,38 +719,13 @@
 
                 const header = document.createElement("div");
                 header.className = "agenda-header";
-                            header.innerHTML = `
-                <span class="agenda-item-title">${item.agenda_name}</span>
-                <span class="agenda-item-status ${item.status}">
-                    ${item.status === 'approved' ? '✔ Disetujui' :
-                    item.status === 'pending' ? '⏳ Menunggu' :
-                    item.status === 'rejected' ? '❌ Ditolak' : 'Status tidak dikenal'}
-                </span>
-            `;
+                header.innerHTML = `
+                    <span class="agenda-item-title">${item.agenda_name}</span>
+                    <span class="agenda-item-arrow"><i class="fas fa-chevron-right"></i></span>
+                `;
 
-                // ✅ YANG TADI HILANG (INI KUNCI NYA)
                 itemDiv.appendChild(header);
-                const details = document.createElement("div");
-                details.className = "agenda-details hidden";
-                details.innerHTML = `
-    <p><i class="fas fa-calendar"></i> ${formatDate(item.date)}</p>
-    <p><i class="fas fa-clock"></i> ${item.start_time} - ${item.end_time}</p>
-    <p><i class="fas fa-map-marker-alt"></i> ${item.location}</p>
-    <p><i class="fas fa-user-tie"></i> Penanggung jawab: ${item.person_in_charge || '-'}</p>
-    <p><i class="fas fa-building"></i> Instansi pengaju: ${item.institusi_pengaju || '-'}</p>
-    <p><i class="fas fa-users"></i> Instansi diundang: ${item.involved_institution || '-'}</p>
-    <p>
-    <i class="fas ${item.is_public == 1 ? 'fa-eye' : 'fa-lock'}"></i>
-    Status:
-    <span style="font-weight:600; color:${item.is_public == 1 ? 'green' : '#ff9800'};">
-        ${item.is_public == 1 ? 'Publik' : 'Privasi'}
-    </span>
-</p>
-    <p><i class="fas fa-align-left"></i> Deskripsi: ${item.description || '-'}</p>
-`;
 
-
-                // **THIS IS THE IMPORTANT PART**
                 itemDiv.addEventListener("click", () => {
                     openShowAgendaModal(item);
                 });

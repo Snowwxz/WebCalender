@@ -8,10 +8,11 @@ use Illuminate\Support\Facades\Cache;
 
 class LandingController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-
-        return view('landing');
+        $month = $request->query('month');
+        $year = $request->query('year', date('Y'));
+        return view('landing', ['month' => $month, 'year' => (int)$year]);
     }
 
     // ambil semua agenda dalam satu bulan
@@ -24,12 +25,13 @@ class LandingController extends Controller
         $cacheKey = "agenda_month_{$year}_{$month}";
         $agenda = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($year, $month) {
             return Agenda::query()
-                ->select('id', 'judul', 'tanggal', 'lokasi')
-                ->whereYear('tanggal', $year)
-                ->whereMonth('tanggal', $month)
+                ->with(['unit'])
+                ->select('id_agenda', 'agenda_name', 'date', 'location', 'description', 'start_time', 'end_time', 'person_in_charge', 'involved_institution', 'is_public', 'status', 'id_unit')
+                ->whereYear('date', $year)
+                ->whereMonth('date', $month)
                 ->where('status', 'approved')
-                ->where('visibility', 'public')
-                ->orderBy('tanggal', 'asc')
+                ->where('is_public', 1)
+                ->orderBy('date', 'asc')
                 ->get();
         });
 
@@ -40,7 +42,7 @@ class LandingController extends Controller
     // ambil semua agenda di tanggal tertentu (untuk modal show)
     public function getByDate($date)
     {
-        if (!strtotime($date)) {
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
             return response()->json(['error' => 'Format tanggal tidak valid.'], 400);
         }
 
@@ -48,11 +50,12 @@ class LandingController extends Controller
 
         $agenda = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($date) {
             return Agenda::query()
-                ->select('id', 'judul', 'tanggal', 'lokasi', 'jam_mulai', 'jam_selesai', 'deskripsi')
-                ->whereDate('tanggal', $date)
+                ->with(['unit'])
+                ->select('id_agenda', 'agenda_name', 'date', 'location', 'start_time', 'end_time', 'description', 'person_in_charge', 'involved_institution', 'is_public', 'status', 'id_unit')
+                ->whereDate('date', $date)
                 ->where('status', 'approved')
-                ->where('visibility', 'public')
-                ->orderBy('jam_mulai', 'asc')
+                ->where('is_public', 1)
+                ->orderBy('start_time', 'asc')
                 ->get();
         });
 
@@ -69,11 +72,11 @@ class LandingController extends Controller
         $cacheKey = "agenda_year_{$year}";
 
         $agenda = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($year) {
-            return Agenda::select('id', 'judul', 'tanggal', 'lokasi')
-                ->whereYear('tanggal', $year)
+            return Agenda::select('id_agenda', 'agenda_name', 'date', 'location')
+                ->whereYear('date', $year)
                 ->where('status', 'approved')
-                ->where('visibility', 'public')
-                ->orderBy('tanggal', 'asc')
+                ->where('is_public', 1)
+                ->orderBy('date', 'asc')
                 ->get();
         });
 
@@ -92,15 +95,15 @@ class LandingController extends Controller
         }
 
         $agenda = Agenda::query()
-            ->select('id', 'judul', 'tanggal', 'lokasi')
+            ->select('id_agenda', 'agenda_name', 'date', 'location')
             ->where('status', 'approved')
-            ->where('visibility', 'public')
+            ->where('is_public', 1)
             ->where(function ($query) use ($keyword) {
-                $query->where('judul', 'like', "%{$keyword}%")
-                    ->orWhere('lokasi', 'like', "%{$keyword}%")
-                    ->orWhereRaw("DATE_FORMAT(tanggal, '%Y-%m-%d') LIKE ?", ["%{$keyword}%"]);
+                $query->where('agenda_name', 'like', "%{$keyword}%")
+                    ->orWhere('location', 'like', "%{$keyword}%")
+                    ->orWhereRaw("DATE_FORMAT(date, '%Y-%m-%d') LIKE ?", ["%{$keyword}%"]);
             })
-            ->orderBy('tanggal', 'asc')
+            ->orderBy('date', 'asc')
             ->limit(50) // batasi biar gak berat
             ->get();
 

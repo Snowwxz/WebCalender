@@ -861,11 +861,16 @@
 /* Badge tetap di kanan, gak boleh ketendang */
 .agenda-item-status {
     flex-shrink: 0;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 0.78rem;
+}
+
+/* Panah di kanan */
+.agenda-item-arrow {
+    flex-shrink: 0;
+    color: #6c757d;
     display: inline-flex;
     align-items: center;
+    margin-left: 10px;
+    font-size: 14px;
     height: fit-content;
 }
 

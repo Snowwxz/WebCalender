@@ -16,7 +16,8 @@ Route::get('/', [LandingController::class, 'index'])->name('landing.index');
 
 Route::get('/landing', function (Request $request) {
     $month = $request->query('month');
-    return view('landing', ['month' => $month]);
+    $year = $request->query('year', date('Y'));
+    return view('landing', ['month' => $month, 'year' => (int)$year]);
 });
 
 Route::get('/hari', function (Request $request) {
@@ -49,7 +50,6 @@ Route::get('/api/agenda/year/{year}', [LandingController::class, 'getByYear'])
 
 Route::get('/api/agenda/search', [LandingController::class, 'search'])
     ->name('agenda.search');
-
 
 // 🔒 DASHBOARD (LOGIN DIBUTUHKAN)
 Route::middleware(['auth', 'verified'])->group(function () {
