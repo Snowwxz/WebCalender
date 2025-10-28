@@ -79,13 +79,8 @@
 
             // Desktop view - toggle collapsed state
             sidebar.classList.toggle('collapsed');
-<<<<<<< HEAD
-
-=======
             // persist desktop collapsed state
             localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed') ? '1' : '0');
-            
->>>>>>> a09645d248ab492f61e61504c83b6278e51ec799
             // Adjust main content margin based on sidebar state
             if (sidebar.classList.contains('collapsed')) {
                 mainContent.style.marginLeft = '70px';
