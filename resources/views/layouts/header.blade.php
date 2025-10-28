@@ -21,12 +21,18 @@
                         class="bell-link {{ request()->routeIs('superadmin.page') ? 'active' : '' }}"
                         title="Halaman Superadmin">
                         <i class="fas fa-bell"></i>
+                        @if ($notificationCount > 0)
+                            <span class="notification-badge">{{ $notificationCount }}</span>
+                        @endif
                     </a>
                 @elseif (Auth::user()->role === 'admin')
                     {{-- 👉 Lonceng admin --}}
                     <a href="{{ route('approve') }}" class="bell-link {{ request()->routeIs('approve') ? 'active' : '' }}"
                         title="Notifikasi Agenda Saya">
                         <i class="fas fa-bell"></i>
+                        @if ($notificationCount > 0)
+                            <span class="notification-badge">{{ $notificationCount }}</span>
+                        @endif
                     </a>
                 @else
                     {{-- 👉 Lonceng user/OPD --}}
@@ -34,6 +40,9 @@
                         class="bell-link {{ request()->routeIs('agenda.notification') ? 'active' : '' }}"
                         title="Notifikasi Agenda Saya">
                         <i class="fas fa-bell"></i>
+                        @if ($notificationCount > 0)
+                            <span class="notification-badge">{{ $notificationCount }}</span>
+                        @endif
                     </a>
                 @endif
             </div>

@@ -191,7 +191,7 @@ class AgendaController extends Controller
 
         if (Auth::user()->role === 'admin') {
             $agenda->status = $request->status;
-            $agenda->approved_by = ($request->status === 'approved') ? Auth::id() : null;
+            $agenda->approved_by = ($request->status === 'approved') ? Auth::id() : 0;
             $agenda->save();
 
             return redirect()->back()->with('success', 'Status agenda berhasil diperbarui!');
