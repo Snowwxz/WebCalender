@@ -1,5 +1,8 @@
 <header class="header">
     <div class="header-left">
+        <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle Sidebar">
+            <i class="fas fa-bars"></i>
+        </button>
         <div class="logo-section">
             <img src="{{ asset('images/logo.png') }}" alt="Logo Pemkot Samarinda" class="logo-img">
             <span class="logo-text">SiKota</span>

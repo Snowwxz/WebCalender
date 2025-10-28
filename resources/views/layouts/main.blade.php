@@ -36,13 +36,33 @@
         function toggleSidebar() {
             const sidebar = document.querySelector('.sidebar');
             const mainContent = document.querySelector('.main-content');
+            const toggleBtn = document.querySelector('.sidebar-toggle');
             
             // Check if mobile view
             if (window.innerWidth <= 480) {
                 sidebar.classList.toggle('show');
+                // Add overlay on mobile
+                if (sidebar.classList.contains('show')) {
+                    createOverlay();
+                } else {
+                    removeOverlay();
+                }
                 return;
             }
             
+            // Check if tablet view
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('show');
+                // Also add overlay on tablet
+                if (sidebar.classList.contains('show')) {
+                    createOverlay();
+                } else {
+                    removeOverlay();
+                }
+                return;
+            }
+            
+            // Desktop view - toggle collapsed state
             sidebar.classList.toggle('collapsed');
             
             // Adjust main content margin based on sidebar state
@@ -50,6 +70,37 @@
                 mainContent.style.marginLeft = '70px';
             } else {
                 mainContent.style.marginLeft = '280px';
+            }
+        }
+
+        // Close sidebar on mobile/tablet
+        function closeSidebarOnMobile() {
+            const sidebar = document.querySelector('.sidebar');
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('show');
+                removeOverlay();
+            }
+        }
+
+        // Create overlay for mobile sidebar
+        function createOverlay() {
+            if (document.getElementById('sidebar-overlay')) return;
+            
+            const overlay = document.createElement('div');
+            overlay.id = 'sidebar-overlay';
+            overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9998;';
+            overlay.onclick = function() {
+                document.querySelector('.sidebar').classList.remove('show');
+                removeOverlay();
+            };
+            document.body.appendChild(overlay);
+        }
+
+        // Remove overlay
+        function removeOverlay() {
+            const overlay = document.getElementById('sidebar-overlay');
+            if (overlay) {
+                overlay.remove();
             }
         }
 
@@ -122,16 +173,30 @@
             if (window.innerWidth <= 480) {
                 // Mobile: hide sidebar by default
                 sidebar.classList.remove('show');
+                sidebar.classList.remove('collapsed');
                 mainContent.style.marginLeft = '0';
+                removeOverlay();
             } else if (window.innerWidth <= 768) {
-                // Tablet: collapsed sidebar
-                sidebar.classList.add('collapsed');
+                // Tablet: hide sidebar by default
+                sidebar.classList.remove('collapsed');
                 sidebar.classList.remove('show');
-                mainContent.style.marginLeft = '70px';
+                mainContent.style.marginLeft = '0';
+                removeOverlay();
+            } else if (window.innerWidth <= 1024) {
+                // Large tablet: hide sidebar by default
+                sidebar.classList.remove('show');
+                mainContent.style.marginLeft = '0';
+                removeOverlay();
             } else {
-                // Desktop: full sidebar
-                sidebar.classList.remove('collapsed', 'show');
-                mainContent.style.marginLeft = '280px';
+                // Desktop: check if collapsed or not
+                const isCollapsed = sidebar.classList.contains('collapsed');
+                sidebar.classList.remove('show');
+                if (isCollapsed) {
+                    mainContent.style.marginLeft = '70px';
+                } else {
+                    mainContent.style.marginLeft = '280px';
+                }
+                removeOverlay();
             }
         }
         
