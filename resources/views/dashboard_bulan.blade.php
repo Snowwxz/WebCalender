@@ -536,7 +536,7 @@
 
                     badge.className = `agenda-count-badge ${badgeColor}`;
                     badge.textContent = filteredAgenda.length > 1 ?
-                        `${filteredAgenda.length} Kegiatan`:
+                        `${filteredAgenda.length} Kegiatan` :
                         filteredAgenda[0].agenda_name;
 
                     badge.addEventListener('click', (e) => {

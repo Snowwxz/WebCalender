@@ -26,8 +26,15 @@
 
                 <!-- Tabel User -->
                 <div class="admin-card">
+                    <div class="admin-table-header">
+                        <div class="search-container" style="margin-bottom: 12px;">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="searchInput" placeholder="Search" class="search-input">
+                        </div>
+                    </div>
+
                     <div class="admin-table-wrap">
-                        <table class="admin-table">
+                        <table class="admin-table" id="userTable">
                             <thead>
                                 <tr>
                                     <th>No</th>
@@ -89,7 +96,7 @@
                         <span>Daftar OPD</span>
                     </div>
                     <div class="admin-table-wrap">
-                        <table class="admin-table">
+                        <table class="admin-table" id="unitTable">
                             <thead>
                                 <tr>
                                     <th>No</th>

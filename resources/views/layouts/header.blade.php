@@ -15,6 +15,7 @@
         @endif
     </div>
 
+
     <div class="header-right">
         @auth
             {{-- Notification Bell Icon --}}
