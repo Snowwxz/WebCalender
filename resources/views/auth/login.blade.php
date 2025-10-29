@@ -64,10 +64,6 @@
                     <button type="submit" class="btn btn-custom w-100">Sign In</button>
                 </form>
 
-                <p class="text-center mt-4 text-gray">
-                    Belum punya akun?
-                    <a href="{{ route('register') }}" class="text-signup">Register disini</a>
-                </p>
             </div>
         </div>
 
