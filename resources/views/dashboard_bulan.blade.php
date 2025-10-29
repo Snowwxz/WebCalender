@@ -712,7 +712,6 @@
                 return;
             }
 
-            // Bikin collapsible list
             agendaList.forEach((item, index) => {
                 const itemDiv = document.createElement("div");
                 itemDiv.className = "agenda-item";
