@@ -349,6 +349,11 @@
             window.history.pushState({}, '', newUrl);
 
             generateMainCalendar();
+            
+            // Update mini calendar in sidebar
+            if (window.updateMiniCalendar) {
+                window.updateMiniCalendar(currentDate);
+            }
         }
 
         // Modal functions
