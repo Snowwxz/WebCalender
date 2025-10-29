@@ -3,13 +3,12 @@
         <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle Sidebar">
             <i class="fas fa-bars"></i>
         </button>
-        <div class="logo-section">
+        <a href="{{ route('dashboard') }}" class="logo-section"
+            style="text-decoration: none; color: inherit; display: flex; align-items: center;">
             <img src="{{ asset('images/logo.png') }}" alt="Logo Pemkot Samarinda" class="logo-img">
-            <span class="logo-text">SiKota</span>
-        </div>
+            <span class="logo-text" style="font-weight: 600; margin-left: 6px;">SiKota</span>
+        </a>
     </div>
-
-
 
     <div class="header-right">
         @auth
