@@ -47,7 +47,7 @@
     </div>
 
     <script>
-        
+
         const urlParams = new URLSearchParams(window.location.search);
         const bulanParam = urlParams.get('bulan'); // 0-11 (from year view)
         const monthParam = urlParams.get('month'); // 1-12 (direct)
@@ -262,5 +262,12 @@
                 });
             }
         });
+        document.addEventListener('DOMContentLoaded', function() {
+    const message = localStorage.getItem('logoutSuccess');
+    if (message) {
+        showSuccessToast(message);
+        localStorage.removeItem('logoutSuccess'); // hapus supaya nggak muncul lagi nanti
+    }
+});
     </script>
 @endsection
