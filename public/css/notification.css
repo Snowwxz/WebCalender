@@ -440,6 +440,11 @@
     margin-bottom: 20px !important;
 }
 
+.btn-edit,
+.btn-delete {
+    font-family: 'Poppins', sans-serif !important;
+}
+
 @media (max-width: 768px) {
     .notification-page {
         padding: 15px;

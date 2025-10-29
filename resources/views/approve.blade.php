@@ -20,14 +20,12 @@
         <main class="main-content" style="margin-left: 0; width: 100%; overflow-x: hidden;">
             <div class="approval-page">
                 <div class="approval-header">
-                    @if (Auth::user()->role !== 'admin')
                         <div>
                             <a href="{{ route('dashboard.bulan') }}" title="Kembali ke Dashboard"
                                 aria-label="Kembali ke Dashboard">
                                 <i class="fas fa-arrow-left"></i>
                             </a>
                         </div>
-                    @endif
 
                     <div class="title-wrap">
                         <h1 class="page-title">Kelola Agenda Kegiatan</h1>

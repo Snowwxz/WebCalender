@@ -665,6 +665,23 @@
     }
 }
 
+.btn-close-custom {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #6E9579;
+    font-size: 20px;
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-close-custom:hover {
+    color: #5b7d67;
+}
+
 /* Responsive Month View */
 @media (max-width: 1024px) {
     .calendar-main {

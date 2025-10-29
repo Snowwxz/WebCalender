@@ -1,13 +1,15 @@
-<!-- Modal Show Agenda for Landing -->
 <div class="modal fade" id="showAgendaModal" tabindex="-1" aria-labelledby="showAgendaLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
 
-            <div class="modal-header bg-primary text-white py-3">
+            <div class="modal-header bg-primary text-white py-3 position-relative">
                 <h5 class="modal-title fw-semibold d-flex align-items-center gap-2" id="showAgendaLabel">
                     <i class="fas fa-calendar-alt"></i>
                     <span id="showAgendaName">Detail Agenda</span>
                 </h5>
+                <button type="button" class="btn-close-custom" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
 
             <div class="modal-body px-4 py-4">
@@ -78,12 +80,6 @@
                     </div>
                 </div>
             </div>
-
-            <div class="modal-footer bg-light py-3">
-                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Tutup</button>
-            </div>
-
         </div>
     </div>
 </div>
-

@@ -22,13 +22,9 @@
                 <!-- Bagian header -->
                 <div style="position: relative; text-align: center; margin-bottom: 8px;">
                     <!-- Tombol kembali -->
-                    @if (Auth::user()->role !== 'admin')
-                        <a href="{{ url('/dashboard/bulan') }}"
-                            style="color:#6E9579;font-size:1.3rem;position:absolute;left:0;top:50%;transform:translateY(-50%);">
-                            <i class="fas fa-arrow-left"></i>
-                        </a>
-                    @endif
-
+                    <a href="{{ url('/dashboard/bulan') }}" class="back-btn" title="Kembali ke Dashboard">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
 
                     <!-- Judul di tengah -->
                     <div class="agenda-title"
@@ -187,7 +183,7 @@
         document.getElementById('agendaForm').addEventListener('submit', function(e) {
             const requiredFields = [
                 'agenda_name',
-                'description', 
+                'description',
                 'id_unit',
                 'person_in_charge',
                 'date',
@@ -201,11 +197,11 @@
             let emptyFields = [];
 
             requiredFields.forEach(fieldName => {
-                const field = document.querySelector(`[name="${fieldName}"]`);
+                const field = document.querySelector([name="${fieldName}"]);
                 if (field && (!field.value || field.value.trim() === '')) {
                     isValid = false;
                     emptyFields.push(fieldName);
-                    
+
                     // Highlight empty field
                     field.style.borderColor = '#ef4444';
                     field.style.backgroundColor = '#fef2f2';
@@ -218,7 +214,7 @@
 
             if (!isValid) {
                 e.preventDefault();
-                alert('Mohon lengkapi semua field yang wajib diisi:\n\n' + 
+                alert('Mohon lengkapi semua field yang wajib diisi:\n\n' +
                       emptyFields.map(field => {
                           const labels = {
                               'agenda_name': 'Nama Agenda',
