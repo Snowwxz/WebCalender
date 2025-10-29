@@ -25,7 +25,15 @@
            </div>
 
            <div class="mini-calendar">
-               <div class="mini-calendar-header" id="miniCalendarHeader">Okt 2025</div>
+               <div class="mini-calendar-header">
+                   <button class="mini-nav-btn" onclick="changeMiniMonth(-1)">
+                       <i class="fas fa-chevron-left"></i>
+                   </button>
+                   <span id="miniCalendarHeader">Okt 2025</span>
+                   <button class="mini-nav-btn" onclick="changeMiniMonth(1)">
+                       <i class="fas fa-chevron-right"></i>
+                   </button>
+               </div>
                <div class="mini-calendar-weekdays">
                    <div>Sen</div>
                    <div>Sel</div>

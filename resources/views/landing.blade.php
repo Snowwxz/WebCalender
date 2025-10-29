@@ -172,6 +172,11 @@
             const newMonth = currentDate.getMonth() + 1;
             const newYear = currentDate.getFullYear();
             fetchAgenda(newYear, newMonth);
+
+            // Update mini calendar in sidebar
+            if (window.updateMiniCalendar) {
+                window.updateMiniCalendar(currentDate);
+            }
         }
 
         function formatDate(dateString) {
@@ -262,13 +267,12 @@
                 });
             }
         });
-
         document.addEventListener('DOMContentLoaded', function() {
-            const message = localStorage.getItem('logoutSuccess');
-            if (message) {
-                showSuccessToast(message);
-                localStorage.removeItem('logoutSuccess');
-            }
-        });
+    const message = localStorage.getItem('logoutSuccess');
+    if (message) {
+        showSuccessToast(message);
+        localStorage.removeItem('logoutSuccess'); // hapus supaya nggak muncul lagi nanti
+    }
+});
     </script>
 @endsection

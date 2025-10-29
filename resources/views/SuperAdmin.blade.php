@@ -239,6 +239,105 @@
                 </h2>
                 <button class="close-modal" onclick="closeEditUnitModal()">&times;</button>
             </div>
+            <script>
+                // === Modal Edit User ===
+                function openEditModal(button) {
+                    const modal = document.getElementById('editModal');
+                    const form = document.getElementById('editForm');
+                    const userId = button.getAttribute('data-id');
+
+                    form.action = `/superadmin/users/${userId}`;
+                    document.getElementById('editName').value = button.getAttribute('data-name');
+                    document.getElementById('editUsername').value = button.getAttribute('data-username');
+                    document.getElementById('editEmail').value = button.getAttribute('data-email');
+                    document.getElementById('editRole').value = button.getAttribute('data-role');
+
+                    modal.classList.add('show');
+                }
+
+                function closeEditModal() {
+                    document.getElementById('editModal').classList.remove('show');
+                }
+
+                // === Modal Tambah/Edit OPD ===
+                function openAddUnitModal() {
+                    document.getElementById('addUnitModal').classList.add('show');
+                }
+
+                function closeAddUnitModal() {
+                    document.getElementById('addUnitModal').classList.remove('show');
+                }
+
+                function openEditUnitModal(button) {
+                    const modal = document.getElementById('editUnitModal');
+                    const form = document.getElementById('editUnitForm');
+                    const unitId = button.getAttribute('data-id');
+                    const name = button.getAttribute('data-name');
+                    const address = button.getAttribute('data-address');
+
+                    form.action = `/superadmin/units/${unitId}`;
+                    document.getElementById('editUnitName').value = name;
+                    document.getElementById('editUnitAddress').value = address ?? '';
+                    modal.classList.add('show');
+                }
+
+                function closeEditUnitModal() {
+                    document.getElementById('editUnitModal').classList.remove('show');
+                }
+
+                // Tutup modal jika klik area luar
+                window.addEventListener('click', function(e) {
+                    const modals = document.querySelectorAll('.user-form-modal');
+                    modals.forEach(modal => {
+                        if (e.target === modal) modal.classList.remove('show');
+                    });
+                });
+
+                    // === FUNGSI SEARCH BAR UNTUK USER & OPD ===
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const searchInput = document.getElementById('searchInput');
+                        const userRows = document.querySelectorAll('#userTable tbody tr');
+                        const unitRows = document.querySelectorAll('#unitTable tbody tr');
+
+                        if (searchInput) {
+                            // Jalankan hanya saat tekan ENTER
+                            searchInput.addEventListener('keydown', function(e) {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault(); // biar gak reload
+                                    const keyword = searchInput.value.toLowerCase().trim();
+
+                                    // Filter tabel USER
+                                    userRows.forEach(row => {
+                                        const cells = row.querySelectorAll('td');
+                                        const match = Array.from(cells).some(td =>
+                                            td.textContent.toLowerCase().includes(keyword)
+                                        );
+                                        row.style.display = match ? '' : 'none';
+                                    });
+
+                                    // Filter tabel OPD
+                                    unitRows.forEach(row => {
+                                        const cells = row.querySelectorAll('td');
+                                        const match = Array.from(cells).some(td =>
+                                            td.textContent.toLowerCase().includes(keyword)
+                                        );
+                                        row.style.display = match ? '' : 'none';
+                                    });
+                                }
+                            });
+
+                            // Kalau input dikosongkan → tampilkan semua data lagi
+                            searchInput.addEventListener('input', function() {
+                                if (searchInput.value.trim() === '') {
+                                    userRows.forEach(row => row.style.display = '');
+                                    unitRows.forEach(row => row.style.display = '');
+                                }
+                            });
+                        }
+                    });
+            </script>
+
+
             <form id="editUnitForm" method="POST">
                 @csrf
                 @method('PUT')

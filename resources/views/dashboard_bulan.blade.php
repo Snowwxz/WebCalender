@@ -344,6 +344,11 @@
             window.history.pushState({}, '', newUrl);
 
             generateMainCalendar();
+            
+            // Update mini calendar in sidebar
+            if (window.updateMiniCalendar) {
+                window.updateMiniCalendar(currentDate);
+            }
         }
 
         // Modal functions
@@ -694,7 +699,6 @@
                 return;
             }
 
-            // Bikin collapsible list
             agendaList.forEach((item, index) => {
                 const itemDiv = document.createElement("div");
                 itemDiv.className = "agenda-item";

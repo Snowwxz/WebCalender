@@ -27,6 +27,10 @@
     display: none;
 }
 
+.sidebar.collapsed .mini-nav-btn {
+    display: none;
+}
+
 .sidebar.collapsed .mini-calendar {
     padding: 0;
 }
@@ -174,11 +178,33 @@
 }
 
 .mini-calendar-header {
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     font-size: 16px;
     font-weight: 600;
     color: #333;
     margin-bottom: 15px;
+}
+
+.mini-nav-btn {
+    background: transparent;
+    border: none;
+    color: #6E9579;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-size: 12px;
+}
+
+.mini-nav-btn:hover {
+    background: rgba(110, 149, 121, 0.1);
+    color: #5a7a5f;
+}
+
+.mini-nav-btn:active {
+    background: rgba(110, 149, 121, 0.2);
 }
 
 .mini-calendar-weekdays {

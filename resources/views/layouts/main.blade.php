@@ -131,7 +131,23 @@
         }
 
         // Global variables for mini calendar
-        window.currentDate = new Date(2025, 9, 21); // October 21, 2025
+        window.currentDate = new Date(); // Use current date as default
+        window.miniCalendarDate = new Date(); // Separate date for mini calendar
+
+        // Initialize mini calendar date from URL parameters
+        function initializeMiniCalendarDate() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const month = urlParams.get('bulan');
+            const year = urlParams.get('tahun');
+            
+            if (month && year) {
+                window.currentDate = new Date(year, month - 1, 1);
+                window.miniCalendarDate = new Date(year, month - 1, 1);
+            } else {
+                window.currentDate = new Date();
+                window.miniCalendarDate = new Date();
+            }
+        }
 
         // Generate mini calendar (global function)
         window.generateMiniCalendar = function() {
@@ -141,9 +157,9 @@
             if (!miniCalendar || !miniHeader) return;
 
             const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-            miniHeader.textContent = `${monthNames[window.currentDate.getMonth()]} ${window.currentDate.getFullYear()}`;
+            miniHeader.textContent = `${monthNames[window.miniCalendarDate.getMonth()]} ${window.miniCalendarDate.getFullYear()}`;
 
-            const firstDay = new Date(window.currentDate.getFullYear(), window.currentDate.getMonth(), 1);
+            const firstDay = new Date(window.miniCalendarDate.getFullYear(), window.miniCalendarDate.getMonth(), 1);
             const startDate = new Date(firstDay);
             startDate.setDate(startDate.getDate() - (firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1)); // Mulai dari hari Senin
 
@@ -157,7 +173,7 @@
                 dayElement.className = 'mini-day';
                 dayElement.textContent = date.getDate();
 
-                if (date.getMonth() !== window.currentDate.getMonth()) {
+                if (date.getMonth() !== window.miniCalendarDate.getMonth()) {
                     dayElement.classList.add('other-month');
                 }
 
@@ -171,8 +187,35 @@
                     dayElement.classList.add('saturday');
                 }
 
+                // Add click functionality to navigate to day view
+                dayElement.addEventListener('click', function() {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    
+                    // Check if we're in dashboard or landing
+                    const isDashboard = window.location.pathname.includes('/dashboard');
+                    const baseUrl = isDashboard ? '/dashboard/hari' : '/hari';
+                    window.location.href = `${baseUrl}?tanggal=${year}-${month}-${day}`;
+                });
+
                 miniCalendar.appendChild(dayElement);
             }
+        }
+
+        // Function to update mini calendar when main calendar changes
+        window.updateMiniCalendar = function(newDate) {
+            window.currentDate = new Date(newDate);
+            window.miniCalendarDate = new Date(newDate); // Sync mini calendar with main calendar
+            window.generateMiniCalendar();
+        }
+
+        // Function to change mini calendar month independently
+        window.changeMiniMonth = function(direction) {
+            window.miniCalendarDate.setMonth(window.miniCalendarDate.getMonth() + direction);
+            window.generateMiniCalendar();
+            
+            // Don't update main calendar - only mini calendar should change
         }
 
         // Apply saved sidebar state based on viewport
@@ -212,6 +255,7 @@
 
         // Initialize mini calendar when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
+            initializeMiniCalendarDate();
             window.generateMiniCalendar();
 
             // Initialize responsive behavior
