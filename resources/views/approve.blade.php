@@ -197,15 +197,21 @@
                                 <div class="card-footer">
                                     <div class="submission-info">
                                         <i class="fas fa-user"></i>
-                                        <span>{{ $agenda->units ?? '-' }}</span>
-                                        <span class="submission-name">
-                                            {{ $agenda->person_in_charge ?? ($agenda->user->name ?? '-') }}
+                                        <span class="submission-unit">
+                                            {{ $agenda->unit->unit_name ?? ($agenda->units ?? '') }}
                                         </span>
+
+                                        @if ($agenda->unit || $agenda->units)
+                                            <span class="separator">&nbsp;–&nbsp;</span>
+                                        @endif
+
                                         <span class="submission-time">
-                                            &nbsp;Diajukan
+                                            Diajukan
                                             {{ \Carbon\Carbon::parse($agenda->created_at)->locale('id')->diffForHumans() }}
                                         </span>
                                     </div>
+
+
 
                                     @if ($agenda->status === 'pending')
                                         <div class="approval-actions">
