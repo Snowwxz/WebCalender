@@ -17,9 +17,8 @@
                 @if (Auth::user()->role === 'superadmin')
                     {{-- 👉 Lonceng superadmin menuju ke halaman SuperAdmin --}}
                     <a href="{{ route('superadmin.dashboard') }}"
-                        class="bell-link {{ request()->routeIs('superadmin.page') ? 'active' : '' }}"
-                        title="Halaman Superadmin">
-                        <i class="fas fa-bell"></i>
+                        class="bell-link {{ request()->is('superadmin*') ? 'active' : '' }}" title="Halaman Superadmin">
+                        <i class="fas fa-users"></i>
                     </a>
                 @elseif (Auth::user()->role === 'admin')
                     {{-- 👉 Lonceng admin --}}

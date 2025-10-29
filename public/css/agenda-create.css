@@ -167,6 +167,16 @@ body, input, textarea, button, label {
     font-family: 'Poppins', sans-serif !important;
 }
 
+.agenda-header a i.fas.fa-arrow-left {
+    color: #6E9579;
+    font-size: 20px;
+    transition: color 0.2s ease;
+}
+
+.agenda-header a i.fas.fa-arrow-left:hover {
+    color: #5b7d67;
+}
+
 @media (max-width: 768px) {
     .form-grid {
         grid-template-columns: 1fr;

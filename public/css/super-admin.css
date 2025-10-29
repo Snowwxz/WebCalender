@@ -6,7 +6,7 @@
 }
 
 /* Style untuk main content agar full width dan centered */
-body .app-container > .main-content {
+body .app-container>.main-content {
     margin-left: 0 !important;
     width: 100% !important;
     padding: 0 !important;
@@ -100,7 +100,7 @@ body .app-container > .main-content {
     border: 1px solid #e5e7eb;
     border-radius: 16px;
     padding: 20px;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     width: 100%;
     box-sizing: border-box;
@@ -108,10 +108,10 @@ body .app-container > .main-content {
 
 .admin-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 10px rgba(0,0,0,0.08);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.08);
 }
 
-.admin-card + .admin-card {
+.admin-card+.admin-card {
     margin-top: 16px;
 }
 
@@ -258,6 +258,7 @@ body .app-container > .main-content {
     cursor: pointer;
     transition: color 0.2s ease;
 }
+
 .close-modal:hover {
     color: #82A98D;
 }
@@ -323,8 +324,10 @@ body .app-container > .main-content {
 
 .user-form-modal {
     position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
@@ -362,8 +365,15 @@ body .app-container > .main-content {
 }
 
 @keyframes slideUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 .btn-icon-edit,
@@ -390,6 +400,7 @@ body .app-container > .main-content {
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(130, 169, 141, 0.3);
 }
+
 .btn-icon-delete {
     background: #F7B7B7;
     color: #7A1C1C;
@@ -414,6 +425,105 @@ body .app-container > .main-content {
 #editModal input,
 #editModal label {
     font-family: 'Poppins', sans-serif !important;
+}
+
+/* === SEARCH SECTION === */
+.search-section {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0 30px;
+}
+
+/* === SEARCH BOX === */
+.search-box {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border: 1.5px solid #d1d5db;
+    border-radius: 12px;
+    padding: 4px 6px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease;
+}
+
+.search-box:focus-within {
+    border-color: #82A98D;
+    box-shadow: 0 0 0 3px rgba(130, 169, 141, 0.2);
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    padding: 10px 12px;
+    color: #374151;
+    background: transparent;
+}
+
+.search-input::placeholder {
+    color: #9ca3af;
+}
+
+.search-btn {
+    background: #82A98D;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-left: 6px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.search-btn i {
+    color: #fff;
+    font-size: 14px;
+}
+
+.search-btn:hover {
+    background: #6E9579;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.section-title i {
+    color: #82A98D;
+    font-size: 18px;
+}
+
+.btn-chip,
+.section-title span {
+    font-family: 'Poppins', sans-serif !important;
+}
+
+.superadmin-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.superadmin-header a i.fas.fa-arrow-left {
+    color: #6E9579;
+    font-size: 20px;
+    transition: color 0.2s ease;
+}
+
+.superadmin-header a i.fas.fa-arrow-left:hover {
+    color: #5b7d67;
 }
 
 @media (max-width: 768px) {
@@ -475,7 +585,8 @@ body .app-container > .main-content {
         font-size: 12px;
     }
 
-    .btn-edit, .btn-delete {
+    .btn-edit,
+    .btn-delete {
         min-width: 60px;
         padding: 6px 12px;
         font-size: 12px;
@@ -483,48 +594,56 @@ body .app-container > .main-content {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
-    .notif-swal-popup {
-        width: 280px !important;
-        border-radius: 12px !important;
-        padding: 1rem 1.2rem !important;
-        font-family: 'Poppins', sans-serif;
-        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
-        border: 1px solid #f5dada;
-    }
 
-    .notif-swal-title {
-        font-size: 0.95rem !important;
-        font-weight: 600 !important;
-        color: #444 !important;
-    }
+.notif-swal-popup {
+    width: 280px !important;
+    border-radius: 12px !important;
+    padding: 1rem 1.2rem !important;
+    font-family: 'Poppins', sans-serif;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+    border: 1px solid #f5dada;
+}
 
-    .notif-swal-confirm {
-        background-color: #F47C7C !important;
-        color: white !important;
-        border-radius: 6px !important;
-        padding: 4px 10px !important;
-        font-size: 0.75rem !important;
-        border: none !important;
-        transition: background-color 0.2s ease;
-    }
+.notif-swal-title {
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    color: #444 !important;
+}
 
-    .notif-swal-confirm:hover {
-        background-color: #ff6b6b !important;
-    }
+.notif-swal-confirm {
+    background-color: #F47C7C !important;
+    color: white !important;
+    border-radius: 6px !important;
+    padding: 4px 10px !important;
+    font-size: 0.75rem !important;
+    border: none !important;
+    transition: background-color 0.2s ease;
+}
 
-    .notif-swal-cancel {
-        background-color: #f8f8f8 !important;
-        color: #444 !important;
-        border-radius: 6px !important;
-        padding: 4px 10px !important;
-        font-size: 0.75rem !important;
-        border: none !important;
-        transition: background-color 0.2s ease;
-    }
+.notif-swal-confirm:hover {
+    background-color: #ff6b6b !important;
+}
 
-    .notif-swal-cancel:hover {
-        background-color: #ededed !important;
-    }
+.notif-swal-cancel {
+    background-color: #f8f8f8 !important;
+    color: #444 !important;
+    border-radius: 6px !important;
+    padding: 4px 10px !important;
+    font-size: 0.75rem !important;
+    border: none !important;
+    transition: background-color 0.2s ease;
+}
+
+.notif-swal-cancel:hover {
+    background-color: #ededed !important;
+}

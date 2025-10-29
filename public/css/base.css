@@ -314,7 +314,7 @@ body {
     .main-content {
         padding: 20px;
     }
-    
+
     .calendar-page,
     .day-view-page,
     .year-view-page {
@@ -328,11 +328,11 @@ body {
         margin-left: 70px;
         padding: 15px;
     }
-    
+
     .sidebar.collapsed + .main-content {
         margin-left: 70px;
     }
-    
+
     .calendar-page,
     .day-view-page,
     .year-view-page {
@@ -348,16 +348,16 @@ body {
         display: flex;
         justify-content: center;
     }
-    
+
     .sidebar {
         transform: translateX(-100%);
         transition: transform 0.3s ease;
     }
-    
+
     .sidebar.show {
         transform: translateX(0);
     }
-    
+
     .calendar-page,
     .day-view-page,
     .year-view-page {
@@ -440,3 +440,23 @@ body {
 .p-3 { padding: 12px; }
 .p-4 { padding: 16px; }
 .p-5 { padding: 20px; }
+
+#showAgendaModal i.fas,
+#showAgendaModal i.far,
+#showAgendaModal i.fa {
+    color: #6E9579 !important;
+}
+
+#showAgendaModal .btn-close-custom i {
+    color: #6E9579 !important;
+    transition: color 0.2s ease;
+}
+
+#showAgendaModal .btn-close-custom i:hover {
+    color: #5b7d67 !important;
+}
+
+#showAgendaModal .modal-header {
+    background-color: #f3f6f4 !important;
+    color: #6E9579 !important;
+}
