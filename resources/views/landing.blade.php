@@ -48,8 +48,17 @@
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        let selectedMonth = parseInt(urlParams.get('bulan')) || parseInt(urlParams.get('month')) || new Date().getMonth() + 1;
-        let selectedYear = parseInt(urlParams.get('tahun')) || parseInt(urlParams.get('year')) || new Date().getFullYear();
+        const bulanParam = urlParams.get('bulan'); // 0-11 (from year view)
+        const monthParam = urlParams.get('month'); // 1-12 (direct)
+
+        // Handle 0 correctly for Januari when using `bulan=0`.
+        let selectedMonth = bulanParam !== null
+            ? (parseInt(bulanParam, 10) + 1)
+            : (monthParam !== null ? parseInt(monthParam, 10) : (new Date().getMonth() + 1));
+
+        let selectedYear = (urlParams.get('tahun') ?? urlParams.get('year'))
+            ? parseInt(urlParams.get('tahun') ?? urlParams.get('year'), 10)
+            : new Date().getFullYear();
 
         let currentDate = new Date(selectedYear, selectedMonth - 1, 1);
         let agendaData = [];
