@@ -14,23 +14,30 @@
     <div class="header-right">
         @auth
             {{-- Notification Bell Icon --}}
-            @if (!request()->routeIs('superadmin*'))
-                <div class="notification-bell">
-                    @if (Auth::user()->role === 'admin')
-                        <a href="{{ route('approve') }}"
-                            class="bell-link {{ request()->routeIs('approve') ? 'active' : '' }}"
-                            title="Notifikasi Agenda Saya">
-                            <i class="fas fa-bell"></i>
-                        </a>
-                    @else
-                        <a href="{{ route('agenda.notification') }}"
-                            class="bell-link {{ request()->routeIs('agenda.notification') ? 'active' : '' }}"
-                            title="Notifikasi Agenda Saya">
-                            <i class="fas fa-bell"></i>
-                        </a>
-                    @endif
-                </div>
-            @endif
+            <div class="notification-bell">
+                @if (Auth::user()->role === 'superadmin')
+                    {{-- 👉 Lonceng superadmin menuju ke halaman SuperAdmin --}}
+                    <a href="{{ route('superadmin.dashboard') }}"
+                        class="bell-link {{ request()->is('superadmin*') ? 'active' : '' }}" title="Halaman Superadmin">
+                        <i class="fas fa-users"></i>
+                    </a>
+                @elseif (Auth::user()->role === 'admin')
+                    {{-- 👉 Lonceng admin --}}
+                    <a href="{{ route('approve') }}" class="bell-link {{ request()->routeIs('approve') ? 'active' : '' }}"
+                        title="Notifikasi Agenda Saya">
+                        <i class="fas fa-bell"></i>
+                    </a>
+                @else
+                    {{-- 👉 Lonceng user/OPD --}}
+                    <a href="{{ route('agenda.notification') }}"
+                        class="bell-link {{ request()->routeIs('agenda.notification') ? 'active' : '' }}"
+                        title="Notifikasi Agenda Saya">
+                        <i class="fas fa-bell"></i>
+                    </a>
+                @endif
+            </div>
+
+
 
             {{-- Tombol tambah agenda (jangan tampil di superadmin) --}}
             @if (Auth::user()->role !== 'superadmin')
@@ -218,7 +225,7 @@
                 toast.hideToast();
             });
 
-             showConfirm();
+            showConfirm();
         });
     });
 

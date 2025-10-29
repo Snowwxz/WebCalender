@@ -140,6 +140,9 @@
         </div>
     </div>
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // ✅ Ambil dari URL (?bulan=3&tahun=2025) biar nggak selalu Oktober
@@ -174,30 +177,22 @@
                         generateMainCalendar(); // re-render tampilan kalender
                         closeModal();
 
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Agenda Ditambahkan!',
-                            text: data.message,
-                            showConfirmButton: false,
-                            timer: 1500
-                        });
+                        showSuccessToast("Agenda berhasil ditambahkan!");
                     } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal!',
-                            text: data.message
-                        });
+                        showErrorToast("Gagal menambahkan agenda!");
                     }
                 })
                 .catch(err => {
                     console.error(err);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: 'Terjadi kesalahan pada server.'
-                    });
+                    Toastify({
+                        text: "Terjadi kesalahan pada server.",
+                        duration: 3000,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: "#f44336",
+                        stopOnFocus: true
+                    }).showToast();
                 });
-
             return false;
         }
 
@@ -389,7 +384,7 @@
             });
 
             if (!valid) {
-                alert('Semua field wajib diisi!');
+                showErrorToast("Semua field wajib diisi!");
             }
 
             return valid;
@@ -408,8 +403,6 @@
                 if (e.target.id === 'createAgendaModal') {
                     closeModal();
                 }
-
-
             });
 
             // Close modal with Escape key
@@ -537,7 +530,7 @@
                         publicBadge.textContent = publicAgenda.length > 1 ?
                             `${publicAgenda.length} Kegiatan` :
                             publicAgenda[0].agenda_name;
-                        
+
                         publicBadge.addEventListener('click', (e) => {
                             e.stopPropagation();
                             showAgendaListSidebar(publicAgenda, `${year}-${month}-${day}`);
@@ -550,7 +543,7 @@
                         privateBadge.textContent = privateAgenda.length > 1 ?
                             `${privateAgenda.length} Kegiatan` :
                             privateAgenda[0].agenda_name;
-                        
+
                         privateBadge.addEventListener('click', (e) => {
                             e.stopPropagation();
                             showAgendaListSidebar(privateAgenda, `${year}-${month}-${day}`);
@@ -607,7 +600,6 @@
             generateMainCalendar();
         });
     </script>
-
 
     <script>
         document.addEventListener('DOMContentLoaded', generateMainCalendar);
@@ -667,23 +659,13 @@
     </script>
     @if (session('success'))
         <script>
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: '{{ session('success') }}',
-                showConfirmButton: false,
-                timer: 2000
-            });
+            showSuccessToast("{{ session('success') }}");
         </script>
     @endif
 
     @if (session('error'))
         <script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: '{{ session('error') }}',
-            });
+            showErrorToast("{{ session('error') }}");
         </script>
     @endif
 
@@ -734,6 +716,86 @@
             });
 
             sidebar.classList.add("active");
+        }
+    </script>
+
+    <script>
+        // ======== TOAST SUKSES (hijau pastel) ========
+        function showSuccessToast(message) {
+            const successToast = document.createElement('div');
+            successToast.innerHTML = `
+            <div style="
+                font-family: 'Poppins', sans-serif;
+                font-weight: 500;
+                font-size: 15px;
+                color: #2F3E35;
+            ">
+                ${message}
+            </div>
+        `;
+
+            Toastify({
+                node: successToast,
+                duration: 2500,
+                gravity: "top",
+                position: "center",
+                close: false,
+                offset: {
+                    x: 0,
+                    y: 20
+                },
+                style: {
+                    background: "#E6F4EA",
+                    /* hijau pastel lembut */
+                    border: "1px solid #A8D5BA",
+                    borderRadius: "10px",
+                    padding: "14px 28px",
+                    boxShadow: "0 6px 14px rgba(0,0,0,0.08)",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    animation: "fadeIn 0.3s ease",
+                }
+            }).showToast();
+        }
+
+        // ======== TOAST ERROR (merah pastel) ========
+        function showErrorToast(message) {
+            const errorToast = document.createElement('div');
+            errorToast.innerHTML = `
+            <div style="
+                font-family: 'Poppins', sans-serif;
+                font-weight: 500;
+                font-size: 15px;
+                color: #5C2E2E;
+            ">
+                ${message}
+            </div>
+        `;
+
+            Toastify({
+                node: errorToast,
+                duration: 2500,
+                gravity: "top",
+                position: "center",
+                close: false,
+                offset: {
+                    x: 0,
+                    y: 20
+                },
+                style: {
+                    background: "#FFF1E6",
+                    /* merah pastel lembut */
+                    border: "1px solid #F7B7B7",
+                    borderRadius: "10px",
+                    padding: "14px 28px",
+                    boxShadow: "0 6px 14px rgba(0,0,0,0.08)",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    animation: "fadeIn 0.3s ease",
+                }
+            }).showToast();
         }
     </script>
 @endsection

@@ -73,16 +73,9 @@
 
                         <div class="mb-3">
                             <label class="text-muted small d-block mb-1">
-                                <i class="fas fa-eye"></i> Visibilitas
+                                <i class="fas fa-eye"></i> Status
                             </label>
                             <div class="fw-semibold" id="showAgendaAccess">-</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="text-muted small d-block mb-1">
-                                <i class="fas fa-check-circle"></i> Status
-                            </label>
-                            <span id="showAgendaStatus" class="badge bg-warning text-dark rounded-pill px-3 py-2">-</span>
                         </div>
                     </div>
                 </div>

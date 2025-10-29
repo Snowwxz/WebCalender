@@ -1242,3 +1242,61 @@
     background-color: #f97316 !important; /* warna oranye */
     color: white !important;
 }
+
+.sidebar-header button.close-sidebar i.fas.fa-times {
+    color: #6E9579;
+    font-size: 20px;
+    transition: color 0.2s ease;
+}
+
+.sidebar-header button.close-sidebar i.fas.fa-times:hover {
+    color: #5b7d67;
+}
+
+#showAgendaModal i.fas,
+#showAgendaModal i.far,
+#showAgendaModal i.fa {
+    color: #6E9579 !important;
+}
+
+#showAgendaModal .btn-close-custom i {
+    color: #6E9579 !important;
+    transition: color 0.2s ease;
+}
+
+#showAgendaModal .btn-close-custom i:hover {
+    color: #5b7d67 !important;
+}
+
+#showAgendaModal .modal-header {
+    background-color: #f3f6f4 !important;
+    color: #6E9579 !important;
+}
+
+/* Gaya umum badge status */
+.badge-status {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+    background-color: #e0e0e0;
+    text-align: center;
+}
+
+/* Warna khusus untuk masing-masing status */
+.badge-privasi {
+    background-color: #FFB67E !important;
+    color: #3b2e1a !important;
+}
+
+.badge-publik {
+    background-color: #A8E6A3 !important;
+    color: #234522 !important;
+}
+
+.badge-default {
+    background-color: #dcdcdc !important;
+    color: #555 !important;
+}

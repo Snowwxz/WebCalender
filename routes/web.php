@@ -58,11 +58,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
         $user = Auth::user();
 
-        if ($user->role === 'superadmin') {
-            return redirect()->route('superadmin.dashboard');
-        } elseif ($user->role === 'admin') {
-            return redirect()->route('approve');
-        } else {
+        if (in_array($user->role, ['admin', 'superadmin', 'user'])) {
             return redirect()->route('dashboard.bulan');
         }
     })->name('dashboard');
@@ -82,15 +78,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
     // ✅ Route khusus tiap role
-    Route::middleware('role:user')->group(function () {
+    Route::middleware('role:superadmin,admin,user')->group(function () {
         Route::get('/dashboard/hari', fn() => view('dashboard_hari'))->name('dashboard.hari');
         Route::get('/dashboard/hari/data', [AgendaController::class, 'getAgendaHari'])->name('dashboard.hari.data');
         Route::get('/dashboard/bulan', [AgendaController::class, 'index'])->name('dashboard.bulan');
         Route::get('/dashboard/tahun', fn() => view('dashboard_tahun'))->name('dashboard.tahun');
     });
 
-    Route::middleware('role:admin')->group(function () {
-    });
+    Route::middleware('role:admin')->group(function () {});
 
     Route::middleware('role:superadmin')->group(function () {
         Route::get('/superadmin', [UserController::class, 'index'])->name('superadmin.dashboard');
