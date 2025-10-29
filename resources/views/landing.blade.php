@@ -47,6 +47,7 @@
     </div>
 
     <script>
+        
         const urlParams = new URLSearchParams(window.location.search);
         const bulanParam = urlParams.get('bulan'); // 0-11 (from year view)
         const monthParam = urlParams.get('month'); // 1-12 (direct)
