@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Agenda - SiKota</title>
+    <!-- Base CSS -->
+    <link rel="stylesheet" href="{{ asset('css/base.css') }}">
+    <!-- Component CSS -->
+    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/agenda-edit.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -14,26 +19,23 @@
             <div class="agenda-form-card">
 
                 <!-- Header -->
-                <div style="position: relative; text-align: center; margin-bottom: 8px;">
-                    <a href="{{ route('agenda.notification') }}"
-                       style="color:#333;font-size:1.3rem;position:absolute;left:0;top:50%;transform:translateY(-50%);">
+                <div class="edit-header">
+                    <a href="{{ route('agenda.notification') }}" class="back-btn">
                         <i class="fas fa-arrow-left"></i>
                     </a>
 
-                    <div class="agenda-title" style="display:inline-block; font-weight:600; font-size:1.4rem; color:#333;">
+                    <div class="agenda-title">
                         <i class="fas fa-calendar-edit"></i> Edit Agenda
                     </div>
                 </div>
 
-                <p class="agenda-subtitle" style="text-align:center;">
-                    Ubah detail agenda sesuai kebutuhan
-                </p>
+                
 
                 <!-- Alert success/error -->
                 @if (session('success'))
-                    <div style="color:green;text-align:center;margin-bottom:10px;">{{ session('success') }}</div>
+                    <div class="alert-success">{{ session('success') }}</div>
                 @elseif (session('error'))
-                    <div style="color:red;text-align:center;margin-bottom:10px;">{{ session('error') }}</div>
+                    <div class="alert-error">{{ session('error') }}</div>
                 @endif
 
                 <form action="{{ route('agenda.update', $agenda->id_agenda) }}" method="POST">
@@ -55,15 +57,30 @@
                             </div>
 
                             <div class="input-group">
-                                <label><i class="fas fa-building"></i> Nama Instansi Pengaju</label>
-                                <input type="text" name="instansi_pengajuan"
-                                    value="{{ old('instansi_pengajuan', $agenda->units) }}">
+                                <label><i class="fas fa-building"></i> Nama Instansi (Pengaju)</label>
+                                <select name="id_unit" required>
+                                    <option value="">-- Pilih Instansi Pengaju --</option>
+                                    @foreach ($units as $unit)
+                                        <option value="{{ $unit->id_unit }}" 
+                                            {{ old('id_unit', $agenda->id_unit) == $unit->id_unit ? 'selected' : '' }}>
+                                            {{ $unit->unit_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-user-tie"></i> Penanggung Jawab</label>
                                 <input type="text" name="penanggung_jawab"
                                     value="{{ old('penanggung_jawab', $agenda->person_in_charge) }}">
+                            </div>
+
+                            <div class="input-group">
+                                <label><i class="fas fa-eye"></i> Kategori Agenda</label>
+                                <select name="is_public">
+                                    <option value="1" {{ old('is_public', $agenda->is_public) == 1 ? 'selected' : '' }}>Publik</option>
+                                    <option value="0" {{ old('is_public', $agenda->is_public) == 0 ? 'selected' : '' }}>Privasi</option>
+                                </select>
                             </div>
                         </div>
 
@@ -78,13 +95,13 @@
                             <div class="input-group">
                                 <label><i class="fas fa-clock"></i> Waktu Mulai</label>
                                 <input type="time" name="start_time"
-                                    value="{{ old('start_time', $agenda->start_time) }}">
+                                    value="{{ old('start_time', $agenda->start_time ? $agenda->start_time->format('H:i') : '') }}">
                             </div>
 
                             <div class="input-group">
                                 <label><i class="fas fa-clock"></i> Waktu Selesai</label>
                                 <input type="time" name="end_time"
-                                    value="{{ old('end_time', $agenda->end_time) }}">
+                                    value="{{ old('end_time', $agenda->end_time ? $agenda->end_time->format('H:i') : '') }}">
                             </div>
 
                             <div class="input-group">

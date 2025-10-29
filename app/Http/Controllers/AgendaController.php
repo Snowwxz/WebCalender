@@ -133,7 +133,8 @@ class AgendaController extends Controller
     public function edit($id_agenda)
     {
         $agenda = Agenda::findOrFail($id_agenda);
-        return view('agenda_edit', compact('agenda'));
+        $units = Unit::orderBy('unit_name', 'asc')->get();
+        return view('agenda_edit', compact('agenda', 'units'));
     }
 
     /**
@@ -153,7 +154,8 @@ class AgendaController extends Controller
             'penanggung_jawab'   => 'nullable|string|max:255',
             'instansi_ikut'      => 'nullable|string|max:255',
             'status'             => 'nullable|string|in:pending,approved,rejected',
-            'is_public' => 'required|boolean',
+            'is_public'          => 'required|in:0,1',
+            'id_unit'            => 'required|exists:units,id_unit',
         ]);
 
         $agenda->agenda_name = $validated['agenda_name'];
@@ -165,6 +167,7 @@ class AgendaController extends Controller
         $agenda->person_in_charge = $validated['penanggung_jawab'] ?? null;
         $agenda->involved_institution = $validated['instansi_ikut'] ?? null;
         $agenda->is_public = $validated['is_public'];
+        $agenda->id_unit = $validated['id_unit'];
 
         // hanya admin yang boleh ubah status
         if (Auth::user()->role === 'admin') {
