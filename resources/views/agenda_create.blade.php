@@ -11,7 +11,10 @@
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
     <link rel="stylesheet" href="{{ asset('css/agenda-create.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </head>
+
 <body>
     <div class="app-container">
         @include('layouts.header')
@@ -22,13 +25,9 @@
                 <!-- Bagian header -->
                 <div style="position: relative; text-align: center; margin-bottom: 8px;">
                     <!-- Tombol kembali -->
-                    @if (Auth::user()->role !== 'admin')
-                        <a href="{{ url('/dashboard/bulan') }}"
-                            style="color:#6E9579;font-size:1.3rem;position:absolute;left:0;top:50%;transform:translateY(-50%);">
-                            <i class="fas fa-arrow-left"></i>
-                        </a>
-                    @endif
-
+                    <a href="{{ url('/dashboard/bulan') }}" class="back-btn" title="Kembali ke Dashboard">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
 
                     <!-- Judul di tengah -->
                     <div class="agenda-title"
@@ -45,7 +44,8 @@
                     @csrf
 
                     @if ($errors->any())
-                        <div class="alert alert-danger" style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                        <div class="alert alert-danger"
+                            style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
                             <h4>Terjadi kesalahan:</h4>
                             <ul style="margin: 0; padding-left: 20px;">
                                 @foreach ($errors->all() as $error)
@@ -56,15 +56,39 @@
                     @endif
 
                     @if (session('success'))
-                        <div class="alert alert-success" style="background: #d1fae5; border: 1px solid #86efac; color: #065f46; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
-                            {{ session('success') }}
-                        </div>
+                        <script>
+                            Toastify({
+                                text: "{{ session('success') }}",
+                                duration: 3000,
+                                gravity: "top", // posisi vertikal
+                                position: "right", // posisi horizontal
+                                backgroundColor: "#4CAF50",
+                                stopOnFocus: true,
+                                style: {
+                                    borderRadius: "8px",
+                                    boxShadow: "0 3px 8px rgba(0,0,0,0.1)",
+                                    fontWeight: "500"
+                                }
+                            }).showToast();
+                        </script>
                     @endif
 
                     @if (session('error'))
-                        <div class="alert alert-error" style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
-                            {{ session('error') }}
-                        </div>
+                        <script>
+                            Toastify({
+                                text: "{{ session('error') }}",
+                                duration: 3000,
+                                gravity: "top",
+                                position: "right",
+                                backgroundColor: "#f44336",
+                                stopOnFocus: true,
+                                style: {
+                                    borderRadius: "8px",
+                                    boxShadow: "0 3px 8px rgba(0,0,0,0.1)",
+                                    fontWeight: "500"
+                                }
+                            }).showToast();
+                        </script>
                     @endif
 
                     <div class="form-grid">
@@ -72,7 +96,8 @@
                         <div class="form-column">
                             <div class="input-group">
                                 <label><i class="fas fa-file-alt"></i> Nama Agenda</label>
-                                <input type="text" name="agenda_name" placeholder="Masukkan nama agenda" value="{{ old('agenda_name') }}" required>
+                                <input type="text" name="agenda_name" placeholder="Masukkan nama agenda"
+                                    value="{{ old('agenda_name') }}" required>
                             </div>
 
                             <div class="input-group">
@@ -85,7 +110,9 @@
                                 <select name="id_unit" required>
                                     <option value="">-- Pilih Instansi Pengaju --</option>
                                     @foreach ($units as $unit)
-                                        <option value="{{ $unit->id_unit }}" {{ old('id_unit') == $unit->id_unit ? 'selected' : '' }}>{{ $unit->unit_name }}</option>
+                                        <option value="{{ $unit->id_unit }}"
+                                            {{ old('id_unit') == $unit->id_unit ? 'selected' : '' }}>
+                                            {{ $unit->unit_name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -187,7 +214,7 @@
         document.getElementById('agendaForm').addEventListener('submit', function(e) {
             const requiredFields = [
                 'agenda_name',
-                'description', 
+                'description',
                 'id_unit',
                 'person_in_charge',
                 'date',
@@ -201,11 +228,11 @@
             let emptyFields = [];
 
             requiredFields.forEach(fieldName => {
-                const field = document.querySelector(`[name="${fieldName}"]`);
+                const field = document.querySelector([name = "${fieldName}"]);
                 if (field && (!field.value || field.value.trim() === '')) {
                     isValid = false;
                     emptyFields.push(fieldName);
-                    
+
                     // Highlight empty field
                     field.style.borderColor = '#ef4444';
                     field.style.backgroundColor = '#fef2f2';
@@ -218,21 +245,21 @@
 
             if (!isValid) {
                 e.preventDefault();
-                alert('Mohon lengkapi semua field yang wajib diisi:\n\n' + 
-                      emptyFields.map(field => {
-                          const labels = {
-                              'agenda_name': 'Nama Agenda',
-                              'description': 'Deskripsi Agenda',
-                              'id_unit': 'Nama Instansi',
-                              'person_in_charge': 'Penanggung Jawab',
-                              'date': 'Tanggal',
-                              'start_time': 'Waktu Mulai',
-                              'end_time': 'Waktu Selesai',
-                              'location': 'Lokasi',
-                              'involved_institution': 'Instansi yang Ikut Serta'
-                          };
-                          return '• ' + (labels[field] || field);
-                      }).join('\n'));
+                alert('Mohon lengkapi semua field yang wajib diisi:\n\n' +
+                    emptyFields.map(field => {
+                        const labels = {
+                            'agenda_name': 'Nama Agenda',
+                            'description': 'Deskripsi Agenda',
+                            'id_unit': 'Nama Instansi',
+                            'person_in_charge': 'Penanggung Jawab',
+                            'date': 'Tanggal',
+                            'start_time': 'Waktu Mulai',
+                            'end_time': 'Waktu Selesai',
+                            'location': 'Lokasi',
+                            'involved_institution': 'Instansi yang Ikut Serta'
+                        };
+                        return '• ' + (labels[field] || field);
+                    }).join('\n'));
             }
         });
 

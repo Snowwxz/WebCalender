@@ -172,7 +172,7 @@
             const newMonth = currentDate.getMonth() + 1;
             const newYear = currentDate.getFullYear();
             fetchAgenda(newYear, newMonth);
-            
+
             // Update mini calendar in sidebar
             if (window.updateMiniCalendar) {
                 window.updateMiniCalendar(currentDate);

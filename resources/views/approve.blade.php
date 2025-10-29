@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
     <link rel="stylesheet" href="{{ asset('css/approve.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 
 <body>
@@ -20,14 +22,12 @@
         <main class="main-content" style="margin-left: 0; width: 100%; overflow-x: hidden;">
             <div class="approval-page">
                 <div class="approval-header">
-                    @if (Auth::user()->role !== 'admin')
-                        <div>
-                            <a href="{{ route('dashboard.bulan') }}" title="Kembali ke Dashboard"
-                                aria-label="Kembali ke Dashboard">
-                                <i class="fas fa-arrow-left"></i>
-                            </a>
-                        </div>
-                    @endif
+                    <div>
+                        <a href="{{ route('dashboard.bulan') }}" title="Kembali ke Dashboard"
+                            aria-label="Kembali ke Dashboard">
+                            <i class="fas fa-arrow-left"></i>
+                        </a>
+                    </div>
 
                     <div class="title-wrap">
                         <h1 class="page-title">Kelola Agenda Kegiatan</h1>
@@ -73,8 +73,8 @@
                         </form>
                     </div>
                 </div>
-                    <div class="sort-container">
-                  <form method="GET" action="{{ route('approve') }}" class="sort-form">
+                <div class="sort-container">
+                    <form method="GET" action="{{ route('approve') }}" class="sort-form">
                         <input type="hidden" name="status" value="{{ request('status', 'all') }}">
                         <input type="hidden" name="q" value="{{ request('q') }}">
                         <select name="sort" onchange="this.form.submit()" class="sort-select">
@@ -94,7 +94,7 @@
                             </option>
                         </select>
                     </form>
-                    </div>
+                </div>
 
 
                 @if ($agendas->isEmpty())
@@ -197,15 +197,21 @@
                                 <div class="card-footer">
                                     <div class="submission-info">
                                         <i class="fas fa-user"></i>
-                                        <span>{{ $agenda->units ?? '-' }}</span>
-                                        <span class="submission-name">
-                                            {{ $agenda->person_in_charge ?? ($agenda->user->name ?? '-') }}
+                                        <span class="submission-unit">
+                                            {{ $agenda->unit->unit_name ?? ($agenda->units ?? '') }}
                                         </span>
+
+                                        @if ($agenda->unit || $agenda->units)
+                                            <span class="separator">&nbsp;–&nbsp;</span>
+                                        @endif
+
                                         <span class="submission-time">
-                                            &nbsp;Diajukan
+                                            Diajukan
                                             {{ \Carbon\Carbon::parse($agenda->created_at)->locale('id')->diffForHumans() }}
                                         </span>
                                     </div>
+
+
 
                                     @if ($agenda->status === 'pending')
                                         <div class="approval-actions">
@@ -244,6 +250,104 @@
             </div>
         </main>
 
+        <div id="toast" class="toastify" style="display: none;">
+            <p>Agenda telah disetujui</p>
+        </div>
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const actionForms = document.querySelectorAll('.action-form');
+
+                // ========== CEK APA ADA PESAN DI SESSION STORAGE ==========
+                const savedMessage = sessionStorage.getItem('toastMessage');
+                const savedType = sessionStorage.getItem('toastType');
+                if (savedMessage) {
+                    showToast(savedMessage, savedType);
+                    sessionStorage.removeItem('toastMessage');
+                    sessionStorage.removeItem('toastType');
+                }
+
+                // ========== HANDLE SUBMIT ==========
+                actionForms.forEach(form => {
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
+
+                        const status = form.querySelector('input[name="status"]').value;
+
+                        fetch(form.action, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector(
+                                        'meta[name="csrf-token"]').content,
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                },
+                                body: new URLSearchParams({
+                                    ...Object.fromEntries(new FormData(form)),
+                                    '_method': 'PUT'
+                                })
+                            })
+                            .then(response => {
+                                if (response.ok) {
+                                    // simpan pesan untuk ditampilkan setelah reload
+                                    if (status === 'approved') {
+                                        sessionStorage.setItem('toastMessage',
+                                            'Agenda telah disetujui');
+                                        sessionStorage.setItem('toastType', 'success');
+                                    } else {
+                                        sessionStorage.setItem('toastMessage',
+                                            'Agenda telah ditolak');
+                                        sessionStorage.setItem('toastType', 'error');
+                                    }
+                                    location.reload(); // reload langsung tanpa delay
+                                } else {
+                                    response.text().then(text => {
+                                        console.error('Error response:', response.status,
+                                            text);
+                                        alert(
+                                            'Gagal memperbarui agenda. Cek console untuk detail.');
+                                    });
+                                }
+                            })
+                            .catch(err => console.error('Fetch error:', err));
+                    });
+                });
+            });
+
+            // ======== TOASTIFY ========
+            function showToast(message, type = "success") {
+                const toastNode = document.createElement('div');
+                toastNode.innerHTML = `
+                <div style="
+                    font-family: 'Poppins', sans-serif;
+                    font-weight: 500;
+                    font-size: 15px;
+                    color: ${type === 'success' ? '#256D43' : '#8b0000'};
+                ">
+                    ${message}
+                </div>
+            `;
+
+                Toastify({
+                    node: toastNode,
+                    duration: 2500,
+                    gravity: "top",
+                    position: "center",
+                    style: {
+                        background: type === 'success' ? '#E6F9EE' : '#fde4e4',
+                        border: type === 'success' ? '1px solid #C4E7D0' : '1px solid #f8b4b4',
+                        borderRadius: '10px',
+                        padding: '14px 28px',
+                        boxShadow: '0 6px 14px rgba(0,0,0,0.08)',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }
+                }).showToast();
+            }
+        </script>
 
         <script>
             function toggleDropdown() {

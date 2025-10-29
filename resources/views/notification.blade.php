@@ -70,13 +70,13 @@
                         $filtered = $filtered->filter(function ($item) use ($query) {
                             return stripos($item->agenda_name, $query) !== false ||
                                 stripos($item->description ?? '', $query) !== false ||
-                                stripos($item->submitted_by ?? '', $query) !== false ||
+                                stripos($item->unit_name ?? '', $query) !== false ||
                                 stripos($item->person_in_charge ?? '', $query) !== false;
                         });
                     }
 
                 @endphp
-                
+
                 <div class="search-bar">
                     <form method="GET" action="{{ route('agenda.notification') }}">
                         <input type="hidden" name="status" value="{{ request('status', 'all') }}">
@@ -136,7 +136,7 @@
                                             <div class="detail-item">
                                                 <i class="fas fa-building"></i>
                                                 <span><strong>Nama Instansi (Pengaju):</strong>
-                                                    {{ $agenda->submitted_by ?? '-' }}</span>
+                                                    {{ $agenda->unit->unit_name ?? '-' }}</span>
                                             </div>
                                             <div class="detail-item">
                                                 <i class="fas fa-user-tie"></i>
@@ -189,9 +189,9 @@
                                     <div class="card-footer">
                                         <div class="submission-info">
                                             <i class="fas fa-user"></i>
-                                            <span>{{ $agenda->submitted_by ?? '-' }}</span>
+                                            <span>{{ $agenda->unit->unit_name ?? '-' }}</span>
                                             <span class="submission-time">
-                                                Diajukan
+                                                -  Diajukan
                                                 {{ \Carbon\Carbon::parse($agenda->created_at)->locale('id')->diffForHumans() }}
                                             </span>
                                         </div>
