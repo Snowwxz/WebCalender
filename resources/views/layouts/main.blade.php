@@ -240,21 +240,29 @@
                 // Mobile/Tablet: use show state, default closed if none
                 if (savedShow === '1') {
                     sidebar.classList.add('show');
+                    createOverlay();
                 } else {
                     sidebar.classList.remove('show');
+                    removeOverlay();
                 }
             } else {
                 // Large tablet (769-1024) keep closed unless explicitly saved open
                 if (savedShow === '1') {
                     sidebar.classList.add('show');
+                    createOverlay();
                 } else {
                     sidebar.classList.remove('show');
+                    removeOverlay();
                 }
             }
         }
 
         // Initialize mini calendar when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
+            // Prevent sidebar animation during initial restore
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) sidebar.classList.add('no-animate');
+
             initializeMiniCalendarDate();
             window.generateMiniCalendar();
 
@@ -262,6 +270,15 @@
             handleResize();
             // Re-apply saved state after initial sizing
             applySavedSidebarState();
+            // Ensure overlay visible if sidebar is shown after restore
+            if (sidebar.classList.contains('show') && window.innerWidth <= 1024) {
+                createOverlay();
+            }
+
+            // Re-enable animations after first frame
+            requestAnimationFrame(() => {
+                if (sidebar) sidebar.classList.remove('no-animate');
+            });
         });
 
         // Handle window resize
