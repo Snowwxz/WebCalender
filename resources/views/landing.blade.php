@@ -247,6 +247,14 @@
             const involvedEl = document.getElementById('showAgendaInvolved');
             if (involvedEl) involvedEl.innerText = involved;
 
+            const accessEl = document.getElementById('showAgendaAccess');
+            if (accessEl) {
+                const isPublic = data.is_public == 1;
+                const bg = isPublic ? '#A8E6A3' : '#FFB67E';
+                const text = isPublic ? 'Publik' : 'Privasi';
+                accessEl.innerHTML = `<span class="badge rounded-pill" style="background-color:${bg}; color:#2F3E35; padding:6px 10px;">${text}</span>`;
+            }
+
             new bootstrap.Modal(document.getElementById('showAgendaModal')).show();
         }
 
@@ -271,7 +279,7 @@
     const message = localStorage.getItem('logoutSuccess');
     if (message) {
         showSuccessToast(message);
-        localStorage.removeItem('logoutSuccess'); // hapus supaya nggak muncul lagi nanti
+        localStorage.removeItem('logoutSuccess'); 
     }
 });
     </script>
