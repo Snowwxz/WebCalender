@@ -532,7 +532,12 @@
     }
 
     .logo-text {
-        display: none;
+        display: inline-block;
+        font-size: 14px;
+        max-width: 120px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .logo-img {
@@ -653,7 +658,12 @@
     }
 
     .logo-text {
-        display: none;
+        display: inline-block;
+        font-size: 13px;
+        max-width: 90px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .header-center {
