@@ -156,7 +156,18 @@
 
                             <div class="input-group">
                                 <label><i class="fas fa-people-group"></i> Instansi yang Ikut Serta</label>
-                                <textarea name="involved_institution" placeholder="Masukkan instansi yang akan ikut serta" required></textarea>
+                                <div class="chips-multiselect" id="involvedInstansi">
+                                    <div class="chips-selected" data-role="chips"></div>
+                                    <input type="text" class="chips-input" placeholder="-- Pilih Instansi Pengaju --" autocomplete="off">
+                                    <div class="chips-dropdown" data-role="dropdown">
+                                        <ul>
+                                            @foreach ($units as $unit)
+                                                <li data-value="{{ $unit->unit_name }}">{{ $unit->unit_name }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="involved_institution" id="involvedInstitutionField" value="{{ old('involved_institution') }}" required>
                             </div>
                         </div>
                     </div>
@@ -282,6 +293,100 @@
                 }
             });
         });
+
+        // Chips Multiselect for "Instansi yang Ikut Serta"
+        (function() {
+            const root = document.getElementById('involvedInstansi');
+            if (!root) return;
+
+            const selectedWrap = root.querySelector('.chips-selected');
+            const input = root.querySelector('.chips-input');
+            const dropdown = root.querySelector('.chips-dropdown');
+            const listItems = Array.from(dropdown.querySelectorAll('li'));
+            const hiddenField = document.getElementById('involvedInstitutionField');
+
+            let selectedValues = [];
+
+            // Preload from old() if any
+            if (hiddenField.value) {
+                selectedValues = hiddenField.value.split(',').map(s => s.trim()).filter(Boolean);
+                selectedValues.forEach(addChipEl);
+                syncHidden();
+            }
+
+            function openDropdown() {
+                dropdown.classList.add('open');
+            }
+
+            function closeDropdown() {
+                dropdown.classList.remove('open');
+            }
+
+            function filterDropdown(term) {
+                const t = term.toLowerCase();
+                listItems.forEach(li => {
+                    const text = li.textContent.trim();
+                    const match = text.toLowerCase().includes(t);
+                    const already = selectedValues.includes(text);
+                    li.style.display = match && !already ? 'block' : 'none';
+                });
+            }
+
+            function addChipEl(value) {
+                if (selectedValues.includes(value)) return;
+                selectedValues.push(value);
+
+                const chip = document.createElement('span');
+                chip.className = 'chip';
+                chip.textContent = value;
+
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'chip-remove';
+                removeBtn.innerHTML = '&times;';
+                removeBtn.addEventListener('click', () => {
+                    selectedValues = selectedValues.filter(v => v !== value);
+                    chip.remove();
+                    syncHidden();
+                    filterDropdown(input.value);
+                });
+
+                chip.appendChild(removeBtn);
+                selectedWrap.appendChild(chip);
+            }
+
+            function syncHidden() {
+                hiddenField.value = selectedValues.join(', ');
+                hiddenField.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+
+            input.addEventListener('focus', () => {
+                openDropdown();
+                filterDropdown(input.value);
+            });
+
+            input.addEventListener('input', () => {
+                openDropdown();
+                filterDropdown(input.value);
+            });
+
+            listItems.forEach(li => {
+                li.addEventListener('click', () => {
+                    const value = li.getAttribute('data-value') || li.textContent.trim();
+                    addChipEl(value);
+                    syncHidden();
+                    input.value = '';
+                    filterDropdown('');
+                    input.focus();
+                });
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!root.contains(e.target)) {
+                    closeDropdown();
+                }
+            });
+        })();
     </script>
 
 </body>
