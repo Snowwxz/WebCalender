@@ -73,7 +73,7 @@
 
                         <div class="mb-3">
                             <label class="text-muted small d-block mb-1">
-                                <i class="fas fa-eye"></i> Status
+                                <i class="fas fa-eye"></i> Visibilitas
                             </label>
                             <div class="fw-semibold" id="showAgendaAccess">-</div>
                         </div>
