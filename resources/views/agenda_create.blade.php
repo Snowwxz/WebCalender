@@ -104,17 +104,11 @@
                                 <label><i class="fas fa-align-left"></i> Deskripsi Agenda</label>
                                 <textarea name="description" placeholder="Masukkan deskripsi agenda" required>{{ old('description') }}</textarea>
                             </div>
-
+                            
                             <div class="input-group">
                                 <label><i class="fas fa-building"></i> Nama Instansi (Pengaju)</label>
-                                <select name="id_unit" required>
-                                    <option value="">-- Pilih Instansi Pengaju --</option>
-                                    @foreach ($units as $unit)
-                                        <option value="{{ $unit->id_unit }}"
-                                            {{ old('id_unit') == $unit->id_unit ? 'selected' : '' }}>
-                                            {{ $unit->unit_name }}</option>
-                                    @endforeach
-                                </select>
+                                <input type="text" name="id_unit" placeholder="Masukkan nama instansi pengaju"
+                                    value="{{ old('id_unit') }}" required>
                             </div>
 
                             <div class="input-group">
@@ -156,10 +150,20 @@
 
                             <div class="input-group">
                                 <label><i class="fas fa-people-group"></i> Instansi yang Ikut Serta</label>
+
                                 <div class="chips-multiselect" id="involvedInstansi">
-                                    <div class="chips-selected" data-role="chips"></div>
-                                    <input type="text" class="chips-input" placeholder="-- Pilih Instansi Pengaju --" autocomplete="off">
-                                    <div class="chips-dropdown" data-role="dropdown">
+                                    <div class="chips-container">
+                                        <div class="chips-selected"></div>
+                                        <input type="text" class="chips-input"
+                                            placeholder="-- Pilih Instansi yang Ikut Serta --">
+                                    </div>
+                                    <span class="chips-arrow"><i class="fas fa-chevron-down"></i></span>
+
+                                    <div class="chips-dropdown">
+                                        <div class="chips-search">
+                                            <input type="text" class="chips-search-input"
+                                                placeholder="Cari instansi..." />
+                                        </div>
                                         <ul>
                                             @foreach ($units as $unit)
                                                 <li data-value="{{ $unit->unit_name }}">{{ $unit->unit_name }}</li>
@@ -167,7 +171,9 @@
                                         </ul>
                                     </div>
                                 </div>
-                                <input type="hidden" name="involved_institution" id="involvedInstitutionField" value="{{ old('involved_institution') }}" required>
+
+                                <input type="hidden" name="involved_institution" id="involvedInstitutionField"
+                                    value="{{ old('involved_institution') }}">
                             </div>
                         </div>
                     </div>
@@ -239,7 +245,7 @@
             let emptyFields = [];
 
             requiredFields.forEach(fieldName => {
-                const field = document.querySelector([name = "${fieldName}"]);
+                const field = document.querySelector(`[name="${fieldName}"]`);
                 if (field && (!field.value || field.value.trim() === '')) {
                     isValid = false;
                     emptyFields.push(fieldName);
@@ -294,45 +300,31 @@
             });
         });
 
-        // Chips Multiselect for "Instansi yang Ikut Serta"
-        (function() {
+        (() => {
             const root = document.getElementById('involvedInstansi');
-            if (!root) return;
-
-            const selectedWrap = root.querySelector('.chips-selected');
-            const input = root.querySelector('.chips-input');
             const dropdown = root.querySelector('.chips-dropdown');
-            const listItems = Array.from(dropdown.querySelectorAll('li'));
+            const arrow = root.querySelector('.chips-arrow');
+            const searchInput = root.querySelector('.chips-search-input');
+            const mainInput = root.querySelector('.chips-input');
+            const selectedWrap = root.querySelector('.chips-selected');
             const hiddenField = document.getElementById('involvedInstitutionField');
+            const listItems = Array.from(dropdown.querySelectorAll('li'));
+            const container = root.querySelector('.chips-container');
 
             let selectedValues = [];
 
-            // Preload from old() if any
-            if (hiddenField.value) {
-                selectedValues = hiddenField.value.split(',').map(s => s.trim()).filter(Boolean);
-                selectedValues.forEach(addChipEl);
-                syncHidden();
-            }
-
-            function openDropdown() {
-                dropdown.classList.add('open');
+            function toggleDropdown() {
+                const isOpen = dropdown.classList.toggle('open');
+                root.classList.toggle('open', isOpen);
+                if (isOpen) searchInput.focus();
             }
 
             function closeDropdown() {
                 dropdown.classList.remove('open');
+                root.classList.remove('open');
             }
 
-            function filterDropdown(term) {
-                const t = term.toLowerCase();
-                listItems.forEach(li => {
-                    const text = li.textContent.trim();
-                    const match = text.toLowerCase().includes(t);
-                    const already = selectedValues.includes(text);
-                    li.style.display = match && !already ? 'block' : 'none';
-                });
-            }
-
-            function addChipEl(value) {
+            function addChip(value) {
                 if (selectedValues.includes(value)) return;
                 selectedValues.push(value);
 
@@ -340,52 +332,76 @@
                 chip.className = 'chip';
                 chip.textContent = value;
 
-                const removeBtn = document.createElement('button');
-                removeBtn.type = 'button';
-                removeBtn.className = 'chip-remove';
-                removeBtn.innerHTML = '&times;';
-                removeBtn.addEventListener('click', () => {
-                    selectedValues = selectedValues.filter(v => v !== value);
+                const btn = document.createElement('button');
+                btn.className = 'chip-remove';
+                btn.innerHTML = '&times;';
+                btn.onclick = () => {
                     chip.remove();
+                    selectedValues = selectedValues.filter(v => v !== value);
+                    // 🔥 tampilkan lagi item di dropdown
+                    listItems.forEach(li => {
+                        if (li.textContent.trim() === value) {
+                            li.style.display = 'block';
+                        }
+                    });
                     syncHidden();
-                    filterDropdown(input.value);
+                };
+
+                chip.appendChild(btn);
+                selectedWrap.appendChild(chip);
+
+                // 🔥 sembunyikan item yang dipilih
+                listItems.forEach(li => {
+                    if (li.textContent.trim() === value) {
+                        li.style.display = 'none';
+                    }
                 });
 
-                chip.appendChild(removeBtn);
-                selectedWrap.appendChild(chip);
+                syncHidden();
             }
 
             function syncHidden() {
                 hiddenField.value = selectedValues.join(', ');
-                hiddenField.dispatchEvent(new Event('input', { bubbles: true }));
+
+                // toggle input utama
+                mainInput.style.display = selectedValues.length ? 'none' : 'inline';
+
+                // toggle class empty buat ubah tampilan awal
+                if (selectedValues.length === 0) {
+                    root.classList.add('empty');
+                } else {
+                    root.classList.remove('empty');
+                }
             }
 
-            input.addEventListener('focus', () => {
-                openDropdown();
-                filterDropdown(input.value);
-            });
+            function filterList(term) {
+                const lower = term.toLowerCase();
+                listItems.forEach(li => {
+                    const match = li.textContent.toLowerCase().includes(lower);
+                    li.style.display = match ? 'block' : 'none';
+                });
+            }
 
-            input.addEventListener('input', () => {
-                openDropdown();
-                filterDropdown(input.value);
+            searchInput.addEventListener('input', e => filterList(e.target.value));
+            arrow.addEventListener('click', toggleDropdown);
+
+            // bikin seluruh area card bisa diklik
+            container.addEventListener('click', () => {
+                toggleDropdown();
             });
 
             listItems.forEach(li => {
                 li.addEventListener('click', () => {
-                    const value = li.getAttribute('data-value') || li.textContent.trim();
-                    addChipEl(value);
-                    syncHidden();
-                    input.value = '';
-                    filterDropdown('');
-                    input.focus();
+                    addChip(li.textContent.trim());
+                    closeDropdown();
                 });
             });
 
-            document.addEventListener('click', (e) => {
-                if (!root.contains(e.target)) {
-                    closeDropdown();
-                }
+            document.addEventListener('click', e => {
+                if (!root.contains(e.target)) closeDropdown();
             });
+
+            syncHidden(); // set initial empty state 👈 TAMBAHKAN DI SINI
         })();
     </script>
 
