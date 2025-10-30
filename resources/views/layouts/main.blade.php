@@ -257,6 +257,24 @@
             }
         }
 
+        // Ensure sidebar top aligns with actual header height on mobile/tablet
+        function updateSidebarTopHeight() {
+            const sidebar = document.querySelector('.sidebar');
+            const headerEl = document.querySelector('.header');
+            if (!sidebar || !headerEl) return;
+
+            const headerHeight = headerEl.offsetHeight || 72;
+
+            if (window.innerWidth <= 1024) {
+                sidebar.style.top = headerHeight + 'px';
+                sidebar.style.height = `calc(100vh - ${headerHeight}px)`;
+            } else {
+                // Desktop sticks to design defaults
+                sidebar.style.top = '72px';
+                sidebar.style.height = 'calc(100vh - 72px)';
+            }
+        }
+
         // Initialize mini calendar when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
             // Prevent sidebar animation during initial restore
@@ -270,6 +288,8 @@
             handleResize();
             // Re-apply saved state after initial sizing
             applySavedSidebarState();
+            // Align sidebar with header height
+            updateSidebarTopHeight();
             // Ensure overlay visible if sidebar is shown after restore
             if (sidebar.classList.contains('show') && window.innerWidth <= 1024) {
                 createOverlay();
@@ -317,6 +337,7 @@
 
             // After base adjustments, re-apply saved state
             applySavedSidebarState();
+            updateSidebarTopHeight();
         }
 
         // Listen for window resize
