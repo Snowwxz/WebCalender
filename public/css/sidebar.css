@@ -450,8 +450,8 @@
     .sidebar {
         width: 280px;
         z-index: 10000 !important;
-        top: 60px; /* match mobile header height */
-        height: calc(100vh - 60px);
+        top: 72px; /* align with actual header height on landing */
+        height: calc(100vh - 72px);
     }
 
     .sidebar:not(.show):not(.collapsed) {
