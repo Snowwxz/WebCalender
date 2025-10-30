@@ -1300,3 +1300,14 @@
     background-color: #dcdcdc !important;
     color: #555 !important;
 }
+
+/* Override: badge colors for month calendar (landing + dashboard) */
+.calendar-day .bg-green-500 {
+    background-color: #A8E6A3 !important;
+    color: #234522 !important;
+}
+
+.calendar-day .bg-orange-500 {
+    background-color: #FFB67E !important;
+    color: #3b2e1a !important;
+}
