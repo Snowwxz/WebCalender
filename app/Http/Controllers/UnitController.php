@@ -14,11 +14,13 @@ class UnitController extends Controller
         $request->validate([
             'unit_name' => 'required|string|max:255',
             'address' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
         ]);
 
         Unit::create([
             'unit_name' => $request->unit_name,
             'address' => $request->address,
+            'email' => $request->email,
         ]);
 
         return redirect()->back()->with('success', 'OPD berhasil ditambahkan.');
@@ -29,8 +31,13 @@ class UnitController extends Controller
         $user = Auth::user();
 
         if ($user->role === 'superadmin') {
+            // Ambil data unit + relasi user untuk bisa akses email
+            $units = Unit::with('user')->get();
+
+            // Ambil data user jika memang masih dibutuhkan
             $users = User::all();
-            $units = Unit::all();
+
+            // Arahkan ke view superadmin
             return view('SuperAdmin', compact('users', 'units'));
         }
 
@@ -45,17 +52,20 @@ class UnitController extends Controller
         abort(403, 'Role tidak dikenali.');
     }
 
+
     public function update(Request $request, $id_unit)
     {
         $request->validate([
             'unit_name' => 'required|string|max:255',
             'address' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
         ]);
 
         $unit = Unit::findOrFail($id_unit);
         $unit->update([
             'unit_name' => $request->unit_name,
             'address' => $request->address,
+            'email' => $request->email,
         ]);
 
         return redirect()->back()->with('success', 'OPD berhasil diperbarui.');

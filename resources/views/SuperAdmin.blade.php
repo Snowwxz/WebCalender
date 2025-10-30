@@ -111,6 +111,7 @@
                                     <th>No</th>
                                     <th>Nama Instansi</th>
                                     <th>Alamat</th>
+                                    <th>Email</th> <!-- ✅ kolom baru -->
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -120,9 +121,11 @@
                                         <td>{{ $index + 1 }}</td>
                                         <td>{{ $unit->unit_name }}</td>
                                         <td>{{ $unit->address ?? '-' }}</td>
+                                        <td>{{ $unit->email ?? '-' }}</td>
                                         <td>
                                             <button type="button" class="btn-icon-edit" data-id="{{ $unit->id_unit }}"
                                                 data-name="{{ $unit->unit_name }}" data-address="{{ $unit->address }}"
+                                                data-email="{{ $unit->user->email ?? '' }}"
                                                 onclick="openEditUnitModal(this)">
                                                 <i class="fas fa-pen"></i>
                                             </button>
@@ -139,160 +142,199 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" style="text-align:center;">Belum ada data OPD.</td>
+                                        <td colspan="5" style="text-align:center;">Belum ada data OPD.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
                 </div>
-            </div>
-        </main>
-    </div>
 
-    <!-- Modal Edit User -->
-    <div id="editModal" class="user-form-modal">
-        <div class="user-form-content">
-            <div class="user-form-header">
-                <h2 class="user-form-title">
-                    <i class="fas fa-pen" style="margin-right: 8px; color:#82A98D;"></i>
-                    Edit User
-                </h2>
-                <button class="close-modal" onclick="closeEditModal()">&times;</button>
-            </div>
 
-            <form id="editForm" method="POST">
-                @csrf
-                @method('PUT')
+                <!-- Modal Edit User -->
+                <div id="editModal" class="user-form-modal">
+                    <div class="user-form-content">
+                        <div class="user-form-header">
+                            <h2 class="user-form-title">
+                                <i class="fas fa-pen" style="margin-right: 8px; color:#82A98D;"></i>
+                                Edit User
+                            </h2>
+                            <button class="close-modal" onclick="closeEditModal()">&times;</button>
+                        </div>
 
-                <div class="user-form-group">
-                    <label>Nama</label>
-                    <input type="text" name="name" id="editName" required>
+                        <form id="editForm" method="POST">
+                            @csrf
+                            @method('PUT')
+
+                            <div class="user-form-group">
+                                <label>Nama</label>
+                                <input type="text" name="name" id="editName" required>
+                            </div>
+
+                            <div class="user-form-group">
+                                <label>Username</label>
+                                <input type="text" name="username" id="editUsername">
+                            </div>
+
+                            <div class="user-form-group">
+                                <label>Email</label>
+                                <input type="email" name="email" id="editEmail" required>
+                            </div>
+
+                            <div class="user-form-group">
+                                <label>Password (kosongkan jika tidak ingin ubah)</label>
+                                <input type="password" name="password" id="editPassword">
+                            </div>
+
+                            <div class="user-form-group">
+                                <label>Role</label>
+                                <select name="role" id="editRole" required>
+                                    <option value="user">User</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                            </div>
+
+                            <div class="user-form-actions">
+                                <button type="submit" class="btn-save">Simpan</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
 
-                <div class="user-form-group">
-                    <label>Username</label>
-                    <input type="text" name="username" id="editUsername">
+                <!-- Modal Tambah OPD -->
+                <div id="addUnitModal" class="user-form-modal">
+                    <div class="user-form-content">
+                        <div class="user-form-header">
+                            <h2 class="user-form-title">
+                                <i class="fas fa-plus" style="margin-right: 8px; color:#82A98D;"></i>
+                                Tambah OPD
+                            </h2>
+                            <button class="close-modal" onclick="closeAddUnitModal()">&times;</button>
+                        </div>
+                        <form action="{{ route('units.store') }}" method="POST">
+                            @csrf
+                            <div class="user-form-group">
+                                <label>Nama Instansi</label>
+                                <input type="text" name="unit_name" required>
+                            </div>
+
+                            <div class="user-form-group">
+                                <label>Email</label>
+                                <input type="text" name="email" required>
+                            </div>
+
+                            <div class="user-form-group">
+                                <label>Alamat</label>
+                                <input type="text" name="address">
+                            </div>
+
+                            <div class="user-form-actions">
+                                <button type="submit" class="btn-save">Simpan</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
 
-                <div class="user-form-group">
-                    <label>Email</label>
-                    <input type="email" name="email" id="editEmail" required>
+                <!-- Modal Edit OPD -->
+                <div id="editUnitModal" class="user-form-modal">
+                    <div class="user-form-content">
+                        <div class="user-form-header">
+                            <h2 class="user-form-title">
+                                <i class="fas fa-pen" style="margin-right: 8px; color:#82A98D;"></i>
+                                Edit OPD
+                            </h2>
+                            <button class="close-modal" onclick="closeEditUnitModal()">&times;</button>
+                        </div>
+
+                        <form id="editUnitForm" method="POST">
+                            @csrf
+                            @method('PUT')
+
+                            <div class="user-form-group">
+                                <label>Nama Instansi</label>
+                                <input type="text" name="unit_name" id="editUnitName" required>
+                            </div>
+
+                            <div class="user-form-group">
+                                <label>Alamat</label>
+                                <input type="text" name="address" id="editUnitAddress">
+                            </div>
+
+                            <div class="user-form-group">
+                                <label>Email</label>
+                                <input type="email" name="email" id="editUnitEmail">
+                            </div>
+
+                            <div class="user-form-actions">
+                                <button type="submit" class="btn-save">Simpan</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
 
-                <div class="user-form-group">
-                    <label>Password (kosongkan jika tidak ingin ubah)</label>
-                    <input type="password" name="password" id="editPassword">
-                </div>
+                <!-- ============================= -->
+                <!-- SEMUA SCRIPT DITARUH DI BAWAH -->
+                <!-- ============================= -->
+                <script>
+                    // === Modal Edit User ===
+                    function openEditModal(button) {
+                        const modal = document.getElementById('editModal');
+                        const form = document.getElementById('editForm');
+                        const userId = button.getAttribute('data-id');
 
-                <div class="user-form-group">
-                    <label>Role</label>
-                    <select name="role" id="editRole" required>
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
-                    </select>
-                </div>
+                        form.action = `/superadmin/users/${userId}`;
+                        document.getElementById('editName').value = button.getAttribute('data-name');
+                        document.getElementById('editUsername').value = button.getAttribute('data-username');
+                        document.getElementById('editEmail').value = button.getAttribute('data-email');
+                        document.getElementById('editRole').value = button.getAttribute('data-role');
 
-                <div class="user-form-actions">
-                    <button type="submit" class="btn-save">Simpan</button>
-                </div>
-            </form>
-        </div>
-    </div>
+                        modal.classList.add('show');
+                    }
 
-    <!-- Modal Tambah OPD -->
-    <div id="addUnitModal" class="user-form-modal">
-        <div class="user-form-content">
-            <div class="user-form-header">
-                <h2 class="user-form-title">
-                    <i class="fas fa-plus" style="margin-right: 8px; color:#82A98D;"></i>
-                    Tambah OPD
-                </h2>
-                <button class="close-modal" onclick="closeAddUnitModal()">&times;</button>
-            </div>
-            <form action="{{ route('units.store') }}" method="POST">
-                @csrf
-                <div class="user-form-group">
-                    <label>Nama Instansi</label>
-                    <input type="text" name="unit_name" required>
-                </div>
+                    function closeEditModal() {
+                        document.getElementById('editModal').classList.remove('show');
+                    }
 
-                <div class="user-form-group">
-                    <label>Alamat</label>
-                    <input type="text" name="address">
-                </div>
+                    // === Modal Tambah/Edit OPD ===
+                    function openAddUnitModal() {
+                        document.getElementById('addUnitModal').classList.add('show');
+                    }
 
-                <div class="user-form-actions">
-                    <button type="submit" class="btn-save">Simpan</button>
-                </div>
-            </form>
-        </div>
-    </div>
+                    function closeAddUnitModal() {
+                        document.getElementById('addUnitModal').classList.remove('show');
+                    }
 
-    <!-- Modal Edit OPD -->
-    <div id="editUnitModal" class="user-form-modal">
-        <div class="user-form-content">
-            <div class="user-form-header">
-                <h2 class="user-form-title">
-                    <i class="fas fa-pen" style="margin-right: 8px; color:#82A98D;"></i>
-                    Edit OPD
-                </h2>
-                <button class="close-modal" onclick="closeEditUnitModal()">&times;</button>
-            </div>
-            <script>
-                // === Modal Edit User ===
-                function openEditModal(button) {
-                    const modal = document.getElementById('editModal');
-                    const form = document.getElementById('editForm');
-                    const userId = button.getAttribute('data-id');
+                    function openEditUnitModal(button) {
+                        const modal = document.getElementById('editUnitModal');
+                        const form = document.getElementById('editUnitForm');
 
-                    form.action = `/superadmin/users/${userId}`;
-                    document.getElementById('editName').value = button.getAttribute('data-name');
-                    document.getElementById('editUsername').value = button.getAttribute('data-username');
-                    document.getElementById('editEmail').value = button.getAttribute('data-email');
-                    document.getElementById('editRole').value = button.getAttribute('data-role');
+                        const unitId = button.getAttribute('data-id');
+                        const name = button.getAttribute('data-name');
+                        const address = button.getAttribute('data-address');
+                        const email = button.getAttribute('data-email');
 
-                    modal.classList.add('show');
-                }
+                        form.action = `/superadmin/units/${unitId}`;
+                        document.getElementById('editUnitName').value = name;
+                        document.getElementById('editUnitAddress').value = address ?? '';
+                        document.getElementById('editUnitEmail').value = email ?? '';
 
-                function closeEditModal() {
-                    document.getElementById('editModal').classList.remove('show');
-                }
+                        modal.classList.add('show');
+                    }
 
-                // === Modal Tambah/Edit OPD ===
-                function openAddUnitModal() {
-                    document.getElementById('addUnitModal').classList.add('show');
-                }
+                    function closeEditUnitModal() {
+                        document.getElementById('editUnitModal').classList.remove('show');
+                    }
 
-                function closeAddUnitModal() {
-                    document.getElementById('addUnitModal').classList.remove('show');
-                }
-
-                function openEditUnitModal(button) {
-                    const modal = document.getElementById('editUnitModal');
-                    const form = document.getElementById('editUnitForm');
-                    const unitId = button.getAttribute('data-id');
-                    const name = button.getAttribute('data-name');
-                    const address = button.getAttribute('data-address');
-
-                    form.action = `/superadmin/units/${unitId}`;
-                    document.getElementById('editUnitName').value = name;
-                    document.getElementById('editUnitAddress').value = address ?? '';
-                    modal.classList.add('show');
-                }
-
-                function closeEditUnitModal() {
-                    document.getElementById('editUnitModal').classList.remove('show');
-                }
-
-                // Tutup modal jika klik area luar
-                window.addEventListener('click', function(e) {
-                    const modals = document.querySelectorAll('.user-form-modal');
-                    modals.forEach(modal => {
-                        if (e.target === modal) modal.classList.remove('show');
+                    // Tutup modal jika klik area luar
+                    window.addEventListener('click', function(e) {
+                        const modals = document.querySelectorAll('.user-form-modal');
+                        modals.forEach(modal => {
+                            if (e.target === modal) modal.classList.remove('show');
+                        });
                     });
-                });
+                </script>
 
+                <script>
                     // === FUNGSI SEARCH BAR UNTUK USER & OPD ===
                     document.addEventListener('DOMContentLoaded', function() {
                         const searchInput = document.getElementById('searchInput');
@@ -335,366 +377,344 @@
                             });
                         }
                     });
-            </script>
+                </script>
 
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const globalSearch = document.getElementById('globalSearch');
 
-            <form id="editUnitForm" method="POST">
-                @csrf
-                @method('PUT')
+                        globalSearch.addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter') { // cuma jalan saat tekan Enter
+                                e.preventDefault(); // biar gak submit form
+                                const query = globalSearch.value.toLowerCase();
 
-                <div class="user-form-group">
-                    <label>Nama Instansi</label>
-                    <input type="text" name="unit_name" id="editUnitName" required>
-                </div>
+                                // Semua tabel yang ingin difilter
+                                const allTables = document.querySelectorAll('table');
 
-                <div class="user-form-group">
-                    <label>Alamat</label>
-                    <input type="text" name="address" id="editUnitAddress">
-                </div>
-
-                <div class="user-form-actions">
-                    <button type="submit" class="btn-save">Simpan</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const globalSearch = document.getElementById('globalSearch');
-
-            globalSearch.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') { // cuma jalan saat tekan Enter
-                    e.preventDefault(); // biar gak submit form
-                    const query = globalSearch.value.toLowerCase();
-
-                    // Semua tabel yang ingin difilter
-                    const allTables = document.querySelectorAll('table');
-
-                    allTables.forEach(table => {
-                        const rows = table.querySelectorAll('tbody tr');
-                        rows.forEach(row => {
-                            const text = row.textContent.toLowerCase();
-                            row.style.display = text.includes(query) ? '' : 'none';
+                                allTables.forEach(table => {
+                                    const rows = table.querySelectorAll('tbody tr');
+                                    rows.forEach(row => {
+                                        const text = row.textContent.toLowerCase();
+                                        row.style.display = text.includes(query) ? '' : 'none';
+                                    });
+                                });
+                            }
                         });
                     });
-                }
-            });
-        });
-    </script>
+                </script>
 
-    <script>
-        // === Modal Edit User ===
-        function openEditModal(button) {
-            const modal = document.getElementById('editModal');
-            const form = document.getElementById('editForm');
-            const userId = button.getAttribute('data-id');
+                <script>
+                    // === Modal Edit User ===
+                    function openEditModal(button) {
+                        const modal = document.getElementById('editModal');
+                        const form = document.getElementById('editForm');
+                        const userId = button.getAttribute('data-id');
 
-            form.action = `/superadmin/users/${userId}`;
-            document.getElementById('editName').value = button.getAttribute('data-name');
-            document.getElementById('editUsername').value = button.getAttribute('data-username');
-            document.getElementById('editEmail').value = button.getAttribute('data-email');
-            document.getElementById('editRole').value = button.getAttribute('data-role');
+                        form.action = `/superadmin/users/${userId}`;
+                        document.getElementById('editName').value = button.getAttribute('data-name');
+                        document.getElementById('editUsername').value = button.getAttribute('data-username');
+                        document.getElementById('editEmail').value = button.getAttribute('data-email');
+                        document.getElementById('editRole').value = button.getAttribute('data-role');
 
-            modal.classList.add('show');
-        }
+                        modal.classList.add('show');
+                    }
 
-        function closeEditModal() {
-            document.getElementById('editModal').classList.remove('show');
-        }
+                    function closeEditModal() {
+                        document.getElementById('editModal').classList.remove('show');
+                    }
 
-        // === Modal Tambah/Edit OPD ===
-        function openAddUnitModal() {
-            document.getElementById('addUnitModal').classList.add('show');
-        }
+                    // === Modal Tambah/Edit OPD ===
+                    function openAddUnitModal() {
+                        document.getElementById('addUnitModal').classList.add('show');
+                    }
 
-        function closeAddUnitModal() {
-            document.getElementById('addUnitModal').classList.remove('show');
-        }
+                    function closeAddUnitModal() {
+                        document.getElementById('addUnitModal').classList.remove('show');
+                    }
 
-        function openEditUnitModal(button) {
-            const modal = document.getElementById('editUnitModal');
-            const form = document.getElementById('editUnitForm');
-            const unitId = button.getAttribute('data-id');
-            const name = button.getAttribute('data-name');
-            const address = button.getAttribute('data-address');
+                    function openEditUnitModal(button) {
+                        const modal = document.getElementById('editUnitModal');
+                        const form = document.getElementById('editUnitForm');
+                        const unitId = button.getAttribute('data-id');
+                        const name = button.getAttribute('data-name');
+                        const address = button.getAttribute('data-address');
 
-            form.action = `/superadmin/units/${unitId}`;
-            document.getElementById('editUnitName').value = name;
-            document.getElementById('editUnitAddress').value = address ?? '';
-            modal.classList.add('show');
-        }
+                        form.action = `/superadmin/units/${unitId}`;
+                        document.getElementById('editUnitName').value = name;
+                        document.getElementById('editUnitAddress').value = address ?? '';
+                        modal.classList.add('show');
+                    }
 
-        function closeEditUnitModal() {
-            document.getElementById('editUnitModal').classList.remove('show');
-        }
+                    function closeEditUnitModal() {
+                        document.getElementById('editUnitModal').classList.remove('show');
+                    }
 
-        // Tutup modal jika klik area luar
-        window.addEventListener('click', function(e) {
-            const modals = document.querySelectorAll('.user-form-modal');
-            modals.forEach(modal => {
-                if (e.target === modal) modal.classList.remove('show');
-            });
-        });
-    </script>
+                    // Tutup modal jika klik area luar
+                    window.addEventListener('click', function(e) {
+                        const modals = document.querySelectorAll('.user-form-modal');
+                        modals.forEach(modal => {
+                            if (e.target === modal) modal.classList.remove('show');
+                        });
+                    });
+                </script>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+                <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
 
-            // ==== FUNGSI KONFIRMASI ====
-            function showConfirmation({
-                title,
-                text,
-                confirmText,
-                form
-            }) {
-                const popup = document.createElement('div');
-                popup.className = 'toastify-popup';
-                popup.innerHTML = `
+                        // ==== FUNGSI KONFIRMASI ====
+                        function showConfirmation({
+                            title,
+                            text,
+                            confirmText,
+                            form
+                        }) {
+                            const popup = document.createElement('div');
+                            popup.className = 'toastify-popup';
+                            popup.innerHTML = `
                     <p class="toastify-title">${text}</p>
                     <div class="toastify-btn-group">
                         <button class="btn-confirm">${confirmText}</button>
                         <button class="btn-cancel">Batal</button>
                     </div>
                 `;
-                document.body.appendChild(popup);
-                popup.classList.add('toastify-popup-show');
+                            document.body.appendChild(popup);
+                            popup.classList.add('toastify-popup-show');
 
-                popup.querySelector('.btn-cancel').addEventListener('click', () => {
-                    popup.classList.remove('toastify-popup-show');
-                    popup.classList.add('toastify-popup-hide');
-                    setTimeout(() => popup.remove(), 250);
-                });
+                            popup.querySelector('.btn-cancel').addEventListener('click', () => {
+                                popup.classList.remove('toastify-popup-show');
+                                popup.classList.add('toastify-popup-hide');
+                                setTimeout(() => popup.remove(), 250);
+                            });
 
-                popup.querySelector('.btn-confirm').addEventListener('click', () => {
-                    popup.classList.remove('toastify-popup-show');
-                    popup.classList.add('toastify-popup-hide');
-                    setTimeout(() => {
-                        popup.remove();
-                        form.submit();
-                    }, 200);
-                });
-            }
+                            popup.querySelector('.btn-confirm').addEventListener('click', () => {
+                                popup.classList.remove('toastify-popup-show');
+                                popup.classList.add('toastify-popup-hide');
+                                setTimeout(() => {
+                                    popup.remove();
+                                    form.submit();
+                                }, 200);
+                            });
+                        }
 
-            // ==== KONFIRMASI TAMBAH/EDIT ====
-            const addUnitForm = document.querySelector('#addUnitModal form');
-            if (addUnitForm) {
-                addUnitForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    showConfirmation({
-                        title: 'Konfirmasi Tambah OPD',
-                        text: 'Yakin ingin menambahkan data OPD?',
-                        confirmText: 'Ya, simpan',
-                        form: addUnitForm
-                    });
-                });
-            }
+                        // ==== KONFIRMASI TAMBAH/EDIT ====
+                        const addUnitForm = document.querySelector('#addUnitModal form');
+                        if (addUnitForm) {
+                            addUnitForm.addEventListener('submit', function(e) {
+                                e.preventDefault();
+                                showConfirmation({
+                                    title: 'Konfirmasi Tambah OPD',
+                                    text: 'Yakin ingin menambahkan data OPD?',
+                                    confirmText: 'Ya, simpan',
+                                    form: addUnitForm
+                                });
+                            });
+                        }
 
-            const editUserForm = document.getElementById('editForm');
-            if (editUserForm) {
-                editUserForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    showConfirmation({
-                        title: 'Konfirmasi Edit User',
-                        text: 'Yakin ingin menyimpan perubahan data user?',
-                        confirmText: 'Ya, simpan',
-                        form: editUserForm
-                    });
-                });
-            }
+                        const editUserForm = document.getElementById('editForm');
+                        if (editUserForm) {
+                            editUserForm.addEventListener('submit', function(e) {
+                                e.preventDefault();
+                                showConfirmation({
+                                    title: 'Konfirmasi Edit User',
+                                    text: 'Yakin ingin menyimpan perubahan data user?',
+                                    confirmText: 'Ya, simpan',
+                                    form: editUserForm
+                                });
+                            });
+                        }
 
-            const editUnitForm = document.getElementById('editUnitForm');
-            if (editUnitForm) {
-                editUnitForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    showConfirmation({
-                        title: 'Konfirmasi Edit OPD',
-                        text: 'Yakin ingin menyimpan perubahan data OPD?',
-                        confirmText: 'Ya, simpan',
-                        form: editUnitForm
-                    });
-                });
-            }
+                        const editUnitForm = document.getElementById('editUnitForm');
+                        if (editUnitForm) {
+                            editUnitForm.addEventListener('submit', function(e) {
+                                e.preventDefault();
+                                showConfirmation({
+                                    title: 'Konfirmasi Edit OPD',
+                                    text: 'Yakin ingin menyimpan perubahan data OPD?',
+                                    confirmText: 'Ya, simpan',
+                                    form: editUnitForm
+                                });
+                            });
+                        }
 
-            // ==== KONFIRMASI HAPUS ====
-            document.querySelectorAll('form').forEach(form => {
-                const action = form.getAttribute('action') || '';
-                const isDelete = form.querySelector('input[name="_method"][value="DELETE"]');
+                        // ==== KONFIRMASI HAPUS ====
+                        document.querySelectorAll('form').forEach(form => {
+                            const action = form.getAttribute('action') || '';
+                            const isDelete = form.querySelector('input[name="_method"][value="DELETE"]');
 
-                if (isDelete && action.includes('/superadmin/users/')) {
-                    form.addEventListener('submit', function(e) {
-                        e.preventDefault();
-                        showConfirmation({
-                            title: 'Konfirmasi Hapus User',
-                            text: 'Yakin ingin menghapus user ini?',
-                            confirmText: 'Ya, hapus',
-                            form: form
+                            if (isDelete && action.includes('/superadmin/users/')) {
+                                form.addEventListener('submit', function(e) {
+                                    e.preventDefault();
+                                    showConfirmation({
+                                        title: 'Konfirmasi Hapus User',
+                                        text: 'Yakin ingin menghapus user ini?',
+                                        confirmText: 'Ya, hapus',
+                                        form: form
+                                    });
+                                });
+                            }
+
+                            if (isDelete && action.includes('/superadmin/units/')) {
+                                form.addEventListener('submit', function(e) {
+                                    e.preventDefault();
+                                    showConfirmation({
+                                        title: 'Konfirmasi Hapus OPD',
+                                        text: 'Yakin ingin menghapus data OPD ini?',
+                                        confirmText: 'Ya, hapus',
+                                        form: form
+                                    });
+                                });
+                            }
                         });
+
+                        // ==== POPUP SUKSES ====
+                        @if (session('success'))
+                            showSuccessToast("{{ session('success') }}");
+                        @endif
+
+                        function showSuccessToast(message) {
+                            const popup = document.createElement('div');
+                            popup.className = 'toastify-popup toastify-success';
+                            popup.innerHTML = `<p class="toastify-title">${message}</p>`;
+                            document.body.appendChild(popup);
+
+                            popup.classList.add('toastify-popup-show');
+                            setTimeout(() => {
+                                popup.classList.remove('toastify-popup-show');
+                                popup.classList.add('toastify-popup-hide');
+                                setTimeout(() => popup.remove(), 300);
+                            }, 2000);
+                        }
                     });
-                }
-
-                if (isDelete && action.includes('/superadmin/units/')) {
-                    form.addEventListener('submit', function(e) {
-                        e.preventDefault();
-                        showConfirmation({
-                            title: 'Konfirmasi Hapus OPD',
-                            text: 'Yakin ingin menghapus data OPD ini?',
-                            confirmText: 'Ya, hapus',
-                            form: form
-                        });
-                    });
-                }
-            });
-
-            // ==== POPUP SUKSES ====
-            @if (session('success'))
-                showSuccessToast("{{ session('success') }}");
-            @endif
-
-            function showSuccessToast(message) {
-                const popup = document.createElement('div');
-                popup.className = 'toastify-popup toastify-success';
-                popup.innerHTML = `<p class="toastify-title">${message}</p>`;
-                document.body.appendChild(popup);
-
-                popup.classList.add('toastify-popup-show');
-                setTimeout(() => {
-                    popup.classList.remove('toastify-popup-show');
-                    popup.classList.add('toastify-popup-hide');
-                    setTimeout(() => popup.remove(), 300);
-                }, 2000);
-            }
-        });
-    </script>
+                </script>
 
 
-    <style>
-        .toastify-popup {
-            position: fixed;
-            top: 70px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #FFF1E6;
-            border: 1px solid #F7B7B7;
-            border-radius: 12px;
-            padding: 14px 18px;
-            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
-            font-family: 'Poppins', sans-serif;
-            color: #333;
-            text-align: center;
-            width: 260px;
-            opacity: 0;
-            z-index: 9999;
-        }
+                <style>
+                    .toastify-popup {
+                        position: fixed;
+                        top: 70px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        background: #FFF1E6;
+                        border: 1px solid #F7B7B7;
+                        border-radius: 12px;
+                        padding: 14px 18px;
+                        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+                        font-family: 'Poppins', sans-serif;
+                        color: #333;
+                        text-align: center;
+                        width: 260px;
+                        opacity: 0;
+                        z-index: 9999;
+                    }
 
-        .toastify-title {
-            font-size: 0.9rem;
-            font-weight: 500;
-            margin-bottom: 12px;
-        }
+                    .toastify-title {
+                        font-size: 0.9rem;
+                        font-weight: 500;
+                        margin-bottom: 12px;
+                    }
 
-        .toastify-btn-group {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
+                    .toastify-btn-group {
+                        display: flex;
+                        justify-content: center;
+                        gap: 10px;
+                    }
 
-        .toastify-btn-group button {
-            border: none;
-            border-radius: 8px;
-            padding: 6px 14px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.25s ease;
-        }
+                    .toastify-btn-group button {
+                        border: none;
+                        border-radius: 8px;
+                        padding: 6px 14px;
+                        font-size: 0.8rem;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.25s ease;
+                    }
 
-        .toastify-btn-group .btn-confirm {
-            background: #F47C7C;
-            color: white;
-        }
+                    .toastify-btn-group .btn-confirm {
+                        background: #F47C7C;
+                        color: white;
+                    }
 
-        .toastify-btn-group .btn-confirm:hover {
-            background: #ff6b6b;
-            transform: scale(1.05);
-        }
+                    .toastify-btn-group .btn-confirm:hover {
+                        background: #ff6b6b;
+                        transform: scale(1.05);
+                    }
 
-        .toastify-btn-group .btn-cancel {
-            background: #f8f8f8;
-            color: #444;
-        }
+                    .toastify-btn-group .btn-cancel {
+                        background: #f8f8f8;
+                        color: #444;
+                    }
 
-        .toastify-btn-group .btn-cancel:hover {
-            background: #ededed;
-            transform: scale(1.03);
-        }
+                    .toastify-btn-group .btn-cancel:hover {
+                        background: #ededed;
+                        transform: scale(1.03);
+                    }
 
-        .toastify-popup-show {
-            animation: toastIn 0.35s ease forwards;
-        }
+                    .toastify-popup-show {
+                        animation: toastIn 0.35s ease forwards;
+                    }
 
-        .toastify-popup-hide {
-            animation: toastOut 0.25s ease forwards;
-        }
+                    .toastify-popup-hide {
+                        animation: toastOut 0.25s ease forwards;
+                    }
 
-        .toastify-success {
-            background: #E6F9EE;
-            border: 1px solid #C4E7D0;
-            color: #256D43;
-            border-radius: 12px;
-            padding: 0 20px;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 40px;
-            line-height: 40px;
-            max-width: 90%;
-            white-space: nowrap;
-            top: 90px !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            font-size: 15px;
-            font-weight: 500;
-        }
+                    .toastify-success {
+                        background: #E6F9EE;
+                        border: 1px solid #C4E7D0;
+                        color: #256D43;
+                        border-radius: 12px;
+                        padding: 0 20px;
+                        display: inline-flex;
+                        justify-content: center;
+                        align-items: center;
+                        min-height: 40px;
+                        line-height: 40px;
+                        max-width: 90%;
+                        white-space: nowrap;
+                        top: 90px !important;
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                        font-size: 15px;
+                        font-weight: 500;
+                    }
 
-        body,
-        .toastify-popup,
-        .toastify-title,
-        .toastify-btn-group button {
-            font-family: 'Poppins', sans-serif !important;
-        }
+                    body,
+                    .toastify-popup,
+                    .toastify-title,
+                    .toastify-btn-group button {
+                        font-family: 'Poppins', sans-serif !important;
+                    }
 
-        @keyframes toastIn {
-            0% {
-                opacity: 0;
-                transform: translate(-50%, -15px) scale(0.95);
-            }
+                    @keyframes toastIn {
+                        0% {
+                            opacity: 0;
+                            transform: translate(-50%, -15px) scale(0.95);
+                        }
 
-            70% {
-                opacity: 1;
-                transform: translate(-50%, 3px) scale(1.03);
-            }
+                        70% {
+                            opacity: 1;
+                            transform: translate(-50%, 3px) scale(1.03);
+                        }
 
-            100% {
-                opacity: 1;
-                transform: translate(-50%, 0) scale(1);
-            }
-        }
+                        100% {
+                            opacity: 1;
+                            transform: translate(-50%, 0) scale(1);
+                        }
+                    }
 
-        @keyframes toastOut {
-            from {
-                opacity: 1;
-                transform: translate(-50%, 0) scale(1);
-            }
+                    @keyframes toastOut {
+                        from {
+                            opacity: 1;
+                            transform: translate(-50%, 0) scale(1);
+                        }
 
-            to {
-                opacity: 0;
-                transform: translate(-50%, -10px) scale(0.95);
-            }
-        }
-    </style>
+                        to {
+                            opacity: 0;
+                            transform: translate(-50%, -10px) scale(0.95);
+                        }
+                    }
+                </style>
 
 </body>
 
