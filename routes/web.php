@@ -92,6 +92,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::delete('/superadmin/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
         Route::put('/superadmin/users/{id}', [UserController::class, 'update'])->name('users.update');
+        Route::post('/superadmin/users/store', [UserController::class, 'store'])->name('users.store');
 
         Route::post('/superadmin/units', [UnitController::class, 'store'])->name('units.store');
 

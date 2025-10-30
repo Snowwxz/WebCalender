@@ -6,11 +6,6 @@
 
 @section('content')
     @include('show_agenda_modal_dashboard')
-    @php
-        // Ambil user yang sedang login, bisa dari guard web (users) atau unit (OPD)
-        $user = Auth::user() ?? Auth::guard('unit')->user();
-    @endphp
-
     <div class="calendar-page">
         <div class="calendar-main">
             <div class="calendar-header">
@@ -641,8 +636,7 @@
                 const isPublic = data.is_public == 1;
                 const bg = isPublic ? '#A8E6A3' : '#FFB67E';
                 const text = isPublic ? 'Publik' : 'Privasi';
-                accessEl.innerHTML =
-                    `<span class="badge rounded-pill" style="background-color:${bg}; color:#2F3E35; padding:6px 10px;">${text}</span>`;
+                accessEl.innerHTML = `<span class="badge rounded-pill" style="background-color:${bg}; color:#2F3E35; padding:6px 10px;">${text}</span>`;
             }
 
             const statusEl = document.getElementById('showAgendaStatus');

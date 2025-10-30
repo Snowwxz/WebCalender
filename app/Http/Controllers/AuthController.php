@@ -56,57 +56,42 @@ class AuthController extends Controller
     // LOGIN
     public function login(Request $request)
     {
-        // Validasi input
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
 
-        // 🔹 Coba login sebagai superadmin/admin/user (dari tabel users)
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
+
             $user = Auth::user();
 
+            // 🔹 Semua role diarahkan ke dashboard_bulan
             if (in_array($user->role, ['superadmin', 'admin', 'user'])) {
                 return redirect()->route('dashboard.bulan');
             }
 
+            // fallback jika role tidak terdaftar
             return redirect()->route('landing.index');
         }
 
-        // 🔹 Kalau gagal, coba login sebagai OPD (tabel units)
-        if (Auth::guard('unit')->attempt($credentials, $request->boolean('remember'))) {
-            $request->session()->regenerate();
-            $unit = Auth::guard('unit')->user();
-
-            // OPD langsung diarahkan ke dashboard_bulan juga
-            return redirect()->route('dashboard.bulan');
-        }
-
-        // 🔹 Kalau dua-duanya gagal
         throw ValidationException::withMessages([
-            'email' => 'Email atau password tidak cocok dengan data kami.',
+            'email' => trans('auth.failed'),
         ]);
     }
+
+
+
 
 
     // LOGOUT
     public function logout(Request $request)
     {
-        // 🔹 Jika yang login adalah OPD (guard: unit)
-        if (Auth::guard('unit')->check()) {
-            Auth::guard('unit')->logout();
-        }
-        // 🔹 Jika yang login adalah user biasa (guard: web)
-        else {
-            Auth::guard('web')->logout();
-        }
+        Auth::guard('web')->logout();
 
-        // Hapus session dan regenerasi token
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // Arahkan kembali ke halaman login atau beranda
-        return redirect('/login');
+        return redirect('/');
     }
 }
