@@ -12,6 +12,11 @@
     z-index: 10000;
 }
 
+/* Disable animation when restoring state on first paint */
+.sidebar.no-animate {
+    transition: none !important;
+}
+
 .sidebar.collapsed {
     width: 70px;
     padding: 20px 10px;
@@ -421,6 +426,7 @@
 
     .sidebar.show {
         transform: translateX(0);
+        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
     }
 }
 
@@ -436,6 +442,7 @@
 
     .sidebar.show {
         transform: translateX(0);
+        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
     }
 }
 
@@ -443,6 +450,8 @@
     .sidebar {
         width: 280px;
         z-index: 10000 !important;
+        top: 72px; /* align with actual header height on landing */
+        height: calc(100vh - 72px);
     }
 
     .sidebar:not(.show):not(.collapsed) {
