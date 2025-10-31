@@ -37,6 +37,7 @@
     display: flex;
     gap: 10px;
     overflow-x: auto;
+    white-space: nowrap; /* keep tabs in one line */
     justify-content: center;
     margin-top: 4px;
     background: #f3f4f6;
@@ -44,6 +45,8 @@
     border-radius: 999px;
     padding: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
 }
 
 .status-tab {
@@ -532,6 +535,8 @@
     .status-tabs {
         padding: 6px 4px;
         gap: 6px;
+        justify-content: flex-start; /* start from left so first tab visible */
+        max-width: 100%;
     }
 
     .status-tab {
