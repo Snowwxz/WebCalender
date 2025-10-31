@@ -5,7 +5,6 @@
     animation: fadeIn 0.4s ease;
 }
 
-/* Style untuk main content agar full width dan centered */
 body .app-container>.main-content {
     margin-left: 0 !important;
     width: 100% !important;
@@ -13,7 +12,6 @@ body .app-container>.main-content {
     max-width: 100% !important;
 }
 
-/* Wrapper untuk konten yang terpusat */
 .approval-page {
     max-width: 1400px;
     margin: 0 auto;
@@ -55,6 +53,25 @@ body .app-container>.main-content {
     display: flex;
     flex-direction: column;
     gap: 20px;
+}
+
+.title-wrap {
+    text-align: center;
+    width: 100%;
+}
+
+.title-wrap .page-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.title-wrap .page-subtitle {
+    font-size: 14px;
+    color: #6b7280;
+    text-align: center;
 }
 
 .btn-add-user {
@@ -427,14 +444,12 @@ body .app-container>.main-content {
     font-family: 'Poppins', sans-serif !important;
 }
 
-/* === SEARCH SECTION === */
 .search-section {
     display: flex;
     justify-content: center;
     margin: 20px 0 30px;
 }
 
-/* === SEARCH BOX === */
 .search-box {
     display: flex;
     align-items: center;

@@ -430,6 +430,60 @@ label {
     font-size: 12px !important;
 }
 
+.fullwidth-group {
+    grid-column: 1 / -1 !important;
+}
+
+.fullwidth-group textarea {
+    min-height: 140px;
+}
+
+.fullwidth-group input,
+.fullwidth-group textarea {
+    width: 100%;
+    display: block;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px 60px;
+    align-items: start;
+    margin-bottom: 40px;
+
+}
+
+.agenda-form-card input[type="text"],
+.agenda-form-card input[type="date"],
+.agenda-form-card input[type="time"],
+.agenda-form-card select,
+.chips-multiselect {
+    height: 46px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.chips-multiselect {
+    padding: 0 44px 0 16px !important;
+}
+
+.chips-input {
+    padding: 0 !important;
+    line-height: 1 !important;
+}
+
+.input-group label {
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.input-group {
+    margin-bottom: 22px;
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
