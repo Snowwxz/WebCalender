@@ -92,6 +92,19 @@
                     @endif
 
                     <div class="form-grid">
+
+                        <!-- Pindahkan ke bawah sini -->
+                        <div class="input-group fullwidth-group">
+                            <label><i class="fas fa-file-alt"></i> Nama Agenda</label>
+                            <input type="text" name="agenda_name" placeholder="Masukkan nama agenda"
+                                value="{{ old('agenda_name') }}" required>
+                        </div>
+
+                        <div class="input-group fullwidth-group">
+                            <label><i class="fas fa-align-left"></i> Deskripsi Agenda</label>
+                            <textarea name="description" placeholder="Masukkan deskripsi agenda" required>{{ old('description') }}</textarea>
+                        </div>
+
                         <!-- Kolom kiri -->
                         <div class="form-column">
                             <div class="input-group">
@@ -167,18 +180,6 @@
                                 <input type="text" name="location" placeholder="Masukkan lokasi kegiatan" required>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Pindahkan ke bawah sini -->
-                    <div class="input-group fullwidth-group">
-                        <label><i class="fas fa-file-alt"></i> Nama Agenda</label>
-                        <input type="text" name="agenda_name" placeholder="Masukkan nama agenda"
-                            value="{{ old('agenda_name') }}" required>
-                    </div>
-
-                    <div class="input-group fullwidth-group">
-                        <label><i class="fas fa-align-left"></i> Deskripsi Agenda</label>
-                        <textarea name="description" placeholder="Masukkan deskripsi agenda" required>{{ old('description') }}</textarea>
                     </div>
 
                     <div class="form-submit">
