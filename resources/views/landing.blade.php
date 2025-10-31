@@ -285,7 +285,7 @@
     const message = localStorage.getItem('logoutSuccess');
     if (message) {
         showSuccessToast(message);
-        localStorage.removeItem('logoutSuccess'); // hapus supaya nggak muncul lagi nanti
+        localStorage.removeItem('logoutSuccess'); 
     }
 });
     </script>

@@ -53,10 +53,19 @@ class AgendaController extends Controller
      */
     public function create()
     {
-        $units = Unit::orderBy('unit_name', 'asc')->get();
+        $user = Auth::user();
+        $unitName = null;
 
-        return view('agenda_create', compact('units'));
+        if ($user && $user->id_unit) {
+            $unit = Unit::find($user->id_unit);
+            $unitName = $unit ? $unit->unit_name : null;
+        }
+
+        $units = Unit::all();
+        // kirim nama instansi user login
+        return view('agenda_create', compact('unitName', 'units'));
     }
+
 
     /**
      * ✅ Simpan agenda baru.
@@ -73,7 +82,6 @@ class AgendaController extends Controller
             'location' => 'nullable|string|max:255',
             'involved_institution' => 'nullable|string|max:500',
             'is_public' => 'required|in:0,1',
-            'id_unit' => 'required|exists:units,id_unit',
         ]);
 
         try {
@@ -87,7 +95,7 @@ class AgendaController extends Controller
             $agenda->location = $validated['location'];
             $agenda->involved_institution = $validated['involved_institution'];
             $agenda->is_public = $validated['is_public'];
-            $agenda->id_unit = $validated['id_unit'];
+            $agenda->id_unit = Auth::user()->id_unit;
             $agenda->id_user = Auth::user()->id_user;
             $agenda->status = 'pending';
             $agenda->save();

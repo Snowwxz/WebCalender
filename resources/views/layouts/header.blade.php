@@ -60,7 +60,17 @@
                     </div>
                     <div class="user-info">
                         <div class="username">{{ Auth::user()->name }}</div>
-                        <div class="user-email">{{ Auth::user()->email }}</div>
+                        <div class="user-email">
+                            @if (Auth::user()->role === 'superadmin')
+                                Super Admin
+                            @elseif (Auth::user()->role === 'admin')
+                                Protokol
+                            @elseif (Auth::user()->unit)
+                                {{ Auth::user()->unit->unit_name }}
+                            @else
+                                Belum Ada Instansi
+                            @endif
+                        </div>
                     </div>
                     <div class="dropdown-arrow">
                         <i class="fas fa-chevron-up"></i>

@@ -59,6 +59,7 @@ class UserController extends Controller
             'email' => 'required|email|max:255',
             'password' => 'nullable|string|min:6',
             'role' => 'required|in:user,admin',
+            'id_unit' => 'required|exists:units,id_unit',
         ]);
 
         $user = User::findOrFail($id);
@@ -66,6 +67,7 @@ class UserController extends Controller
         $user->name = $request->name;
         $user->username = $request->username;
         $user->email = $request->email;
+        $user->id_unit = $request->id_unit;
 
         // Jika password diisi, baru ubah
         if ($request->filled('password')) {
@@ -76,5 +78,31 @@ class UserController extends Controller
         $user->save();
 
         return redirect()->back()->with('success', 'User berhasil diperbarui.');
+    }
+
+    /**
+     * Simpan user baru (hanya untuk superadmin)
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users',
+            'email' => 'required|email|max:255|unique:users',
+            'password' => 'required|string|min:6',
+            'role' => 'required|in:user,admin',
+            'id_unit' => 'required|exists:units,id_unit'
+        ]);
+
+        User::create([
+            'name' => $request->name,
+            'username' => $request->username,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => $request->role,
+            'id_unit' => $request->id_unit,
+        ]);
+
+        return redirect()->back()->with('success', 'User berhasil ditambahkan!');
     }
 }
