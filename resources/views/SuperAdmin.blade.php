@@ -338,48 +338,34 @@
                 });
             }
 
-            // === 🆕 FUNGSI AUTO-SELECT & HIDE OPD SAAT ROLE BERUBAH ===
+          // === 🆕 FUNGSI AUTO-SELECT OPD SAAT ROLE = ADMIN ===
             const roleSelect = document.querySelector('#addUserModal select[name="role"]');
             const opdSelect = document.querySelector('#addUserModal select[name="id_unit"]');
-            let protokolOption = null; // buat simpan elemen option Protokol
 
             if (roleSelect && opdSelect) {
-                // simpan dulu opsi "Protokol" supaya bisa dikembalikan nanti
-                protokolOption = Array.from(opdSelect.options).find(
-                    opt => opt.text.trim().toLowerCase() === 'protokol'
-                );
-
                 roleSelect.addEventListener('change', function() {
                     const selectedRole = this.value.toLowerCase();
-
                     if (selectedRole === 'admin') {
-                        // kalau Protokol belum ada (karena sebelumnya dihapus), tambahkan lagi
-                        if (!Array.from(opdSelect.options).some(opt => opt.text.trim().toLowerCase() ===
-                                'protokol')) {
-                            if (protokolOption) opdSelect.appendChild(protokolOption);
-                        }
-
-                        // pilih otomatis Protokol dan disable
+                        const protokolOption = Array.from(opdSelect.options).find(
+                            opt => opt.text.trim().toLowerCase() === 'protokol'
+                        );
                         if (protokolOption) {
                             opdSelect.value = protokolOption.value;
-                            opdSelect.disabled = true;
-                        }
+                            opdSelect.setAttribute('readonly', true);
+                            opdSelect.classList.add('readonly');
 
+                        }
                     } else if (selectedRole === 'user') {
+                        opdSelect.value = '';
+                        opdSelect.disabled = true;
+                    } else {
                         opdSelect.disabled = false;
                         opdSelect.value = '';
-
-                        // hapus opsi Protokol dari dropdown
-                        Array.from(opdSelect.options).forEach(opt => {
-                            if (opt.text.trim().toLowerCase() === 'protokol') {
-                                opt.remove();
-                            }
-                        });
                     }
                 });
             }
 
-        });
+        }); // ✅ ini penutup yang benar untuk DOMContentLoaded
     </script>
 
     <!-- Modal Tambah OPD -->
