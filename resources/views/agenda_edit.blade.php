@@ -63,7 +63,11 @@
                                 position: "right",
                                 backgroundColor: "#4CAF50",
                                 stopOnFocus: true,
-                                style: { borderRadius: "8px", boxShadow: "0 3px 8px rgba(0,0,0,0.1)", fontWeight: "500" }
+                                style: {
+                                    borderRadius: "8px",
+                                    boxShadow: "0 3px 8px rgba(0,0,0,0.1)",
+                                    fontWeight: "500"
+                                }
                             }).showToast();
                         </script>
                     @endif
@@ -77,7 +81,11 @@
                                 position: "right",
                                 backgroundColor: "#f44336",
                                 stopOnFocus: true,
-                                style: { borderRadius: "8px", boxShadow: "0 3px 8px rgba(0,0,0,0.1)", fontWeight: "500" }
+                                style: {
+                                    borderRadius: "8px",
+                                    boxShadow: "0 3px 8px rgba(0,0,0,0.1)",
+                                    fontWeight: "500"
+                                }
                             }).showToast();
                         </script>
                     @endif
@@ -98,8 +106,9 @@
 
                             <div class="input-group">
                                 <label><i class="fas fa-building"></i> Nama Instansi (Pengaju)</label>
-                                <input type="text" name="id_unit" placeholder="Masukkan nama instansi pengaju"
-                                    value="{{ old('id_unit', $agenda->id_unit) }}" required>
+                                <input type="text" name="id_unit"
+                                    value="{{ Auth::user()->unit->unit_name ?? 'Tidak Diketahui' }}" readonly
+                                    style="background-color:#f2f2f2; cursor:not-allowed;">
                             </div>
 
                             <div class="input-group">
@@ -112,8 +121,12 @@
                             <div class="input-group">
                                 <label><i class="fas fa-eye"></i> Kategori Agenda</label>
                                 <select name="is_public">
-                                    <option value="1" {{ old('is_public', $agenda->is_public) == 1 ? 'selected' : '' }}>Publik</option>
-                                    <option value="0" {{ old('is_public', $agenda->is_public) == 0 ? 'selected' : '' }}>Privasi</option>
+                                    <option value="1"
+                                        {{ old('is_public', $agenda->is_public) == 1 ? 'selected' : '' }}>Publik
+                                    </option>
+                                    <option value="0"
+                                        {{ old('is_public', $agenda->is_public) == 0 ? 'selected' : '' }}>Privasi
+                                    </option>
                                 </select>
                             </div>
                         </div>
@@ -129,7 +142,8 @@
                             <div class="input-group">
                                 <label><i class="fas fa-clock"></i> Waktu Mulai</label>
                                 <input type="time" name="start_time"
-                                    value="{{ old('start_time', optional($agenda->start_time)->format('H:i')) }}" required>
+                                    value="{{ old('start_time', optional($agenda->start_time)->format('H:i')) }}"
+                                    required>
                             </div>
 
                             <div class="input-group">
@@ -185,7 +199,7 @@
 
                     <div class="form-submit">
                         <button type="submit" class="btn-primary">
-                        Simpan Perubahan
+                            Simpan Perubahan
                         </button>
                     </div>
                 </form>
@@ -200,7 +214,8 @@
                 'agenda_name', 'description', 'id_unit', 'person_in_charge',
                 'date', 'start_time', 'end_time', 'location', 'involved_institution'
             ];
-            let isValid = true, emptyFields = [];
+            let isValid = true,
+                emptyFields = [];
             requiredFields.forEach(field => {
                 const el = document.querySelector(`[name="${field}"]`);
                 if (el && (!el.value || el.value.trim() === '')) {
@@ -239,7 +254,11 @@
                 root.classList.toggle('open', isOpen);
                 if (isOpen) searchInput.focus();
             }
-            function closeDropdown() { dropdown.classList.remove('open'); root.classList.remove('open'); }
+
+            function closeDropdown() {
+                dropdown.classList.remove('open');
+                root.classList.remove('open');
+            }
 
             function addChip(value) {
                 if (selectedValues.includes(value)) return;
@@ -253,28 +272,40 @@
                 btn.onclick = () => {
                     chip.remove();
                     selectedValues = selectedValues.filter(v => v !== value);
-                    listItems.forEach(li => { if (li.textContent.trim() === value) li.style.display = 'block'; });
+                    listItems.forEach(li => {
+                        if (li.textContent.trim() === value) li.style.display = 'block';
+                    });
                     syncHidden();
                 };
                 chip.appendChild(btn);
                 selectedWrap.appendChild(chip);
-                listItems.forEach(li => { if (li.textContent.trim() === value) li.style.display = 'none'; });
+                listItems.forEach(li => {
+                    if (li.textContent.trim() === value) li.style.display = 'none';
+                });
                 syncHidden();
             }
+
             function syncHidden() {
                 hiddenField.value = selectedValues.join(', ');
                 mainInput.style.display = selectedValues.length ? 'none' : 'inline';
             }
+
             function filterList(term) {
                 const lower = term.toLowerCase();
-                listItems.forEach(li => li.style.display = li.textContent.toLowerCase().includes(lower) ? 'block' : 'none');
+                listItems.forEach(li => li.style.display = li.textContent.toLowerCase().includes(lower) ? 'block' :
+                    'none');
             }
 
             searchInput.addEventListener('input', e => filterList(e.target.value));
             arrow.addEventListener('click', toggleDropdown);
             container.addEventListener('click', toggleDropdown);
-            listItems.forEach(li => li.addEventListener('click', () => { addChip(li.textContent.trim()); closeDropdown(); }));
-            document.addEventListener('click', e => { if (!root.contains(e.target)) closeDropdown(); });
+            listItems.forEach(li => li.addEventListener('click', () => {
+                addChip(li.textContent.trim());
+                closeDropdown();
+            }));
+            document.addEventListener('click', e => {
+                if (!root.contains(e.target)) closeDropdown();
+            });
         })();
     </script>
 </body>

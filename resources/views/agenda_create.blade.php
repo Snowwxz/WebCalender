@@ -104,12 +104,15 @@
                                 <label><i class="fas fa-align-left"></i> Deskripsi Agenda</label>
                                 <textarea name="description" placeholder="Masukkan deskripsi agenda" required>{{ old('description') }}</textarea>
                             </div>
-                            
+
                             <div class="input-group">
                                 <label><i class="fas fa-building"></i> Nama Instansi (Pengaju)</label>
-                                <input type="text" name="id_unit" placeholder="Masukkan nama instansi pengaju"
-                                    value="{{ old('id_unit') }}" required>
+                                <input type="text" value="{{ $unitName }}" readonly>
+
+                                <!-- kirim id_unit secara tersembunyi -->
+                                <input type="hidden" name="id_unit" value="{{ Auth::user()->id_unit }}">
                             </div>
+
 
                             <div class="input-group">
                                 <label><i class="fas fa-user-tie"></i> Penanggung Jawab</label>
@@ -182,7 +185,6 @@
                         <button type="submit" class="btn-primary">Ajukan Agenda</button>
                     </div>
                 </form>
-
             </div>
         </div>
     </div>
