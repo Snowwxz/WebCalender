@@ -239,42 +239,52 @@ class AgendaController extends Controller
      */
     public function notification(Request $request)
     {
-        $userId = Auth::id();
+        $user = Auth::user();
+        $userId = $user ? $user->id_user : null;
 
-        $baseQuery = Agenda::where('id_user', $userId)
+        // Filters
+        $status = $request->query('status', 'all');
+        $search = $request->query('q');
+
+        // Base query for the list
+        $query = Agenda::with(['unit'])
+            ->where('id_user', $userId)
             ->orderBy('created_at', 'desc');
 
-        // Counts for tabs
-        $counts = [
-            'all' => (clone $baseQuery)->count(),
-            'pending' => (clone $baseQuery)->where('status', 'pending')->count(),
-            'approved' => (clone $baseQuery)->where('status', 'approved')->count(),
-            'rejected' => (clone $baseQuery)->where('status', 'rejected')->count(),
-        ];
-
-        // Apply filters
-        $status = $request->query('status', 'all');
-        $q = $request->query('q', '');
-
-        $query = (clone $baseQuery);
-        if ($status !== 'all') {
+        if (in_array($status, ['pending', 'approved', 'rejected'])) {
             $query->where('status', $status);
         }
-        if ($q !== '') {
-            $query->where(function ($qq) use ($q) {
-                $qq->where('agenda_name', 'like', "%{$q}%")
-                    ->orWhere('description', 'like', "%{$q}%")
-                    ->orWhere('person_in_charge', 'like', "%{$q}%");
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $like = "%" . $search . "%";
+                $q->where('agenda_name', 'like', $like)
+                    ->orWhere('description', 'like', $like)
+                    ->orWhere('location', 'like', $like)
+                    ->orWhere('involved_institution', 'like', $like)
+                    ->orWhereHas('unit', function ($uq) use ($like) {
+                        $uq->where('unit_name', 'like', $like);
+                    });
             });
         }
 
-        $agenda = $query->paginate(5)->withQueryString();
+        // Use paginator for the view's pagination helpers
+        $agenda = $query->paginate(10)->withQueryString();
+
+        // Counts for tabs (ignoring search for overall counts)
+        $baseCount = Agenda::where('id_user', $userId);
+        $counts = [
+            'all' => (clone $baseCount)->count(),
+            'pending' => (clone $baseCount)->where('status', 'pending')->count(),
+            'approved' => (clone $baseCount)->where('status', 'approved')->count(),
+            'rejected' => (clone $baseCount)->where('status', 'rejected')->count(),
+        ];
 
         if ($request->wantsJson()) {
             return response()->json($agenda);
         }
 
-        return view('notification', compact('agenda', 'counts', 'status', 'q'));
+        return view('notification', compact('agenda', 'counts', 'status', 'search'));
     }
 
     /**

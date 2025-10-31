@@ -5,7 +5,6 @@
 @endpush
 
 @section('content')
-        <main class="main-content">
             <div class="notification-page">
                 <div class="notification-header">
                     <div>
@@ -232,7 +231,6 @@
                     </nav>
                 @endif
             </div>
-        </main>
 
     <script>
         function toggleDropdown() {

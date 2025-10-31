@@ -106,11 +106,26 @@
             overlay.id = 'sidebar-overlay';
             overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9998;';
             overlay.onclick = function() {
-                document.querySelector('.sidebar').classList.remove('show');
-                localStorage.setItem('sidebarShow', '0');
+                const sidebar = document.querySelector('.sidebar');
+                if (!sidebar) return;
+
+                // Close mobile/tablet sidebar
+                if (sidebar.classList.contains('show')) {
+                    sidebar.classList.remove('show');
+                    localStorage.setItem('sidebarShow', '0');
+                }
+
+                // Close desktop expanded sidebar
+                if (sidebar.classList.contains('expanded')) {
+                    sidebar.classList.remove('expanded');
+                    localStorage.setItem('sidebarExpanded', '0');
+                }
+
                 removeOverlay();
             };
             document.body.appendChild(overlay);
+            // prevent background scrolling when sidebar is open
+            document.body.style.overflow = 'hidden';
         }
 
         // Remove overlay
@@ -119,6 +134,8 @@
             if (overlay) {
                 overlay.remove();
             }
+            // restore background scroll
+            document.body.style.overflow = '';
         }
 
         // Switch view
