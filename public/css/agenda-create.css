@@ -2,10 +2,9 @@
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    padding: 60px 20px;
+    padding: 20px;
     background: #ffffff;
-    min-height: calc(100vh - 150px);
-    margin-top: 70px;
+    min-height: calc(100vh - 72px);
 }
 
 .agenda-form-card {

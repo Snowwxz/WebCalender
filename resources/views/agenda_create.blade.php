@@ -1,24 +1,12 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('layouts.main')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ajukan Agenda - SiKota</title>
-    <!-- Base CSS -->
-    <link rel="stylesheet" href="{{ asset('css/base.css') }}">
-    <!-- Component CSS -->
-    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
+@push('styles')
     <link rel="stylesheet" href="{{ asset('css/agenda-create.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-</head>
+@endpush
 
-<body>
-    <div class="app-container">
-        @include('layouts.header')
-
+@section('content')
         <div class="agenda-container">
             <div class="agenda-form-card">
 
@@ -187,7 +175,6 @@
                 </form>
             </div>
         </div>
-    </div>
 
     <script>
         // Toggle sidebar
@@ -406,7 +393,5 @@
             syncHidden(); // set initial empty state 👈 TAMBAHKAN DI SINI
         })();
     </script>
-
-</body>
-
-</html>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+@endsection

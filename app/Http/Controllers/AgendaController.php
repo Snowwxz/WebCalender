@@ -237,19 +237,44 @@ class AgendaController extends Controller
     /**
      * ✅ Notifikasi agenda milik user yang login.
      */
-    public function notification()
+    public function notification(Request $request)
     {
         $userId = Auth::id();
 
-        $agenda = Agenda::where('id_user', $userId)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $baseQuery = Agenda::where('id_user', $userId)
+            ->orderBy('created_at', 'desc');
 
-        if (request()->wantsJson()) {
+        // Counts for tabs
+        $counts = [
+            'all' => (clone $baseQuery)->count(),
+            'pending' => (clone $baseQuery)->where('status', 'pending')->count(),
+            'approved' => (clone $baseQuery)->where('status', 'approved')->count(),
+            'rejected' => (clone $baseQuery)->where('status', 'rejected')->count(),
+        ];
+
+        // Apply filters
+        $status = $request->query('status', 'all');
+        $q = $request->query('q', '');
+
+        $query = (clone $baseQuery);
+        if ($status !== 'all') {
+            $query->where('status', $status);
+        }
+        if ($q !== '') {
+            $query->where(function ($qq) use ($q) {
+                $qq->where('agenda_name', 'like', "%{$q}%")
+                    ->orWhere('description', 'like', "%{$q}%")
+                    ->orWhere('person_in_charge', 'like', "%{$q}%");
+            });
+        }
+
+        $agenda = $query->paginate(5)->withQueryString();
+
+        if ($request->wantsJson()) {
             return response()->json($agenda);
         }
 
-        return view('notification', compact('agenda'));
+        return view('notification', compact('agenda', 'counts', 'status', 'q'));
     }
 
     /**
