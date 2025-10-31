@@ -246,7 +246,7 @@
                     const form = document.getElementById('editForm');
                     const userId = button.getAttribute('data-id');
 
-                    form.action = `/superadmin/users/${userId}`;
+                    form.action = /superadmin/users/${userId};
                     document.getElementById('editName').value = button.getAttribute('data-name');
                     document.getElementById('editUsername').value = button.getAttribute('data-username');
                     document.getElementById('editEmail').value = button.getAttribute('data-email');
@@ -275,7 +275,7 @@
                     const name = button.getAttribute('data-name');
                     const address = button.getAttribute('data-address');
 
-                    form.action = `/superadmin/units/${unitId}`;
+                    form.action = /superadmin/units/${unitId};
                     document.getElementById('editUnitName').value = name;
                     document.getElementById('editUnitAddress').value = address ?? '';
                     modal.classList.add('show');
@@ -390,7 +390,7 @@
             const form = document.getElementById('editForm');
             const userId = button.getAttribute('data-id');
 
-            form.action = `/superadmin/users/${userId}`;
+            form.action = /superadmin/users/${userId};
             document.getElementById('editName').value = button.getAttribute('data-name');
             document.getElementById('editUsername').value = button.getAttribute('data-username');
             document.getElementById('editEmail').value = button.getAttribute('data-email');
@@ -419,7 +419,7 @@
             const name = button.getAttribute('data-name');
             const address = button.getAttribute('data-address');
 
-            form.action = `/superadmin/units/${unitId}`;
+            form.action = /superadmin/units/${unitId};
             document.getElementById('editUnitName').value = name;
             document.getElementById('editUnitAddress').value = address ?? '';
             modal.classList.add('show');
@@ -557,7 +557,7 @@
             function showSuccessToast(message) {
                 const popup = document.createElement('div');
                 popup.className = 'toastify-popup toastify-success';
-                popup.innerHTML = `<p class="toastify-title">${message}</p>`;
+                popup.innerHTML = <p class="toastify-title">${message}</p>;
                 document.body.appendChild(popup);
 
                 popup.classList.add('toastify-popup-show');
