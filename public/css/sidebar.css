@@ -1,15 +1,19 @@
 .sidebar {
-    width: 280px;
+    width: 70px;
     background: white;
     border-right: 1px solid #e9ecef;
-    padding: 20px;
-    overflow-y: hidden;
+    padding: 20px 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
     transition: all 0.3s ease;
     position: fixed;
     top: 72px;
     left: 0;
     height: calc(100vh - 72px);
     z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 /* Disable animation when restoring state on first paint */
@@ -22,400 +26,64 @@
     padding: 20px 10px;
 }
 
-.sidebar.collapsed .section-title span {
-    display: none;
-}
-
-.sidebar.collapsed .mini-calendar-header,
-.sidebar.collapsed .mini-calendar-weekdays,
-.sidebar.collapsed .mini-calendar-days {
-    display: none;
-}
-
-.sidebar.collapsed .mini-nav-btn {
-    display: none;
-}
-
-.sidebar.collapsed .mini-calendar {
-    padding: 0;
-}
-
-.sidebar.collapsed .section-title {
-    justify-content: center;
-    margin-bottom: 20px;
-}
-
-.sidebar.collapsed .section-title i {
-    font-size: 20px;
-    color: #6E9579;
-}
-
-.sidebar.collapsed .mini-calendar-section,
-.sidebar.collapsed .agenda-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.sidebar.collapsed .agenda-categories {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-}
-
-.sidebar.collapsed .category-item {
-    justify-content: center;
-    width: 50px;
-    margin: 0 auto 15px;
-}
-
-.sidebar.collapsed .category-item .text {
-    display: none;
-}
-
-.sidebar.collapsed .category-item .dot {
-    display: none;
-}
-
-.sidebar.collapsed .category-item .custom-checkbox {
-    width: 30px;
-    height: 30px;
-}
-
-.sidebar.collapsed .category-item.public .custom-checkbox {
-    border-width: 3px;
-}
-
-.sidebar.collapsed .category-item.private .custom-checkbox {
-    border-width: 3px;
-}
-
-.sidebar .nav-tabs {
-    display: flex;
-    background: white;
-    border-radius: 8px;
-    padding: 4px;
+/* Sidebar Logo */
+.sidebar-logo {
     margin-bottom: 30px;
-    border-bottom: 1px solid #e9ecef;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
 }
 
-.sidebar .nav-tab {
-    flex: 1;
-    padding: 10px 16px;
-    border: none;
-    background: transparent;
-    color: #333;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 14px;
-    font-weight: 500;
-    text-align: center;
-    position: relative;
+.logo-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-decoration: none;
+}
+
+.sidebar .logo-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: contain;
+}
+
+/* Sidebar Navigation Icons */
+.sidebar-nav {
     display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.sidebar .nav-tab:first-child {
-    border-top-left-radius: 6px;
-    border-bottom-left-radius: 6px;
-}
-
-.sidebar .nav-tab:last-child {
-    border-top-right-radius: 6px;
-    border-bottom-right-radius: 6px;
-}
-
-.sidebar .nav-tab:hover {
-    background: rgba(201, 224, 199, 0.5);
-}
-
-.sidebar .nav-tab.active {
-    background: rgba(182, 206, 180, 0.7);
-    font-weight: 600;
-}
-
-.sidebar.collapsed .nav-tabs {
     flex-direction: column;
-    gap: 2px;
-    padding: 8px 4px;
+    gap: 15px;
+    width: 100%;
+    align-items: center;
 }
 
-.sidebar.collapsed .nav-tab {
-    padding: 10px;
-    font-size: 13px;
-    border-radius: 6px;
-    line-height: 1.2;
+.nav-icon {
+    width: 50px;
+    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 40px;
-    overflow: hidden;
-    white-space: nowrap;
-}
-
-.section-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 15px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #333;
-}
-
-.section-title i {
-    color: #6E9579;
-    font-size: 16px;
-}
-
-.mini-calendar-section {
-    margin-bottom: 30px;
-}
-
-.mini-calendar {
-    background: transparent;
-    border-radius: 8px;
-    padding: 15px;
-}
-
-.mini-calendar-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 16px;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 15px;
-}
-
-.mini-nav-btn {
-    background: transparent;
-    border: none;
-    color: #6E9579;
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-    font-size: 12px;
-}
-
-.mini-nav-btn:hover {
-    background: rgba(110, 149, 121, 0.1);
-    color: #5a7a5f;
-}
-
-.mini-nav-btn:active {
-    background: rgba(110, 149, 121, 0.2);
-}
-
-.mini-calendar-weekdays {
-    display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 2px;
-    margin-bottom: 8px;
-    justify-items: center;
-    align-items: center;
-}
-
-.mini-calendar-weekdays>div {
-    text-align: center;
-    font-size: 11px;
-    font-weight: 600;
+    border-radius: 10px;
     color: #6c757d;
-    padding: 4px;
-}
-
-.mini-calendar-weekdays .weekend {
-    color: #ff6b6b;
-}
-
-.mini-calendar-days {
-    display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 3px;
-    justify-items: center;
-    align-items: center;
-}
-
-.mini-day {
-    width: 25px;
-    height: 25px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    cursor: pointer;
-    border-radius: 50%;
-    transition: all 0.2s ease;
-    color: #000000;
-}
-
-.mini-day.other-month {
-    color: #c8d0c8 !important;
-    opacity: 0.6;
-    cursor: default;
-    font-weight: 400;
-}
-
-.mini-day.other-month:hover {
-    background-color: transparent !important;
-    color: #c8d0c8 !important;
-    font-weight: 400 !important;
-}
-
-.mini-day.today {
-    background-color: rgba(130, 169, 141, 0.3);
-    color: #82A98D;
-    font-weight: 700;
-    border-radius: 50%;
-    cursor: default;
-}
-
-.mini-day.weekend {
-    color: #ff6b6b;
-}
-
-.mini-day.weekend:hover:not(.today) {
-    background-color: rgba(130, 169, 141, 0.3);
-    color: #ff6b6b;
-    font-weight: 500;
-}
-
-.mini-day:hover:not(.today) {
-    background-color: rgba(130, 169, 141, 0.3);
-    color: #82A98D;
-    font-weight: 500;
-    border-radius: 50%;
-}
-
-.mini-day.weekend:hover:not(.today) {
-    background-color: rgba(130, 169, 141, 0.3);
-    color: #ff6b6b;
-    font-weight: 500;
-}
-
-/* Hari Sabtu tidak dianggap weekend (warna hitam) */
-.mini-day.saturday {
-    color: #000000 !important;
-}
-
-.mini-day.saturday:hover:not(.today) {
-    background-color: rgba(130, 169, 141, 0.3);
-    color: #82A98D !important;
-    font-weight: 500;
-}
-
-.agenda-section {
-    margin-bottom: 20px;
-}
-
-.agenda-categories {
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 20px;
     background: transparent;
-    border-radius: 8px;
-    padding: 15px;
 }
 
-.category-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
-    user-select: none;
+.nav-icon:hover {
+    background: rgba(110, 149, 121, 0.1);
+    color: #82A98D;
 }
 
-.category-item input[type="checkbox"] {
-    display: none;
-}
-
-.custom-checkbox {
-    width: 24px;
-    height: 24px;
-    border: 2.5px solid #343a40;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    transition: all 0.25s ease;
-    background-color: transparent;
-}
-
-.custom-checkbox::after {
-    content: "";
-    position: absolute;
-    width: 7px;
-    height: 12px;
-    border-right: 2.5px solid #333;
-    border-bottom: 2.5px solid #333;
-    transform: rotate(45deg) scale(0);
-    transition: transform 0.2s ease-in-out;
-}
-
-.category-item.public .custom-checkbox {
-    border-color: #A8E6A3;
-}
-
-.category-item.private .custom-checkbox {
-    border-color: #FFB67E;
-}
-
-.category-item.public input:checked + .custom-checkbox {
-    background-color: #A8E6A3;
-    border-color: #A8E6A3;
-}
-
-.category-item.private input:checked + .custom-checkbox {
-    background-color: #FFB67E;
-    border-color: #FFB67E;
-}
-
-.category-item input:checked + .custom-checkbox::after {
-    transform: rotate(45deg) scale(1);
-}
-
-.dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-}
-
-.category-item.public .dot {
-    background-color: #A8E6A3;
-}
-
-.category-item.private .dot {
-    background-color: #FFB67E;
-}
-
-.text {
-    color: #333;
-    font-weight: 500;
-}
-
-.category-item:hover .custom-checkbox {
-    transform: scale(1.05);
-}
-
-.category-item.disabled {
-    pointer-events: none;
-}
-
-.category-item.disabled .custom-checkbox,
-.category-item.disabled .text,
-.category-item.disabled .dot {
-    cursor: not-allowed;
+.nav-icon.active {
+    background: rgba(110, 149, 121, 0.2);
+    color: #6E9579;
 }
 
 /* Hide sidebar completely when not shown on mobile/tablet */
 @media (max-width: 1024px) {
     .sidebar {
+        width: 70px;
         z-index: 10000 !important;
     }
 
@@ -432,7 +100,7 @@
 
 @media (max-width: 768px) {
     .sidebar {
-        width: 280px;
+        width: 70px;
         z-index: 10000 !important;
     }
 
@@ -448,9 +116,9 @@
 
 @media (max-width: 480px) {
     .sidebar {
-        width: 280px;
+        width: 70px;
         z-index: 10000 !important;
-        top: 72px; /* align with actual header height on landing */
+        top: 72px;
         height: calc(100vh - 72px);
     }
 
@@ -461,11 +129,5 @@
     .sidebar.show {
         transform: translateX(0);
         box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
-    }
-
-    .sidebar .brand h2,
-    .section-title span,
-    .category-item label span {
-        display: block;
     }
 }

@@ -82,11 +82,8 @@
             // persist desktop collapsed state
             localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed') ? '1' : '0');
             // Adjust main content margin based on sidebar state
-            if (sidebar.classList.contains('collapsed')) {
-                mainContent.style.marginLeft = '70px';
-            } else {
-                mainContent.style.marginLeft = '280px';
-            }
+            // Sidebar is now always 70px wide (icon-only)
+            mainContent.style.marginLeft = '70px';
         }
 
         // Close sidebar on mobile/tablet
@@ -227,15 +224,10 @@
 
             if (window.innerWidth > 1024) {
                 // Desktop: use collapsed state
-                if (savedCollapsed === '1') {
-                    sidebar.classList.add('collapsed');
-                    sidebar.classList.remove('show');
-                    mainContent.style.marginLeft = '70px';
-                } else {
-                    sidebar.classList.remove('collapsed');
-                    sidebar.classList.remove('show');
-                    mainContent.style.marginLeft = '280px';
-                }
+                // Sidebar is now always 70px wide (icon-only)
+                sidebar.classList.add('collapsed');
+                sidebar.classList.remove('show');
+                mainContent.style.marginLeft = '70px';
             } else if (window.innerWidth <= 768) {
                 // Mobile/Tablet: use show state, default closed if none
                 if (savedShow === '1') {
@@ -324,14 +316,9 @@
                 mainContent.style.marginLeft = '0';
                 removeOverlay();
             } else {
-                // Desktop: check if collapsed or not
-                const isCollapsed = sidebar.classList.contains('collapsed');
+                // Desktop: sidebar is now always 70px wide (icon-only)
                 sidebar.classList.remove('show');
-                if (isCollapsed) {
-                    mainContent.style.marginLeft = '70px';
-                } else {
-                    mainContent.style.marginLeft = '280px';
-                }
+                mainContent.style.marginLeft = '70px';
                 removeOverlay();
             }
 
