@@ -16,6 +16,12 @@
     align-items: center;
 }
 
+/* Expanded state shows labels and increases width */
+.sidebar.expanded {
+    width: 220px;
+    align-items: flex-start;
+}
+
 /* Disable animation when restoring state on first paint */
 .sidebar.no-animate {
     transition: none !important;
@@ -70,6 +76,31 @@
     background: transparent;
 }
 
+/* Label hidden by default (icon-only) */
+.nav-label {
+    display: none;
+    margin-left: 12px;
+    font-size: 14px;
+    color: #343a40;
+    white-space: nowrap;
+}
+
+/* When sidebar expanded, show labels and stretch items */
+.sidebar.expanded .sidebar-nav {
+    align-items: stretch;
+}
+
+.sidebar.expanded .nav-icon {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 0 12px;
+    gap: 8px;
+}
+
+.sidebar.expanded .nav-label {
+    display: inline;
+}
+
 .nav-icon:hover {
     background: rgba(110, 149, 121, 0.1);
     color: #82A98D;
@@ -95,6 +126,22 @@
     .sidebar.show {
         transform: translateX(0);
         box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* On mobile/tablet when sidebar is shown, also show labels for clarity */
+    .sidebar.show .sidebar-nav {
+        align-items: stretch;
+    }
+
+    .sidebar.show .nav-icon {
+        width: 100%;
+        justify-content: flex-start;
+        padding: 0 12px;
+        gap: 8px;
+    }
+
+    .sidebar.show .nav-label {
+        display: inline;
     }
 }
 

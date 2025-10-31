@@ -77,13 +77,15 @@
                 return;
             }
 
-            // Desktop view - toggle collapsed state
-            sidebar.classList.toggle('collapsed');
-            // persist desktop collapsed state
-            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed') ? '1' : '0');
-            // Adjust main content margin based on sidebar state
-            // Sidebar is now always 70px wide (icon-only)
-            mainContent.style.marginLeft = '70px';
+            // Desktop view - toggle expanded state (overlay content, no push)
+            sidebar.classList.toggle('expanded');
+            const isExpanded = sidebar.classList.contains('expanded');
+            localStorage.setItem('sidebarExpanded', isExpanded ? '1' : '0');
+            if (isExpanded) {
+                createOverlay();
+            } else {
+                removeOverlay();
+            }
         }
 
         // Close sidebar on mobile/tablet
@@ -219,15 +221,19 @@
         function applySavedSidebarState() {
             const sidebar = document.querySelector('.sidebar');
             const mainContent = document.querySelector('.main-content');
-            const savedCollapsed = localStorage.getItem('sidebarCollapsed'); // '1' or '0'
+            const savedExpanded = localStorage.getItem('sidebarExpanded'); // '1' or '0'
             const savedShow = localStorage.getItem('sidebarShow'); // '1' or '0'
 
             if (window.innerWidth > 1024) {
-                // Desktop: use collapsed state
-                // Sidebar is now always 70px wide (icon-only)
-                sidebar.classList.add('collapsed');
+                // Desktop: use expanded state persistence, overlay content
                 sidebar.classList.remove('show');
-                mainContent.style.marginLeft = '70px';
+                if (savedExpanded === '1') {
+                    sidebar.classList.add('expanded');
+                    createOverlay();
+                } else {
+                    sidebar.classList.remove('expanded');
+                    removeOverlay();
+                }
             } else if (window.innerWidth <= 768) {
                 // Mobile/Tablet: use show state, default closed if none
                 if (savedShow === '1') {
@@ -301,24 +307,28 @@
             if (window.innerWidth <= 480) {
                 // Mobile: hide sidebar by default
                 sidebar.classList.remove('show');
-                sidebar.classList.remove('collapsed');
-                mainContent.style.marginLeft = '0';
+                sidebar.classList.remove('expanded');
                 removeOverlay();
             } else if (window.innerWidth <= 768) {
                 // Tablet: hide sidebar by default
-                sidebar.classList.remove('collapsed');
+                sidebar.classList.remove('expanded');
                 sidebar.classList.remove('show');
-                mainContent.style.marginLeft = '0';
                 removeOverlay();
             } else if (window.innerWidth <= 1024) {
                 // Large tablet: hide sidebar by default
                 sidebar.classList.remove('show');
-                mainContent.style.marginLeft = '0';
                 removeOverlay();
             } else {
-                // Desktop: sidebar is now always 70px wide (icon-only)
+                // Desktop: default to icon-only unless expanded is saved; overlay when expanded
                 sidebar.classList.remove('show');
-                mainContent.style.marginLeft = '70px';
+                const savedExpanded = localStorage.getItem('sidebarExpanded');
+                const isExpanded = savedExpanded === '1';
+                sidebar.classList.toggle('expanded', isExpanded);
+                if (isExpanded) {
+                    createOverlay();
+                } else {
+                    removeOverlay();
+                }
                 removeOverlay();
             }
 

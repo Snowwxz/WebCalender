@@ -12,42 +12,6 @@
 
     <div class="header-right">
         @auth
-            {{-- Notification Bell Icon --}}
-            <div class="notification-bell">
-                @if (Auth::user()->role === 'superadmin')
-                    {{-- 👉 Lonceng superadmin menuju ke halaman SuperAdmin --}}
-                    <a href="{{ route('superadmin.dashboard') }}"
-                        class="bell-link {{ request()->is('superadmin*') ? 'active' : '' }}" title="Halaman Superadmin">
-                        <i class="fas fa-users"></i>
-                    </a>
-                @elseif (Auth::user()->role === 'admin')
-                    {{-- 👉 Lonceng admin --}}
-                    <a href="{{ route('approve') }}" class="bell-link {{ request()->routeIs('approve') ? 'active' : '' }}"
-                        title="Notifikasi Agenda Saya">
-                        <i class="fas fa-bell"></i>
-                    </a>
-                @else
-                    {{-- 👉 Lonceng user/OPD --}}
-                    <a href="{{ route('agenda.notification') }}"
-                        class="bell-link {{ request()->routeIs('agenda.notification') ? 'active' : '' }}"
-                        title="Notifikasi Agenda Saya">
-                        <i class="fas fa-bell"></i>
-                    </a>
-                @endif
-            </div>
-
-
-
-            {{-- Tombol tambah agenda (jangan tampil di superadmin) --}}
-            @if (Auth::user()->role !== 'superadmin')
-                <div class="add-agenda-btn {{ request()->routeIs('agenda.create') ? 'active' : '' }}">
-                    <a href="{{ route('agenda.create') }}" class="agenda-badge" title="Tambah Agenda">
-                        <i class="fas fa-plus"></i>
-                        <span>Tambah Agenda</span>
-                    </a>
-                </div>
-            @endif
-
             {{-- user profile section --}}
             <div class="user-profile-section">
                 <div class="user-profile" onclick="toggleDropdown()">
