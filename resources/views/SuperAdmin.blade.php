@@ -37,6 +37,13 @@
 
                 <!-- Tabel User -->
                 <div class="admin-card">
+                    <!-- 🆕 Tambah User -->
+                    <div class="admin-card-header">
+                        <button class="btn-chip" type="button" onclick="openAddUserModal()">
+                            <i class="fas fa-plus"></i>
+                            Tambah User
+                        </button>
+                    </div>
                     <div class="section-title">
                         <i class="fas fa-users"></i>
                         <span>Daftar User</span>
@@ -52,6 +59,7 @@
                                     <th>Email</th>
                                     <th>Password</th>
                                     <th>Role</th>
+                                    <th>OPD</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -64,12 +72,13 @@
                                         <td>{{ $user->email }}</td>
                                         <td>••••••••</td>
                                         <td>{{ ucfirst($user->role) }}</td>
+                                        <td>{{ optional($user->unit)->unit_name ?? '-' }}</td>
                                         <td>
                                             <!-- Tombol Edit -->
                                             <button type="button" class="btn-icon-edit" data-id="{{ $user->id_user }}"
                                                 data-name="{{ $user->name }}" data-username="{{ $user->username }}"
                                                 data-email="{{ $user->email }}" data-role="{{ $user->role }}"
-                                                onclick="openEditModal(this)">
+                                                data-unit="{{ $user->id_unit ?? '' }}" onclick="openEditModal(this)">
                                                 <i class="fas fa-pen"></i>
                                             </button>
 
@@ -186,6 +195,16 @@
                 </div>
 
                 <div class="user-form-group">
+                    <label>OPD</label>
+                    <select name="id_unit" id="editOpd" required>
+                        <option value="">-- Pilih OPD --</option>
+                        @foreach ($units as $unit)
+                            <option value="{{ $unit->id_unit }}">{{ $unit->unit_name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="user-form-group">
                     <label>Role</label>
                     <select name="role" id="editRole" required>
                         <option value="user">User</option>
@@ -199,6 +218,169 @@
             </form>
         </div>
     </div>
+
+    <!-- 🆕 Modal Tambah User -->
+    <div id="addUserModal" class="user-form-modal">
+        <div class="user-form-content">
+            <div class="user-form-header">
+                <h2 class="user-form-title">
+                    <i class="fas fa-plus" style="margin-right: 8px; color:#82A98D;"></i>
+                    Tambah User
+                </h2>
+                <button class="close-modal" onclick="closeAddUserModal()">&times;</button>
+            </div>
+
+            <form action="{{ route('users.store') }}" method="POST">
+                @csrf
+                <div class="user-form-group">
+                    <label>Nama</label>
+                    <input type="text" name="name" required>
+                </div>
+
+                <div class="user-form-group">
+                    <label>Username</label>
+                    <input type="text" name="username" required>
+                </div>
+
+                <div class="user-form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" required>
+                </div>
+
+                <div class="user-form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" required>
+                </div>
+
+                <div class="user-form-group">
+                    <label>OPD</label>
+                    <select name="id_unit" required>
+                        <option value="">-- Pilih OPD --</option>
+                        @foreach ($units as $unit)
+                            <option value="{{ $unit->id_unit }}">{{ $unit->unit_name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="user-form-group">
+                    <label>Role</label>
+                    <select name="role" required>
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+
+                <div class="user-form-actions">
+                    <button type="submit" class="btn-save">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // === FUNGSI KONFIRMASI ===
+            function showConfirmation({
+                title,
+                text,
+                confirmText,
+                form
+            }) {
+                const popup = document.createElement('div');
+                popup.className = 'toastify-popup';
+                popup.innerHTML = `
+                <p class="toastify-title">${text}</p>
+                <div class="toastify-btn-group">
+                    <button class="btn-confirm">${confirmText}</button>
+                    <button class="btn-cancel">Batal</button>
+                </div>
+            `;
+                document.body.appendChild(popup);
+                popup.classList.add('toastify-popup-show');
+
+                popup.querySelector('.btn-cancel').addEventListener('click', () => {
+                    popup.classList.remove('toastify-popup-show');
+                    popup.classList.add('toastify-popup-hide');
+                    setTimeout(() => popup.remove(), 250);
+                });
+
+                popup.querySelector('.btn-confirm').addEventListener('click', () => {
+                    popup.classList.remove('toastify-popup-show');
+                    popup.classList.add('toastify-popup-hide');
+                    setTimeout(() => {
+                        popup.remove();
+                        form.submit();
+                    }, 200);
+                });
+            }
+
+            // === MODAL TAMBAH USER ===
+            window.openAddUserModal = function() {
+                document.getElementById('addUserModal').classList.add('show');
+            }
+
+            window.closeAddUserModal = function() {
+                document.getElementById('addUserModal').classList.remove('show');
+            }
+
+            // === EVENT SUBMIT TAMBAH USER ===
+            const addUserForm = document.querySelector('#addUserModal form');
+            if (addUserForm) {
+                addUserForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    showConfirmation({
+                        title: 'Konfirmasi Tambah User',
+                        text: 'Yakin ingin menambahkan user baru?',
+                        confirmText: 'Ya, simpan',
+                        form: addUserForm
+                    });
+                });
+            }
+
+            // === 🆕 FUNGSI AUTO-SELECT & HIDE OPD SAAT ROLE BERUBAH ===
+            const roleSelect = document.querySelector('#addUserModal select[name="role"]');
+            const opdSelect = document.querySelector('#addUserModal select[name="id_unit"]');
+            let protokolOption = null; // buat simpan elemen option Protokol
+
+            if (roleSelect && opdSelect) {
+                // simpan dulu opsi "Protokol" supaya bisa dikembalikan nanti
+                protokolOption = Array.from(opdSelect.options).find(
+                    opt => opt.text.trim().toLowerCase() === 'protokol'
+                );
+
+                roleSelect.addEventListener('change', function() {
+                    const selectedRole = this.value.toLowerCase();
+
+                    if (selectedRole === 'admin') {
+                        // kalau Protokol belum ada (karena sebelumnya dihapus), tambahkan lagi
+                        if (!Array.from(opdSelect.options).some(opt => opt.text.trim().toLowerCase() ===
+                                'protokol')) {
+                            if (protokolOption) opdSelect.appendChild(protokolOption);
+                        }
+
+                        // pilih otomatis Protokol dan disable
+                        if (protokolOption) {
+                            opdSelect.value = protokolOption.value;
+                            opdSelect.disabled = true;
+                        }
+
+                    } else if (selectedRole === 'user') {
+                        opdSelect.disabled = false;
+                        opdSelect.value = '';
+
+                        // hapus opsi Protokol dari dropdown
+                        Array.from(opdSelect.options).forEach(opt => {
+                            if (opt.text.trim().toLowerCase() === 'protokol') {
+                                opt.remove();
+                            }
+                        });
+                    }
+                });
+            }
+
+        });
+    </script>
 
     <!-- Modal Tambah OPD -->
     <div id="addUnitModal" class="user-form-modal">
@@ -251,6 +433,7 @@
                     document.getElementById('editUsername').value = button.getAttribute('data-username');
                     document.getElementById('editEmail').value = button.getAttribute('data-email');
                     document.getElementById('editRole').value = button.getAttribute('data-role');
+                    document.getElementById('editOpd').value = button.getAttribute('data-unit');
 
                     modal.classList.add('show');
                 }
@@ -293,48 +476,48 @@
                     });
                 });
 
-                    // === FUNGSI SEARCH BAR UNTUK USER & OPD ===
-                    document.addEventListener('DOMContentLoaded', function() {
-                        const searchInput = document.getElementById('searchInput');
-                        const userRows = document.querySelectorAll('#userTable tbody tr');
-                        const unitRows = document.querySelectorAll('#unitTable tbody tr');
+                // === FUNGSI SEARCH BAR UNTUK USER & OPD ===
+                document.addEventListener('DOMContentLoaded', function() {
+                    const searchInput = document.getElementById('searchInput');
+                    const userRows = document.querySelectorAll('#userTable tbody tr');
+                    const unitRows = document.querySelectorAll('#unitTable tbody tr');
 
-                        if (searchInput) {
-                            // Jalankan hanya saat tekan ENTER
-                            searchInput.addEventListener('keydown', function(e) {
-                                if (e.key === 'Enter') {
-                                    e.preventDefault(); // biar gak reload
-                                    const keyword = searchInput.value.toLowerCase().trim();
+                    if (searchInput) {
+                        // Jalankan hanya saat tekan ENTER
+                        searchInput.addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter') {
+                                e.preventDefault(); // biar gak reload
+                                const keyword = searchInput.value.toLowerCase().trim();
 
-                                    // Filter tabel USER
-                                    userRows.forEach(row => {
-                                        const cells = row.querySelectorAll('td');
-                                        const match = Array.from(cells).some(td =>
-                                            td.textContent.toLowerCase().includes(keyword)
-                                        );
-                                        row.style.display = match ? '' : 'none';
-                                    });
+                                // Filter tabel USER
+                                userRows.forEach(row => {
+                                    const cells = row.querySelectorAll('td');
+                                    const match = Array.from(cells).some(td =>
+                                        td.textContent.toLowerCase().includes(keyword)
+                                    );
+                                    row.style.display = match ? '' : 'none';
+                                });
 
-                                    // Filter tabel OPD
-                                    unitRows.forEach(row => {
-                                        const cells = row.querySelectorAll('td');
-                                        const match = Array.from(cells).some(td =>
-                                            td.textContent.toLowerCase().includes(keyword)
-                                        );
-                                        row.style.display = match ? '' : 'none';
-                                    });
-                                }
-                            });
+                                // Filter tabel OPD
+                                unitRows.forEach(row => {
+                                    const cells = row.querySelectorAll('td');
+                                    const match = Array.from(cells).some(td =>
+                                        td.textContent.toLowerCase().includes(keyword)
+                                    );
+                                    row.style.display = match ? '' : 'none';
+                                });
+                            }
+                        });
 
-                            // Kalau input dikosongkan → tampilkan semua data lagi
-                            searchInput.addEventListener('input', function() {
-                                if (searchInput.value.trim() === '') {
-                                    userRows.forEach(row => row.style.display = '');
-                                    unitRows.forEach(row => row.style.display = '');
-                                }
-                            });
-                        }
-                    });
+                        // Kalau input dikosongkan → tampilkan semua data lagi
+                        searchInput.addEventListener('input', function() {
+                            if (searchInput.value.trim() === '') {
+                                userRows.forEach(row => row.style.display = '');
+                                unitRows.forEach(row => row.style.display = '');
+                            }
+                        });
+                    }
+                });
             </script>
 
 
@@ -570,6 +753,83 @@
         });
     </script>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // === Elemen modal Tambah ===
+            const addRoleSelect = document.querySelector('#addUserModal select[name="role"]');
+            const addOpdSelect = document.querySelector('#addUserModal select[name="id_unit"]');
+
+            // === Elemen modal Edit ===
+            const editRoleSelect = document.querySelector('#editRole');
+            const editOpdSelect = document.querySelector('#editOpd');
+
+            const adminOpdName = "Protokol";
+
+            // 🔸 Fungsi: pilih dan kunci OPD = Protokol
+            function setOpdToProtokol(selectOpd) {
+                for (let option of selectOpd.options) {
+                    if (option.text.trim().toLowerCase() === adminOpdName.toLowerCase()) {
+                        selectOpd.value = option.value;
+                        break;
+                    }
+                }
+                selectOpd.disabled = true;
+                toggleProtokolOption(selectOpd, true); // pastikan tetap terlihat untuk admin
+            }
+
+            // 🔸 Fungsi: aktifkan kembali dropdown
+            function enableOpd(selectOpd) {
+                selectOpd.disabled = false;
+            }
+
+            // 🔸 Fungsi: sembunyikan/tampilkan opsi Protokol
+            function toggleProtokolOption(selectOpd, show) {
+                for (let option of selectOpd.options) {
+                    if (option.text.trim().toLowerCase() === adminOpdName.toLowerCase()) {
+                        option.hidden = !show;
+                    }
+                }
+            }
+
+            // === Edit user ===
+            if (editRoleSelect && editOpdSelect) {
+                editRoleSelect.addEventListener('change', function() {
+                    if (this.value === 'admin') {
+                        toggleProtokolOption(editOpdSelect, true);
+                        setOpdToProtokol(editOpdSelect);
+                    } else {
+                        enableOpd(editOpdSelect);
+                        toggleProtokolOption(editOpdSelect, false);
+                    }
+                });
+            }
+
+            // === Saat modal Edit dibuka ===
+            window.openEditModal = function(button) {
+                const modal = document.getElementById('editModal');
+                const form = document.getElementById('editForm');
+                const userId = button.getAttribute('data-id');
+
+                form.action = `/superadmin/users/${userId}`;
+                document.getElementById('editName').value = button.getAttribute('data-name');
+                document.getElementById('editUsername').value = button.getAttribute('data-username');
+                document.getElementById('editEmail').value = button.getAttribute('data-email');
+                document.getElementById('editRole').value = button.getAttribute('data-role');
+                document.getElementById('editOpd').value = button.getAttribute('data-unit');
+
+                // Jalankan logika sesuai role
+                if (button.getAttribute('data-role') === 'admin') {
+                    toggleProtokolOption(editOpdSelect, true);
+                    setOpdToProtokol(editOpdSelect);
+                } else {
+                    enableOpd(editOpdSelect);
+                    toggleProtokolOption(editOpdSelect, false);
+                }
+
+                modal.classList.add('show');
+            };
+        });
+    </script>
 
     <style>
         .toastify-popup {
