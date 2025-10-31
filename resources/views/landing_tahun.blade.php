@@ -5,8 +5,14 @@
 @endpush
 
 @section('content')
-<div class="year-view-page">
-    <div class="year-view-main">
+<div class="calendar-page">
+    <div class="calendar-content-wrapper">
+        <!-- Mini Calendar di Kiri -->
+        <div class="calendar-left-sidebar">
+            @include('components.mini-calendar-categories')
+        </div>
+
+        <div class="year-view-main">
         <!-- Year Header -->
         <div class="calendar-header">
             <div class="month-navigation">
