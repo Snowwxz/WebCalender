@@ -81,8 +81,8 @@
 }
 
 .content-nav-tab.active {
-    background: white;
-    color: #333;
+    background: #82A98D;
+    color: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     font-weight: 600;
 }

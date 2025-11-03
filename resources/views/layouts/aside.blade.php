@@ -1,4 +1,4 @@
-   @php
+@php
        $isDashboard = (Auth::check() && request()->is('dashboard*')) || Auth::check();
    @endphp
 
@@ -86,27 +86,3 @@
           @endif
       </div>
   </aside>
-  <script>
-      (function() {
-          function removeAllNotifBadges() {
-              var badges = document.querySelectorAll('.notif-badge');
-              badges.forEach(function(b){ b.parentNode && b.parentNode.removeChild(b); });
-          }
-
-          // Hilangkan badge segera ketika ikon notifikasi diklik
-          document.addEventListener('DOMContentLoaded', function() {
-              var notifLinks = document.querySelectorAll('.sidebar .nav-icon[href*="approve"], .sidebar .nav-icon[href*="notification"]');
-              notifLinks.forEach(function(link){
-                  link.addEventListener('click', function(){
-                      removeAllNotifBadges();
-                  });
-              });
-
-              // Jika sedang di halaman approve atau notification, sembunyikan badge agar terasa real-time
-              var currentPath = (window.location && window.location.pathname) || '';
-              if (currentPath.indexOf('/approve') !== -1 || currentPath.indexOf('/dashboard/notification') !== -1 || currentPath.indexOf('/notification') !== -1) {
-                  removeAllNotifBadges();
-              }
-          });
-      })();
-  </script>

@@ -171,17 +171,20 @@
                 }
             }
 
-            function changeMonth(direction) {
-                currentDate.setMonth(currentDate.getMonth() + direction);
-                const newMonth = currentDate.getMonth() + 1;
-                const newYear = currentDate.getFullYear();
-                fetchAgenda(newYear, newMonth);
+        function changeMonth(direction) {
+            currentDate.setMonth(currentDate.getMonth() + direction);
+            const newMonth = currentDate.getMonth() + 1;
+            const newYear = currentDate.getFullYear();
 
-                // Update mini calendar in sidebar
-                if (window.updateMiniCalendar) {
-                    window.updateMiniCalendar(currentDate);
-                }
-            }
+            // Optimistic UI: clear old agenda to avoid stale badges then render immediately
+            agendaData = [];
+            generateMainCalendar();
+
+            // Fetch new month data in background; it will re-render on completion
+            fetchAgenda(newYear, newMonth);
+
+            // Do NOT sync mini calendar on landing
+        }
 
             function formatDate(dateString) {
                 if (!dateString) return "-";

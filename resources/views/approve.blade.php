@@ -250,6 +250,25 @@
             </div>
         </main>
 
+        <!-- Reject Confirmation Modal (UI only) -->
+        <div id="rejectModal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 9999; align-items: center; justify-content: center;">
+            <div style="width: 520px; max-width: 92vw; background: #fff; border-radius: 14px; box-shadow: 0 12px 32px rgba(0,0,0,0.18); overflow: hidden; font-family: 'Poppins', sans-serif;">
+                <div style="padding: 18px 22px; border-bottom: 1px solid #eef0f2; display:flex; align-items:center; justify-content: space-between;">
+                    <h3 style="margin:0; font-size:18px; font-weight:600; color:#111827;">Konfirmasi Penolakan</h3>
+                    <button type="button" id="rejectModalClose" aria-label="Tutup" style="background:none; border:0; font-size:20px; line-height:1; cursor:pointer; color:#6b7280;">×</button>
+                </div>
+                <div style="padding: 18px 22px;">
+                    <p style="margin:0 0 10px; color:#374151;">Yakin ingin menolak agenda ini?</p>
+                    <label for="rejectReason" style="display:block; margin-bottom:8px; color:#374151; font-weight:500;">Alasan penolakan</label>
+                    <textarea id="rejectReason" placeholder="Tuliskan alasan penolakan (opsional)" style="width:100%; min-height:100px; border:1px solid #e5e7eb; border-radius:10px; padding:10px 12px; outline:none; resize: vertical; font-family: inherit;" ></textarea>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:10px; padding: 14px 22px; border-top:1px solid #eef0f2; background:#fafafa;">
+                    <button type="button" id="rejectModalCancel" style="background:#ffffff; border:1px solid #e5e7eb; color:#111827; border-radius:10px; padding:10px 14px; cursor:pointer;">Batal</button>
+                    <button type="button" id="rejectModalConfirm" style="background:#ef4444; border:1px solid #ef4444; color:#ffffff; border-radius:10px; padding:10px 14px; cursor:pointer;">Tolak</button>
+                </div>
+            </div>
+        </div>
+
         <div id="toast" class="toastify" style="display: none;">
             <p>Agenda telah disetujui</p>
         </div>
@@ -260,6 +279,11 @@
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const actionForms = document.querySelectorAll('.action-form');
+                const rejectButtons = document.querySelectorAll('.btn-reject');
+                const rejectModal = document.getElementById('rejectModal');
+                const rejectClose = document.getElementById('rejectModalClose');
+                const rejectCancel = document.getElementById('rejectModalCancel');
+                const rejectConfirm = document.getElementById('rejectModalConfirm');
 
                 // ========== CEK APA ADA PESAN DI SESSION STORAGE ==========
                 const savedMessage = sessionStorage.getItem('toastMessage');
@@ -268,6 +292,34 @@
                     showToast(savedMessage, savedType);
                     sessionStorage.removeItem('toastMessage');
                     sessionStorage.removeItem('toastType');
+                }
+
+                // ========== UI ONLY: Open modal on reject button ==========
+                rejectButtons.forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        showToast('Yakin ingin menolak?', 'error');
+                        if (rejectModal) {
+                            rejectModal.style.display = 'flex';
+                        }
+                    });
+                });
+
+                // Close modal handlers
+                ;[rejectClose, rejectCancel].forEach(el => {
+                    el && el.addEventListener('click', function() {
+                        rejectModal && (rejectModal.style.display = 'none');
+                    });
+                });
+
+                // Confirm reject (UI only)
+                if (rejectConfirm) {
+                    rejectConfirm.addEventListener('click', function() {
+                        const reason = document.getElementById('rejectReason')?.value || '';
+                        showToast(reason ? 'Penolakan disiapkan.' : 'Penolakan disiapkan tanpa alasan.', 'error');
+                        rejectModal.style.display = 'none';
+                        // NOTE: Tidak mengirim ke server. Hanya tampilan.
+                    });
                 }
 
                 // ========== HANDLE SUBMIT ==========
