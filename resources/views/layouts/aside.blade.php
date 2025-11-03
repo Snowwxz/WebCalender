@@ -2,74 +2,43 @@
        $isDashboard = (Auth::check() && request()->is('dashboard*')) || Auth::check();
    @endphp
 
+  <aside class="sidebar">
 
-   <aside class="sidebar">
-       <div class="nav-tabs">
-           @if ($isDashboard)
-               <a href="/dashboard/hari" class="nav-tab {{ request()->is('dashboard/hari') ? 'active' : '' }}">Hari</a>
-               <a href="/dashboard/bulan" class="nav-tab {{ request()->is('dashboard/bulan') ? 'active' : '' }}">Bulan</a>
-               <a href="/dashboard/tahun" class="nav-tab {{ request()->is('dashboard/tahun') ? 'active' : '' }}">Tahun</a>
-           @else
-               <a href="/hari" class=" nav-tab {{ request()->is('hari') ? 'active' : '' }}">Hari</a>
-               <a href="/bulan"
-                   class="nav-tab {{ request()->is('/') || request()->is('bulan') ? 'active' : '' }}">Bulan</a>
-               <a href="/tahun" class="nav-tab {{ request()->is('tahun') ? 'active' : '' }}">Tahun</a>
-           @endif
-       </div>
-
-       <!-- Mini Calendar -->
-       <div class="mini-calendar-section">
-           <div class="section-title">
-               <i class="fas fa-calendar"></i>
-               <span>Kalender</span>
-           </div>
-
-           <div class="mini-calendar">
-               <div class="mini-calendar-header">
-                   <button class="mini-nav-btn" onclick="changeMiniMonth(-1)">
-                       <i class="fas fa-chevron-left"></i>
-                   </button>
-                   <span id="miniCalendarHeader">Okt 2025</span>
-                   <button class="mini-nav-btn" onclick="changeMiniMonth(1)">
-                       <i class="fas fa-chevron-right"></i>
-                   </button>
-               </div>
-               <div class="mini-calendar-weekdays">
-                   <div>Sen</div>
-                   <div>Sel</div>
-                   <div>Rab</div>
-                   <div>Kam</div>
-                   <div>Jum</div>
-                   <div>Sab</div>
-                   <div class="weekend">Min</div>
-               </div>
-               <div class="mini-calendar-days" id="miniCalendarDays"></div>
-           </div>
-       </div>
-
-       <!-- Agenda Section -->
-       <div class="agenda-section">
-           <div class="section-title">
-               <i class="fas fa-list"></i>
-               <span>Kategori Agenda</span>
-           </div>
-
-           <div class="agenda-categories">
-               <label class="category-item public {{ !$isDashboard ? 'disabled' : '' }}">
-                   <input type="checkbox" checked {{ !$isDashboard ? 'disabled' : '' }}>
-                   <span class="custom-checkbox"></span>
-                   <span class="dot"></span>
-                   <span class="text">Publik</span>
-               </label>
-
-               @auth
-                   <label class="category-item private">
-                       <input type="checkbox" checked>
-                       <span class="custom-checkbox"></span>
-                       <span class="dot"></span>
-                       <span class="text">Privasi</span>
-                   </label>
-               @endauth
-           </div>
-       </div>
-   </aside>
+      <!-- Navigation Icons -->
+      <div class="sidebar-nav">
+          @if ($isDashboard)
+              <a href="/dashboard/bulan" class="nav-icon {{ request()->is('dashboard/bulan') || request()->is('dashboard/hari') || request()->is('dashboard/tahun') ? 'active' : '' }}" title="Kalender">
+                  <i class="fas fa-calendar"></i>
+                  <span class="nav-label">Kalender</span>
+              </a>
+              <a href="{{ route('agenda.create') }}" class="nav-icon {{ request()->routeIs('agenda.create') ? 'active' : '' }}" title="Tambah Agenda">
+                  <i class="fas fa-plus"></i>
+                  <span class="nav-label">Tambah Agenda</span>
+              </a>
+              <a href="{{ Auth::user()->role === 'admin' ? route('approve') : route('agenda.notification') }}" class="nav-icon {{ request()->routeIs('approve') || request()->routeIs('agenda.notification') ? 'active' : '' }}" title="Notifikasi">
+                  <i class="fas fa-bell"></i>
+                  <span class="nav-label">Notifikasi</span>
+              </a>
+          @else
+              <a href="/bulan" class="nav-icon {{ request()->is('/') || request()->is('bulan') || request()->is('hari') || request()->is('tahun') ? 'active' : '' }}" title="Kalender">
+                  <i class="fas fa-calendar"></i>
+                  <span class="nav-label">Kalender</span>
+              </a>
+              @auth
+                  <a href="{{ route('agenda.create') }}" class="nav-icon {{ request()->routeIs('agenda.create') ? 'active' : '' }}" title="Tambah Agenda">
+                      <i class="fas fa-plus"></i>
+                      <span class="nav-label">Tambah Agenda</span>
+                  </a>
+                  <a href="{{ route('agenda.notification') }}" class="nav-icon {{ request()->routeIs('agenda.notification') ? 'active' : '' }}" title="Notifikasi">
+                      <i class="fas fa-bell"></i>
+                      <span class="nav-label">Notifikasi</span>
+                  </a>
+              @else
+                  <a href="/login" class="nav-icon" title="Login">
+                      <i class="fas fa-sign-in-alt"></i>
+                      <span class="nav-label">Login</span>
+                  </a>
+              @endauth
+          @endif
+      </div>
+  </aside>

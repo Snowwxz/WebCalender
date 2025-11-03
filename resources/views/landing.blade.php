@@ -7,17 +7,23 @@
 @section('content')
     @include('show_agenda_modal_landing')
     <div class="calendar-page">
-        <div class="calendar-main">
-            <div class="calendar-header">
-                <div class="month-navigation">
-                    <button class="nav-btn" onclick="changeMonth(-1)">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <h2 class="month-year" id="currentMonthYear">Oktober 2025</h2>
-                    <button class="nav-btn" onclick="changeMonth(1)">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
+        <div class="calendar-content-wrapper">
+            <!-- Mini Calendar di Kiri -->
+            <div class="calendar-left-sidebar">
+                @include('components.mini-calendar-categories')
+            </div>
+            <!-- Main Calendar -->
+            <div class="calendar-main">
+                <div class="calendar-header">
+                    <div class="month-navigation">
+                        <button class="nav-btn" onclick="changeMonth(-1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <h2 class="month-year" id="currentMonthYear">Oktober 2025</h2>
+                        <button class="nav-btn" onclick="changeMonth(1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
             </div>
             <div class="calendar-grid">
                 <div class="calendar-weekdays">

@@ -95,24 +95,10 @@
                         <!-- Kolom kiri -->
                         <div class="form-column">
                             <div class="input-group">
-                                <label><i class="fas fa-file-alt"></i> Nama Agenda</label>
-                                <input type="text" name="agenda_name" placeholder="Masukkan nama agenda"
-                                    value="{{ old('agenda_name') }}" required>
-                            </div>
-
-                            <div class="input-group">
-                                <label><i class="fas fa-align-left"></i> Deskripsi Agenda</label>
-                                <textarea name="description" placeholder="Masukkan deskripsi agenda" required>{{ old('description') }}</textarea>
-                            </div>
-
-                            <div class="input-group">
                                 <label><i class="fas fa-building"></i> Nama Instansi (Pengaju)</label>
                                 <input type="text" value="{{ $unitName }}" readonly>
-
-                                <!-- kirim id_unit secara tersembunyi -->
                                 <input type="hidden" name="id_unit" value="{{ Auth::user()->id_unit }}">
                             </div>
-
 
                             <div class="input-group">
                                 <label><i class="fas fa-user-tie"></i> Penanggung Jawab</label>
@@ -127,30 +113,8 @@
                                     <option value="0">Privasi</option>
                                 </select>
                             </div>
-                        </div>
 
-                        <!-- Kolom kanan -->
-                        <div class="form-column">
-                            <div class="input-group">
-                                <label><i class="fas fa-calendar-day"></i> Tanggal</label>
-                                <input type="date" name="date" required>
-                            </div>
-
-                            <div class="input-group">
-                                <label><i class="fas fa-clock"></i> Waktu Mulai</label>
-                                <input type="time" name="start_time" required>
-                            </div>
-
-                            <div class="input-group">
-                                <label><i class="fas fa-clock"></i> Waktu Selesai</label>
-                                <input type="time" name="end_time" required>
-                            </div>
-
-                            <div class="input-group">
-                                <label><i class="fas fa-location-dot"></i> Lokasi</label>
-                                <input type="text" name="location" placeholder="Masukkan lokasi kegiatan" required>
-                            </div>
-
+                            <!-- 🟢 Instansi yang Ikut Serta sekarang pindah ke kolom kiri -->
                             <div class="input-group">
                                 <label><i class="fas fa-people-group"></i> Instansi yang Ikut Serta</label>
 
@@ -179,6 +143,42 @@
                                     value="{{ old('involved_institution') }}">
                             </div>
                         </div>
+
+                        <!-- Kolom kanan -->
+                        <div class="form-column">
+                            <div class="input-group">
+                                <label><i class="fas fa-calendar-day"></i> Tanggal</label>
+                                <input type="date" name="date" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label><i class="fas fa-clock"></i> Waktu Mulai</label>
+                                <input type="time" name="start_time" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label><i class="fas fa-clock"></i> Waktu Selesai</label>
+                                <input type="time" name="end_time" required>
+                            </div>
+
+                            <!-- Lokasi sekarang pindah ke kolom kanan -->
+                            <div class="input-group">
+                                <label><i class="fas fa-location-dot"></i> Lokasi</label>
+                                <input type="text" name="location" placeholder="Masukkan lokasi kegiatan" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pindahkan ke bawah sini -->
+                    <div class="input-group fullwidth-group">
+                        <label><i class="fas fa-file-alt"></i> Nama Agenda</label>
+                        <input type="text" name="agenda_name" placeholder="Masukkan nama agenda"
+                            value="{{ old('agenda_name') }}" required>
+                    </div>
+
+                    <div class="input-group fullwidth-group">
+                        <label><i class="fas fa-align-left"></i> Deskripsi Agenda</label>
+                        <textarea name="description" placeholder="Masukkan deskripsi agenda" required>{{ old('description') }}</textarea>
                     </div>
 
                     <div class="form-submit">
