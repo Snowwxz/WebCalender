@@ -7,175 +7,173 @@
 @endpush
 
 @section('content')
-        <div class="agenda-container">
-            <div class="agenda-form-card">
+    <div class="agenda-container">
+        <div class="agenda-form-card">
 
-                <!-- Bagian header -->
-                <div style="position: relative; text-align: center; margin-bottom: 8px;">
-                    <!-- Tombol kembali -->
-                    <a href="{{ url('/dashboard/bulan') }}" class="back-btn" title="Kembali ke Dashboard">
-                        <i class="fas fa-arrow-left"></i>
-                    </a>
+            <!-- Bagian header -->
+            <div style="position: relative; text-align: center; margin-bottom: 8px;">
+                <!-- Tombol kembali -->
+                <a href="{{ url('/dashboard/bulan') }}" class="back-btn" title="Kembali ke Dashboard">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
 
-                    <!-- Judul di tengah -->
-                    <div class="agenda-title"
-                        style="display:inline-block; font-weight:600; font-size:1.4rem; color:#333;">
-                        <i class="fas fa-calendar-plus"></i> Sistem Pengajuan Agenda
+                <!-- Judul di tengah -->
+                <div class="agenda-title" style="display:inline-block; font-weight:600; font-size:1.4rem; color:#333;">
+                    <i class="fas fa-calendar-plus"></i> Sistem Pengajuan Agenda
+                </div>
+            </div>
+
+            <p class="agenda-subtitle" style="text-align:center;">
+                Platform untuk mengajukan dan mengelola agenda kegiatan instansi
+            </p>
+
+            <form action="{{ route('agenda.store') }}" method="POST" id="agendaForm">
+                @csrf
+
+                @if ($errors->any())
+                    <div class="alert alert-danger"
+                        style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                        <h4>Terjadi kesalahan:</h4>
+                        <ul style="margin: 0; padding-left: 20px;">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                @if (session('success'))
+                    <script>
+                        Toastify({
+                            text: "{{ session('success') }}",
+                            duration: 3000,
+                            gravity: "top", // posisi vertikal
+                            position: "right", // posisi horizontal
+                            backgroundColor: "#4CAF50",
+                            stopOnFocus: true,
+                            style: {
+                                borderRadius: "8px",
+                                boxShadow: "0 3px 8px rgba(0,0,0,0.1)",
+                                fontWeight: "500"
+                            }
+                        }).showToast();
+                    </script>
+                @endif
+
+                @if (session('error'))
+                    <script>
+                        Toastify({
+                            text: "{{ session('error') }}",
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            backgroundColor: "#f44336",
+                            stopOnFocus: true,
+                            style: {
+                                borderRadius: "8px",
+                                boxShadow: "0 3px 8px rgba(0,0,0,0.1)",
+                                fontWeight: "500"
+                            }
+                        }).showToast();
+                    </script>
+                @endif
+
+                <div class="form-grid">
+
+                    <!-- Pindahkan ke bawah sini -->
+                    <div class="input-group fullwidth-group">
+                        <label><i class="fas fa-file-alt"></i> Nama Agenda</label>
+                        <input type="text" name="agenda_name" placeholder="Masukkan nama agenda"
+                            value="{{ old('agenda_name') }}" required>
+                    </div>
+
+                    <div class="input-group fullwidth-group">
+                        <label><i class="fas fa-align-left"></i> Deskripsi Agenda</label>
+                        <textarea name="description" placeholder="Masukkan deskripsi agenda" required>{{ old('description') }}</textarea>
+                    </div>
+
+                    <!-- Kolom kiri -->
+                    <div class="form-column">
+                        <div class="input-group">
+                            <label><i class="fas fa-building"></i> Nama Instansi (Pengaju)</label>
+                            <input type="text" value="{{ $unitName }}" readonly>
+                            <input type="hidden" name="id_unit" value="{{ Auth::user()->id_unit }}">
+                        </div>
+
+                        <div class="input-group">
+                            <label><i class="fas fa-user-tie"></i> Penanggung Jawab</label>
+                            <input type="text" name="person_in_charge" placeholder="Masukkan nama penanggung jawab"
+                                required>
+                        </div>
+
+                        <div class="input-group">
+                            <label><i class="fas fa-eye"></i> Kategori Agenda</label>
+                            <select name="is_public">
+                                <option value="1">Publik</option>
+                                <option value="0">Privasi</option>
+                            </select>
+                        </div>
+
+                        <!-- 🟢 Instansi yang Ikut Serta sekarang pindah ke kolom kiri -->
+                        <div class="input-group">
+                            <label><i class="fas fa-people-group"></i> Instansi yang Ikut Serta</label>
+
+                            <div class="chips-multiselect" id="involvedInstansi">
+                                <div class="chips-container">
+                                    <div class="chips-selected"></div>
+                                    <input type="text" class="chips-input"
+                                        placeholder="-- Pilih Instansi yang Ikut Serta --">
+                                </div>
+                                <span class="chips-arrow"><i class="fas fa-chevron-down"></i></span>
+
+                                <div class="chips-dropdown">
+                                    <div class="chips-search">
+                                        <input type="text" class="chips-search-input" placeholder="Cari instansi..." />
+                                    </div>
+                                    <ul>
+                                        @foreach ($units as $unit)
+                                            <li data-value="{{ $unit->unit_name }}">{{ $unit->unit_name }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <input type="hidden" name="involved_institution" id="involvedInstitutionField"
+                                value="{{ old('involved_institution') }}">
+                        </div>
+                    </div>
+
+                    <!-- Kolom kanan -->
+                    <div class="form-column">
+                        <div class="input-group">
+                            <label><i class="fas fa-calendar-day"></i> Tanggal</label>
+                            <input type="date" name="date" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label><i class="fas fa-clock"></i> Waktu Mulai</label>
+                            <input type="time" name="start_time" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label><i class="fas fa-clock"></i> Waktu Selesai</label>
+                            <input type="time" name="end_time" required>
+                        </div>
+
+                        <!-- Lokasi sekarang pindah ke kolom kanan -->
+                        <div class="input-group">
+                            <label><i class="fas fa-location-dot"></i> Lokasi</label>
+                            <input type="text" name="location" placeholder="Masukkan lokasi kegiatan" required>
+                        </div>
                     </div>
                 </div>
 
-                <p class="agenda-subtitle" style="text-align:center;">
-                    Platform untuk mengajukan dan mengelola agenda kegiatan instansi
-                </p>
-
-                <form action="{{ route('agenda.store') }}" method="POST" id="agendaForm">
-                    @csrf
-
-                    @if ($errors->any())
-                        <div class="alert alert-danger"
-                            style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
-                            <h4>Terjadi kesalahan:</h4>
-                            <ul style="margin: 0; padding-left: 20px;">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
-                    @if (session('success'))
-                        <script>
-                            Toastify({
-                                text: "{{ session('success') }}",
-                                duration: 3000,
-                                gravity: "top", // posisi vertikal
-                                position: "right", // posisi horizontal
-                                backgroundColor: "#4CAF50",
-                                stopOnFocus: true,
-                                style: {
-                                    borderRadius: "8px",
-                                    boxShadow: "0 3px 8px rgba(0,0,0,0.1)",
-                                    fontWeight: "500"
-                                }
-                            }).showToast();
-                        </script>
-                    @endif
-
-                    @if (session('error'))
-                        <script>
-                            Toastify({
-                                text: "{{ session('error') }}",
-                                duration: 3000,
-                                gravity: "top",
-                                position: "right",
-                                backgroundColor: "#f44336",
-                                stopOnFocus: true,
-                                style: {
-                                    borderRadius: "8px",
-                                    boxShadow: "0 3px 8px rgba(0,0,0,0.1)",
-                                    fontWeight: "500"
-                                }
-                            }).showToast();
-                        </script>
-                    @endif
-
-                    <div class="form-grid">
-
-                        <!-- Pindahkan ke bawah sini -->
-                        <div class="input-group fullwidth-group">
-                            <label><i class="fas fa-file-alt"></i> Nama Agenda</label>
-                            <input type="text" name="agenda_name" placeholder="Masukkan nama agenda"
-                                value="{{ old('agenda_name') }}" required>
-                        </div>
-
-                        <div class="input-group fullwidth-group">
-                            <label><i class="fas fa-align-left"></i> Deskripsi Agenda</label>
-                            <textarea name="description" placeholder="Masukkan deskripsi agenda" required>{{ old('description') }}</textarea>
-                        </div>
-
-                        <!-- Kolom kiri -->
-                        <div class="form-column">
-                            <div class="input-group">
-                                <label><i class="fas fa-building"></i> Nama Instansi (Pengaju)</label>
-                                <input type="text" value="{{ $unitName }}" readonly>
-                                <input type="hidden" name="id_unit" value="{{ Auth::user()->id_unit }}">
-                            </div>
-
-                            <div class="input-group">
-                                <label><i class="fas fa-user-tie"></i> Penanggung Jawab</label>
-                                <input type="text" name="person_in_charge"
-                                    placeholder="Masukkan nama penanggung jawab" required>
-                            </div>
-
-                            <div class="input-group">
-                                <label><i class="fas fa-eye"></i> Kategori Agenda</label>
-                                <select name="is_public">
-                                    <option value="1">Publik</option>
-                                    <option value="0">Privasi</option>
-                                </select>
-                            </div>
-
-                            <!-- 🟢 Instansi yang Ikut Serta sekarang pindah ke kolom kiri -->
-                            <div class="input-group">
-                                <label><i class="fas fa-people-group"></i> Instansi yang Ikut Serta</label>
-
-                                <div class="chips-multiselect" id="involvedInstansi">
-                                    <div class="chips-container">
-                                        <div class="chips-selected"></div>
-                                        <input type="text" class="chips-input"
-                                            placeholder="-- Pilih Instansi yang Ikut Serta --">
-                                    </div>
-                                    <span class="chips-arrow"><i class="fas fa-chevron-down"></i></span>
-
-                                    <div class="chips-dropdown">
-                                        <div class="chips-search">
-                                            <input type="text" class="chips-search-input"
-                                                placeholder="Cari instansi..." />
-                                        </div>
-                                        <ul>
-                                            @foreach ($units as $unit)
-                                                <li data-value="{{ $unit->unit_name }}">{{ $unit->unit_name }}</li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <input type="hidden" name="involved_institution" id="involvedInstitutionField"
-                                    value="{{ old('involved_institution') }}">
-                            </div>
-                        </div>
-
-                        <!-- Kolom kanan -->
-                        <div class="form-column">
-                            <div class="input-group">
-                                <label><i class="fas fa-calendar-day"></i> Tanggal</label>
-                                <input type="date" name="date" required>
-                            </div>
-
-                            <div class="input-group">
-                                <label><i class="fas fa-clock"></i> Waktu Mulai</label>
-                                <input type="time" name="start_time" required>
-                            </div>
-
-                            <div class="input-group">
-                                <label><i class="fas fa-clock"></i> Waktu Selesai</label>
-                                <input type="time" name="end_time" required>
-                            </div>
-
-                            <!-- Lokasi sekarang pindah ke kolom kanan -->
-                            <div class="input-group">
-                                <label><i class="fas fa-location-dot"></i> Lokasi</label>
-                                <input type="text" name="location" placeholder="Masukkan lokasi kegiatan" required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-submit">
-                        <button type="submit" class="btn-primary">Ajukan Agenda</button>
-                    </div>
-                </form>
-            </div>
+                <div class="form-submit">
+                    <button type="submit" class="btn-primary">Ajukan Agenda</button>
+                </div>
+            </form>
         </div>
+    </div>
 
     <script>
         // Toggle sidebar
@@ -395,4 +393,76 @@
         })();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <script>
+        function showConfirmSubmit() {
+            const toast = Toastify({
+                text: "", // kosong karena kita pakai custom node
+                duration: -1, // biar nggak hilang otomatis
+                close: false,
+                gravity: "top",
+                position: "center",
+                stopOnFocus: true,
+                escapeMarkup: false,
+                style: {
+                    background: "#FFF6F2",
+                    border: "1px solid #FDD8D3",
+                    borderRadius: "10px",
+                    boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
+                    padding: "20px 30px",
+                    textAlign: "center",
+                    color: "#333",
+                    fontFamily: "Poppins, sans-serif",
+                },
+                onClick: function() {} // biar nggak nutup waktu diklik
+            }).showToast();
+
+            // ambil elemen toast yg baru muncul
+            const toastEl = document.querySelector(".toastify");
+
+            toastEl.innerHTML = `
+                <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+                    <span style="font-size:1rem; font-weight:500;">Apakah yakin ingin mengajukan agenda?</span>
+                    <div style="display:flex; gap:12px;">
+                        <button id="confirmSubmit" style="
+                            background:#F7B7B7;
+                            border:none;
+                            padding:7px 18px;
+                            border-radius:8px;
+                            color:#7A1C1C;
+                            font-weight:600;
+                            cursor:pointer;
+                            transition:background 0.2s ease;
+                        ">Ya, ajukan</button>
+                        <button id="cancelSubmit" style="
+                            background:#E5E7EB;
+                            border:none;
+                            padding:7px 18px;
+                            border-radius:8px;
+                            color:#374151;
+                            font-weight:600;
+                            cursor:pointer;
+                            transition:background 0.2s ease;
+                        ">Batal</button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById("confirmSubmit").addEventListener("click", () => {
+                toast.hideToast(); // tutup konfirmasi
+                document.getElementById("agendaForm").submit(); // kirim form
+            });
+
+            document.getElementById("cancelSubmit").addEventListener("click", () => {
+                toast.hideToast();
+            });
+        }
+
+        // intercept tombol submit bawaan form
+        document.getElementById("agendaForm").addEventListener("submit", function(e) {
+            e.preventDefault(); // cegah kirim langsung
+            showConfirmSubmit(); // munculkan toast konfirmasi
+        });
+    </script>
+
 @endsection

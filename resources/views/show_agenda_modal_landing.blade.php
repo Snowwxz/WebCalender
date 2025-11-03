@@ -13,33 +13,49 @@
             </div>
 
             <div class="modal-body px-4 py-4">
-                <div class="row g-3 mb-2">
-                    <!-- Kolom Kiri -->
-                    <div class="col-md-4">
+
+                <!-- Nama Agenda -->
+                <div class="mb-4">
+                    <label class="text-muted small d-block mb-1">
+                        <i class="fas fa-calendar"></i> Nama Agenda
+                    </label>
+                    <div class="fw-semibold fs-5 text-capitalize" id="showAgendaNameDetail">-</div>
+                </div>
+
+                <!-- Deskripsi -->
+                <div class="mb-4">
+                    <label class="text-muted small d-block mb-1">
+                        <i class="fas fa-align-left"></i> Deskripsi Agenda
+                    </label>
+                    <div class="fw-normal" id="showAgendaDesc" style="white-space: pre-wrap;">-</div>
+                </div>
+
+                <!-- Grid 2 Kolom -->
+                <div class="row g-4">
+                    <div class="col-md-6">
                         <div class="mb-3">
                             <label class="text-muted small d-block mb-1">
-                                <i class="fas fa-calendar"></i> Tanggal
+                                <i class="fas fa-calendar-day"></i> Tanggal
                             </label>
                             <div class="fw-semibold" id="showAgendaDate">-</div>
                         </div>
 
                         <div class="mb-3">
                             <label class="text-muted small d-block mb-1">
-                                <i class="fas fa-align-left"></i> Deskripsi
+                                <i class="fas fa-clock"></i> Waktu
                             </label>
-                            <div class="fw-normal" id="showAgendaDesc">-</div>
+                            <div class="fw-semibold" id="showAgendaTime">-</div>
                         </div>
 
                         <div class="mb-3">
                             <label class="text-muted small d-block mb-1">
                                 <i class="fas fa-map-marker-alt"></i> Lokasi
                             </label>
-                            <div class="fw-semibold" id="showAgendaLocation">-</div>
+                            <div class="fw-semibold text-capitalize" id="showAgendaLocation">-</div>
                         </div>
                     </div>
 
-                    <!-- Kolom Tengah -->
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="mb-3">
                             <label class="text-muted small d-block mb-1">
                                 <i class="fas fa-building"></i> Instansi Pengaju
@@ -56,16 +72,6 @@
 
                         <div class="mb-3">
                             <label class="text-muted small d-block mb-1">
-                                <i class="fas fa-clock"></i> Waktu
-                            </label>
-                            <div class="fw-semibold" id="showAgendaTime">-</div>
-                        </div>
-                    </div>
-
-                    <!-- Kolom Kanan -->
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <label class="text-muted small d-block mb-1">
                                 <i class="fas fa-user-tie"></i> Penanggung Jawab
                             </label>
                             <div class="fw-semibold" id="showAgendaPIC">-</div>
@@ -79,6 +85,7 @@
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>

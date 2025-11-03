@@ -662,3 +662,28 @@ body .app-container>.main-content {
 .notif-swal-cancel:hover {
     background-color: #ededed !important;
 }
+
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-wrapper input {
+    width: 100%;
+    padding-right: 40px;
+    /* beri ruang untuk ikon */
+}
+
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    cursor: pointer;
+    font-size: 18px;
+    color: #82A98D;
+    transition: color 0.2s;
+}
+
+.password-toggle:hover {
+    color: #5b8562;
+}

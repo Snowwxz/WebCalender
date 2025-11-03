@@ -1,7 +1,7 @@
 .notification-page {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 10px 20px 20px 20px;
     width: 100%;
     box-sizing: border-box;
 }
@@ -445,7 +445,6 @@
     font-family: 'Poppins', sans-serif !important;
 }
 
-/* Numeric Pagination */
 .pagination-numeric {
     margin-top: 20px;
     display: flex;
@@ -469,7 +468,7 @@
 
 .pagination-numeric .page-number:hover,
 .pagination-numeric .page-control:hover {
-    background: #f3f4f6; /* gray-100 */
+    background: #f3f4f6;
     border-color: #e5e7eb; /* gray-200 */
 }
 
@@ -491,6 +490,21 @@
 .pagination-numeric .page-ellipsis {
     padding: 0 6px;
     color: #9ca3af;
+}
+
+.notification-page {
+    padding-top: 32px !important;
+    margin-top: 0 !important;
+}
+
+.notification-header {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+main {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
 }
 
 @media (max-width: 768px) {
