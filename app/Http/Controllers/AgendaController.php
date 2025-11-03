@@ -280,6 +280,9 @@ class AgendaController extends Controller
             'rejected' => (clone $baseCount)->where('status', 'rejected')->count(),
         ];
 
+        // Tandai notifikasi user sudah dibuka agar badge hilang
+        session(['user_notifications_seen_at' => now()]);
+
         if ($request->wantsJson()) {
             return response()->json($agenda);
         }
