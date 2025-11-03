@@ -290,12 +290,12 @@
                 const popup = document.createElement('div');
                 popup.className = 'toastify-popup';
                 popup.innerHTML = `
-                <p class="toastify-title">${text}</p>
-                <div class="toastify-btn-group">
-                    <button class="btn-confirm">${confirmText}</button>
-                    <button class="btn-cancel">Batal</button>
-                </div>
-            `;
+            <p class="toastify-title">${text}</p>
+            <div class="toastify-btn-group">
+                <button class="btn-confirm">${confirmText}</button>
+                <button class="btn-cancel">Batal</button>
+            </div>
+        `;
                 document.body.appendChild(popup);
                 popup.classList.add('toastify-popup-show');
 
@@ -339,6 +339,7 @@
             }
 
             // === 🆕 FUNGSI AUTO-SELECT OPD SAAT ROLE = ADMIN ===
+            // === 🆕 FUNGSI AUTO-SELECT OPD SAAT ROLE = ADMIN ===
             const roleSelect = document.querySelector('#addUserModal select[name="role"]');
             const opdSelect = document.querySelector('#addUserModal select[name="id_unit"]');
 
@@ -349,13 +350,22 @@
                         const protokolOption = Array.from(opdSelect.options).find(
                             opt => opt.text.trim().toLowerCase() === 'protokol'
                         );
+                        const protokolOption = Array.from(opdSelect.options).find(
+                            opt => opt.text.trim().toLowerCase() === 'protokol'
+                        );
                         if (protokolOption) {
                             opdSelect.value = protokolOption.value;
                             opdSelect.setAttribute('readonly', true);
                             opdSelect.classList.add('readonly');
+                            opdSelect.setAttribute('readonly', true);
+                            opdSelect.classList.add('readonly');
 
                         }
+                        }
                     } else if (selectedRole === 'user') {
+                        opdSelect.value = '';
+                        opdSelect.disabled = true;
+                    } else {
                         opdSelect.value = '';
                         opdSelect.disabled = true;
                     } else {
@@ -366,7 +376,10 @@
             }
 
         }); // ✅ ini penutup yang benar untuk DOMContentLoaded
+        }); // ✅ ini penutup yang benar untuk DOMContentLoaded
     </script>
+
+
     <!-- Modal Tambah OPD -->
     <div id="addUnitModal" class="user-form-modal">
         <div class="user-form-content">
