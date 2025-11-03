@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
     <link rel="stylesheet" href="{{ asset('css/super-admin.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 </head>
 
 <body>
@@ -249,7 +250,10 @@
 
                 <div class="user-form-group">
                     <label>Password</label>
-                    <input type="password" name="password" required>
+                    <div class="password-wrapper">
+                        <input type="password" name="password" id="addPassword" required>
+                        <i class="bi bi-eye-slash password-toggle" id="togglePassword"></i>
+                    </div>
                 </div>
 
                 <div class="user-form-group">
@@ -331,7 +335,7 @@
                     e.preventDefault();
                     showConfirmation({
                         title: 'Konfirmasi Tambah User',
-                        text: 'Yakin ingin menambahkan user baru?',
+                        text: 'Yakin ingin menambahkan data baru?',
                         confirmText: 'Ya, simpan',
                         form: addUserForm
                     });
@@ -680,7 +684,7 @@
                     e.preventDefault();
                     showConfirmation({
                         title: 'Konfirmasi Edit User',
-                        text: 'Yakin ingin menyimpan perubahan data user?',
+                        text: 'Yakin ingin menyimpan perubahan data?',
                         confirmText: 'Ya, simpan',
                         form: editUserForm
                     });
@@ -899,11 +903,11 @@
         }
 
         .toastify-success {
-            background: #E6F9EE;
-            border: 1px solid #C4E7D0;
-            color: #256D43;
+            background: #FFF1E6;
+            border: 1px solid #F7B7B7;
+            color: #7A1C1C;
             border-radius: 12px;
-            padding: 0 20px;
+            padding: 10px 20px;
             display: inline-flex;
             justify-content: center;
             align-items: center;
@@ -915,6 +919,7 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             font-size: 15px;
             font-weight: 500;
+            animation: toastIn 0.35s ease forwards;
         }
 
         body,
@@ -953,6 +958,24 @@
             }
         }
     </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordField = document.getElementById('addPassword');
+
+            if (togglePassword && passwordField) {
+                togglePassword.addEventListener('click', function() {
+                    const isPassword = passwordField.getAttribute('type') === 'password';
+                    passwordField.setAttribute('type', isPassword ? 'text' : 'password');
+
+                    // Ganti ikon Bootstrap
+                    this.classList.toggle('bi-eye');
+                    this.classList.toggle('bi-eye-slash');
+                });
+            }
+        });
+    </script>
 
 </body>
 

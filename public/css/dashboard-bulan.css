@@ -18,8 +18,10 @@
     border-radius: 8px;
     border: 1px solid #e9ecef;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    height: auto; /* biar ikut membentang setinggi main calendar */
-    align-self: stretch; /* paksa sejajar tinggi dengan item terbesar di flex */
+    height: auto;
+    /* biar ikut membentang setinggi main calendar */
+    align-self: stretch;
+    /* paksa sejajar tinggi dengan item terbesar di flex */
 }
 
 .calendar-main {
@@ -150,7 +152,7 @@
     align-items: center;
 }
 
-.content-mini-calendar-weekdays > div {
+.content-mini-calendar-weekdays>div {
     text-align: center;
     font-size: 11px;
     font-weight: 600;
@@ -289,17 +291,17 @@
     border-color: #FFB67E;
 }
 
-.content-category-item.public input:checked + .content-custom-checkbox {
+.content-category-item.public input:checked+.content-custom-checkbox {
     background-color: #A8E6A3;
     border-color: #A8E6A3;
 }
 
-.content-category-item.private input:checked + .content-custom-checkbox {
+.content-category-item.private input:checked+.content-custom-checkbox {
     background-color: #FFB67E;
     border-color: #FFB67E;
 }
 
-.content-category-item input:checked + .content-custom-checkbox::after {
+.content-category-item input:checked+.content-custom-checkbox::after {
     transform: rotate(45deg) scale(1);
 }
 
@@ -347,7 +349,7 @@
     .calendar-content-wrapper {
         flex-direction: column;
     }
-    
+
     .calendar-sidebar-content {
         width: 100%;
         order: -1;
@@ -356,9 +358,11 @@
 
 .calendar-header {
     display: flex;
-    justify-content: flex-start; /* rata kiri */
+    justify-content: flex-start;
+    /* rata kiri */
     align-items: center;
-    gap: 20px; /* beri jarak jika ada elemen lain di header */
+    gap: 20px;
+    /* beri jarak jika ada elemen lain di header */
     margin-bottom: 30px;
 }
 
@@ -1010,6 +1014,7 @@
         opacity: 0;
         transform: translateY(-30px) scale(0.9);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -1325,7 +1330,6 @@
     }
 }
 
-/* sidebar khusus show agenda */
 #agendaSidebar {
     position: fixed;
     top: 72px;
@@ -1333,12 +1337,13 @@
     width: 400px;
     height: calc(100% - 72px);
     background: #fff;
-    box-shadow: -2px 0 8px rgba(0,0,0,0.2);
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.2);
     overflow-y: auto;
     transition: right 0.3s ease-in-out;
     z-index: 10000;
     padding: 20px;
 }
+
 #agendaSidebar.active {
     right: 0;
 }
@@ -1387,10 +1392,12 @@
 #agendaSidebar .agenda-list {
     padding: 20px;
 }
+
 .agenda-item {
     border-bottom: 1px solid #e5e7eb;
     padding: 10px 0;
 }
+
 .agenda-header {
     display: flex;
     justify-content: space-between;
@@ -1442,9 +1449,11 @@
     border: 1px solid #dc2626;
     color: #991b1b;
 }
+
 .agenda-title {
     font-weight: 600;
-    color: #111827;  /* bukan #333 dan bukan inherit */
+    color: #111827;
+    /* bukan #333 dan bukan inherit */
     font-size: 14px;
 }
 
@@ -1455,6 +1464,7 @@
     padding-left: 10px;
     line-height: 1.4;
 }
+
 .agenda-details.hidden {
     display: none;
 }
@@ -1466,9 +1476,18 @@
     padding: 3px 8px;
     color: white;
 }
-.status-badge.approved { background-color: #16a34a; }
-.status-badge.pending { background-color: #eab308; }
-.status-badge.rejected { background-color: #dc2626; }
+
+.status-badge.approved {
+    background-color: #16a34a;
+}
+
+.status-badge.pending {
+    background-color: #eab308;
+}
+
+.status-badge.rejected {
+    background-color: #dc2626;
+}
 
 /* === BADGE PILL DI KALENDER === */
 .agenda-count-badge {
@@ -1481,6 +1500,7 @@
     cursor: pointer;
     transition: transform 0.2s;
 }
+
 .agenda-count-badge:hover {
     transform: scale(1.05);
 }
@@ -1494,8 +1514,11 @@
 
 .agenda-modal-overlay {
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,.5);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, .5);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1569,8 +1592,15 @@
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Biar sidebar ngilang halus waktu modal muncul */
@@ -1583,14 +1613,17 @@
     pointer-events: none;
     transform: translateX(40px);
 }
+
 #showAgendaDesc {
     color: #374151 !important;
     font-size: 14px;
-    white-space: pre-line; /* <— Biar line break tetap terlihat */
+    white-space: pre-line;
+    /* <— Biar line break tetap terlihat */
 }
 
 .bg-orange-500 {
-    background-color: #f97316 !important; /* warna oranye */
+    background-color: #f97316 !important;
+    /* warna oranye */
     color: white !important;
 }
 
@@ -1652,7 +1685,6 @@
     color: #555 !important;
 }
 
-/* Override: badge colors for month calendar (landing + dashboard) */
 .calendar-day .bg-green-500 {
     background-color: #A8E6A3 !important;
     color: #234522 !important;
@@ -1661,4 +1693,23 @@
 .calendar-day .bg-orange-500 {
     background-color: #FFB67E !important;
     color: #3b2e1a !important;
+}
+
+.circle-close-btn {
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.circle-close-btn:hover,
+.circle-close-btn:active {
+    background-color: #EEF2EF;
+    transform: scale(1.05);
 }
