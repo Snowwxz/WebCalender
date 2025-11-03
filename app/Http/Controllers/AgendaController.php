@@ -237,19 +237,54 @@ class AgendaController extends Controller
     /**
      * ✅ Notifikasi agenda milik user yang login.
      */
-    public function notification()
+    public function notification(Request $request)
     {
-        $userId = Auth::id();
+        $user = Auth::user();
+        $userId = $user ? $user->id_user : null;
 
-        $agenda = Agenda::where('id_user', $userId)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        // Filters
+        $status = $request->query('status', 'all');
+        $search = $request->query('q');
 
-        if (request()->wantsJson()) {
+        // Base query for the list
+        $query = Agenda::with(['unit'])
+            ->where('id_user', $userId)
+            ->orderBy('created_at', 'desc');
+
+        if (in_array($status, ['pending', 'approved', 'rejected'])) {
+            $query->where('status', $status);
+        }
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $like = "%" . $search . "%";
+                $q->where('agenda_name', 'like', $like)
+                    ->orWhere('description', 'like', $like)
+                    ->orWhere('location', 'like', $like)
+                    ->orWhere('involved_institution', 'like', $like)
+                    ->orWhereHas('unit', function ($uq) use ($like) {
+                        $uq->where('unit_name', 'like', $like);
+                    });
+            });
+        }
+
+        // Use paginator for the view's pagination helpers
+        $agenda = $query->paginate(10)->withQueryString();
+
+        // Counts for tabs (ignoring search for overall counts)
+        $baseCount = Agenda::where('id_user', $userId);
+        $counts = [
+            'all' => (clone $baseCount)->count(),
+            'pending' => (clone $baseCount)->where('status', 'pending')->count(),
+            'approved' => (clone $baseCount)->where('status', 'approved')->count(),
+            'rejected' => (clone $baseCount)->where('status', 'rejected')->count(),
+        ];
+
+        if ($request->wantsJson()) {
             return response()->json($agenda);
         }
 
-        return view('notification', compact('agenda'));
+        return view('notification', compact('agenda', 'counts', 'status', 'search'));
     }
 
     /**

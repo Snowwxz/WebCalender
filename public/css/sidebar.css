@@ -125,6 +125,7 @@
 
     .sidebar.show {
         transform: translateX(0);
+        width: 260px; /* expand when opened on tablet/large mobile */
         box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
     }
 
@@ -157,6 +158,7 @@
 
     .sidebar.show {
         transform: translateX(0);
+        width: 260px; /* expand when opened on mobile/tablet */
         box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
     }
 }
@@ -175,6 +177,8 @@
 
     .sidebar.show {
         transform: translateX(0);
+        width: 85vw; /* take most of the viewport on small phones */
+        max-width: 300px;
         box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
     }
 }
