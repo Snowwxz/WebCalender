@@ -66,6 +66,9 @@ class ApproveController extends Controller
 
         $agendas = $agendaQuery->get();
 
+        // Tandai semua ajuan sudah "dibuka" oleh admin agar badge notifikasi hilang
+        session(['approve_seen_at' => now()]);
+
         return view('approve', compact(
             'status',
             'agendas',
