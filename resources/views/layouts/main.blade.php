@@ -77,15 +77,14 @@
                 return;
             }
 
-            // Desktop view - toggle collapsed state
-            sidebar.classList.toggle('collapsed');
-            // persist desktop collapsed state
-            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed') ? '1' : '0');
-            // Adjust main content margin based on sidebar state
-            if (sidebar.classList.contains('collapsed')) {
-                mainContent.style.marginLeft = '70px';
+            // Desktop view - toggle expanded state (overlay content, no push)
+            sidebar.classList.toggle('expanded');
+            const isExpanded = sidebar.classList.contains('expanded');
+            localStorage.setItem('sidebarExpanded', isExpanded ? '1' : '0');
+            if (isExpanded) {
+                createOverlay();
             } else {
-                mainContent.style.marginLeft = '280px';
+                removeOverlay();
             }
         }
 
@@ -222,19 +221,18 @@
         function applySavedSidebarState() {
             const sidebar = document.querySelector('.sidebar');
             const mainContent = document.querySelector('.main-content');
-            const savedCollapsed = localStorage.getItem('sidebarCollapsed'); // '1' or '0'
+            const savedExpanded = localStorage.getItem('sidebarExpanded'); // '1' or '0'
             const savedShow = localStorage.getItem('sidebarShow'); // '1' or '0'
 
             if (window.innerWidth > 1024) {
-                // Desktop: use collapsed state
-                if (savedCollapsed === '1') {
-                    sidebar.classList.add('collapsed');
-                    sidebar.classList.remove('show');
-                    mainContent.style.marginLeft = '70px';
+                // Desktop: use expanded state persistence, overlay content
+                sidebar.classList.remove('show');
+                if (savedExpanded === '1') {
+                    sidebar.classList.add('expanded');
+                    createOverlay();
                 } else {
-                    sidebar.classList.remove('collapsed');
-                    sidebar.classList.remove('show');
-                    mainContent.style.marginLeft = '280px';
+                    sidebar.classList.remove('expanded');
+                    removeOverlay();
                 }
             } else if (window.innerWidth <= 768) {
                 // Mobile/Tablet: use show state, default closed if none
@@ -309,28 +307,27 @@
             if (window.innerWidth <= 480) {
                 // Mobile: hide sidebar by default
                 sidebar.classList.remove('show');
-                sidebar.classList.remove('collapsed');
-                mainContent.style.marginLeft = '0';
+                sidebar.classList.remove('expanded');
                 removeOverlay();
             } else if (window.innerWidth <= 768) {
                 // Tablet: hide sidebar by default
-                sidebar.classList.remove('collapsed');
+                sidebar.classList.remove('expanded');
                 sidebar.classList.remove('show');
-                mainContent.style.marginLeft = '0';
                 removeOverlay();
             } else if (window.innerWidth <= 1024) {
                 // Large tablet: hide sidebar by default
                 sidebar.classList.remove('show');
-                mainContent.style.marginLeft = '0';
                 removeOverlay();
             } else {
-                // Desktop: check if collapsed or not
-                const isCollapsed = sidebar.classList.contains('collapsed');
+                // Desktop: default to icon-only unless expanded is saved; overlay when expanded
                 sidebar.classList.remove('show');
-                if (isCollapsed) {
-                    mainContent.style.marginLeft = '70px';
+                const savedExpanded = localStorage.getItem('sidebarExpanded');
+                const isExpanded = savedExpanded === '1';
+                sidebar.classList.toggle('expanded', isExpanded);
+                if (isExpanded) {
+                    createOverlay();
                 } else {
-                    mainContent.style.marginLeft = '280px';
+                    removeOverlay();
                 }
                 removeOverlay();
             }

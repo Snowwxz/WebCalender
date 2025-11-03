@@ -5,8 +5,15 @@
     @endpush
 
     @section('content')
-        <div class="day-view-page">
-            <div class="day-view-main">
+        <div class="calendar-page">
+            <div class="calendar-content-wrapper">
+                <!-- Mini Calendar di Kiri -->
+                <div class="calendar-left-sidebar">
+                    @include('components.mini-calendar-categories')
+                </div>
+
+                <!-- Main Content Hari -->
+                <div class="day-view-main">
                 <!-- Day Header -->
                 <div class="calendar-header">
                     <div class="month-navigation">
@@ -33,6 +40,7 @@
                             <div class="hour-slot" data-hour="{{ $i }}"></div>
                         @endfor
                     </div>
+                </div>
                 </div>
             </div>
         </div>

@@ -338,7 +338,7 @@
                 });
             }
 
-          // === 🆕 FUNGSI AUTO-SELECT OPD SAAT ROLE = ADMIN ===
+            // === 🆕 FUNGSI AUTO-SELECT OPD SAAT ROLE = ADMIN ===
             const roleSelect = document.querySelector('#addUserModal select[name="role"]');
             const opdSelect = document.querySelector('#addUserModal select[name="id_unit"]');
 
@@ -367,7 +367,6 @@
 
         }); // ✅ ini penutup yang benar untuk DOMContentLoaded
     </script>
-
     <!-- Modal Tambah OPD -->
     <div id="addUnitModal" class="user-form-modal">
         <div class="user-form-content">
