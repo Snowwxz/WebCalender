@@ -11,34 +11,47 @@
                   <i class="fas fa-calendar"></i>
                   <span class="nav-label">Kalender</span>
               </a>
-              <a href="{{ route('agenda.create') }}" class="nav-icon {{ request()->routeIs('agenda.create') ? 'active' : '' }}" title="Tambah Agenda">
-                  <i class="fas fa-plus"></i>
-                  <span class="nav-label">Tambah Agenda</span>
-              </a>
-              <a href="{{ Auth::user()->role === 'admin' ? route('approve') : route('agenda.notification') }}" class="nav-icon {{ request()->routeIs('approve') || request()->routeIs('agenda.notification') ? 'active' : '' }}" title="Notifikasi">
-                  <i class="fas fa-bell"></i>
-                  <span class="nav-label">Notifikasi</span>
-              </a>
+              @if (Auth::check() && Auth::user()->role === 'superadmin')
+                  <a href="{{ route('superadmin.dashboard') }}" class="nav-icon {{ request()->is('superadmin') ? 'active' : '' }}" title="Super Admin">
+                      <i class="fas fa-users"></i>
+                      <span class="nav-label">Super Admin</span>
+                  </a>
+              @endif
+              @if (Auth::user()->role !== 'superadmin')
+                  <a href="{{ route('agenda.create') }}" class="nav-icon {{ request()->routeIs('agenda.create') ? 'active' : '' }}" title="Tambah Agenda">
+                      <i class="fas fa-plus"></i>
+                      <span class="nav-label">Tambah Agenda</span>
+                  </a>
+                  <a href="{{ Auth::user()->role === 'admin' ? route('approve') : route('agenda.notification') }}" class="nav-icon {{ request()->routeIs('approve') || request()->routeIs('agenda.notification') ? 'active' : '' }}" title="Notifikasi">
+                      <i class="fas fa-bell"></i>
+                      <span class="nav-label">Notifikasi</span>
+                  </a>
+              @endif
           @else
               <a href="/bulan" class="nav-icon {{ request()->is('/') || request()->is('bulan') || request()->is('hari') || request()->is('tahun') ? 'active' : '' }}" title="Kalender">
                   <i class="fas fa-calendar"></i>
                   <span class="nav-label">Kalender</span>
               </a>
               @auth
-                  <a href="{{ route('agenda.create') }}" class="nav-icon {{ request()->routeIs('agenda.create') ? 'active' : '' }}" title="Tambah Agenda">
-                      <i class="fas fa-plus"></i>
-                      <span class="nav-label">Tambah Agenda</span>
-                  </a>
-                  <a href="{{ route('agenda.notification') }}" class="nav-icon {{ request()->routeIs('agenda.notification') ? 'active' : '' }}" title="Notifikasi">
-                      <i class="fas fa-bell"></i>
-                      <span class="nav-label">Notifikasi</span>
-                  </a>
-              @else
-                  <a href="/login" class="nav-icon" title="Login">
-                      <i class="fas fa-sign-in-alt"></i>
-                      <span class="nav-label">Login</span>
-                  </a>
-              @endauth
+                  @if (Auth::check() && Auth::user()->role === 'superadmin')
+                      <a href="{{ route('superadmin.dashboard') }}" class="nav-icon {{ request()->is('superadmin') ? 'active' : '' }}" title="Super Admin">
+                          <i class="fas fa-users"></i>
+                          <span class="nav-label">Super Admin</span>
+                      </a>
+                  @endif
+                  @if (Auth::user()->role !== 'superadmin')
+                      <a href="{{ route('agenda.create') }}" class="nav-icon {{ request()->routeIs('agenda.create') ? 'active' : '' }}" title="Tambah Agenda">
+                          <i class="fas fa-plus"></i>
+                          <span class="nav-label">Tambah Agenda</span>
+                      </a>
+                      <a href="{{ route('agenda.notification') }}" class="nav-icon {{ request()->routeIs('agenda.notification') ? 'active' : '' }}" title="Notifikasi">
+                          <i class="fas fa-bell"></i>
+                          <span class="nav-label">Notifikasi</span>
+                      </a>
+                  @endif
+             @else
+                 {{-- Login icon removed for landing sidebar --}}
+             @endauth
           @endif
       </div>
   </aside>
