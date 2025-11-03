@@ -62,7 +62,7 @@
 }
 
 .content-nav-tab:hover:not(.active) { background: rgba(255,255,255,0.5); color: #333; }
-.content-nav-tab.active { background: #fff; color: #333; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-weight: 600; }
+.content-nav-tab.active { background: #82A98D; color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-weight: 600; }
 
 .content-mini-calendar-section { margin-bottom: 20px; }
 
