@@ -154,6 +154,15 @@
                                                 <span><strong>Tanggal:</strong>
                                                     {{ \Carbon\Carbon::parse($agenda->date)->locale('id')->translatedFormat('l, d F Y') }}</span>
                                             </div>
+
+                                            <!-- ✅ Status dimasukkan ke dalam details-left biar sejajar -->
+                                            <div class="detail-item">
+                                                <i class="fas fa-eye"></i>
+                                                <span>
+                                                    <strong>Status:</strong>
+                                                    {{ $agenda->is_public ? 'Publik' : 'Privasi' }}
+                                                </span>
+                                            </div>
                                         </div>
 
                                         <div class="details-right">
@@ -177,21 +186,23 @@
                                                 <i class="fas fa-map-marker-alt"></i>
                                                 <span><strong>Lokasi:</strong> {{ $agenda->location ?? '-' }}</span>
                                             </div>
+
                                             <div class="detail-item participants">
                                                 <i class="fas fa-people-group"></i>
                                                 <span><strong>Instansi Terlibat:</strong>
                                                     {{ $agenda->involved_institution ?? '-' }}</span>
                                             </div>
-                                        </div>
-                                        <div class="detail-item">
-                                            <i class="fas fa-eye"></i>
-                                            <span>
-                                                <strong>Status:</strong>
-                                                {{ $agenda->is_public ? 'Publik' : 'Privasi' }}
-                                            </span>
+
+                                            @if ($agenda->status === 'rejected' && !empty($agenda->reason))
+                                                <div class="detail-item">
+                                                    <i class="fas fa-comment-dots"></i>
+                                                    <span><strong>Alasan Ditolak:</strong> {{ $agenda->reason }}</span>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
+                               
 
                                 <!-- Card Footer -->
                                 <div class="card-footer">
@@ -215,15 +226,10 @@
 
                                     @if ($agenda->status === 'pending')
                                         <div class="approval-actions">
-                                            <form action="{{ route('agenda.updateStatus', $agenda->id_agenda) }}"
-                                                method="POST" class="action-form">
-                                                @csrf
-                                                @method('PUT')
-                                                <input type="hidden" name="status" value="rejected">
-                                                <button type="submit" class="btn-reject">
-                                                    <i class="fas fa-times"></i> Tolak
-                                                </button>
-                                            </form>
+                                            <button type="button" class="btn-reject"
+                                                onclick="openRejectModal({{ $agenda->id_agenda }})">
+                                                <i class="fas fa-times"></i> Tolak
+                                            </button>
                                             <form action="{{ route('agenda.updateStatus', $agenda->id_agenda) }}"
                                                 method="POST" class="action-form">
                                                 @csrf
@@ -251,23 +257,142 @@
         </main>
 
         <!-- Reject Confirmation Modal (UI only) -->
-        <div id="rejectModal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 9999; align-items: center; justify-content: center;">
-            <div style="width: 520px; max-width: 92vw; background: #fff; border-radius: 14px; box-shadow: 0 12px 32px rgba(0,0,0,0.18); overflow: hidden; font-family: 'Poppins', sans-serif;">
-                <div style="padding: 18px 22px; border-bottom: 1px solid #eef0f2; display:flex; align-items:center; justify-content: space-between;">
+        <div id="rejectModal"
+            style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 9999; align-items: center; justify-content: center;">
+            <div
+                style="width: 520px; max-width: 92vw; background: #fff; border-radius: 14px; box-shadow: 0 12px 32px rgba(0,0,0,0.18); overflow: hidden; font-family: 'Poppins', sans-serif;">
+                <div
+                    style="padding: 18px 22px; border-bottom: 1px solid #eef0f2; display:flex; align-items:center; justify-content: space-between;">
                     <h3 style="margin:0; font-size:18px; font-weight:600; color:#111827;">Konfirmasi Penolakan</h3>
-                    <button type="button" id="rejectModalClose" aria-label="Tutup" style="background:none; border:0; font-size:20px; line-height:1; cursor:pointer; color:#6b7280;">×</button>
+                    <button type="button" id="rejectModalClose" aria-label="Tutup"
+                        style="background:none; border:0; font-size:20px; line-height:1; cursor:pointer; color:#6b7280;">×</button>
                 </div>
                 <div style="padding: 18px 22px;">
                     <p style="margin:0 0 10px; color:#374151;">Yakin ingin menolak agenda ini?</p>
-                    <label for="rejectReason" style="display:block; margin-bottom:8px; color:#374151; font-weight:500;">Alasan penolakan</label>
-                    <textarea id="rejectReason" placeholder="Tuliskan alasan penolakan (opsional)" style="width:100%; min-height:100px; border:1px solid #e5e7eb; border-radius:10px; padding:10px 12px; outline:none; resize: vertical; font-family: inherit;" ></textarea>
+                    <label for="rejectReason"
+                        style="display:block; margin-bottom:8px; color:#374151; font-weight:500;">Alasan
+                        penolakan</label>
+                    <textarea id="rejectReason" placeholder="Tuliskan alasan penolakan (opsional)"
+                        style="width:100%; min-height:100px; border:1px solid #e5e7eb; border-radius:10px; padding:10px 12px; outline:none; resize: vertical; font-family: inherit;"></textarea>
                 </div>
-                <div style="display:flex; justify-content:flex-end; gap:10px; padding: 14px 22px; border-top:1px solid #eef0f2; background:#fafafa;">
-                    <button type="button" id="rejectModalCancel" style="background:#ffffff; border:1px solid #e5e7eb; color:#111827; border-radius:10px; padding:10px 14px; cursor:pointer;">Batal</button>
-                    <button type="button" id="rejectModalConfirm" style="background:#ef4444; border:1px solid #ef4444; color:#ffffff; border-radius:10px; padding:10px 14px; cursor:pointer;">Tolak</button>
+                <div
+                    style="display:flex; justify-content:flex-end; gap:10px; padding: 14px 22px; border-top:1px solid #eef0f2; background:#fafafa;">
+                    <button type="button" id="rejectModalCancel"
+                        style="background:#ffffff; border:1px solid #e5e7eb; color:#111827; border-radius:10px; padding:10px 14px; cursor:pointer;">Batal</button>
+                    <button type="button" id="rejectModalConfirm"
+                        style="background:#ef4444; border:1px solid #ef4444; color:#ffffff; border-radius:10px; padding:10px 14px; cursor:pointer;">Tolak</button>
                 </div>
             </div>
         </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const rejectModal = document.getElementById("rejectModal");
+                const rejectModalClose = document.getElementById("rejectModalClose");
+                const rejectModalCancel = document.getElementById("rejectModalCancel");
+                const rejectModalConfirm = document.getElementById("rejectModalConfirm");
+                const rejectReason = document.getElementById("rejectReason");
+                let currentAgendaId = null;
+
+                // 🔹 Fungsi untuk buka modal
+                window.openRejectModal = (agendaId) => {
+                    currentAgendaId = agendaId;
+                    rejectReason.value = "";
+                    rejectModal.style.display = "flex";
+                };
+
+                // 🔹 Tutup modal
+                [rejectModalClose, rejectModalCancel].forEach(btn => {
+                    btn.addEventListener("click", () => {
+                        rejectModal.style.display = "none";
+                        currentAgendaId = null;
+                    });
+                });
+
+                // 🔹 Fungsi konfirmasi penolakan
+                rejectModalConfirm.addEventListener("click", async () => {
+                    if (!currentAgendaId) return;
+
+                    const reason = rejectReason.value.trim();
+
+                    try {
+                        const res = await fetch(`/dashboard/agenda/${currentAgendaId}/reject`, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')
+                                    .content
+                            },
+                            body: JSON.stringify({
+                                reason
+                            })
+                        });
+
+                        const data = await res.json();
+                        if (!res.ok || !data.success) {
+                            Swal.fire("Gagal", data.message || "Gagal menolak agenda.", "error");
+                            return;
+                        }
+
+                        // 🔹 Tutup modal & tampilkan notifikasi
+                        rejectModal.style.display = "none";
+                        Swal.fire({
+                            icon: "success",
+                            title: "Agenda Ditolak",
+                            text: data.message || "Agenda telah berhasil ditolak.",
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+
+                        // 🔹 Update tampilan kartu secara langsung
+                        const card = document.querySelector(
+                            `button[onclick="openRejectModal(${currentAgendaId})"]`)?.closest(
+                            ".approval-card");
+                        if (card) {
+                            // ubah badge status jadi Ditolak
+                            const badge = card.querySelector(".status-badge");
+                            if (badge) {
+                                badge.className = "status-badge rejected";
+                                badge.textContent = "Ditolak";
+                            }
+
+                            // tambahkan alasan di bawah jika ada
+                            if (reason) {
+                                let reasonItem = card.querySelector(".detail-item .fa-comment-dots");
+                                if (!reasonItem) {
+                                    const detailsGrid = card.querySelector(".details-grid");
+                                    const reasonDiv = document.createElement("div");
+                                    reasonDiv.className = "detail-item";
+                                    reasonDiv.innerHTML = `
+                            <i class="fas fa-comment-dots"></i>
+                            <span><strong>Alasan Ditolak:</strong> ${reason}</span>
+                        `;
+                                    detailsGrid.appendChild(reasonDiv);
+                                }
+                            }
+
+                            // ubah tombol jadi teks “Agenda sudah divalidasi (Ditolak)”
+                            const footer = card.querySelector(".card-footer .approval-actions");
+                            if (footer) {
+                                footer.innerHTML = `
+                        <span class="validated-text">
+                            <i class="fas fa-circle-check"></i>
+                            Agenda sudah divalidasi (Ditolak)
+                        </span>
+                    `;
+                            }
+                        }
+
+                        currentAgendaId = null;
+                    } catch (error) {
+                        console.error(error);
+                        Swal.fire("Error", "Terjadi kesalahan koneksi ke server.", "error");
+                    }
+                });
+            });
+        </script>
+
 
         <div id="toast" class="toastify" style="display: none;">
             <p>Agenda telah disetujui</p>
@@ -277,95 +402,51 @@
         <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const actionForms = document.querySelectorAll('.action-form');
-                const rejectButtons = document.querySelectorAll('.btn-reject');
-                const rejectModal = document.getElementById('rejectModal');
-                const rejectClose = document.getElementById('rejectModalClose');
-                const rejectCancel = document.getElementById('rejectModalCancel');
-                const rejectConfirm = document.getElementById('rejectModalConfirm');
+            // ========== HANDLE SUBMIT ==========
+            actionForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
 
-                // ========== CEK APA ADA PESAN DI SESSION STORAGE ==========
-                const savedMessage = sessionStorage.getItem('toastMessage');
-                const savedType = sessionStorage.getItem('toastType');
-                if (savedMessage) {
-                    showToast(savedMessage, savedType);
-                    sessionStorage.removeItem('toastMessage');
-                    sessionStorage.removeItem('toastType');
-                }
+                const status = form.querySelector('input[name="status"]').value;
 
-                // ========== UI ONLY: Open modal on reject button ==========
-                rejectButtons.forEach(btn => {
-                    btn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        showToast('Yakin ingin menolak?', 'error');
-                        if (rejectModal) {
-                            rejectModal.style.display = 'flex';
+                fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector(
+                                'meta[name="csrf-token"]').content,
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            ...Object.fromEntries(new FormData(form)),
+                            '_method': 'PUT'
+                        })
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            // simpan pesan untuk ditampilkan setelah reload
+                            if (status === 'approved') {
+                                sessionStorage.setItem('toastMessage',
+                                    'Agenda telah disetujui');
+                                sessionStorage.setItem('toastType', 'success');
+                            } else {
+                                sessionStorage.setItem('toastMessage',
+                                    'Agenda telah ditolak');
+                                sessionStorage.setItem('toastType', 'error');
+                            }
+                            location.reload(); // reload langsung tanpa delay
+                        } else {
+                            response.text().then(text => {
+                                console.error('Error response:', response.status,
+                                    text);
+                                alert(
+                                    'Gagal memperbarui agenda. Cek console untuk detail.'
+                                );
+                            });
                         }
-                    });
-                });
-
-                // Close modal handlers
-                ;[rejectClose, rejectCancel].forEach(el => {
-                    el && el.addEventListener('click', function() {
-                        rejectModal && (rejectModal.style.display = 'none');
-                    });
-                });
-
-                // Confirm reject (UI only)
-                if (rejectConfirm) {
-                    rejectConfirm.addEventListener('click', function() {
-                        const reason = document.getElementById('rejectReason')?.value || '';
-                        showToast(reason ? 'Penolakan disiapkan.' : 'Penolakan disiapkan tanpa alasan.', 'error');
-                        rejectModal.style.display = 'none';
-                        // NOTE: Tidak mengirim ke server. Hanya tampilan.
-                    });
-                }
-
-                // ========== HANDLE SUBMIT ==========
-                actionForms.forEach(form => {
-                    form.addEventListener('submit', function(e) {
-                        e.preventDefault();
-
-                        const status = form.querySelector('input[name="status"]').value;
-
-                        fetch(form.action, {
-                                method: 'POST',
-                                headers: {
-                                    'X-CSRF-TOKEN': document.querySelector(
-                                        'meta[name="csrf-token"]').content,
-                                    'Content-Type': 'application/x-www-form-urlencoded',
-                                },
-                                body: new URLSearchParams({
-                                    ...Object.fromEntries(new FormData(form)),
-                                    '_method': 'PUT'
-                                })
-                            })
-                            .then(response => {
-                                if (response.ok) {
-                                    // simpan pesan untuk ditampilkan setelah reload
-                                    if (status === 'approved') {
-                                        sessionStorage.setItem('toastMessage',
-                                            'Agenda telah disetujui');
-                                        sessionStorage.setItem('toastType', 'success');
-                                    } else {
-                                        sessionStorage.setItem('toastMessage',
-                                            'Agenda telah ditolak');
-                                        sessionStorage.setItem('toastType', 'error');
-                                    }
-                                    location.reload(); // reload langsung tanpa delay
-                                } else {
-                                    response.text().then(text => {
-                                        console.error('Error response:', response.status,
-                                            text);
-                                        alert(
-                                            'Gagal memperbarui agenda. Cek console untuk detail.');
-                                    });
-                                }
-                            })
-                            .catch(err => console.error('Fetch error:', err));
-                    });
-                });
+                    })
+                    .catch(err => console.error('Fetch error:', err));
+            });
+            });
             });
 
             // ======== TOASTIFY ========
