@@ -878,3 +878,11 @@
         font-size: 13px;
     }
 }
+
+.app-container .main-content {
+    padding-top: 20px !important;
+}
+
+.approval-page {
+    padding-top: 10px !important;
+}

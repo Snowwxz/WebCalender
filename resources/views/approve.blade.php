@@ -287,6 +287,7 @@
                 const rejectModalCancel = document.getElementById("rejectModalCancel");
                 const rejectModalConfirm = document.getElementById("rejectModalConfirm");
                 const rejectReason = document.getElementById("rejectReason");
+                const sidebar = document.querySelector('.sidebar');
                 let currentAgendaId = null;
 
                 // 🔹 Fungsi untuk buka modal
@@ -295,13 +296,18 @@
                     rejectReason.value = "";
                     rejectModal.classList.add('show');
                     rejectModal.style.display = 'flex'; // <-- pastikan kelihatan
+                    rejectModal.style.opacity = '1'; // tampil instan tanpa fade
+                    if (sidebar) sidebar.classList.add('dimmed');
                 };
 
                 // 🔹 Tutup modal (tombol close & batal)
                 [rejectModalClose, rejectModalCancel].forEach(btn => {
+                    if (!btn) return;
                     btn.addEventListener("click", () => {
                         rejectModal.classList.remove('show');
                         rejectModal.style.display = 'none'; // <-- sembunyikan
+                        rejectModal.style.opacity = ''; // reset inline style
+                        if (sidebar) sidebar.classList.remove('dimmed');
                         currentAgendaId = null;
                     });
                 });
@@ -311,6 +317,8 @@
                     if (e.target === rejectModal) {
                         rejectModal.classList.remove('show');
                         rejectModal.style.display = 'none';
+                        rejectModal.style.opacity = '';
+                        if (sidebar) sidebar.classList.remove('dimmed');
                         currentAgendaId = null;
                     }
                 });
@@ -343,6 +351,8 @@
                         // 🔹 Tutup modal & tampilkan notifikasi
                         rejectModal.classList.remove('show');
                         rejectModal.style.display = "none"; // backup
+                        rejectModal.style.opacity = '';
+                        if (sidebar) sidebar.classList.remove('dimmed');
                         Swal.fire({
                             icon: "success",
                             title: "Agenda Ditolak",
@@ -516,3 +526,22 @@
             });
         </script>
 @endsection
+
+<style>
+    /* Disable sidebar transition on this page to avoid any fade when toggling dim */
+    .sidebar { transition: none !important; }
+    /* Dim sidebar when modal is open */
+    .sidebar.dimmed {
+        filter: brightness(0.5);
+        pointer-events: none; /* prevent interactions behind modal */
+    }
+
+        /* Force reject modal overlay to appear instantly (no fade) */
+        #rejectModal,
+        .reject-modal-overlay,
+        .reject-modal-overlay.show,
+        .reject-modal-container {
+            transition: none !important;
+            animation: none !important;
+        }
+</style>
