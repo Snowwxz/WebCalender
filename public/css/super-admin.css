@@ -338,7 +338,6 @@ body .app-container>.main-content {
     box-shadow: 0 4px 10px rgba(130, 169, 141, 0.3);
 }
 
-
 .user-form-modal {
     position: fixed;
     top: 0;
@@ -360,6 +359,12 @@ body .app-container>.main-content {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
+}
+
+.user-form-content {
+    max-height: 90vh;
+    overflow-y: auto;
+    margin: 20px;
 }
 
 .user-form-title i {
@@ -672,7 +677,6 @@ body .app-container>.main-content {
 .password-wrapper input {
     width: 100%;
     padding-right: 40px;
-    /* beri ruang untuk ikon */
 }
 
 .password-toggle {

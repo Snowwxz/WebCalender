@@ -1657,7 +1657,6 @@
     color: #6E9579 !important;
 }
 
-/* Gaya umum badge status */
 .badge-status {
     display: inline-block;
     padding: 6px 14px;
@@ -1669,7 +1668,6 @@
     text-align: center;
 }
 
-/* Warna khusus untuk masing-masing status */
 .badge-privasi {
     background-color: #FFB67E !important;
     color: #3b2e1a !important;
@@ -1712,4 +1710,23 @@
 .circle-close-btn:active {
     background-color: #EEF2EF;
     transform: scale(1.05);
+}
+
+.close-modal {
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    color: #6b7280;
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.3s ease;
+}
+
+.close-modal:hover {
+    color: #82A98D;
+    transform: rotate(90deg);
+}
+
+.modal-header .close-modal {
+    margin-left: auto;
+    padding: 4px 8px;
 }

@@ -733,7 +733,10 @@
             function showSuccessToast(message) {
                 const popup = document.createElement('div');
                 popup.className = 'toastify-popup toastify-success';
-                popup.innerHTML = `<p class="toastify-title">${message}</p>`;
+                popup.innerHTML = `
+                    <i class="bi bi-check-circle-fill" style="color:#5FA776; font-size:16px;"></i>
+                    <span>${message}</span>
+                `;
                 document.body.appendChild(popup);
 
                 popup.classList.add('toastify-popup-show');
@@ -741,7 +744,7 @@
                     popup.classList.remove('toastify-popup-show');
                     popup.classList.add('toastify-popup-hide');
                     setTimeout(() => popup.remove(), 300);
-                }, 2000);
+                }, 2500);
             }
         });
     </script>
@@ -894,23 +897,27 @@
         }
 
         .toastify-success {
-            background: #FFF1E6;
-            border: 1px solid #F7B7B7;
-            color: #7A1C1C;
-            border-radius: 12px;
-            padding: 10px 20px;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 40px;
-            line-height: 40px;
-            max-width: 90%;
-            white-space: nowrap;
-            top: 90px !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            font-size: 15px;
+            position: fixed;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #E9F4EC;
+            color: #234B2C;
+            border: 1px solid #A6C8A3;
+            border-radius: 6px;
+            padding: 8px 18px;
+            font-size: 14px;
             font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            z-index: 9999;
             animation: toastIn 0.35s ease forwards;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            width: auto;
+            max-width: 300px;
+            min-height: unset;
         }
 
         body,
@@ -923,12 +930,12 @@
         @keyframes toastIn {
             0% {
                 opacity: 0;
-                transform: translate(-50%, -15px) scale(0.95);
+                transform: translate(-50%, -30px) scale(0.95);
             }
 
-            70% {
+            80% {
                 opacity: 1;
-                transform: translate(-50%, 3px) scale(1.03);
+                transform: translate(-50%, 8px) scale(1.03);
             }
 
             100% {
