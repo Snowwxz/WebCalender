@@ -202,7 +202,7 @@
                                         </div>
                                     </div>
                                 </div>
-                               
+
 
                                 <!-- Card Footer -->
                                 <div class="card-footer">
@@ -256,34 +256,75 @@
             </div>
         </main>
 
-        <!-- Reject Confirmation Modal (UI only) -->
+        <!-- Reject Confirmation Modal (SiKota Style) -->
         <div id="rejectModal"
-            style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 9999; align-items: center; justify-content: center;">
+            style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 9999; align-items: center; justify-content: center; font-family: 'Poppins', sans-serif;">
             <div
-                style="width: 520px; max-width: 92vw; background: #fff; border-radius: 14px; box-shadow: 0 12px 32px rgba(0,0,0,0.18); overflow: hidden; font-family: 'Poppins', sans-serif;">
+                style="width: 480px; max-width: 92vw; background: #ffffff; border-radius: 16px; box-shadow: 0 12px 28px rgba(0,0,0,0.15); overflow: hidden; animation: fadeIn 0.25s ease;">
+
+                <!-- Header -->
                 <div
-                    style="padding: 18px 22px; border-bottom: 1px solid #eef0f2; display:flex; align-items:center; justify-content: space-between;">
-                    <h3 style="margin:0; font-size:18px; font-weight:600; color:#111827;">Konfirmasi Penolakan</h3>
+                    style="padding: 18px 24px; border-bottom: 1px solid #f1f3f5; display:flex; align-items:center; justify-content: space-between;">
+                    <h3 style="margin:0; font-size:18px; font-weight:600; color:#1f2937;">Konfirmasi Penolakan</h3>
                     <button type="button" id="rejectModalClose" aria-label="Tutup"
-                        style="background:none; border:0; font-size:20px; line-height:1; cursor:pointer; color:#6b7280;">×</button>
+                        style="background:none; border:0; font-size:22px; line-height:1; cursor:pointer; color:#9ca3af;">×</button>
                 </div>
-                <div style="padding: 18px 22px;">
-                    <p style="margin:0 0 10px; color:#374151;">Yakin ingin menolak agenda ini?</p>
+
+                <!-- Body -->
+                <div style="padding: 22px 24px;">
+                    <p style="margin:0 0 12px; font-size:15px; color:#374151;">
+                        Yakin ingin menolak agenda ini?
+                    </p>
                     <label for="rejectReason"
-                        style="display:block; margin-bottom:8px; color:#374151; font-weight:500;">Alasan
-                        penolakan</label>
+                        style="display:block; margin-bottom:8px; font-size:15px; color:#111827; font-weight:500;">
+                        Alasan penolakan
+                    </label>
                     <textarea id="rejectReason" placeholder="Tuliskan alasan penolakan (opsional)"
-                        style="width:100%; min-height:100px; border:1px solid #e5e7eb; border-radius:10px; padding:10px 12px; outline:none; resize: vertical; font-family: inherit;"></textarea>
+                        style="width:100%; min-height:100px; border:1px solid #e5e7eb; border-radius:10px; padding:10px 12px; outline:none; font-size:14px; color:#111827; resize: vertical; transition: border 0.2s;"></textarea>
                 </div>
+
+                <!-- Footer -->
                 <div
-                    style="display:flex; justify-content:flex-end; gap:10px; padding: 14px 22px; border-top:1px solid #eef0f2; background:#fafafa;">
+                    style="display:flex; justify-content:flex-end; gap:10px; padding: 16px 24px; border-top:1px solid #f1f3f5; background:#fafafa;">
                     <button type="button" id="rejectModalCancel"
-                        style="background:#ffffff; border:1px solid #e5e7eb; color:#111827; border-radius:10px; padding:10px 14px; cursor:pointer;">Batal</button>
+                        style="background:#ffffff; border:1px solid #d1d5db; color:#111827; border-radius:10px; padding:10px 16px; font-weight:500; cursor:pointer; transition:all 0.2s;">
+                        Batal
+                    </button>
                     <button type="button" id="rejectModalConfirm"
-                        style="background:#ef4444; border:1px solid #ef4444; color:#ffffff; border-radius:10px; padding:10px 14px; cursor:pointer;">Tolak</button>
+                        style="background:#dc2626; border:1px solid #dc2626; color:#ffffff; border-radius:10px; padding:10px 16px; font-weight:500; cursor:pointer; transition:all 0.2s;">
+                        Tolak
+                    </button>
                 </div>
             </div>
         </div>
+
+        <style>
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: scale(0.95);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+            }
+
+            #rejectModal textarea:focus {
+                border-color: #2563eb;
+                box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+            }
+
+            #rejectModal button:hover#rejectModalCancel {
+                background: #f3f4f6;
+            }
+
+            #rejectModal button:hover#rejectModalConfirm {
+                background: #b91c1c;
+                border-color: #b91c1c;
+            }
+        </style>
 
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
@@ -404,49 +445,48 @@
         <script>
             // ========== HANDLE SUBMIT ==========
             actionForms.forEach(form => {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
 
-                const status = form.querySelector('input[name="status"]').value;
+                    const status = form.querySelector('input[name="status"]').value;
 
-                fetch(form.action, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector(
-                                'meta[name="csrf-token"]').content,
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: new URLSearchParams({
-                            ...Object.fromEntries(new FormData(form)),
-                            '_method': 'PUT'
+                    fetch(form.action, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector(
+                                    'meta[name="csrf-token"]').content,
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: new URLSearchParams({
+                                ...Object.fromEntries(new FormData(form)),
+                                '_method': 'PUT'
+                            })
                         })
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            // simpan pesan untuk ditampilkan setelah reload
-                            if (status === 'approved') {
-                                sessionStorage.setItem('toastMessage',
-                                    'Agenda telah disetujui');
-                                sessionStorage.setItem('toastType', 'success');
+                        .then(response => {
+                            if (response.ok) {
+                                // simpan pesan untuk ditampilkan setelah reload
+                                if (status === 'approved') {
+                                    sessionStorage.setItem('toastMessage',
+                                        'Agenda telah disetujui');
+                                    sessionStorage.setItem('toastType', 'success');
+                                } else {
+                                    sessionStorage.setItem('toastMessage',
+                                        'Agenda telah ditolak');
+                                    sessionStorage.setItem('toastType', 'error');
+                                }
+                                location.reload(); // reload langsung tanpa delay
                             } else {
-                                sessionStorage.setItem('toastMessage',
-                                    'Agenda telah ditolak');
-                                sessionStorage.setItem('toastType', 'error');
+                                response.text().then(text => {
+                                    console.error('Error response:', response.status,
+                                        text);
+                                    alert(
+                                        'Gagal memperbarui agenda. Cek console untuk detail.'
+                                    );
+                                });
                             }
-                            location.reload(); // reload langsung tanpa delay
-                        } else {
-                            response.text().then(text => {
-                                console.error('Error response:', response.status,
-                                    text);
-                                alert(
-                                    'Gagal memperbarui agenda. Cek console untuk detail.'
-                                );
-                            });
-                        }
-                    })
-                    .catch(err => console.error('Fetch error:', err));
-            });
-            });
+                        })
+                        .catch(err => console.error('Fetch error:', err));
+                });
             });
 
             // ======== TOASTIFY ========
