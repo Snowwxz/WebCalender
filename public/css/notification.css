@@ -37,7 +37,7 @@
     display: flex;
     gap: 10px;
     overflow-x: auto;
-    white-space: nowrap; /* keep tabs in one line */
+    white-space: nowrap;
     justify-content: center;
     margin-top: 4px;
     background: #f3f4f6;
