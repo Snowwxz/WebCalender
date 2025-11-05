@@ -678,6 +678,9 @@
 
                 modal.classList.add('show');
             };
+            window.closeEditModal = function() {
+                document.getElementById('editModal').classList.remove('show');
+            };
         });
     </script>
 
