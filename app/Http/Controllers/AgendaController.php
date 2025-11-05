@@ -211,6 +211,30 @@ class AgendaController extends Controller
         return redirect()->back()->with('error', 'Anda tidak memiliki izin untuk mengubah status agenda.');
     }
 
+    public function reject(Request $request, $id_agenda)
+    {
+        $agenda = Agenda::findOrFail($id_agenda);
+
+        $request->validate([
+            'reason' => 'nullable|string|max:500',
+        ]);
+
+        if (Auth::user()->role !== 'admin') {
+            return response()->json(['success' => false, 'message' => 'Tidak memiliki izin menolak agenda.'], 403);
+        }
+
+        $agenda->status = 'rejected';
+        $agenda->reason = $request->reason; // simpan alasan admin
+        $agenda->approved_by = Auth::id();
+        $agenda->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Agenda berhasil ditolak.',
+            'agenda' => $agenda
+        ]);
+    }
+
 
     /**
      * ✅ Hapus agenda.

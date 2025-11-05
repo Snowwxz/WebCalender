@@ -132,7 +132,9 @@
                                     </div>
                                     <ul>
                                         @foreach ($units as $unit)
-                                            <li data-value="{{ $unit->unit_name }}">{{ $unit->unit_name }}</li>
+                                            @if ($unit->id_unit !== Auth::user()->id_unit && strtolower($unit->unit_name) !== 'protokol')
+                                                <li data-value="{{ $unit->unit_name }}">{{ $unit->unit_name }}</li>
+                                            @endif
                                         @endforeach
                                     </ul>
                                 </div>

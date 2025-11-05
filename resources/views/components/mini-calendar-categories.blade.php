@@ -7,12 +7,16 @@
     <!-- Navigation Tabs -->
     <div class="content-nav-tabs">
         @if ($isDashboard)
-            <a href="/dashboard/hari" class="content-nav-tab {{ request()->is('dashboard/hari') ? 'active' : '' }}">Hari</a>
-            <a href="/dashboard/bulan" class="content-nav-tab {{ request()->is('dashboard/bulan') ? 'active' : '' }}">Bulan</a>
-            <a href="/dashboard/tahun" class="content-nav-tab {{ request()->is('dashboard/tahun') ? 'active' : '' }}">Tahun</a>
+            <a href="/dashboard/hari"
+                class="content-nav-tab {{ request()->is('dashboard/hari') ? 'active' : '' }}">Hari</a>
+            <a href="/dashboard/bulan"
+                class="content-nav-tab {{ request()->is('dashboard/bulan') ? 'active' : '' }}">Bulan</a>
+            <a href="/dashboard/tahun"
+                class="content-nav-tab {{ request()->is('dashboard/tahun') ? 'active' : '' }}">Tahun</a>
         @else
             <a href="/hari" class="content-nav-tab {{ request()->is('hari') ? 'active' : '' }}">Hari</a>
-            <a href="/bulan" class="content-nav-tab {{ request()->is('/') || request()->is('bulan') ? 'active' : '' }}">Bulan</a>
+            <a href="/bulan"
+                class="content-nav-tab {{ request()->is('/') || request()->is('bulan') ? 'active' : '' }}">Bulan</a>
             <a href="/tahun" class="content-nav-tab {{ request()->is('tahun') ? 'active' : '' }}">Tahun</a>
         @endif
     </div>
@@ -53,7 +57,7 @@
 
     <div class="content-agenda-categories">
         <label class="content-category-item public {{ !$isDashboard ? 'disabled' : '' }}">
-            <input type="checkbox" checked {{ !$isDashboard ? 'disabled' : '' }}>
+            <input type="checkbox" id="filterPublic" name="filterPublic" checked {{ !$isDashboard ? 'disabled' : '' }}>
             <span class="content-custom-checkbox"></span>
             <span class="content-dot"></span>
             <span class="content-text">Publik</span>
@@ -61,7 +65,7 @@
 
         @auth
             <label class="content-category-item private">
-                <input type="checkbox" checked>
+                <input type="checkbox" id="filterPrivate" name="filterPrivate" checked>
                 <span class="content-custom-checkbox"></span>
                 <span class="content-dot"></span>
                 <span class="content-text">Privasi</span>
@@ -69,4 +73,3 @@
         @endauth
     </div>
 </div>
-
