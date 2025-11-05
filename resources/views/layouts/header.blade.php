@@ -204,39 +204,81 @@
 
     // ======== TOAST SUKSES (senada tema hijau pastel) ========
     function showSuccessToast(message) {
-        const successToast = document.createElement('div');
-        successToast.innerHTML = `
-            <div style="
-                font-family: 'Poppins', sans-serif;
-                font-weight: 500;
-                font-size: 15px;
-                color: #2F3E35;
-            ">
-                ${message}
-            </div>
+        const popup = document.createElement('div');
+        popup.className = 'toastify-popup toastify-success';
+        popup.innerHTML = `
+            <i class="bi bi-check-circle-fill" style="color:#5FA776; font-size:16px;"></i>
+            <span>${message}</span>
         `;
+        document.body.appendChild(popup);
 
-        Toastify({
-            node: successToast,
-            duration: 2500,
-            gravity: "top",
-            position: "center",
-            close: false,
-            offset: {
-                x: 0,
-                y: 20
-            },
-            style: {
-                background: "#FFF1E6",
-                border: "1px solid #F7B7B7",
-                borderRadius: "10px",
-                padding: "14px 28px",
-                boxShadow: "0 6px 14px rgba(0,0,0,0.08)",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                animation: "fadeIn 0.3s ease",
-            }
-        }).showToast();
+        popup.classList.add('toastify-popup-show');
+        setTimeout(() => {
+            popup.classList.remove('toastify-popup-show');
+            popup.classList.add('toastify-popup-hide');
+            setTimeout(() => popup.remove(), 300);
+        }, 2500);
     }
 </script>
+
+<style>
+    .toastify-success {
+        position: fixed;
+        top: 90px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #E9F4EC;
+        color: #234B2C;
+        border: 1px solid #A6C8A3;
+        border-radius: 6px;
+        padding: 8px 18px;
+        font-size: 14px;
+        font-weight: 500;
+        font-family: 'Poppins', sans-serif;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        z-index: 9999;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        width: auto;
+        max-width: 300px;
+        min-height: unset;
+    }
+
+    .toastify-popup-show {
+        animation: toastIn 0.35s ease forwards;
+    }
+
+    .toastify-popup-hide {
+        animation: toastOut 0.25s ease forwards;
+    }
+
+    @keyframes toastIn {
+        0% {
+            opacity: 0;
+            transform: translate(-50%, -30px) scale(0.95);
+        }
+
+        80% {
+            opacity: 1;
+            transform: translate(-50%, 8px) scale(1.03);
+        }
+
+        100% {
+            opacity: 1;
+            transform: translate(-50%, 0) scale(1);
+        }
+    }
+
+    @keyframes toastOut {
+        from {
+            opacity: 1;
+            transform: translate(-50%, 0) scale(1);
+        }
+
+        to {
+            opacity: 0;
+            transform: translate(-50%, -10px) scale(0.95);
+        }
+    }
+</style>

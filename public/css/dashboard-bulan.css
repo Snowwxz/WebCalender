@@ -1385,8 +1385,8 @@
 }
 
 #agendaSidebar .close-sidebar:hover {
-    background: #e9ecef;
-    color: #333;
+    color: #82A98D;
+    transform: rotate(90deg);
 }
 
 #agendaSidebar .agenda-list {
@@ -1582,7 +1582,6 @@
     line-height: 1.45;
 }
 
-/* Ensure Bootstrap modal/backdrop overlay above header/sidebar */
 .modal-backdrop {
     z-index: 11000 !important;
 }
@@ -1603,7 +1602,6 @@
     }
 }
 
-/* Biar sidebar ngilang halus waktu modal muncul */
 #agendaSidebar {
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
@@ -1618,12 +1616,10 @@
     color: #374151 !important;
     font-size: 14px;
     white-space: pre-line;
-    /* <— Biar line break tetap terlihat */
 }
 
 .bg-orange-500 {
     background-color: #f97316 !important;
-    /* warna oranye */
     color: white !important;
 }
 

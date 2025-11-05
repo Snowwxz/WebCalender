@@ -1,8 +1,10 @@
-@extends('layouts.main')
+    @extends('layouts.main')
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/notification.css') }}">
-@endpush
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+</push>
 
 @section('content')
     <div class="notification-page">
@@ -257,7 +259,7 @@
         });
     </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -267,19 +269,87 @@
                 form.addEventListener('submit', function(e) {
                     e.preventDefault(); // cegah submit langsung
 
-                    Swal.fire({
-                        title: 'Yakin ingin menghapus agenda ini?',
-                        text: "Data yang dihapus tidak bisa dikembalikan.",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#3085d6',
-                        confirmButtonText: 'Ya, hapus!',
-                        cancelButtonText: 'Batal'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit(); // kirim form jika user menekan konfirmasi
-                        }
+                    // Toastify konfirmasi
+                    const toastContent = document.createElement('div');
+                    toastContent.innerHTML = `
+                        <div style="
+                            font-family: 'Poppins', sans-serif;
+                            color: #2F3E35;
+                            font-weight: 500;
+                            font-size: 15px;
+                            margin-bottom: 12px;
+                        ">
+                            Yakin ingin menghapus agenda ini?
+                        </div>
+                        <div style="display: flex; gap: 8px; justify-content: center;">
+                            <button id="confirmDelete" style="
+                                background: #F7B7B7;
+                                border: none;
+                                padding: 7px 16px;
+                                border-radius: 8px;
+                                color: #7A1C1C;
+                                font-weight: 600;
+                                font-family: 'Poppins', sans-serif;
+                                cursor: pointer;
+                                transition: all 0.25s ease;
+                            "
+                            onmouseover="this.style.background='#F4A8A8'; this.style.color='#691414';"
+                            onmouseout="this.style.background='#F7B7B7'; this.style.color='#7A1C1C';"
+                            onmousedown="this.style.background='#E68D8D'; this.style.color='#5C1111';"
+                            onmouseup="this.style.background='#F4A8A8'; this.style.color='#691414';">
+                                Ya, hapus!
+                            </button>
+
+                            <button id="cancelDelete" style="
+                                background: #E6E7E8;
+                                border: none;
+                                padding: 7px 16px;
+                                border-radius: 8px;
+                                color: #2F3E35;
+                                font-weight: 600;
+                                font-family: 'Poppins', sans-serif;
+                                cursor: pointer;
+                                transition: all 0.2s ease;
+                            "
+                            onmouseover="this.style.background='#D9DADB';"
+                            onmouseout="this.style.background='#E6E7E8';">
+                                Batal
+                            </button>
+                        </div>
+                    `;
+
+                    const toast = Toastify({
+                        node: toastContent,
+                        duration: -1,
+                        gravity: "top",
+                        position: "center",
+                        stopOnFocus: true,
+                        close: false,
+                        offset: {
+                            x: 0,
+                            y: 20
+                        },
+                        style: {
+                            background: "#FFF1E6",
+                            border: "1px solid #F7B7B7",
+                            borderRadius: "12px",
+                            padding: "18px 24px",
+                            boxShadow: "0 6px 20px rgba(0, 0, 0, 0.08)",
+                            textAlign: "center",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            animation: "fadeIn 0.3s ease",
+                        },
+                    }).showToast();
+
+                    toastContent.querySelector('#confirmDelete').addEventListener('click', () => {
+                        toast.hideToast(); // tutup konfirmasi
+                        form.submit(); // kirim form
+                    });
+
+                    toastContent.querySelector('#cancelDelete').addEventListener('click', () => {
+                        toast.hideToast();
                     });
                 });
             });
@@ -289,26 +359,51 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             @if (session('success'))
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil!',
-                    text: '{{ session('success') }}',
-                    showConfirmButton: false,
-                    timer: 2000
-                });
+                showSuccessToast("{{ session('success') }}");
             @elseif (session('error'))
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal!',
-                    text: '{{ session('error') }}',
-                    showConfirmButton: true
-                });
+                showErrorToast("{{ session('error') }}");
             @endif
         });
+
+        // Fungsi Toastify Success
+        function showSuccessToast(message) {
+            const popup = document.createElement('div');
+            popup.className = 'toastify-popup toastify-success';
+            popup.innerHTML = `
+                <i class="bi bi-check-circle-fill" style="color:#5FA776; font-size:16px;"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(popup);
+
+            popup.classList.add('toastify-popup-show');
+            setTimeout(() => {
+                popup.classList.remove('toastify-popup-show');
+                popup.classList.add('toastify-popup-hide');
+                setTimeout(() => popup.remove(), 300);
+            }, 2500);
+        }
+
+        // Fungsi Toastify Error
+        function showErrorToast(message) {
+            const popup = document.createElement('div');
+            popup.className = 'toastify-popup toastify-error';
+            popup.innerHTML = `
+                <i class="bi bi-x-circle-fill" style="color:#EF4444; font-size:16px;"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(popup);
+
+            popup.classList.add('toastify-popup-show');
+            setTimeout(() => {
+                popup.classList.remove('toastify-popup-show');
+                popup.classList.add('toastify-popup-hide');
+                setTimeout(() => popup.remove(), 300);
+            }, 3000);
+        }
     </script>
 
     <script>
-        // 🔁 Reload otomatis saat search dikosongkan
+        // �� Reload otomatis saat search dikosongkan
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.querySelector('input[name="q"]');
             if (!searchInput) return;
@@ -323,3 +418,85 @@
         });
     </script>
 @endsection
+
+<style>
+    .toastify-success {
+        position: fixed;
+        top: 90px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #E9F4EC;
+        color: #234B2C;
+        border: 1px solid #A6C8A3;
+        border-radius: 6px;
+        padding: 8px 18px;
+        font-size: 14px;
+        font-weight: 500;
+        font-family: 'Poppins', sans-serif;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        z-index: 9999;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        width: auto;
+        max-width: 300px;
+        min-height: unset;
+    }
+
+    .toastify-error {
+        position: fixed;
+        top: 90px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #FEE2E2;
+        color: #991B1B;
+        border: 1px solid #FCA5A5;
+        border-radius: 6px;
+        padding: 8px 18px;
+        font-size: 14px;
+        font-weight: 500;
+        font-family: 'Poppins', sans-serif;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        z-index: 9999;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        width: auto;
+        max-width: 300px;
+        min-height: unset;
+    }
+
+    .toastify-popup-show {
+        animation: toastIn 0.35s ease forwards;
+    }
+
+    .toastify-popup-hide {
+        animation: toastOut 0.25s ease forwards;
+    }
+
+    @keyframes toastIn {
+        0% {
+            opacity: 0;
+            transform: translate(-50%, -30px) scale(0.95);
+        }
+        80% {
+            opacity: 1;
+            transform: translate(-50%, 8px) scale(1.03);
+        }
+        100% {
+            opacity: 1;
+            transform: translate(-50%, 0) scale(1);
+        }
+    }
+
+    @keyframes toastOut {
+        from {
+            opacity: 1;
+            transform: translate(-50%, 0) scale(1);
+        }
+        to {
+            opacity: 0;
+            transform: translate(-50%, -10px) scale(0.95);
+        }
+    }
+</style>
