@@ -174,6 +174,20 @@ body .app-container>.main-content {
     transition: background 0.2s ease;
 }
 
+/* Stack action buttons vertically inside the Aksi column */
+.table-action-stack {
+    display: inline-flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+/* Keep the action cell narrow and right-aligned */
+.admin-table tbody td:last-child {
+    width: 80px;
+}
+
 .admin-table tbody tr:hover {
     background: #f9fafb;
 }
@@ -435,12 +449,18 @@ body .app-container>.main-content {
 }
 
 .main-content {
-    padding-top: 100px;
+    padding-top: 20px !important;
 }
 
-.approval-page {
-    margin-top: 70px;
+.super-admin-page {
+    padding-top: 10px !important;
 }
+
+.approval-page,
+.super-admin-page {
+    margin-top: 0 !important;
+}
+
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
