@@ -257,41 +257,37 @@
         </main>
 
         <!-- Reject Confirmation Modal (SiKota Style) -->
-        <div id="rejectModal"
-            style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 9999; align-items: center; justify-content: center; font-family: 'Poppins', sans-serif;">
-            <div
-                style="width: 480px; max-width: 92vw; background: #ffffff; border-radius: 16px; box-shadow: 0 12px 28px rgba(0,0,0,0.15); overflow: hidden; animation: fadeIn 0.25s ease;">
-
+        <div id="rejectModal" class="reject-modal-overlay">
+            <div class="reject-modal-container">
                 <!-- Header -->
-                <div
-                    style="padding: 18px 24px; border-bottom: 1px solid #f1f3f5; display:flex; align-items:center; justify-content: space-between;">
-                    <h3 style="margin:0; font-size:18px; font-weight:600; color:#1f2937;">Konfirmasi Penolakan</h3>
-                    <button type="button" id="rejectModalClose" aria-label="Tutup"
-                        style="background:none; border:0; font-size:22px; line-height:1; cursor:pointer; color:#9ca3af;">×</button>
+                <div class="reject-modal-header">
+                    <div class="reject-modal-title-wrap">
+                        <div class="reject-modal-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3 class="reject-modal-title">Konfirmasi Penolakan</h3>
+                    </div>
+                    <button type="button" id="rejectModalClose" class="reject-modal-close close-modal"
+                        aria-label="Tutup">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
 
                 <!-- Body -->
-                <div style="padding: 22px 24px;">
-                    <p style="margin:0 0 12px; font-size:15px; color:#374151;">
-                        Yakin ingin menolak agenda ini?
-                    </p>
-                    <label for="rejectReason"
-                        style="display:block; margin-bottom:8px; font-size:15px; color:#111827; font-weight:500;">
+                <div class="reject-modal-body">
+                    <p class="reject-modal-question">Yakin ingin menolak agenda ini?</p>
+                    <label for="rejectReason" class="reject-modal-label">
+                        <i class="fas fa-comment-dots"></i>
                         Alasan penolakan
                     </label>
-                    <textarea id="rejectReason" placeholder="Tuliskan alasan penolakan (opsional)"
-                        style="width:100%; min-height:100px; border:1px solid #e5e7eb; border-radius:10px; padding:10px 12px; outline:none; font-size:14px; color:#111827; resize: vertical; transition: border 0.2s;"></textarea>
+                    <textarea id="rejectReason" placeholder="Tuliskan alasan penolakan (opsional)" class="reject-modal-textarea"
+                        rows="4"></textarea>
                 </div>
 
                 <!-- Footer -->
-                <div
-                    style="display:flex; justify-content:flex-end; gap:10px; padding: 16px 24px; border-top:1px solid #f1f3f5; background:#fafafa;">
-                    <button type="button" id="rejectModalCancel"
-                        style="background:#ffffff; border:1px solid #d1d5db; color:#111827; border-radius:10px; padding:10px 16px; font-weight:500; cursor:pointer; transition:all 0.2s;">
-                        Batal
-                    </button>
-                    <button type="button" id="rejectModalConfirm"
-                        style="background:#dc2626; border:1px solid #dc2626; color:#ffffff; border-radius:10px; padding:10px 16px; font-weight:500; cursor:pointer; transition:all 0.2s;">
+                <div class="reject-modal-footer">
+                    <button type="button" id="rejectModalConfirm" class="reject-btn-confirm">
+                        <i class="fas fa-ban"></i>
                         Tolak
                     </button>
                 </div>
@@ -312,8 +308,8 @@
             }
 
             #rejectModal textarea:focus {
-                border-color: #2563eb;
-                box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+                border-color: #82A98D;
+                box-shadow: 0 0 0 2px rgba(130, 169, 141, 0.2);
             }
 
             #rejectModal button:hover#rejectModalCancel {
@@ -323,6 +319,237 @@
             #rejectModal button:hover#rejectModalConfirm {
                 background: #b91c1c;
                 border-color: #b91c1c;
+            }
+
+            .reject-modal-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 9999;
+                align-items: center;
+                justify-content: center;
+                font-family: 'Poppins', sans-serif;
+                animation: fadeInOverlay 0.3s ease;
+            }
+
+            .reject-modal-overlay.show {
+                display: flex !important;
+            }
+
+            .reject-modal-container {
+                width: 520px;
+                max-width: 92vw;
+                background: #ffffff;
+                border-radius: 18px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+                overflow: hidden;
+                animation: slideUpModal 0.3s ease;
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            .reject-modal-overlay.show .reject-modal-container,
+            .reject-modal-overlay[style*="flex"] .reject-modal-container {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            .reject-modal-header {
+                padding: 24px 28px;
+                border-bottom: 1px solid #e9ecef;
+                background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .reject-modal-title-wrap {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .reject-modal-icon {
+                width: 40px;
+                height: 40px;
+                background: #fee2e2;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #ef4444;
+                font-size: 20px;
+                flex-shrink: 0;
+            }
+
+            .reject-modal-title {
+                margin: 0;
+                font-size: 20px;
+                font-weight: 700;
+                color: #1f2937;
+            }
+
+            .reject-modal-close.close-modal {
+                background: transparent;
+                border: none;
+                font-size: 22px;
+                color: #ef4444;
+                cursor: pointer;
+                transition: color 0.2s ease, transform 0.3s ease;
+                margin-left: auto;
+                padding: 4px 8px;
+            }
+
+            .reject-modal-close.close-modal:hover {
+                color: #ef4444;
+                transform: rotate(90deg);
+            }
+
+            .reject-modal-close:hover {
+                background: transparent;
+            }
+
+            .reject-modal-body {
+                padding: 28px;
+            }
+
+            .reject-modal-question {
+                margin: 0 0 20px 0;
+                color: #374151;
+                font-size: 16px;
+                font-weight: 500;
+                line-height: 1.5;
+            }
+
+            .reject-modal-label {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 10px;
+                color: #374151;
+                font-weight: 600;
+                font-size: 14px;
+            }
+
+            .reject-modal-label i {
+                color: #6E9579;
+                font-size: 14px;
+            }
+
+            .reject-modal-textarea {
+                width: 100%;
+                min-height: 120px;
+                border: 2px solid #e5e7eb;
+                border-radius: 12px;
+                padding: 12px 16px;
+                outline: none;
+                resize: vertical;
+                font-family: 'Poppins', sans-serif;
+                font-size: 14px;
+                color: #374151;
+                transition: all 0.3s ease;
+                background: #fafafa;
+            }
+
+            .reject-modal-textarea:focus {
+                border-color: #6E9579;
+                background: #ffffff;
+                box-shadow: 0 0 0 4px rgba(110, 149, 121, 0.1);
+            }
+
+            .reject-modal-textarea::placeholder {
+                color: #9ca3af;
+            }
+
+            .reject-modal-footer {
+                display: flex;
+                justify-content: flex-end;
+                gap: 12px;
+                padding: 20px 28px;
+                border-top: 1px solid #e9ecef;
+                background: #fafafa;
+            }
+
+            .reject-btn-confirm {
+                background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+                color: #ffffff;
+                box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+                border: none;
+                border-radius: 10px;
+                font-family: 'Poppins', sans-serif;
+                font-weight: 600;
+                font-size: 14px;
+                cursor: pointer;
+                padding: 10px 22px;
+                transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                will-change: transform, box-shadow, background;
+                position: relative;
+            }
+
+            .reject-btn-confirm:hover {
+                background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+                transform: translateY(-1px);
+                box-shadow: 0 6px 18px rgba(239, 68, 68, 0.35);
+            }
+
+            .reject-btn-confirm:active {
+                transform: translateY(0);
+                box-shadow: 0 3px 8px rgba(239, 68, 68, 0.25);
+            }
+
+            .reject-btn-confirm:focus {
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
+            }
+
+            @keyframes fadeInOverlay {
+                from {
+                    opacity: 0;
+                }
+
+                to {
+                    opacity: 1;
+                }
+            }
+
+            @keyframes slideUpModal {
+                from {
+                    transform: translateY(30px);
+                    opacity: 0;
+                }
+
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+
+            /* Responsive */
+            @media (max-width: 640px) {
+                .reject-modal-container {
+                    width: 95vw;
+                    margin: 20px;
+                }
+
+                .reject-modal-header,
+                .reject-modal-body,
+                .reject-modal-footer {
+                    padding: 20px;
+                }
+
+                .reject-modal-title {
+                    font-size: 18px;
+                }
+
+                .reject-btn-cancel,
+                .reject-btn-confirm {
+                    padding: 8px 16px;
+                    font-size: 13px;
+                }
             }
         </style>
 
@@ -340,15 +567,26 @@
                 window.openRejectModal = (agendaId) => {
                     currentAgendaId = agendaId;
                     rejectReason.value = "";
-                    rejectModal.style.display = "flex";
+                    rejectModal.classList.add('show');
+                    rejectModal.style.display = 'flex'; // <-- pastikan kelihatan
                 };
 
-                // 🔹 Tutup modal
+                // 🔹 Tutup modal (tombol close & batal)
                 [rejectModalClose, rejectModalCancel].forEach(btn => {
                     btn.addEventListener("click", () => {
-                        rejectModal.style.display = "none";
+                        rejectModal.classList.remove('show');
+                        rejectModal.style.display = 'none'; // <-- sembunyikan
                         currentAgendaId = null;
                     });
+                });
+
+                // (opsional) klik di luar kontainer untuk menutup
+                rejectModal.addEventListener('click', (e) => {
+                    if (e.target === rejectModal) {
+                        rejectModal.classList.remove('show');
+                        rejectModal.style.display = 'none';
+                        currentAgendaId = null;
+                    }
                 });
 
                 // 🔹 Fungsi konfirmasi penolakan
@@ -377,7 +615,8 @@
                         }
 
                         // 🔹 Tutup modal & tampilkan notifikasi
-                        rejectModal.style.display = "none";
+                        rejectModal.classList.remove('show');
+                        rejectModal.style.display = "none"; // backup
                         Swal.fire({
                             icon: "success",
                             title: "Agenda Ditolak",

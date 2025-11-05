@@ -581,7 +581,6 @@
                 const popup = document.createElement('div');
                 popup.className = 'toastify-popup toastify-success';
                 popup.innerHTML = `
-                    <i class="bi bi-check-circle-fill" style="color:#5FA776; font-size:16px;"></i>
                     <span>${message}</span>
                 `;
                 document.body.appendChild(popup);
