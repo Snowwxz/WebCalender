@@ -675,6 +675,40 @@
 
                 modal.classList.add('show');
             };
+
+            window.closeEditModal = function() {
+                document.getElementById('editModal').classList.remove('show');
+            };
+
+            window.openAddUnitModal = function() {
+                document.getElementById('addUnitModal').classList.add('show');
+            };
+
+            window.closeAddUnitModal = function() {
+                document.getElementById('addUnitModal').classList.remove('show');
+            };
+
+            window.openEditUnitModal = function(button) {
+                const modal = document.getElementById('editUnitModal');
+                const form = document.getElementById('editUnitForm');
+
+                const id = button.getAttribute('data-id');
+                const name = button.getAttribute('data-name');
+                const address = button.getAttribute('data-address');
+
+                // set action form
+                form.action = `/superadmin/units/${id}`;
+                document.getElementById('editUnitName').value = name;
+                document.getElementById('editUnitAddress').value = address;
+
+                modal.classList.add('show');
+            };
+
+            window.closeEditUnitModal = function() {
+                document.getElementById('editUnitModal').classList.remove('show');
+            };
+
+
         });
     </script>
 
