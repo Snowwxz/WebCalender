@@ -1,27 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('layouts.main')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Approve - SiKota</title>
-    <!-- Base CSS -->
-    <link rel="stylesheet" href="{{ asset('css/base.css') }}">
-    <!-- Component CSS -->
-    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
+@push('styles')
     <link rel="stylesheet" href="{{ asset('css/approve.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+@endpush
 
+@section('content')
     <meta name="csrf-token" content="{{ csrf_token() }}">
-</head>
-
-<body>
-    <div class="app-container">
-        @include('layouts.header')
-
-        <main class="main-content" style="margin-left: 0; width: 100%; overflow-x: hidden;">
-            <div class="approval-page">
-                <div class="approval-header">
+    <div class="approval-page">
+            <div class="approval-header">
                     <div>
                         <a href="{{ route('dashboard.bulan') }}" title="Kembali ke Dashboard"
                             aria-label="Kembali ke Dashboard">
@@ -202,7 +188,7 @@
                                         </div>
                                     </div>
                                 </div>
-                               
+
 
                                 <!-- Card Footer -->
                                 <div class="card-footer">
@@ -253,34 +239,42 @@
                         @endforeach
                     </div>
                 @endif
-            </div>
-        </main>
+        </div>
 
-        <!-- Reject Confirmation Modal (UI only) -->
-        <div id="rejectModal"
-            style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 9999; align-items: center; justify-content: center;">
-            <div
-                style="width: 520px; max-width: 92vw; background: #fff; border-radius: 14px; box-shadow: 0 12px 32px rgba(0,0,0,0.18); overflow: hidden; font-family: 'Poppins', sans-serif;">
-                <div
-                    style="padding: 18px 22px; border-bottom: 1px solid #eef0f2; display:flex; align-items:center; justify-content: space-between;">
-                    <h3 style="margin:0; font-size:18px; font-weight:600; color:#111827;">Konfirmasi Penolakan</h3>
-                    <button type="button" id="rejectModalClose" aria-label="Tutup"
-                        style="background:none; border:0; font-size:20px; line-height:1; cursor:pointer; color:#6b7280;">×</button>
+        <!-- Reject Confirmation Modal (SiKota Style) -->
+        <div id="rejectModal" class="reject-modal-overlay">
+            <div class="reject-modal-container">
+                <!-- Header -->
+                <div class="reject-modal-header">
+                    <div class="reject-modal-title-wrap">
+                        <div class="reject-modal-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3 class="reject-modal-title">Konfirmasi Penolakan</h3>
+                    </div>
+                    <button type="button" id="rejectModalClose" class="reject-modal-close close-modal"
+                        aria-label="Tutup">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
-                <div style="padding: 18px 22px;">
-                    <p style="margin:0 0 10px; color:#374151;">Yakin ingin menolak agenda ini?</p>
-                    <label for="rejectReason"
-                        style="display:block; margin-bottom:8px; color:#374151; font-weight:500;">Alasan
-                        penolakan</label>
-                    <textarea id="rejectReason" placeholder="Tuliskan alasan penolakan (opsional)"
-                        style="width:100%; min-height:100px; border:1px solid #e5e7eb; border-radius:10px; padding:10px 12px; outline:none; resize: vertical; font-family: inherit;"></textarea>
+
+                <!-- Body -->
+                <div class="reject-modal-body">
+                    <p class="reject-modal-question">Yakin ingin menolak agenda ini?</p>
+                    <label for="rejectReason" class="reject-modal-label">
+                        <i class="fas fa-comment-dots"></i>
+                        Alasan penolakan
+                    </label>
+                    <textarea id="rejectReason" placeholder="Tuliskan alasan penolakan (opsional)" class="reject-modal-textarea"
+                        rows="4"></textarea>
                 </div>
-                <div
-                    style="display:flex; justify-content:flex-end; gap:10px; padding: 14px 22px; border-top:1px solid #eef0f2; background:#fafafa;">
-                    <button type="button" id="rejectModalCancel"
-                        style="background:#ffffff; border:1px solid #e5e7eb; color:#111827; border-radius:10px; padding:10px 14px; cursor:pointer;">Batal</button>
-                    <button type="button" id="rejectModalConfirm"
-                        style="background:#ef4444; border:1px solid #ef4444; color:#ffffff; border-radius:10px; padding:10px 14px; cursor:pointer;">Tolak</button>
+
+                <!-- Footer -->
+                <div class="reject-modal-footer">
+                    <button type="button" id="rejectModalConfirm" class="reject-btn-confirm">
+                        <i class="fas fa-ban"></i>
+                        Tolak
+                    </button>
                 </div>
             </div>
         </div>
@@ -293,21 +287,40 @@
                 const rejectModalCancel = document.getElementById("rejectModalCancel");
                 const rejectModalConfirm = document.getElementById("rejectModalConfirm");
                 const rejectReason = document.getElementById("rejectReason");
+                const sidebar = document.querySelector('.sidebar');
                 let currentAgendaId = null;
 
                 // 🔹 Fungsi untuk buka modal
                 window.openRejectModal = (agendaId) => {
                     currentAgendaId = agendaId;
                     rejectReason.value = "";
-                    rejectModal.style.display = "flex";
+                    rejectModal.classList.add('show');
+                    rejectModal.style.display = 'flex'; // <-- pastikan kelihatan
+                    rejectModal.style.opacity = '1'; // tampil instan tanpa fade
+                    if (sidebar) sidebar.classList.add('dimmed');
                 };
 
-                // 🔹 Tutup modal
+                // 🔹 Tutup modal (tombol close & batal)
                 [rejectModalClose, rejectModalCancel].forEach(btn => {
+                    if (!btn) return;
                     btn.addEventListener("click", () => {
-                        rejectModal.style.display = "none";
+                        rejectModal.classList.remove('show');
+                        rejectModal.style.display = 'none'; // <-- sembunyikan
+                        rejectModal.style.opacity = ''; // reset inline style
+                        if (sidebar) sidebar.classList.remove('dimmed');
                         currentAgendaId = null;
                     });
+                });
+
+                // (opsional) klik di luar kontainer untuk menutup
+                rejectModal.addEventListener('click', (e) => {
+                    if (e.target === rejectModal) {
+                        rejectModal.classList.remove('show');
+                        rejectModal.style.display = 'none';
+                        rejectModal.style.opacity = '';
+                        if (sidebar) sidebar.classList.remove('dimmed');
+                        currentAgendaId = null;
+                    }
                 });
 
                 // 🔹 Fungsi konfirmasi penolakan
@@ -336,7 +349,10 @@
                         }
 
                         // 🔹 Tutup modal & tampilkan notifikasi
-                        rejectModal.style.display = "none";
+                        rejectModal.classList.remove('show');
+                        rejectModal.style.display = "none"; // backup
+                        rejectModal.style.opacity = '';
+                        if (sidebar) sidebar.classList.remove('dimmed');
                         Swal.fire({
                             icon: "success",
                             title: "Agenda Ditolak",
@@ -404,49 +420,48 @@
         <script>
             // ========== HANDLE SUBMIT ==========
             actionForms.forEach(form => {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
 
-                const status = form.querySelector('input[name="status"]').value;
+                    const status = form.querySelector('input[name="status"]').value;
 
-                fetch(form.action, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector(
-                                'meta[name="csrf-token"]').content,
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: new URLSearchParams({
-                            ...Object.fromEntries(new FormData(form)),
-                            '_method': 'PUT'
+                    fetch(form.action, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector(
+                                    'meta[name="csrf-token"]').content,
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: new URLSearchParams({
+                                ...Object.fromEntries(new FormData(form)),
+                                '_method': 'PUT'
+                            })
                         })
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            // simpan pesan untuk ditampilkan setelah reload
-                            if (status === 'approved') {
-                                sessionStorage.setItem('toastMessage',
-                                    'Agenda telah disetujui');
-                                sessionStorage.setItem('toastType', 'success');
+                        .then(response => {
+                            if (response.ok) {
+                                // simpan pesan untuk ditampilkan setelah reload
+                                if (status === 'approved') {
+                                    sessionStorage.setItem('toastMessage',
+                                        'Agenda telah disetujui');
+                                    sessionStorage.setItem('toastType', 'success');
+                                } else {
+                                    sessionStorage.setItem('toastMessage',
+                                        'Agenda telah ditolak');
+                                    sessionStorage.setItem('toastType', 'error');
+                                }
+                                location.reload(); // reload langsung tanpa delay
                             } else {
-                                sessionStorage.setItem('toastMessage',
-                                    'Agenda telah ditolak');
-                                sessionStorage.setItem('toastType', 'error');
+                                response.text().then(text => {
+                                    console.error('Error response:', response.status,
+                                        text);
+                                    alert(
+                                        'Gagal memperbarui agenda. Cek console untuk detail.'
+                                    );
+                                });
                             }
-                            location.reload(); // reload langsung tanpa delay
-                        } else {
-                            response.text().then(text => {
-                                console.error('Error response:', response.status,
-                                    text);
-                                alert(
-                                    'Gagal memperbarui agenda. Cek console untuk detail.'
-                                );
-                            });
-                        }
-                    })
-                    .catch(err => console.error('Fetch error:', err));
-            });
-            });
+                        })
+                        .catch(err => console.error('Fetch error:', err));
+                });
             });
 
             // ======== TOASTIFY ========
@@ -510,7 +525,23 @@
                 }
             });
         </script>
+@endsection
 
-</body>
+<style>
+    /* Disable sidebar transition on this page to avoid any fade when toggling dim */
+    .sidebar { transition: none !important; }
+    /* Dim sidebar when modal is open */
+    .sidebar.dimmed {
+        filter: brightness(0.5);
+        pointer-events: none; /* prevent interactions behind modal */
+    }
 
-</html>
+        /* Force reject modal overlay to appear instantly (no fade) */
+        #rejectModal,
+        .reject-modal-overlay,
+        .reject-modal-overlay.show,
+        .reject-modal-container {
+            transition: none !important;
+            animation: none !important;
+        }
+</style>

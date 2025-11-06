@@ -77,7 +77,12 @@ class UserController extends Controller
         $user->role = $request->role;
         $user->save();
 
-        return redirect()->back()->with('success', 'User berhasil diperbarui.');
+        // Kirim pesan berbeda berdasarkan role
+        if ($request->role === 'admin') {
+            return redirect()->back()->with('success', 'Admin berhasil diperbarui.');
+        } else {
+            return redirect()->back()->with('success', 'User berhasil diperbarui.');
+        }
     }
 
     /**

@@ -44,39 +44,16 @@
 
                 @if (session('success'))
                     <script>
-                        Toastify({
-                            text: "{{ session('success') }}",
-                            duration: 3000,
-                            gravity: "top", // posisi vertikal
-                            position: "right", // posisi horizontal
-                            backgroundColor: "#4CAF50",
-                            stopOnFocus: true,
-                            style: {
-                                borderRadius: "8px",
-                                boxShadow: "0 3px 8px rgba(0,0,0,0.1)",
-                                fontWeight: "500"
-                            }
-                        }).showToast();
+                        showSuccessToast("{{ session('success') }}");
                     </script>
                 @endif
 
                 @if (session('error'))
                     <script>
-                        Toastify({
-                            text: "{{ session('error') }}",
-                            duration: 3000,
-                            gravity: "top",
-                            position: "right",
-                            backgroundColor: "#f44336",
-                            stopOnFocus: true,
-                            style: {
-                                borderRadius: "8px",
-                                boxShadow: "0 3px 8px rgba(0,0,0,0.1)",
-                                fontWeight: "500"
-                            }
-                        }).showToast();
+                        showErrorToast("{{ session('error') }}");
                     </script>
                 @endif
+
 
                 <div class="form-grid">
 
@@ -399,8 +376,8 @@
     <script>
         function showConfirmSubmit() {
             const toast = Toastify({
-                text: "", // kosong karena kita pakai custom node
-                duration: -1, // biar nggak hilang otomatis
+                text: "",
+                duration: -1,
                 close: false,
                 gravity: "top",
                 position: "center",

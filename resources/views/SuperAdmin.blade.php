@@ -1,23 +1,12 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('layouts.main')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Superadmin - SiKota</title>
-    <link rel="stylesheet" href="{{ asset('css/base.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
+@push('styles')
     <link rel="stylesheet" href="{{ asset('css/super-admin.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-</head>
+@endpush
 
-<body>
-    <div class="app-container">
-        @include('layouts.header')
-
-        <main class="main-content">
-            <div class="approval-page">
+@section('content')
+    <div class="approval-page">
                 <div class="superadmin-header">
                     <a href="{{ url('/dashboard/bulan') }}" class="back-btn" title="Kembali ke Dashboard">
                         <i class="fas fa-arrow-left"></i>
@@ -75,23 +64,25 @@
                                         <td>{{ ucfirst($user->role) }}</td>
                                         <td>{{ optional($user->unit)->unit_name ?? '-' }}</td>
                                         <td>
-                                            <!-- Tombol Edit -->
-                                            <button type="button" class="btn-icon-edit" data-id="{{ $user->id_user }}"
-                                                data-name="{{ $user->name }}" data-username="{{ $user->username }}"
-                                                data-email="{{ $user->email }}" data-role="{{ $user->role }}"
-                                                data-unit="{{ $user->id_unit ?? '' }}" onclick="openEditModal(this)">
-                                                <i class="fas fa-pen"></i>
-                                            </button>
-
-                                            <!-- Tombol Hapus -->
-                                            <form action="{{ route('users.destroy', $user->id_user) }}" method="POST"
-                                                style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn-icon-delete">
-                                                    <i class="fas fa-trash"></i>
+                                            <div class="table-action-stack">
+                                                <!-- Tombol Edit -->
+                                                <button type="button" class="btn-icon-edit" data-id="{{ $user->id_user }}"
+                                                    data-name="{{ $user->name }}" data-username="{{ $user->username }}"
+                                                    data-email="{{ $user->email }}" data-role="{{ $user->role }}"
+                                                    data-unit="{{ $user->id_unit ?? '' }}" onclick="openEditModal(this)">
+                                                    <i class="fas fa-pen"></i>
                                                 </button>
-                                            </form>
+
+                                                <!-- Tombol Hapus -->
+                                                <form action="{{ route('users.destroy', $user->id_user) }}" method="POST"
+                                                    style="display:inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn-icon-delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -131,20 +122,22 @@
                                         <td>{{ $unit->unit_name }}</td>
                                         <td>{{ $unit->address ?? '-' }}</td>
                                         <td>
-                                            <button type="button" class="btn-icon-edit" data-id="{{ $unit->id_unit }}"
-                                                data-name="{{ $unit->unit_name }}" data-address="{{ $unit->address }}"
-                                                onclick="openEditUnitModal(this)">
-                                                <i class="fas fa-pen"></i>
-                                            </button>
-
-                                            <form action="{{ route('units.destroy', $unit->id_unit) }}" method="POST"
-                                                style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn-icon-delete">
-                                                    <i class="fas fa-trash"></i>
+                                            <div class="table-action-stack">
+                                                <button type="button" class="btn-icon-edit" data-id="{{ $unit->id_unit }}"
+                                                    data-name="{{ $unit->unit_name }}" data-address="{{ $unit->address }}"
+                                                    onclick="openEditUnitModal(this)">
+                                                    <i class="fas fa-pen"></i>
                                                 </button>
-                                            </form>
+
+                                                <form action="{{ route('units.destroy', $unit->id_unit) }}" method="POST"
+                                                    style="display:inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn-icon-delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
@@ -156,8 +149,6 @@
                         </table>
                     </div>
                 </div>
-            </div>
-        </main>
     </div>
 
     <!-- Modal Edit User -->
@@ -580,7 +571,9 @@
             function showSuccessToast(message) {
                 const popup = document.createElement('div');
                 popup.className = 'toastify-popup toastify-success';
-                popup.innerHTML = `<p class="toastify-title">${message}</p>`;
+                popup.innerHTML = `
+                    <span>${message}</span>
+                `;
                 document.body.appendChild(popup);
 
                 popup.classList.add('toastify-popup-show');
@@ -588,7 +581,7 @@
                     popup.classList.remove('toastify-popup-show');
                     popup.classList.add('toastify-popup-hide');
                     setTimeout(() => popup.remove(), 300);
-                }, 2000);
+                }, 2500);
             }
         });
     </script>
@@ -709,6 +702,9 @@
             };
 
 
+            window.closeEditModal = function() {
+                document.getElementById('editModal').classList.remove('show');
+            };
         });
     </script>
 
@@ -782,23 +778,27 @@
         }
 
         .toastify-success {
-            background: #FFF1E6;
-            border: 1px solid #F7B7B7;
-            color: #7A1C1C;
-            border-radius: 12px;
-            padding: 10px 20px;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 40px;
-            line-height: 40px;
-            max-width: 90%;
-            white-space: nowrap;
-            top: 90px !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            font-size: 15px;
+            position: fixed;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #E9F4EC;
+            color: #234B2C;
+            border: 1px solid #A6C8A3;
+            border-radius: 6px;
+            padding: 8px 18px;
+            font-size: 14px;
             font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            z-index: 9999;
             animation: toastIn 0.35s ease forwards;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            width: auto;
+            max-width: 300px;
+            min-height: unset;
         }
 
         select.readonly {
@@ -817,12 +817,12 @@
         @keyframes toastIn {
             0% {
                 opacity: 0;
-                transform: translate(-50%, -15px) scale(0.95);
+                transform: translate(-50%, -30px) scale(0.95);
             }
 
-            70% {
+            80% {
                 opacity: 1;
-                transform: translate(-50%, 3px) scale(1.03);
+                transform: translate(-50%, 8px) scale(1.03);
             }
 
             100% {
@@ -863,6 +863,55 @@
         });
     </script>
 
-</body>
+    <script>
+        // Fungsi untuk membuka modal Edit OPD dan mengisi data
+        window.openEditUnitModal = function(button) {
+            const modal = document.getElementById('editUnitModal');
+            const form = document.getElementById('editUnitForm');
 
-</html>
+            if (!modal || !form) return;
+
+            const unitId = button.getAttribute('data-id');
+            const unitName = button.getAttribute('data-name') || '';
+            const unitAddress = button.getAttribute('data-address') || '';
+
+            // Set action form ke endpoint update OPD
+            form.action = `/superadmin/units/${unitId}`;
+
+            // Isi field
+            const nameInput = document.getElementById('editUnitName');
+            const addrInput = document.getElementById('editUnitAddress');
+            if (nameInput) nameInput.value = unitName;
+            if (addrInput) addrInput.value = unitAddress;
+
+            // Tampilkan modal
+            modal.classList.add('show');
+        }
+
+        // Fungsi untuk menutup modal Edit OPD
+        window.closeEditUnitModal = function() {
+            const modal = document.getElementById('editUnitModal');
+            if (modal) modal.classList.remove('show');
+        }
+
+        // Buka modal Tambah OPD
+        window.openAddUnitModal = function() {
+            const modal = document.getElementById('addUnitModal');
+            if (!modal) return;
+
+            // Reset field input
+            const nameInput = modal.querySelector('input[name="unit_name"]');
+            const addrInput = modal.querySelector('input[name="address"]');
+            if (nameInput) nameInput.value = '';
+            if (addrInput) addrInput.value = '';
+
+            modal.classList.add('show');
+        }
+
+        // Tutup modal Tambah OPD
+        window.closeAddUnitModal = function() {
+            const modal = document.getElementById('addUnitModal');
+            if (modal) modal.classList.remove('show');
+        }
+    </script>
+@endsection

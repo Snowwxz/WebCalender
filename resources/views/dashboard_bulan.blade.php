@@ -511,7 +511,6 @@
             }
         </script>
 
-
         <script>
             // ✅ INI DITARO DI LUAR
             const showAgendaModalEl = document.getElementById('showAgendaModal');
@@ -586,80 +585,54 @@
         </script>
 
         <script>
-            // ======== TOAST SUKSES (hijau pastel) ========
             function showSuccessToast(message) {
                 const successToast = document.createElement('div');
                 successToast.innerHTML = `
-            <div style="
-                font-family: 'Poppins', sans-serif;
-                font-weight: 500;
-                font-size: 15px;
-                color: #2F3E35;
-            ">
-                ${message}
-            </div>
-        `;
+                    <div style="
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        font-family: 'Poppins', sans-serif;
+                        font-weight: 500;
+                        font-size: 15px;
+                        color: #14532D;
+                    ">
+                        <div style="
+                            width: 20px;
+                            height: 20px;
+                            border-radius: 50%;
+                            background: #10B981;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            flex-shrink: 0;
+                        ">
+                            <i class="fas fa-check" style="color: white; font-size: 11px;"></i>
+                        </div>
+                        <span>${message}</span>
+                    </div>
+                `;
 
                 Toastify({
                     node: successToast,
-                    duration: 2500,
+                    duration: 3000,
                     gravity: "top",
-                    position: "center",
+                    position: "right", // 🔥 pindahkan ke kanan biar lebih elegan
                     close: false,
+                    stopOnFocus: true,
                     offset: {
-                        x: 0,
-                        y: 20
+                        x: 20,
+                        y: 70
                     },
                     style: {
-                        background: "#E6F4EA",
-                        /* hijau pastel lembut */
-                        border: "1px solid #A8D5BA",
+                        background: "#ECFDF5", // 💚 hijau pastel lembut (tanpa gradien)
+                        border: "1px solid #A7F3D0",
                         borderRadius: "10px",
-                        padding: "14px 28px",
-                        boxShadow: "0 6px 14px rgba(0,0,0,0.08)",
+                        padding: "14px 22px",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
-                        animation: "fadeIn 0.3s ease",
-                    }
-                }).showToast();
-            }
-
-            // ======== TOAST ERROR (merah pastel) ========
-            function showErrorToast(message) {
-                const errorToast = document.createElement('div');
-                errorToast.innerHTML = `
-            <div style="
-                font-family: 'Poppins', sans-serif;
-                font-weight: 500;
-                font-size: 15px;
-                color: #5C2E2E;
-            ">
-                ${message}
-            </div>
-        `;
-
-                Toastify({
-                    node: errorToast,
-                    duration: 2500,
-                    gravity: "top",
-                    position: "center",
-                    close: false,
-                    offset: {
-                        x: 0,
-                        y: 20
-                    },
-                    style: {
-                        background: "#FFF1E6",
-                        /* merah pastel lembut */
-                        border: "1px solid #F7B7B7",
-                        borderRadius: "10px",
-                        padding: "14px 28px",
-                        boxShadow: "0 6px 14px rgba(0,0,0,0.08)",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        animation: "fadeIn 0.3s ease",
                     }
                 }).showToast();
             }
