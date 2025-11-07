@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Agenda;
 use App\Models\Unit;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -157,7 +158,6 @@ class AgendaController extends Controller
             'start_time'         => 'required|date_format:H:i',
             'end_time'           => 'required|date_format:H:i|after_or_equal:start_time',
             'location'           => 'required|string|max:255',
-            'person_in_charge'   => 'required|string|max:255',
             'involved_institution' => 'nullable|string|max:500',
             'status'             => 'nullable|string|in:pending,approved,rejected',
             'is_public'          => 'required|in:0,1',
@@ -172,7 +172,6 @@ class AgendaController extends Controller
         $agenda->location = $validated['lokasi'] ?? null;
         $agenda->involved_institution = $validated['instansi_ikut'] ?? null;
         $agenda->location = $validated['location'] ?? null;
-        $agenda->person_in_charge = $validated['person_in_charge'] ?? null;
         $agenda->involved_institution = $validated['involved_institution'] ?? null;
         $agenda->is_public = $validated['is_public'];
         $agenda->id_unit = $validated['id_unit'];
@@ -263,7 +262,7 @@ class AgendaController extends Controller
      */
     public function notification(Request $request)
     {
-        $user = Auth::user();
+        $user = User::find(Auth::user()->id_user);
         $userId = $user ? $user->id_user : null;
 
         // Filters
