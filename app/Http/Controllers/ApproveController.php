@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Agenda;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ApproveController extends Controller
 {
@@ -66,7 +67,12 @@ class ApproveController extends Controller
         $agendas = $agendaQuery->get();
 
         // Tandai semua ajuan sudah "dibuka" oleh admin agar badge notifikasi hilang
-        session(['approve_seen_at' => now()]);
+        // Simpan ke database agar tetap tersimpan setelah logout/login
+        $user = Auth::user();
+        if ($user && $user->role === 'admin') {
+            $user->last_seen_approve_at = now();
+            $user->save();
+        }
 
         return view('approve', compact(
             'status',
