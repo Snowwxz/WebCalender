@@ -200,15 +200,22 @@ class AgendaController extends Controller
             'status' => 'required|in:approved,rejected'
         ]);
 
-        if (Auth::user()->role === 'admin') {
-            $agenda->status = $request->status;
-            $agenda->approved_by = ($request->status === 'approved') ? Auth::id() : null;
-            $agenda->save();
-
-            return redirect()->back()->with('success', 'Status agenda berhasil diperbarui!');
+        if (Auth::user()->role !== 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki izin untuk mengubah status agenda.'
+            ], 403);
         }
 
-        return redirect()->back()->with('error', 'Anda tidak memiliki izin untuk mengubah status agenda.');
+        $agenda->status = $request->status;
+        $agenda->approved_by = ($request->status === 'approved') ? Auth::id() : null;
+        $agenda->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status agenda berhasil diperbarui!',
+            'agenda' => $agenda
+        ]);
     }
 
     public function reject(Request $request, $id_agenda)
