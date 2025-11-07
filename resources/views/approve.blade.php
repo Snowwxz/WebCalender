@@ -217,11 +217,11 @@
                                                 <i class="fas fa-times"></i> Tolak
                                             </button>
                                             <form action="{{ route('agenda.updateStatus', $agenda->id_agenda) }}"
-                                                method="POST" class="action-form">
+                                                method="POST" class="action-form approve-form" data-agenda-id="{{ $agenda->id_agenda }}">
                                                 @csrf
                                                 @method('PUT')
                                                 <input type="hidden" name="status" value="approved">
-                                                <button type="submit" class="btn-approve">
+                                                <button type="button" class="btn-approve" onclick="showApproveConfirm({{ $agenda->id_agenda }})">
                                                     <i class="fas fa-check"></i> Setujui
                                                 </button>
                                             </form>
@@ -230,7 +230,14 @@
                                         <div class="approval-actions">
                                             <span class="validated-text">
                                                 <i class="fas fa-circle-check"></i>
-                                                Agenda sudah divalidasi ({{ ucfirst($agenda->status) }})
+                                                Agenda sudah divalidasi
+                                                @if ($agenda->status === 'approved')
+                                                    (Disetujui)
+                                                @elseif ($agenda->status === 'rejected')
+                                                    (Ditolak)
+                                                @else
+                                                    ({{ ucfirst($agenda->status) }})
+                                                @endif
                                             </span>
                                         </div>
                                     @endif
@@ -419,6 +426,7 @@
 
         <script>
             // ========== HANDLE SUBMIT ==========
+            const actionForms = document.querySelectorAll('.action-form');
             actionForms.forEach(form => {
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
@@ -439,7 +447,6 @@
                         })
                         .then(response => {
                             if (response.ok) {
-                                // simpan pesan untuk ditampilkan setelah reload
                                 if (status === 'approved') {
                                     sessionStorage.setItem('toastMessage',
                                         'Agenda telah disetujui');
@@ -449,7 +456,7 @@
                                         'Agenda telah ditolak');
                                     sessionStorage.setItem('toastType', 'error');
                                 }
-                                location.reload(); // reload langsung tanpa delay
+                                location.reload();
                             } else {
                                 response.text().then(text => {
                                     console.error('Error response:', response.status,
@@ -463,6 +470,174 @@
                         .catch(err => console.error('Fetch error:', err));
                 });
             });
+
+            // ========== KONFIRMASI APPROVE ==========
+            window.showApproveConfirm = function(agendaId) {
+                const toastContent = document.createElement('div');
+                toastContent.innerHTML = `
+                    <div style="
+                        font-family: 'Poppins', sans-serif;
+                        color: #2F3E35;
+                        font-weight: 500;
+                        font-size: 15px;
+                        margin-bottom: 12px;
+                    ">
+                        Yakin ingin menyetujui agenda ini?
+                    </div>
+                    <div style="display: flex; gap: 8px; justify-content: center;">
+                        <button id="confirmApprove" style="
+                            background: #F7B7B7;
+                            border: none;
+                            padding: 7px 16px;
+                            border-radius: 8px;
+                            color: #7A1C1C;
+                            font-weight: 600;
+                            font-family: 'Poppins', sans-serif;
+                            cursor: pointer;
+                            transition: all 0.25s ease;
+                        "
+                        onmouseover="this.style.background='#F4A8A8'; this.style.color='#691414';"
+                        onmouseout="this.style.background='#F7B7B7'; this.style.color='#7A1C1C';"
+                        onmousedown="this.style.background='#E68D8D'; this.style.color='#5C1111';"
+                        onmouseup="this.style.background='#F4A8A8'; this.style.color='#691414';">
+                            Ya, setujui
+                        </button>
+
+                        <button id="cancelApprove" style="
+                            background: #E6E7E8;
+                            border: none;
+                            padding: 7px 16px;
+                            border-radius: 8px;
+                            color: #2F3E35;
+                            font-weight: 600;
+                            font-family: 'Poppins', sans-serif;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        "
+                        onmouseover="this.style.background='#D9DADB';"
+                        onmouseout="this.style.background='#E6E7E8';">
+                            Batal
+                        </button>
+                    </div>
+                `;
+
+                const toast = Toastify({
+                    node: toastContent,
+                    duration: -1,
+                    gravity: "top",
+                    position: "center",
+                    stopOnFocus: true,
+                    close: false,
+                    offset: {
+                        x: 0,
+                        y: 20
+                    },
+                    style: {
+                        background: "#FFF1E6",
+                        border: "1px solid #F7B7B7",
+                        borderRadius: "12px",
+                        padding: "18px 24px",
+                        boxShadow: "0 6px 20px rgba(0, 0, 0, 0.08)",
+                        textAlign: "center",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                    },
+                }).showToast();
+
+                toastContent.querySelector('#confirmApprove').addEventListener('click', async () => {
+                    toast.hideToast();
+                    // Cari form yang sesuai dengan agendaId
+                    const form = document.querySelector(`.approve-form[data-agenda-id="${agendaId}"]`);
+                    if (!form) return;
+
+                    // Disable button untuk mencegah double click
+                    const confirmBtn = toastContent.querySelector('#confirmApprove');
+                    const originalText = confirmBtn.innerHTML;
+                    confirmBtn.disabled = true;
+                    confirmBtn.innerHTML = 'Memproses...';
+                    confirmBtn.style.opacity = '0.6';
+                    confirmBtn.style.cursor = 'not-allowed';
+
+                    try {
+                        const formData = new FormData(form);
+                        formData.append('_method', 'PUT');
+
+                        // Tunggu response dari server dengan await - PASTIKAN menunggu
+                        const response = await fetch(form.action, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'Accept': 'application/json'
+                            },
+                            body: new URLSearchParams(formData)
+                        });
+
+                        // Pastikan response benar-benar selesai sebelum lanjut
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+
+                        // Parse response JSON langsung - akan throw error jika bukan JSON
+                        // TUNGGU sampai benar-benar selesai di-parse
+                        // Clone response untuk bisa membaca ulang jika error
+                        const clonedResponse = response.clone();
+                        let data;
+                        try {
+                            data = await response.json();
+                        } catch (jsonError) {
+                            // Jika response bukan JSON, coba baca sebagai text untuk debugging
+                            const text = await clonedResponse.text();
+                            console.error('Response is not JSON:', text.substring(0, 200));
+                            throw new Error('Server mengembalikan response yang tidak valid');
+                        }
+
+                        // Validasi response - pastikan success benar-benar true
+                        // TUNGGU sampai semua validasi selesai
+                        if (!data || typeof data !== 'object') {
+                            throw new Error('Invalid response format');
+                        }
+
+                        // Validasi lebih ketat - pastikan success adalah true (boolean, bukan truthy)
+                        const isSuccess = data.success === true &&
+                                         response.status >= 200 &&
+                                         response.status < 300 &&
+                                         typeof data.success === 'boolean';
+
+                        if (isSuccess) {
+                            // Baru tampilkan toast success SETELAH semua validasi berhasil
+                            // Pastikan semua proses async selesai sebelum menampilkan toast
+                            showToast('Agenda telah disetujui', 'success');
+
+                            // Reload setelah 1.5 detik untuk update tampilan
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1500);
+                        } else {
+                            // Tampilkan error dari response
+                            showToast(data?.message || 'Gagal menyetujui agenda', 'error');
+                            // Reset button
+                            confirmBtn.disabled = false;
+                            confirmBtn.innerHTML = originalText;
+                            confirmBtn.style.opacity = '1';
+                            confirmBtn.style.cursor = 'pointer';
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        showToast('Terjadi kesalahan saat menyetujui agenda', 'error');
+                        // Reset button
+                        confirmBtn.disabled = false;
+                        confirmBtn.innerHTML = originalText;
+                        confirmBtn.style.opacity = '1';
+                        confirmBtn.style.cursor = 'pointer';
+                    }
+                });
+
+                toastContent.querySelector('#cancelApprove').addEventListener('click', () => {
+                    toast.hideToast();
+                });
+            };
 
             // ======== TOASTIFY ========
             function showToast(message, type = "success") {
@@ -528,7 +703,6 @@
 @endsection
 
 <style>
-    /* Disable sidebar transition on this page to avoid any fade when toggling dim */
     .sidebar { transition: none !important; }
     /* Dim sidebar when modal is open */
     .sidebar.dimmed {

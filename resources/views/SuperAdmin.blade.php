@@ -7,148 +7,147 @@
 
 @section('content')
     <div class="approval-page">
-                <div class="superadmin-header">
-                    <a href="{{ url('/dashboard/bulan') }}" class="back-btn" title="Kembali ke Dashboard">
-                        <i class="fas fa-arrow-left"></i>
-                    </a>
-                    <div class="title-wrap">
-                        <h1 class="page-title">Daftar User dan OPD</h1>
-                        <p class="page-subtitle">Kelola akun pengguna dan organisasi perangkat daerah</p>
-                    </div>
-                </div>
+        <div class="superadmin-header">
+            <a href="{{ url('/dashboard/bulan') }}" class="back-btn" title="Kembali ke Dashboard">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div class="title-wrap">
+                <h1 class="page-title">Daftar User dan OPD</h1>
+                <p class="page-subtitle">Kelola akun pengguna dan organisasi perangkat daerah</p>
+            </div>
+        </div>
 
-                <div class="search-section">
-                    <div class="search-box">
-                        <input type="text" id="globalSearch" class="search-input"
-                            placeholder="Cari User ataupun OPD...">
-                        <button class="search-btn"><i class="fas fa-search"></i></button>
-                    </div>
-                </div>
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" id="globalSearch" class="search-input" placeholder="Cari User ataupun OPD...">
+                <button class="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
 
-                <!-- Tabel User -->
-                <div class="admin-card">
-                    <!-- 🆕 Tambah User -->
-                    <div class="admin-card-header">
-                        <button class="btn-chip" type="button" onclick="openAddUserModal()">
-                            <i class="fas fa-plus"></i>
-                            Tambah User
-                        </button>
-                    </div>
-                    <div class="section-title">
-                        <i class="fas fa-users"></i>
-                        <span>Daftar User</span>
-                    </div>
+        <!-- Tabel User -->
+        <div class="admin-card">
+            <!-- 🆕 Tambah User -->
+            <div class="admin-card-header">
+                <button class="btn-chip" type="button" onclick="openAddUserModal()">
+                    <i class="fas fa-plus"></i>
+                    Tambah User
+                </button>
+            </div>
+            <div class="section-title">
+                <i class="fas fa-users"></i>
+                <span>Daftar User</span>
+            </div>
 
-                    <div class="admin-table-wrap">
-                        <table class="admin-table" id="userTable">
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Name</th>
-                                    <th>Username</th>
-                                    <th>Email</th>
-                                    <th>Password</th>
-                                    <th>Role</th>
-                                    <th>OPD</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($users as $index => $user)
-                                    <tr>
-                                        <td>{{ $index + 1 }}</td>
-                                        <td>{{ $user->name }}</td>
-                                        <td>{{ $user->username ?? '-' }}</td>
-                                        <td>{{ $user->email }}</td>
-                                        <td>••••••••</td>
-                                        <td>{{ ucfirst($user->role) }}</td>
-                                        <td>{{ optional($user->unit)->unit_name ?? '-' }}</td>
-                                        <td>
-                                            <div class="table-action-stack">
-                                                <!-- Tombol Edit -->
-                                                <button type="button" class="btn-icon-edit" data-id="{{ $user->id_user }}"
-                                                    data-name="{{ $user->name }}" data-username="{{ $user->username }}"
-                                                    data-email="{{ $user->email }}" data-role="{{ $user->role }}"
-                                                    data-unit="{{ $user->id_unit ?? '' }}" onclick="openEditModal(this)">
-                                                    <i class="fas fa-pen"></i>
-                                                </button>
+            <div class="admin-table-wrap">
+                <table class="admin-table" id="userTable">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Name</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Password</th>
+                            <th>Role</th>
+                            <th>OPD</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($users as $index => $user)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $user->name }}</td>
+                                <td>{{ $user->username ?? '-' }}</td>
+                                <td>{{ $user->email }}</td>
+                                <td>••••••••</td>
+                                <td>{{ ucfirst($user->role) }}</td>
+                                <td>{{ optional($user->unit)->unit_name ?? '-' }}</td>
+                                <td>
+                                    <div class="table-action-stack">
+                                        <!-- Tombol Edit -->
+                                        <button type="button" class="btn-icon-edit" data-id="{{ $user->id_user }}"
+                                            data-name="{{ $user->name }}" data-username="{{ $user->username }}"
+                                            data-email="{{ $user->email }}" data-role="{{ $user->role }}"
+                                            data-unit="{{ $user->id_unit ?? '' }}" onclick="openEditModal(this)">
+                                            <i class="fas fa-pen"></i>
+                                        </button>
 
-                                                <!-- Tombol Hapus -->
-                                                <form action="{{ route('users.destroy', $user->id_user) }}" method="POST"
-                                                    style="display:inline;">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn-icon-delete">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                                        <!-- Tombol Hapus -->
+                                        <form action="{{ route('users.destroy', $user->id_user) }}" method="POST"
+                                            style="display:inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn-icon-delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-                <div class="section-space"></div>
+        <div class="section-space"></div>
 
-                <!-- Tabel OPD -->
-                <div class="admin-card">
-                    <div class="admin-card-header">
-                        <button class="btn-chip" type="button" onclick="openAddUnitModal()">
-                            <i class="fas fa-plus"></i>
-                            Tambah OPD
-                        </button>
-                    </div>
-                    <div class="section-title" style="margin-bottom: 8px;">
-                        <i class="fas fa-sitemap"></i>
-                        <span>Daftar OPD</span>
-                    </div>
-                    <div class="admin-table-wrap">
-                        <table class="admin-table" id="unitTable">
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Nama Instansi</th>
-                                    <th>Alamat</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($units as $index => $unit)
-                                    <tr>
-                                        <td>{{ $index + 1 }}</td>
-                                        <td>{{ $unit->unit_name }}</td>
-                                        <td>{{ $unit->address ?? '-' }}</td>
-                                        <td>
-                                            <div class="table-action-stack">
-                                                <button type="button" class="btn-icon-edit" data-id="{{ $unit->id_unit }}"
-                                                    data-name="{{ $unit->unit_name }}" data-address="{{ $unit->address }}"
-                                                    onclick="openEditUnitModal(this)">
-                                                    <i class="fas fa-pen"></i>
-                                                </button>
+        <!-- Tabel OPD -->
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <button class="btn-chip" type="button" onclick="openAddUnitModal()">
+                    <i class="fas fa-plus"></i>
+                    Tambah OPD
+                </button>
+            </div>
+            <div class="section-title" style="margin-bottom: 8px;">
+                <i class="fas fa-sitemap"></i>
+                <span>Daftar OPD</span>
+            </div>
+            <div class="admin-table-wrap">
+                <table class="admin-table" id="unitTable">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Instansi</th>
+                            <th>Alamat</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($units as $index => $unit)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $unit->unit_name }}</td>
+                                <td>{{ $unit->address ?? '-' }}</td>
+                                <td>
+                                    <div class="table-action-stack">
+                                        <button type="button" class="btn-icon-edit" data-id="{{ $unit->id_unit }}"
+                                            data-name="{{ $unit->unit_name }}" data-address="{{ $unit->address }}"
+                                            onclick="openEditUnitModal(this)">
+                                            <i class="fas fa-pen"></i>
+                                        </button>
 
-                                                <form action="{{ route('units.destroy', $unit->id_unit) }}" method="POST"
-                                                    style="display:inline;">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn-icon-delete">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="4" style="text-align:center;">Belum ada data OPD.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                                        <form action="{{ route('units.destroy', $unit->id_unit) }}" method="POST"
+                                            style="display:inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn-icon-delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" style="text-align:center;">Belum ada data OPD.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <!-- Modal Edit User -->
@@ -877,5 +876,4 @@
             if (modal) modal.classList.remove('show');
         }
     </script>
-
 @endsection
