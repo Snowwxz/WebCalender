@@ -1,7 +1,7 @@
 .notification-page {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 10px 20px 20px 20px;
     width: 100%;
     box-sizing: border-box;
 }
@@ -37,6 +37,7 @@
     display: flex;
     gap: 10px;
     overflow-x: auto;
+    white-space: nowrap;
     justify-content: center;
     margin-top: 4px;
     background: #f3f4f6;
@@ -44,6 +45,8 @@
     border-radius: 999px;
     padding: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
 }
 
 .status-tab {
@@ -440,6 +443,73 @@
     margin-bottom: 20px !important;
 }
 
+.btn-edit,
+.btn-delete {
+    font-family: 'Poppins', sans-serif !important;
+}
+
+.pagination-numeric {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.pagination-numeric .page-number,
+.pagination-numeric .page-control {
+    color: #374151; /* gray-700 */
+    text-decoration: none;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    background: #ffffff;
+    transition: all .15s ease;
+}
+
+.pagination-numeric .page-number:hover,
+.pagination-numeric .page-control:hover {
+    background: #f3f4f6;
+    border-color: #e5e7eb; /* gray-200 */
+}
+
+.pagination-numeric .page-number.active {
+    color: #fff;
+    background: #6E9579;
+    border-color: #6E9579;
+    box-shadow: 0 4px 12px rgba(110, 149, 121, .25);
+}
+
+.pagination-numeric .page-control.disabled,
+.pagination-numeric .page-control.disabled:hover {
+    color: #9ca3af;
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+    pointer-events: none;
+}
+
+.pagination-numeric .page-ellipsis {
+    padding: 0 6px;
+    color: #9ca3af;
+}
+
+.notification-page {
+    padding-top: 32px !important;
+    margin-top: 0 !important;
+}
+
+.notification-header {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+main {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
 @media (max-width: 768px) {
     .notification-page {
         padding: 15px;
@@ -479,10 +549,25 @@
     .status-tabs {
         padding: 6px 4px;
         gap: 6px;
+        justify-content: flex-start; /* start from left so first tab visible */
+        max-width: 100%;
     }
 
     .status-tab {
         padding: 6px 12px;
         font-size: 12px;
     }
+}
+
+.notification-page {
+    padding-top: 20px !important;
+}
+
+main {
+    padding-top: 20px !important;
+}
+
+.notification-header {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
 }

@@ -44,6 +44,7 @@
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 18px;
+    margin-left: -18px; /* geser lebih ke kiri agar lebih sejajar */
 }
 
 .sidebar-toggle:hover {
@@ -532,7 +533,12 @@
     }
 
     .logo-text {
-        display: none;
+        display: inline-block;
+        font-size: 14px;
+        max-width: 120px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .logo-img {
@@ -544,6 +550,7 @@
         width: 36px;
         height: 36px;
         font-size: 16px;
+        margin-left: -10px; /* sedikit lebih ke kiri di tablet */
     }
 
     .header-center {
@@ -636,6 +643,7 @@
         height: 32px;
         font-size: 14px;
         flex-shrink: 0;
+        margin-left: -6px; /* sedikit lebih ke kiri di mobile */
     }
 
     .header-left {
@@ -653,7 +661,12 @@
     }
 
     .logo-text {
-        display: none;
+        display: inline-block;
+        font-size: 13px;
+        max-width: 90px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .header-center {

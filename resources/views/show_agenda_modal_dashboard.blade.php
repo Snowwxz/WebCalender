@@ -1,96 +1,100 @@
-<!-- Modal Show Agenda for Dashboard -->
 <div class="modal fade" id="showAgendaModal" tabindex="-1" aria-labelledby="showAgendaLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="modal-content border-0 shadow-sm rounded-4 overflow-hidden">
 
-            <div class="modal-header bg-primary text-white py-3">
-                <h5 class="modal-title fw-semibold d-flex align-items-center gap-2" id="showAgendaLabel">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span id="showAgendaName">Detail Agenda</span>
+            <!-- HEADER -->
+            <div class="modal-header" style="background-color: #F6F8F7; border: none;">
+                <h5 class="modal-title fw-semibold d-flex align-items-center gap-2" id="showAgendaLabel"
+                    style="color: #4A7C59;">
+                    <i class="fas fa-calendar-alt" style="color: #4A7C59;"></i>
+                    <span id="showAgendaName">Rapat</span>
                 </h5>
+
+                <!-- Tombol Close -->
+                <button type="button" class="close-modal" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
 
-            <div class="modal-body px-4 py-4">
-                <div class="row g-3 mb-2">
-                    <!-- Kolom Kiri -->
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <label class="text-muted small d-block mb-1">
-                                <i class="fas fa-calendar"></i> Tanggal
+            <!-- BODY -->
+            <div class="modal-body px-4 pt-3 pb-4">
+
+                <!-- Deskripsi Agenda -->
+                <div class="mb-3">
+                    <label class="text-secondary small d-flex align-items-center gap-2 mb-2">
+                        <i class="fas fa-align-left" style="color: #82A98D;"></i>
+                        Deskripsi Agenda
+                    </label>
+                    <div class="border rounded-3 p-3 bg-light fw-semibold" id="showAgendaDesc"
+                        style="white-space: pre-wrap; min-height: 60px;">
+                        -
+                    </div>
+                </div>
+
+                <!-- Informasi Agenda -->
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div>
+                            <label class="text-secondary small d-flex align-items-center gap-2 mb-1">
+                                <i class="fas fa-calendar-day" style="color: #82A98D;"></i>
+                                Tanggal
                             </label>
                             <div class="fw-semibold" id="showAgendaDate">-</div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="text-muted small d-block mb-1">
-                                <i class="fas fa-align-left"></i> Deskripsi
+                        <div class="mt-3">
+                            <label class="text-secondary small d-flex align-items-center gap-2 mb-1">
+                                <i class="fas fa-clock" style="color: #82A98D;"></i>
+                                Waktu
                             </label>
-                            <div class="fw-normal" id="showAgendaDesc">-</div>
+                            <div class="fw-semibold" id="showAgendaTime">-</div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="text-muted small d-block mb-1">
-                                <i class="fas fa-map-marker-alt"></i> Lokasi
+                        <div class="mt-3">
+                            <label class="text-secondary small d-flex align-items-center gap-2 mb-1">
+                                <i class="fas fa-map-marker-alt" style="color: #82A98D;"></i>
+                                Lokasi
                             </label>
                             <div class="fw-semibold" id="showAgendaLocation">-</div>
                         </div>
+
+                        <div class="mt-3">
+                            <label class="text-secondary small d-flex align-items-center gap-2 mb-1">
+                                <i class="fas fa-eye" style="color: #82A98D;"></i>
+                                Status
+                            </label>
+                            <div class="fw-semibold" id="showAgendaAccess">-</div>
+                        </div>
                     </div>
 
-                    <!-- Kolom Tengah -->
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <label class="text-muted small d-block mb-1">
-                                <i class="fas fa-building"></i> Instansi Pengaju
+                    <div class="col-md-6">
+                        <div>
+                            <label class="text-secondary small d-flex align-items-center gap-2 mb-1">
+                                <i class="fas fa-building" style="color: #82A98D;"></i>
+                                Instansi Pengaju
                             </label>
                             <div class="fw-semibold" id="showAgendaUnit">-</div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="text-muted small d-block mb-1">
-                                <i class="fas fa-users"></i> Instansi yang Diundang
+                        <div class="mt-3">
+                            <label class="text-secondary small d-flex align-items-center gap-2 mb-1">
+                                <i class="fas fa-users" style="color: #82A98D;"></i>
+                                Instansi yang Diundang
                             </label>
-                            <div class="fw-normal" id="showAgendaInvolved">-</div>
+                            <div class="fw-semibold" id="showAgendaInvolved">-</div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="text-muted small d-block mb-1">
-                                <i class="fas fa-clock"></i> Waktu
-                            </label>
-                            <div class="fw-semibold" id="showAgendaTime">-</div>
-                        </div>
-                    </div>
-
-                    <!-- Kolom Kanan -->
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <label class="text-muted small d-block mb-1">
-                                <i class="fas fa-user-tie"></i> Penanggung Jawab
+                        <div class="mt-3">
+                            <label class="text-secondary small d-flex align-items-center gap-2 mb-1">
+                                <i class="fas fa-user-tie" style="color: #82A98D;"></i>
+                                Penanggung Jawab
                             </label>
                             <div class="fw-semibold" id="showAgendaPIC">-</div>
                         </div>
-
-                        <div class="mb-3">
-                            <label class="text-muted small d-block mb-1">
-                                <i class="fas fa-eye"></i> Visibilitas
-                            </label>
-                            <div class="fw-semibold" id="showAgendaAccess">-</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="text-muted small d-block mb-1">
-                                <i class="fas fa-check-circle"></i> Status
-                            </label>
-                            <span id="showAgendaStatus" class="badge bg-warning text-dark rounded-pill px-3 py-2">-</span>
-                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="modal-footer bg-light py-3">
-                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Tutup</button>
             </div>
-
         </div>
     </div>
 </div>
-

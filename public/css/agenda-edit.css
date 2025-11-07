@@ -2,9 +2,10 @@
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    padding: 20px;
+    padding: 60px 20px;
     background: #ffffff;
-    min-height: calc(100vh - 72px);
+    min-height: calc(100vh - 150px);
+    margin-top: 70px;
 }
 
 .agenda-form-card {
@@ -133,11 +134,7 @@ a.back-btn:hover {
     color: #5c8068 !important;
 }
 
-body,
-input,
-textarea,
-button,
-label {
+body, input, textarea, button, label {
     font-family: 'Poppins', sans-serif !important;
 }
 
@@ -170,29 +167,55 @@ label {
     font-family: 'Poppins', sans-serif !important;
 }
 
-.agenda-header a i.fas.fa-arrow-left {
-    color: #6E9579;
-    font-size: 20px;
-    transition: color 0.2s ease;
+/* Alert styles */
+.alert-success {
+    color: #28a745;
+    text-align: center;
+    margin-bottom: 15px;
+    padding: 10px 15px;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: 8px;
+    font-weight: 500;
 }
 
-.agenda-header a i.fas.fa-arrow-left:hover {
-    color: #5b7d67;
+.alert-error {
+    color: #dc3545;
+    text-align: center;
+    margin-bottom: 15px;
+    padding: 10px 15px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    font-weight: 500;
 }
 
-@media (max-width: 768px) {
-    .form-grid {
-        grid-template-columns: 1fr;
-        gap: 25px;
-    }
+/* Header styles for edit page */
+.edit-header {
+    position: relative;
+    text-align: center;
+    margin-bottom: 8px;
+}
 
-    .agenda-form-card {
-        padding: 30px 25px;
-    }
+.edit-header .back-btn {
+    color: #6E9579 !important;
+    font-size: 1.3rem;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: color 0.3s ease;
+}
 
-    .agenda-container {
-        padding: 40px 15px;
-    }
+.edit-header .back-btn:hover {
+    color: #5c8068 !important;
+}
+
+.edit-header .agenda-title {
+    display: inline-block;
+    font-weight: 600;
+    font-size: 1.4rem;
+    color: #333;
 }
 
 .chips-multiselect {
@@ -212,7 +235,7 @@ label {
 
 .chips-multiselect:focus-within {
     border-color: #6E9579;
-    box-shadow: 0 3px 10px rgba(110, 149, 121, 0.15);
+    box-shadow: 0 3px 10px rgba(110,149,121,0.15);
 }
 
 .chips-container {
@@ -283,7 +306,7 @@ label {
     background: #fff;
     border: 1px solid #d6e0d9;
     border-radius: 10px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
     display: none;
     z-index: 20;
 }
@@ -381,7 +404,7 @@ label {
 .chips-multiselect.open {
     border-color: #6E9579;
     background: #fff;
-    box-shadow: 0 3px 10px rgba(110, 149, 121, 0.15);
+    box-shadow: 0 3px 10px rgba(110,149,121,0.15);
 }
 
 .agenda-form-card input[type="text"]:not(.chips-input) {
@@ -429,135 +452,6 @@ label {
     font-size: 12px !important;
 }
 
-.fullwidth-group {
-    grid-column: 1 / -1 !important;
-}
-
-.fullwidth-group textarea {
-    min-height: 140px;
-}
-
-.fullwidth-group input,
-.fullwidth-group textarea {
-    width: 100%;
-    display: block;
-}
-
-.form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 28px 60px;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.chips-multiselect {
-    padding: 0 44px 0 16px !important;
-}
-
-.chips-input {
-    padding: 0 !important;
-    line-height: 1 !important;
-}
-
-.input-group label {
-    display: inline-flex;
-    align-items: center;
-    margin-bottom: 10px;
-    line-height: 1.4;
-}
-
-.input-group {
-    margin-bottom: 20px;
-}
-
-.agenda-form-card input[type="text"],
-.agenda-form-card input[type="date"],
-.agenda-form-card input[type="time"],
-.agenda-form-card textarea,
-.agenda-form-card select,
-.chips-multiselect {
-    border-radius: 16px !important;
-    border: 1px solid #d8e4da;
-    background-color: #f9fbf9;
-    box-shadow: inset 0 1px 2px rgba(110, 149, 121, 0.08);
-    transition: all 0.25s ease;
-}
-
-.agenda-form-card input:focus,
-.agenda-form-card textarea:focus,
-.agenda-form-card select:focus,
-.chips-multiselect:focus-within {
-    border-color: #6E9579;
-    background-color: #ffffff;
-    box-shadow: 0 0 0 4px rgba(110, 149, 121, 0.15);
-}
-
-.agenda-form-card input:hover,
-.agenda-form-card textarea:hover,
-.agenda-form-card select:hover,
-.chips-multiselect:hover {
-    background-color: #ffffff;
-    border-color: #c7d5cd;
-}
-
-.agenda-form-card textarea {
-    border-radius: 18px !important;
-    padding: 14px 16px;
-    min-height: 130px;
-}
-
-.chips-multiselect {
-    border-radius: 16px !important;
-    background-color: #f9fbf9;
-    padding: 10px 48px 10px 16px !important;
-}
-
-.chip {
-    border-radius: 999px !important;
-    background-color: #e6f4ea;
-    border: 1px solid #cde6d3;
-    transition: all 0.25s ease;
-}
-
-.chip:hover {
-    background-color: #d9efdf;
-}
-
-.btn-primary {
-    border-radius: 16px !important;
-    background: linear-gradient(135deg, #6E9579, #7faa8b);
-    box-shadow: 0 4px 10px rgba(110, 149, 121, 0.3);
-    transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-    background: linear-gradient(135deg, #5c8068, #6E9579);
-    transform: translateY(-2px);
-}
-
-.agenda-form-card select {
-    display: block !important;
-    /* hilangkan flex effect */
-    align-items: unset !important;
-    /* matikan align-items bawaan flex */
-    height: 46px !important;
-    line-height: 46px !important;
-    /* teks vertikal center */
-    padding: 0 44px 0 15px !important;
-    box-sizing: border-box;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-position: right 12px center;
-    background-repeat: no-repeat;
-    font-family: 'Poppins', sans-serif !important;
-}
-
-.agenda-form-card select {
-    padding-top: 1px !important;
-}
-
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -567,6 +461,30 @@ label {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    .agenda-form-card {
+        padding: 30px 25px;
+    }
+
+    .agenda-container {
+        padding: 40px 15px;
+    }
+
+    .edit-header .back-btn {
+        font-size: 1.2rem;
+    }
+
+    .edit-header .agenda-title {
+        font-size: 1.2rem;
     }
 }
 
@@ -585,5 +503,13 @@ label {
 
     .input-group {
         margin-bottom: 18px;
+    }
+
+    .edit-header .back-btn {
+        font-size: 1.1rem;
+    }
+
+    .edit-header .agenda-title {
+        font-size: 1.1rem;
     }
 }

@@ -14,7 +14,12 @@ class Unit extends Model
     protected $fillable = [
         'unit_name',
         'address',
+        'email',
+        'password',
+        'role',
     ];
+
+    protected $hidden = ['password'];
 
     // Relasi ke user (One to Many)
     public function users()

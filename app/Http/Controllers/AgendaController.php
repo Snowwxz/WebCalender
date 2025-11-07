@@ -53,10 +53,19 @@ class AgendaController extends Controller
      */
     public function create()
     {
-        $units = Unit::orderBy('unit_name', 'asc')->get();
+        $user = Auth::user();
+        $unitName = null;
 
-        return view('agenda_create', compact('units'));
+        if ($user && $user->id_unit) {
+            $unit = Unit::find($user->id_unit);
+            $unitName = $unit ? $unit->unit_name : null;
+        }
+
+        $units = Unit::all();
+        // kirim nama instansi user login
+        return view('agenda_create', compact('unitName', 'units'));
     }
+
 
     /**
      * ✅ Simpan agenda baru.
@@ -73,7 +82,6 @@ class AgendaController extends Controller
             'location' => 'nullable|string|max:255',
             'involved_institution' => 'nullable|string|max:500',
             'is_public' => 'required|in:0,1',
-            'id_unit' => 'required|exists:units,id_unit',
         ]);
 
         try {
@@ -87,7 +95,7 @@ class AgendaController extends Controller
             $agenda->location = $validated['location'];
             $agenda->involved_institution = $validated['involved_institution'];
             $agenda->is_public = $validated['is_public'];
-            $agenda->id_unit = $validated['id_unit'];
+            $agenda->id_unit = Auth::user()->id_unit;
             $agenda->id_user = Auth::user()->id_user;
             $agenda->status = 'pending';
             $agenda->save();
@@ -133,7 +141,8 @@ class AgendaController extends Controller
     public function edit($id_agenda)
     {
         $agenda = Agenda::findOrFail($id_agenda);
-        return view('agenda_edit', compact('agenda'));
+        $units = Unit::orderBy('unit_name', 'asc')->get();
+        return view('agenda_edit', compact('agenda', 'units'));
     }
 
     /**
@@ -153,7 +162,8 @@ class AgendaController extends Controller
             'penanggung_jawab'   => 'nullable|string|max:255',
             'instansi_ikut'      => 'nullable|string|max:255',
             'status'             => 'nullable|string|in:pending,approved,rejected',
-            'is_public' => 'required|boolean',
+            'is_public'          => 'required|in:0,1',
+            'id_unit'            => 'required|exists:units,id_unit',
         ]);
 
         $agenda->agenda_name = $validated['agenda_name'];
@@ -165,6 +175,7 @@ class AgendaController extends Controller
         $agenda->person_in_charge = $validated['penanggung_jawab'] ?? null;
         $agenda->involved_institution = $validated['instansi_ikut'] ?? null;
         $agenda->is_public = $validated['is_public'];
+        $agenda->id_unit = $validated['id_unit'];
 
         // hanya admin yang boleh ubah status
         if (Auth::user()->role === 'admin') {
@@ -200,6 +211,30 @@ class AgendaController extends Controller
         return redirect()->back()->with('error', 'Anda tidak memiliki izin untuk mengubah status agenda.');
     }
 
+    public function reject(Request $request, $id_agenda)
+    {
+        $agenda = Agenda::findOrFail($id_agenda);
+
+        $request->validate([
+            'reason' => 'nullable|string|max:500',
+        ]);
+
+        if (Auth::user()->role !== 'admin') {
+            return response()->json(['success' => false, 'message' => 'Tidak memiliki izin menolak agenda.'], 403);
+        }
+
+        $agenda->status = 'rejected';
+        $agenda->reason = $request->reason; // simpan alasan admin
+        $agenda->approved_by = Auth::id();
+        $agenda->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Agenda berhasil ditolak.',
+            'agenda' => $agenda
+        ]);
+    }
+
 
     /**
      * ✅ Hapus agenda.
@@ -226,19 +261,57 @@ class AgendaController extends Controller
     /**
      * ✅ Notifikasi agenda milik user yang login.
      */
-    public function notification()
+    public function notification(Request $request)
     {
-        $userId = Auth::id();
+        $user = Auth::user();
+        $userId = $user ? $user->id_user : null;
 
-        $agenda = Agenda::where('id_user', $userId)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        // Filters
+        $status = $request->query('status', 'all');
+        $search = $request->query('q');
 
-        if (request()->wantsJson()) {
+        // Base query for the list
+        $query = Agenda::with(['unit'])
+            ->where('id_user', $userId)
+            ->orderBy('created_at', 'desc');
+
+        if (in_array($status, ['pending', 'approved', 'rejected'])) {
+            $query->where('status', $status);
+        }
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $like = "%" . $search . "%";
+                $q->where('agenda_name', 'like', $like)
+                    ->orWhere('description', 'like', $like)
+                    ->orWhere('location', 'like', $like)
+                    ->orWhere('involved_institution', 'like', $like)
+                    ->orWhereHas('unit', function ($uq) use ($like) {
+                        $uq->where('unit_name', 'like', $like);
+                    });
+            });
+        }
+
+        // Use paginator for the view's pagination helpers
+        $agenda = $query->paginate(10)->withQueryString();
+
+        // Counts for tabs (ignoring search for overall counts)
+        $baseCount = Agenda::where('id_user', $userId);
+        $counts = [
+            'all' => (clone $baseCount)->count(),
+            'pending' => (clone $baseCount)->where('status', 'pending')->count(),
+            'approved' => (clone $baseCount)->where('status', 'approved')->count(),
+            'rejected' => (clone $baseCount)->where('status', 'rejected')->count(),
+        ];
+
+        // Tandai notifikasi user sudah dibuka agar badge hilang
+        session(['user_notifications_seen_at' => now()]);
+
+        if ($request->wantsJson()) {
             return response()->json($agenda);
         }
 
-        return view('notification', compact('agenda'));
+        return view('notification', compact('agenda', 'counts', 'status', 'search'));
     }
 
     /**

@@ -1,36 +1,42 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('layouts.main')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Superadmin - SiKota</title>
-    <link rel="stylesheet" href="{{ asset('css/base.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
+@push('styles')
     <link rel="stylesheet" href="{{ asset('css/super-admin.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+@endpush
 
-<body>
-    <div class="app-container">
-        @include('layouts.header')
-
-        <main class="main-content">
-            <div class="approval-page">
-                <div class="approval-header">
+@section('content')
+    <div class="approval-page">
+                <div class="superadmin-header">
+                    <a href="{{ url('/dashboard/bulan') }}" class="back-btn" title="Kembali ke Dashboard">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
                     <div class="title-wrap">
-                        <h1 class="page-title">Daftar User</h1>
+                        <h1 class="page-title">Daftar User dan OPD</h1>
                         <p class="page-subtitle">Kelola akun pengguna dan organisasi perangkat daerah</p>
+                    </div>
+                </div>
+
+                <div class="search-section">
+                    <div class="search-box">
+                        <input type="text" id="globalSearch" class="search-input"
+                            placeholder="Cari User ataupun OPD...">
+                        <button class="search-btn"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
 
                 <!-- Tabel User -->
                 <div class="admin-card">
-                    <div class="admin-table-header">
-                        <div class="search-container" style="margin-bottom: 12px;">
-                            <i class="fas fa-search search-icon"></i>
-                            <input type="text" id="searchInput" placeholder="Search" class="search-input">
-                        </div>
+                    <!-- 🆕 Tambah User -->
+                    <div class="admin-card-header">
+                        <button class="btn-chip" type="button" onclick="openAddUserModal()">
+                            <i class="fas fa-plus"></i>
+                            Tambah User
+                        </button>
+                    </div>
+                    <div class="section-title">
+                        <i class="fas fa-users"></i>
+                        <span>Daftar User</span>
                     </div>
 
                     <div class="admin-table-wrap">
@@ -43,6 +49,7 @@
                                     <th>Email</th>
                                     <th>Password</th>
                                     <th>Role</th>
+                                    <th>OPD</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -55,24 +62,27 @@
                                         <td>{{ $user->email }}</td>
                                         <td>••••••••</td>
                                         <td>{{ ucfirst($user->role) }}</td>
+                                        <td>{{ optional($user->unit)->unit_name ?? '-' }}</td>
                                         <td>
-                                            <!-- Tombol Edit -->
-                                            <button type="button" class="btn-icon-edit" data-id="{{ $user->id_user }}"
-                                                data-name="{{ $user->name }}" data-username="{{ $user->username }}"
-                                                data-email="{{ $user->email }}" data-role="{{ $user->role }}"
-                                                onclick="openEditModal(this)">
-                                                <i class="fas fa-pen"></i>
-                                            </button>
-
-                                            <!-- Tombol Hapus -->
-                                            <form action="{{ route('users.destroy', $user->id_user) }}" method="POST"
-                                                style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn-icon-delete">
-                                                    <i class="fas fa-trash"></i>
+                                            <div class="table-action-stack">
+                                                <!-- Tombol Edit -->
+                                                <button type="button" class="btn-icon-edit" data-id="{{ $user->id_user }}"
+                                                    data-name="{{ $user->name }}" data-username="{{ $user->username }}"
+                                                    data-email="{{ $user->email }}" data-role="{{ $user->role }}"
+                                                    data-unit="{{ $user->id_unit ?? '' }}" onclick="openEditModal(this)">
+                                                    <i class="fas fa-pen"></i>
                                                 </button>
-                                            </form>
+
+                                                <!-- Tombol Hapus -->
+                                                <form action="{{ route('users.destroy', $user->id_user) }}" method="POST"
+                                                    style="display:inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn-icon-delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -112,20 +122,22 @@
                                         <td>{{ $unit->unit_name }}</td>
                                         <td>{{ $unit->address ?? '-' }}</td>
                                         <td>
-                                            <button type="button" class="btn-icon-edit" data-id="{{ $unit->id_unit }}"
-                                                data-name="{{ $unit->unit_name }}" data-address="{{ $unit->address }}"
-                                                onclick="openEditUnitModal(this)">
-                                                <i class="fas fa-pen"></i>
-                                            </button>
-
-                                            <form action="{{ route('units.destroy', $unit->id_unit) }}" method="POST"
-                                                style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn-icon-delete">
-                                                    <i class="fas fa-trash"></i>
+                                            <div class="table-action-stack">
+                                                <button type="button" class="btn-icon-edit" data-id="{{ $unit->id_unit }}"
+                                                    data-name="{{ $unit->unit_name }}" data-address="{{ $unit->address }}"
+                                                    onclick="openEditUnitModal(this)">
+                                                    <i class="fas fa-pen"></i>
                                                 </button>
-                                            </form>
+
+                                                <form action="{{ route('units.destroy', $unit->id_unit) }}" method="POST"
+                                                    style="display:inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn-icon-delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
@@ -137,8 +149,6 @@
                         </table>
                     </div>
                 </div>
-            </div>
-        </main>
     </div>
 
     <!-- Modal Edit User -->
@@ -177,6 +187,16 @@
                 </div>
 
                 <div class="user-form-group">
+                    <label>OPD</label>
+                    <select name="id_unit" id="editOpd" required>
+                        <option value="">-- Pilih OPD --</option>
+                        @foreach ($units as $unit)
+                            <option value="{{ $unit->id_unit }}">{{ $unit->unit_name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="user-form-group">
                     <label>Role</label>
                     <select name="role" id="editRole" required>
                         <option value="user">User</option>
@@ -190,6 +210,161 @@
             </form>
         </div>
     </div>
+
+    <!-- 🆕 Modal Tambah User -->
+    <div id="addUserModal" class="user-form-modal">
+        <div class="user-form-content">
+            <div class="user-form-header">
+                <h2 class="user-form-title">
+                    <i class="fas fa-plus" style="margin-right: 8px; color:#82A98D;"></i>
+                    Tambah User
+                </h2>
+                <button class="close-modal" onclick="closeAddUserModal()">&times;</button>
+            </div>
+
+            <form action="{{ route('users.store') }}" method="POST">
+                @csrf
+                <div class="user-form-group">
+                    <label>Nama</label>
+                    <input type="text" name="name" required>
+                </div>
+
+                <div class="user-form-group">
+                    <label>Username</label>
+                    <input type="text" name="username" required>
+                </div>
+
+                <div class="user-form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" required>
+                </div>
+
+                <div class="user-form-group">
+                    <label>Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" name="password" id="addPassword" required>
+                        <i class="bi bi-eye-slash password-toggle" id="togglePassword"></i>
+                    </div>
+                </div>
+
+                <div class="user-form-group">
+                    <label>OPD</label>
+                    <select name="id_unit" required>
+                        <option value="">-- Pilih OPD --</option>
+                        @foreach ($units as $unit)
+                            <option value="{{ $unit->id_unit }}">{{ $unit->unit_name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="user-form-group">
+                    <label>Role</label>
+                    <select name="role" required>
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+
+                <div class="user-form-actions">
+                    <button type="submit" class="btn-save">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // === FUNGSI KONFIRMASI ===
+            function showConfirmation({
+                title,
+                text,
+                confirmText,
+                form
+            }) {
+                const popup = document.createElement('div');
+                popup.className = 'toastify-popup';
+                popup.innerHTML = `
+                    <p class="toastify-title">${text}</p>
+                    <div class="toastify-btn-group">
+                        <button class="btn-confirm">${confirmText}</button>
+                        <button class="btn-cancel">Batal</button>
+                    </div>
+                `;
+                document.body.appendChild(popup);
+                popup.classList.add('toastify-popup-show');
+
+                popup.querySelector('.btn-cancel').addEventListener('click', () => {
+                    popup.classList.remove('toastify-popup-show');
+                    popup.classList.add('toastify-popup-hide');
+                    setTimeout(() => popup.remove(), 250);
+                });
+
+                popup.querySelector('.btn-confirm').addEventListener('click', () => {
+                    popup.classList.remove('toastify-popup-show');
+                    popup.classList.add('toastify-popup-hide');
+                    setTimeout(() => {
+                        popup.remove();
+                        form.submit();
+                    }, 200);
+                });
+            }
+
+            // === MODAL TAMBAH USER ===
+            window.openAddUserModal = function() {
+                document.getElementById('addUserModal').classList.add('show');
+            }
+
+            window.closeAddUserModal = function() {
+                document.getElementById('addUserModal').classList.remove('show');
+            }
+
+            // === EVENT SUBMIT TAMBAH USER ===
+            const addUserForm = document.querySelector('#addUserModal form');
+            if (addUserForm) {
+                addUserForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    showConfirmation({
+                        title: 'Konfirmasi Tambah User',
+                        text: 'Yakin ingin menambahkan data baru?',
+                        confirmText: 'Ya, simpan',
+                        form: addUserForm
+                    });
+                });
+            }
+
+            // === 🆕 FUNGSI AUTO-SELECT OPD SAAT ROLE = ADMIN ===
+            const roleSelect = document.querySelector('#addUserModal select[name="role"]');
+            const opdSelect = document.querySelector('#addUserModal select[name="id_unit"]');
+
+            if (roleSelect && opdSelect) {
+                roleSelect.addEventListener('change', function() {
+                    const selectedRole = this.value.toLowerCase();
+
+                    if (selectedRole === 'admin') {
+                        const protokolOption = Array.from(opdSelect.options).find(
+                            opt => opt.text.trim().toLowerCase() === 'protokol'
+                        );
+
+                        if (protokolOption) {
+                            opdSelect.value = protokolOption.value;
+                            opdSelect.setAttribute('readonly', true);
+                            opdSelect.classList.add('readonly');
+                        }
+                    } else if (selectedRole === 'user') {
+                        opdSelect.value = '';
+                        opdSelect.disabled = true;
+                    } else {
+                        opdSelect.disabled = false;
+                        opdSelect.removeAttribute('readonly');
+                        opdSelect.classList.remove('readonly');
+                        opdSelect.value = '';
+                    }
+                });
+            }
+
+        }); // ✅ penutup DOMContentLoaded
+    </script>
 
     <!-- Modal Tambah OPD -->
     <div id="addUnitModal" class="user-form-modal">
@@ -230,104 +405,6 @@
                 </h2>
                 <button class="close-modal" onclick="closeEditUnitModal()">&times;</button>
             </div>
-            <script>
-                // === Modal Edit User ===
-                function openEditModal(button) {
-                    const modal = document.getElementById('editModal');
-                    const form = document.getElementById('editForm');
-                    const userId = button.getAttribute('data-id');
-
-                    form.action = `/superadmin/users/${userId}`;
-                    document.getElementById('editName').value = button.getAttribute('data-name');
-                    document.getElementById('editUsername').value = button.getAttribute('data-username');
-                    document.getElementById('editEmail').value = button.getAttribute('data-email');
-                    document.getElementById('editRole').value = button.getAttribute('data-role');
-
-                    modal.classList.add('show');
-                }
-
-                function closeEditModal() {
-                    document.getElementById('editModal').classList.remove('show');
-                }
-
-                // === Modal Tambah/Edit OPD ===
-                function openAddUnitModal() {
-                    document.getElementById('addUnitModal').classList.add('show');
-                }
-
-                function closeAddUnitModal() {
-                    document.getElementById('addUnitModal').classList.remove('show');
-                }
-
-                function openEditUnitModal(button) {
-                    const modal = document.getElementById('editUnitModal');
-                    const form = document.getElementById('editUnitForm');
-                    const unitId = button.getAttribute('data-id');
-                    const name = button.getAttribute('data-name');
-                    const address = button.getAttribute('data-address');
-
-                    form.action = `/superadmin/units/${unitId}`;
-                    document.getElementById('editUnitName').value = name;
-                    document.getElementById('editUnitAddress').value = address ?? '';
-                    modal.classList.add('show');
-                }
-
-                function closeEditUnitModal() {
-                    document.getElementById('editUnitModal').classList.remove('show');
-                }
-
-                // Tutup modal jika klik area luar
-                window.addEventListener('click', function(e) {
-                    const modals = document.querySelectorAll('.user-form-modal');
-                    modals.forEach(modal => {
-                        if (e.target === modal) modal.classList.remove('show');
-                    });
-                });
-
-                    // === FUNGSI SEARCH BAR UNTUK USER & OPD ===
-                    document.addEventListener('DOMContentLoaded', function() {
-                        const searchInput = document.getElementById('searchInput');
-                        const userRows = document.querySelectorAll('#userTable tbody tr');
-                        const unitRows = document.querySelectorAll('#unitTable tbody tr');
-
-                        if (searchInput) {
-                            // Jalankan hanya saat tekan ENTER
-                            searchInput.addEventListener('keydown', function(e) {
-                                if (e.key === 'Enter') {
-                                    e.preventDefault(); // biar gak reload
-                                    const keyword = searchInput.value.toLowerCase().trim();
-
-                                    // Filter tabel USER
-                                    userRows.forEach(row => {
-                                        const cells = row.querySelectorAll('td');
-                                        const match = Array.from(cells).some(td =>
-                                            td.textContent.toLowerCase().includes(keyword)
-                                        );
-                                        row.style.display = match ? '' : 'none';
-                                    });
-
-                                    // Filter tabel OPD
-                                    unitRows.forEach(row => {
-                                        const cells = row.querySelectorAll('td');
-                                        const match = Array.from(cells).some(td =>
-                                            td.textContent.toLowerCase().includes(keyword)
-                                        );
-                                        row.style.display = match ? '' : 'none';
-                                    });
-                                }
-                            });
-
-                            // Kalau input dikosongkan → tampilkan semua data lagi
-                            searchInput.addEventListener('input', function() {
-                                if (searchInput.value.trim() === '') {
-                                    userRows.forEach(row => row.style.display = '');
-                                    unitRows.forEach(row => row.style.display = '');
-                                }
-                            });
-                        }
-                    });
-            </script>
-
 
             <form id="editUnitForm" method="POST">
                 @csrf
@@ -351,59 +428,29 @@
     </div>
 
     <script>
-        // === Modal Edit User ===
-        function openEditModal(button) {
-            const modal = document.getElementById('editModal');
-            const form = document.getElementById('editForm');
-            const userId = button.getAttribute('data-id');
+        document.addEventListener('DOMContentLoaded', function() {
+            const globalSearch = document.getElementById('globalSearch');
 
-            form.action = `/superadmin/users/${userId}`;
-            document.getElementById('editName').value = button.getAttribute('data-name');
-            document.getElementById('editUsername').value = button.getAttribute('data-username');
-            document.getElementById('editEmail').value = button.getAttribute('data-email');
-            document.getElementById('editRole').value = button.getAttribute('data-role');
+            globalSearch.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') { // cuma jalan saat tekan Enter
+                    e.preventDefault(); // biar gak submit form
+                    const query = globalSearch.value.toLowerCase();
 
-            modal.classList.add('show');
-        }
+                    // Semua tabel yang ingin difilter
+                    const allTables = document.querySelectorAll('table');
 
-        function closeEditModal() {
-            document.getElementById('editModal').classList.remove('show');
-        }
-
-        // === Modal Tambah/Edit OPD ===
-        function openAddUnitModal() {
-            document.getElementById('addUnitModal').classList.add('show');
-        }
-
-        function closeAddUnitModal() {
-            document.getElementById('addUnitModal').classList.remove('show');
-        }
-
-        function openEditUnitModal(button) {
-            const modal = document.getElementById('editUnitModal');
-            const form = document.getElementById('editUnitForm');
-            const unitId = button.getAttribute('data-id');
-            const name = button.getAttribute('data-name');
-            const address = button.getAttribute('data-address');
-
-            form.action = `/superadmin/units/${unitId}`;
-            document.getElementById('editUnitName').value = name;
-            document.getElementById('editUnitAddress').value = address ?? '';
-            modal.classList.add('show');
-        }
-
-        function closeEditUnitModal() {
-            document.getElementById('editUnitModal').classList.remove('show');
-        }
-
-        // Tutup modal jika klik area luar
-        window.addEventListener('click', function(e) {
-            const modals = document.querySelectorAll('.user-form-modal');
-            modals.forEach(modal => {
-                if (e.target === modal) modal.classList.remove('show');
+                    allTables.forEach(table => {
+                        const rows = table.querySelectorAll('tbody tr');
+                        rows.forEach(row => {
+                            const text = row.textContent.toLowerCase();
+                            row.style.display = text.includes(query) ? '' : 'none';
+                        });
+                    });
+                }
             });
         });
     </script>
+
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
@@ -466,7 +513,7 @@
                     e.preventDefault();
                     showConfirmation({
                         title: 'Konfirmasi Edit User',
-                        text: 'Yakin ingin menyimpan perubahan data user?',
+                        text: 'Yakin ingin menyimpan perubahan data?',
                         confirmText: 'Ya, simpan',
                         form: editUserForm
                     });
@@ -524,7 +571,9 @@
             function showSuccessToast(message) {
                 const popup = document.createElement('div');
                 popup.className = 'toastify-popup toastify-success';
-                popup.innerHTML = `<p class="toastify-title">${message}</p>`;
+                popup.innerHTML = `
+                    <span>${message}</span>
+                `;
                 document.body.appendChild(popup);
 
                 popup.classList.add('toastify-popup-show');
@@ -532,11 +581,98 @@
                     popup.classList.remove('toastify-popup-show');
                     popup.classList.add('toastify-popup-hide');
                     setTimeout(() => popup.remove(), 300);
-                }, 2000);
+                }, 2500);
             }
         });
     </script>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // === Elemen modal Tambah ===
+            const addRoleSelect = document.querySelector('#addUserModal select[name="role"]');
+            const addOpdSelect = document.querySelector('#addUserModal select[name="id_unit"]');
+
+            // === Elemen modal Edit ===
+            const editRoleSelect = document.querySelector('#editRole');
+            const editOpdSelect = document.querySelector('#editOpd');
+
+            const adminOpdName = "Protokol";
+
+            // 🔸 Fungsi: pilih dan kunci OPD = Protokol
+            function setOpdToProtokol(selectOpd) {
+                for (let option of selectOpd.options) {
+                    if (option.text.trim().toLowerCase() === adminOpdName.toLowerCase()) {
+                        selectOpd.value = option.value;
+                        break;
+                    }
+                }
+
+                // jangan pakai disabled
+                selectOpd.setAttribute('readonly', true);
+                selectOpd.classList.add('readonly');
+                toggleProtokolOption(selectOpd, true);
+            }
+
+
+            // 🔸 Fungsi: aktifkan kembali dropdown
+            function enableOpd(selectOpd) {
+                selectOpd.removeAttribute('readonly');
+                selectOpd.classList.remove('readonly');
+            }
+
+            // 🔸 Fungsi: sembunyikan/tampilkan opsi Protokol
+            function toggleProtokolOption(selectOpd, show) {
+                for (let option of selectOpd.options) {
+                    if (option.text.trim().toLowerCase() === adminOpdName.toLowerCase()) {
+                        option.hidden = !show;
+                    }
+                }
+            }
+
+            // === Edit user ===
+            if (editRoleSelect && editOpdSelect) {
+                editRoleSelect.addEventListener('change', function() {
+                    if (this.value === 'admin') {
+                        toggleProtokolOption(editOpdSelect, true);
+                        setOpdToProtokol(editOpdSelect);
+                    } else {
+                        enableOpd(editOpdSelect);
+                        toggleProtokolOption(editOpdSelect, false);
+                    }
+                });
+            }
+
+            // === Saat modal Edit dibuka ===
+            window.openEditModal = function(button) {
+                const modal = document.getElementById('editModal');
+                const form = document.getElementById('editForm');
+                const userId = button.getAttribute('data-id');
+
+                form.action = `/superadmin/users/${userId}`;
+                document.getElementById('editName').value = button.getAttribute('data-name');
+                document.getElementById('editUsername').value = button.getAttribute('data-username');
+                document.getElementById('editEmail').value = button.getAttribute('data-email');
+                document.getElementById('editPassword').value = ''; // kosongin password edit
+                document.getElementById('editRole').value = button.getAttribute('data-role');
+                document.getElementById('editOpd').value = button.getAttribute('data-unit');
+
+                // ✅ Jalankan logika role langsung
+                const currentRole = button.getAttribute('data-role');
+                if (currentRole === 'admin') {
+                    toggleProtokolOption(editOpdSelect, true);
+                    setOpdToProtokol(editOpdSelect);
+                } else {
+                    enableOpd(editOpdSelect);
+                    toggleProtokolOption(editOpdSelect, false);
+                }
+
+                modal.classList.add('show');
+            };
+            window.closeEditModal = function() {
+                document.getElementById('editModal').classList.remove('show');
+            };
+        });
+    </script>
 
     <style>
         .toastify-popup {
@@ -599,7 +735,6 @@
             transform: scale(1.03);
         }
 
-        /* Animasi */
         .toastify-popup-show {
             animation: toastIn 0.35s ease forwards;
         }
@@ -609,22 +744,33 @@
         }
 
         .toastify-success {
-            background: #E6F9EE;
-            border: 1px solid #C4E7D0;
-            color: #256D43;
-            border-radius: 12px;
-            padding: 0 20px;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 40px;
-            line-height: 40px;
-            max-width: 90%;
-            white-space: nowrap;
-            top: 90px !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            font-size: 15px;
+            position: fixed;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #E9F4EC;
+            color: #234B2C;
+            border: 1px solid #A6C8A3;
+            border-radius: 6px;
+            padding: 8px 18px;
+            font-size: 14px;
             font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            z-index: 9999;
+            animation: toastIn 0.35s ease forwards;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            width: auto;
+            max-width: 300px;
+            min-height: unset;
+        }
+
+        select.readonly {
+            background-color: #f8f8f8;
+            pointer-events: none;
+            opacity: 0.7;
         }
 
         body,
@@ -637,12 +783,12 @@
         @keyframes toastIn {
             0% {
                 opacity: 0;
-                transform: translate(-50%, -15px) scale(0.95);
+                transform: translate(-50%, -30px) scale(0.95);
             }
 
-            70% {
+            80% {
                 opacity: 1;
-                transform: translate(-50%, 3px) scale(1.03);
+                transform: translate(-50%, 8px) scale(1.03);
             }
 
             100% {
@@ -661,9 +807,77 @@
                 opacity: 0;
                 transform: translate(-50%, -10px) scale(0.95);
             }
+
         }
     </style>
 
-</body>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordField = document.getElementById('addPassword');
 
-</html>
+            if (togglePassword && passwordField) {
+                togglePassword.addEventListener('click', function() {
+                    const isPassword = passwordField.getAttribute('type') === 'password';
+                    passwordField.setAttribute('type', isPassword ? 'text' : 'password');
+
+                    // Ganti ikon Bootstrap
+                    this.classList.toggle('bi-eye');
+                    this.classList.toggle('bi-eye-slash');
+                });
+            }
+        });
+    </script>
+
+    <script>
+        // Fungsi untuk membuka modal Edit OPD dan mengisi data
+        window.openEditUnitModal = function(button) {
+            const modal = document.getElementById('editUnitModal');
+            const form = document.getElementById('editUnitForm');
+
+            if (!modal || !form) return;
+
+            const unitId = button.getAttribute('data-id');
+            const unitName = button.getAttribute('data-name') || '';
+            const unitAddress = button.getAttribute('data-address') || '';
+
+            // Set action form ke endpoint update OPD
+            form.action = `/superadmin/units/${unitId}`;
+
+            // Isi field
+            const nameInput = document.getElementById('editUnitName');
+            const addrInput = document.getElementById('editUnitAddress');
+            if (nameInput) nameInput.value = unitName;
+            if (addrInput) addrInput.value = unitAddress;
+
+            // Tampilkan modal
+            modal.classList.add('show');
+        }
+
+        // Fungsi untuk menutup modal Edit OPD
+        window.closeEditUnitModal = function() {
+            const modal = document.getElementById('editUnitModal');
+            if (modal) modal.classList.remove('show');
+        }
+
+        // Buka modal Tambah OPD
+        window.openAddUnitModal = function() {
+            const modal = document.getElementById('addUnitModal');
+            if (!modal) return;
+
+            // Reset field input
+            const nameInput = modal.querySelector('input[name="unit_name"]');
+            const addrInput = modal.querySelector('input[name="address"]');
+            if (nameInput) nameInput.value = '';
+            if (addrInput) addrInput.value = '';
+
+            modal.classList.add('show');
+        }
+
+        // Tutup modal Tambah OPD
+        window.closeAddUnitModal = function() {
+            const modal = document.getElementById('addUnitModal');
+            if (modal) modal.classList.remove('show');
+        }
+    </script>
+@endsection

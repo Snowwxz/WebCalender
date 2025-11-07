@@ -1,3 +1,72 @@
+.calendar-content-wrapper {
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+    flex-direction: row;
+}
+
+.calendar-left-sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    align-self: stretch;
+}
+
+/* ===== Mini Calendar + Categories (same as dashboard-bulan.css) ===== */
+.content-nav-tabs { display: flex; background: #f8f9fa; border-radius: 8px; padding: 4px; margin-bottom: 20px; gap: 2px; }
+.content-nav-tab { flex: 1; padding: 10px 16px; border: none; background: transparent; color: #6c757d; cursor: pointer; transition: all 0.2s ease; font-size: 14px; font-weight: 500; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; border-radius: 6px; position: relative; }
+.content-nav-tab:hover:not(.active) { background: rgba(255,255,255,0.5); color: #333; }
+.content-nav-tab.active { background: #82A98D; color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-weight: 600; }
+
+.content-mini-calendar-section { margin-bottom: 20px; }
+.content-section-title { display: flex; align-items: center; gap: 8px; margin-bottom: 15px; font-size: 14px; font-weight: 600; color: #333; }
+.content-section-title i { color: #6E9579; font-size: 16px; }
+.content-mini-calendar { background: transparent; border-radius: 8px; padding: 15px; }
+.content-mini-calendar-header { display: flex; align-items: center; justify-content: space-between; font-size: 16px; font-weight: 600; color: #333; margin-bottom: 15px; }
+.content-mini-nav-btn { background: transparent; border: none; color: #6E9579; cursor: pointer; padding: 4px 8px; border-radius: 4px; transition: all 0.2s ease; font-size: 12px; }
+.content-mini-nav-btn:hover { background: rgba(110,149,121,0.1); color: #5a7a5f; }
+.content-mini-nav-btn:active { background: rgba(110,149,121,0.2); }
+.content-mini-calendar-weekdays { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 2px; margin-bottom: 8px; justify-items: center; align-items: center; }
+.content-mini-calendar-weekdays > div { text-align: center; font-size: 11px; font-weight: 600; color: #6c757d; padding: 4px; }
+.content-mini-calendar-weekdays .weekend { color: #ff6b6b; }
+.content-mini-calendar-days { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 3px; justify-items: center; align-items: center; }
+.content-mini-calendar-days .mini-day { width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; border-radius: 50%; transition: all 0.2s ease; color: #000; }
+.content-mini-calendar-days .mini-day.other-month { color: #c8d0c8 !important; opacity: .6; cursor: default; font-weight: 400; }
+.content-mini-calendar-days .mini-day.other-month:hover { background-color: transparent !important; color: #c8d0c8 !important; font-weight: 400 !important; }
+.content-mini-calendar-days .mini-day.today { background-color: rgba(130,169,141,0.3); color: #82A98D; font-weight: 700; border-radius: 50%; cursor: default; }
+.content-mini-calendar-days .mini-day.weekend { color: #ff6b6b; }
+.content-mini-calendar-days .mini-day.weekend:hover:not(.today) { background-color: rgba(130,169,141,0.3); color: #ff6b6b; font-weight: 500; }
+.content-mini-calendar-days .mini-day:hover:not(.today) { background-color: rgba(130,169,141,0.3); color: #82A98D; font-weight: 500; border-radius: 50%; }
+.content-mini-calendar-days .mini-day.saturday { color: #000 !important; }
+.content-mini-calendar-days .mini-day.saturday:hover:not(.today) { background-color: rgba(130,169,141,0.3); color: #82A98D !important; font-weight: 500; }
+
+/* Agenda Categories */
+.content-agenda-section { margin-bottom: 20px; }
+.content-agenda-categories { background: transparent; border-radius: 8px; padding: 15px; }
+.content-category-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer; font-size: 13px; font-weight: 500; user-select: none; }
+.content-category-item input[type="checkbox"] { display: none; }
+.content-custom-checkbox { width: 24px; height: 24px; border: 2.5px solid #343a40; border-radius: 8px; display: flex; align-items: center; justify-content: center; position: relative; transition: all .25s ease; background: transparent; }
+.content-custom-checkbox::after { content: ""; position: absolute; width: 7px; height: 12px; border-right: 2.5px solid #333; border-bottom: 2.5px solid #333; transform: rotate(45deg) scale(0); transition: transform .2s ease-in-out; }
+.content-category-item.public .content-custom-checkbox { border-color: #A8E6A3; }
+.content-category-item.private .content-custom-checkbox { border-color: #FFB67E; }
+.content-category-item.public input:checked + .content-custom-checkbox { background: #A8E6A3; border-color: #A8E6A3; }
+.content-category-item.private input:checked + .content-custom-checkbox { background: #FFB67E; border-color: #FFB67E; }
+.content-category-item input:checked + .content-custom-checkbox::after { transform: rotate(45deg) scale(1); }
+.content-dot { width: 10px; height: 10px; border-radius: 50%; }
+.content-category-item.public .content-dot { background: #A8E6A3; }
+.content-category-item.private .content-dot { background: #FFB67E; }
+.content-text { color: #333; font-weight: 500; }
+.content-category-item:hover .content-custom-checkbox { transform: scale(1.05); }
+.content-category-item.disabled { pointer-events: none; }
+.content-category-item.disabled .content-custom-checkbox, .content-category-item.disabled .content-text, .content-category-item.disabled .content-dot { cursor: not-allowed; }
+
 .year-view-page {
     height: calc(100vh - 72px);
     overflow: visible;
@@ -13,6 +82,9 @@
     min-height: 100%;
     margin: 0;
     padding: 0;
+    background: white;
+    flex: 1;
+    min-width: 0;
 }
 
 .year-grid {
@@ -172,6 +244,8 @@
 }
 
 @media (max-width: 900px) {
+    .calendar-content-wrapper { flex-direction: column; }
+    .calendar-left-sidebar { width: 100%; order: -1; }
     .year-grid {
         grid-template-columns: repeat(2, 1fr);
         grid-template-rows: repeat(6, 1fr);
