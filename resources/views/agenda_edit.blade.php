@@ -68,9 +68,10 @@
                     <div class="form-column">
                         <div class="input-group">
                             <label><i class="fas fa-building"></i> Nama Instansi (Pengaju)</label>
-                            <input type="text" name="id_unit"
+                            <input type="text" 
                                 value="{{ Auth::user()->unit->unit_name ?? 'Tidak Diketahui' }}" readonly
                                 style="background-color:#f2f2f2; cursor:not-allowed;">
+                            <input type="hidden" name="id_unit" value="{{ Auth::user()->id_unit }}">
                         </div>
 
                         <div class="input-group">

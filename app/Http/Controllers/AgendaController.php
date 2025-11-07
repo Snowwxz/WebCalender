@@ -154,13 +154,13 @@ class AgendaController extends Controller
 
         $validated = $request->validate([
             'agenda_name'        => 'required|string|max:255',
-            'description'        => 'nullable|string',
-            'tanggal'            => 'required|date',
-            'start_time'         => 'nullable|date_format:H:i',
-            'end_time'           => 'nullable|date_format:H:i|after_or_equal:start_time',
-            'lokasi'             => 'nullable|string|max:255',
-            'penanggung_jawab'   => 'nullable|string|max:255',
-            'instansi_ikut'      => 'nullable|string|max:255',
+            'description'        => 'required|string',
+            'date'               => 'required|date',
+            'start_time'         => 'required|date_format:H:i',
+            'end_time'           => 'required|date_format:H:i|after_or_equal:start_time',
+            'location'           => 'required|string|max:255',
+            'person_in_charge'   => 'required|string|max:255',
+            'involved_institution' => 'nullable|string|max:500',
             'status'             => 'nullable|string|in:pending,approved,rejected',
             'is_public'          => 'required|in:0,1',
             'id_unit'            => 'required|exists:units,id_unit',
@@ -168,12 +168,12 @@ class AgendaController extends Controller
 
         $agenda->agenda_name = $validated['agenda_name'];
         $agenda->description = $validated['description'] ?? null;
-        $agenda->date = $validated['tanggal'];
+        $agenda->date = $validated['date'];
         $agenda->start_time = $validated['start_time'] ?? null;
         $agenda->end_time = $validated['end_time'] ?? null;
-        $agenda->location = $validated['lokasi'] ?? null;
-        $agenda->person_in_charge = $validated['penanggung_jawab'] ?? null;
-        $agenda->involved_institution = $validated['instansi_ikut'] ?? null;
+        $agenda->location = $validated['location'] ?? null;
+        $agenda->person_in_charge = $validated['person_in_charge'] ?? null;
+        $agenda->involved_institution = $validated['involved_institution'] ?? null;
         $agenda->is_public = $validated['is_public'];
         $agenda->id_unit = $validated['id_unit'];
 
@@ -188,8 +188,8 @@ class AgendaController extends Controller
         $agenda->save();
 
         return redirect()
-            ->route('agenda.edit', $agenda->id_agenda)
-            ->with('success', '✅ Agenda berhasil diperbarui.');
+            ->route('agenda.notification')
+            ->with('success', 'Agenda berhasil diperbarui.');
     }
 
     public function updateStatus(Request $request, $id_agenda)
@@ -312,7 +312,11 @@ class AgendaController extends Controller
         ];
 
         // Tandai notifikasi user sudah dibuka agar badge hilang
-        session(['user_notifications_seen_at' => now()]);
+        // Simpan ke database agar tetap tersimpan setelah logout/login
+        if ($user) {
+            $user->last_seen_notification_at = now();
+            $user->save();
+        }
 
         if ($request->wantsJson()) {
             return response()->json($agenda);

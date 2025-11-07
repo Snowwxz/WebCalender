@@ -91,6 +91,9 @@
     });
 </script>
 
+<!-- Tambahkan Bootstrap Icons untuk icon centang bulat -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
 <!-- Tambahkan Toastify CSS & JS -->
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>

@@ -10,20 +10,28 @@
               $adminBadge = 0;
               $userBadge = 0;
               if (Auth::check()) {
-                  if (Auth::user()->role === 'admin') {
-                      $lastSeen = session('approve_seen_at');
+                  $user = Auth::user();
+                  if ($user->role === 'admin') {
+                      // Admin: hitung agenda pending yang dibuat setelah terakhir dibuka
+                      $lastSeen = $user->last_seen_approve_at;
                       $adminBadge = \App\Models\Agenda::where('status', 'pending')
                           ->when($lastSeen, function ($q) use ($lastSeen) {
                               $q->where('created_at', '>', $lastSeen);
                           })
                           ->count();
-                  } elseif (Auth::user()->role !== 'superadmin') {
-                      $lastSeenU = session('user_notifications_seen_at');
-                      $userId = Auth::user()->id_user;
+                  } elseif ($user->role !== 'superadmin') {
+                      // User: hitung agenda yang statusnya diubah (approved/rejected) SETELAH last_seen
+                      // Hanya hitung yang benar-benar baru di-update, bukan semua yang sudah approved/rejected
+                      $lastSeenU = $user->last_seen_notification_at;
+                      $userId = $user->id_user;
                       $userBadge = \App\Models\Agenda::where('id_user', $userId)
                           ->whereIn('status', ['approved', 'rejected'])
                           ->when($lastSeenU, function ($q) use ($lastSeenU) {
+                              // Hanya yang di-update setelah last_seen (tindakan baru dari admin)
                               $q->where('updated_at', '>', $lastSeenU);
+                          }, function ($q) {
+                              // Jika belum pernah buka, hanya hitung yang di-update hari ini (untuk menghindari spam lama)
+                              $q->where('updated_at', '>=', now()->startOfDay());
                           })
                           ->count();
                   }
@@ -86,3 +94,27 @@
           @endif
       </div>
   </aside>
+  <script>
+      (function() {
+          function removeAllNotifBadges() {
+              var badges = document.querySelectorAll('.notif-badge');
+              badges.forEach(function(b){ if(b.parentNode) b.parentNode.removeChild(b); });
+          }
+
+          // Hilangkan badge segera ketika ikon notifikasi diklik
+          document.addEventListener('DOMContentLoaded', function() {
+              var notifLinks = document.querySelectorAll('.sidebar .nav-icon[href*="approve"], .sidebar .nav-icon[href*="notification"]');
+              notifLinks.forEach(function(link){
+                  link.addEventListener('click', function(){
+                      removeAllNotifBadges();
+                  });
+              });
+
+              // Jika sedang di halaman approve atau notification, sembunyikan badge agar terasa real-time
+              var currentPath = (window.location && window.location.pathname) || '';
+              if (currentPath.indexOf('/approve') !== -1 || currentPath.indexOf('/dashboard/notification') !== -1 || currentPath.indexOf('/notification') !== -1) {
+                  removeAllNotifBadges();
+              }
+          });
+      })();
+  </script>

@@ -25,6 +25,8 @@ class User extends Authenticatable
         'role',
         'id_unit',
         'contact',
+        'last_seen_approve_at',
+        'last_seen_notification_at',
     ];
 
     protected $hidden = [
@@ -34,6 +36,8 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'last_seen_approve_at' => 'datetime',
+        'last_seen_notification_at' => 'datetime',
     ];
 
     // 🔗 Relasi ke tabel Unit
