@@ -305,7 +305,11 @@ class AgendaController extends Controller
         ];
 
         // Tandai notifikasi user sudah dibuka agar badge hilang
-        session(['user_notifications_seen_at' => now()]);
+        // Simpan ke database agar tetap tersimpan setelah logout/login
+        if ($user) {
+            $user->last_seen_notification_at = now();
+            $user->save();
+        }
 
         if ($request->wantsJson()) {
             return response()->json($agenda);
