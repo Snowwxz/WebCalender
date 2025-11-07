@@ -474,7 +474,6 @@
                 document.getElementById('showAgendaTime').innerText = timeText;
 
                 document.getElementById('showAgendaLocation').innerText = data.location ?? '-';
-                document.getElementById('showAgendaPIC').innerText = data.person_in_charge ?? '-';
                 document.getElementById('showAgendaDesc').innerText = data.description ?? '-';
 
                 const involved = data.involved_institution ?? '-';

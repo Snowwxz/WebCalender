@@ -153,7 +153,7 @@
     <script>
         // Validasi form (selaraskan dengan create)
         document.getElementById('agendaForm').addEventListener('submit', function(e) {
-            const requiredFields = ['agenda_name','description','id_unit','person_in_charge','date','start_time','end_time','location','involved_institution'];
+            const requiredFields = ['agenda_name','description','id_unit','date','start_time','end_time','location','involved_institution'];
             let isValid = true, emptyFields = [];
             requiredFields.forEach(field => {
                 const el = document.querySelector(`[name="${field}"]`);

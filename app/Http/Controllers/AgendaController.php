@@ -75,7 +75,6 @@ class AgendaController extends Controller
         $validated = $request->validate([
             'agenda_name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'person_in_charge' => 'nullable|string|max:255',
             'date' => 'required|date',
             'start_time' => 'nullable|date_format:H:i',
             'end_time' => 'nullable|date_format:H:i|after_or_equal:start_time',
@@ -88,7 +87,6 @@ class AgendaController extends Controller
             $agenda = new Agenda();
             $agenda->agenda_name = $validated['agenda_name'];
             $agenda->description = $validated['description'];
-            $agenda->person_in_charge = $validated['person_in_charge'];
             $agenda->date = $validated['date'];
             $agenda->start_time = $validated['start_time'];
             $agenda->end_time = $validated['end_time'];
@@ -172,7 +170,6 @@ class AgendaController extends Controller
         $agenda->start_time = $validated['start_time'] ?? null;
         $agenda->end_time = $validated['end_time'] ?? null;
         $agenda->location = $validated['lokasi'] ?? null;
-        $agenda->person_in_charge = $validated['penanggung_jawab'] ?? null;
         $agenda->involved_institution = $validated['instansi_ikut'] ?? null;
         $agenda->is_public = $validated['is_public'];
         $agenda->id_unit = $validated['id_unit'];
