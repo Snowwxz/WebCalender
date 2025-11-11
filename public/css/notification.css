@@ -571,3 +571,23 @@ main {
     padding-top: 0 !important;
     margin-top: 0 !important;
 }
+
+.detail-item i {
+    width: 20px;
+    font-size: 15px;
+    color: #82A98D;
+    text-align: center;
+}
+
+.detail-item strong {
+    color: #2F3E35;
+}
+
+.detail-item span {
+    color: #2F3E35;
+    font-size: 15px;
+}
+
+.detail-item i.fa-sticky-note {
+    color: #E6A15B;
+}
