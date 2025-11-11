@@ -306,9 +306,9 @@ class AgendaController extends Controller
 
         // Tandai notifikasi user sudah dibuka agar badge hilang
         // Simpan ke database agar tetap tersimpan setelah logout/login
-        if ($user) {
-            $user->last_seen_notification_at = now();
-            $user->save();
+        if ($user && $user->id_user) {
+            \App\Models\User::where('id_user', $user->id_user)
+                ->update(['last_seen_notification_at' => now()]);
         }
 
         if ($request->wantsJson()) {
