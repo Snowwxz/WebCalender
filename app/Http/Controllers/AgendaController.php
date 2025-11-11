@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Agenda;
 use App\Models\Unit;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -142,7 +143,15 @@ class AgendaController extends Controller
     {
         $agenda = Agenda::findOrFail($id_agenda);
         $units = Unit::orderBy('unit_name', 'asc')->get();
-        return view('agenda_edit', compact('agenda', 'units'));
+
+        $user = Auth::user();
+        $unitName = null;
+        if ($user && $user->id_unit) {
+            $unit = Unit::find($user->id_unit);
+            $unitName = $unit ? $unit->unit_name : null;
+        }
+
+        return view('agenda_edit', compact('agenda', 'units', 'unitName'));
     }
 
     /**
@@ -270,7 +279,7 @@ class AgendaController extends Controller
      */
     public function notification(Request $request)
     {
-        $user = Auth::user();
+        $user = User::find(Auth::user()->id_user);
         $userId = $user ? $user->id_user : null;
 
         // Filters
