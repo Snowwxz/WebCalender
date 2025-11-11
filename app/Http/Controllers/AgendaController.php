@@ -28,11 +28,22 @@ class AgendaController extends Controller
             ->where('status', 'approved')
             ->orderBy('date', 'desc');
 
-        // 🔹 Kalau bukan superadmin, batasi hanya publik atau milik sendiri
+        // 🔹 Kalau bukan superadmin, batasi hanya publik atau milik sendiri atau diundang
         if ($user->role !== 'superadmin') {
-            $query->where(function ($q) use ($userId) {
+            $userUnit = $user->unit;
+            $userUnitName = $userUnit ? $userUnit->unit_name : null;
+            
+            $query->where(function ($q) use ($userId, $userUnitName) {
                 $q->where('is_public', 1)
                     ->orWhere('id_user', $userId);
+                
+                // Tambahkan kondisi untuk agenda privat yang mengundang instansi user
+                if ($userUnitName) {
+                    $q->orWhere(function ($subQ) use ($userUnitName) {
+                        $subQ->where('is_public', 0)
+                            ->where('involved_institution', 'like', '%' . $userUnitName . '%');
+                    });
+                }
             });
         }
 
@@ -341,7 +352,8 @@ class AgendaController extends Controller
     public function getAgendaByDate(Request $request)
     {
         $date = $request->input('date');
-        $userId = Auth::user()->id_user;
+        $user = Auth::user();
+        $userId = $user->id_user;
 
         if (!$date) {
             return response()->json([
@@ -350,11 +362,22 @@ class AgendaController extends Controller
             ], 400);
         }
 
+        $userUnit = $user->unit;
+        $userUnitName = $userUnit ? $userUnit->unit_name : null;
+
         $agenda = Agenda::with(['unit', 'user', 'approver'])
             ->whereDate('date', $date)
-            ->where(function ($q) use ($userId) {
+            ->where(function ($q) use ($userId, $userUnitName) {
                 $q->where('is_public', 1) // publik
                     ->orWhere('id_user', $userId); // private tapi milik sendiri
+                
+                // Tambahkan kondisi untuk agenda privat yang mengundang instansi user
+                if ($userUnitName) {
+                    $q->orWhere(function ($subQ) use ($userUnitName) {
+                        $subQ->where('is_public', 0)
+                            ->where('involved_institution', 'like', '%' . $userUnitName . '%');
+                    });
+                }
             })
             ->where('status', 'approved')
             ->orderBy('start_time', 'asc')
@@ -382,13 +405,25 @@ class AgendaController extends Controller
     public function getAgendaHari(Request $request)
     {
         $date = $request->query('tanggal', date('Y-m-d'));
-        $userId = Auth::user()->id_user;
+        $user = Auth::user();
+        $userId = $user->id_user;
+
+        $userUnit = $user->unit;
+        $userUnitName = $userUnit ? $userUnit->unit_name : null;
 
         $agenda = Agenda::whereDate('date', $date)
             ->where('status', 'approved')
-            ->where(function ($q) use ($userId) {
+            ->where(function ($q) use ($userId, $userUnitName) {
                 $q->where('is_public', 1)
                     ->orWhere('id_user', $userId);
+                
+                // Tambahkan kondisi untuk agenda privat yang mengundang instansi user
+                if ($userUnitName) {
+                    $q->orWhere(function ($subQ) use ($userUnitName) {
+                        $subQ->where('is_public', 0)
+                            ->where('involved_institution', 'like', '%' . $userUnitName . '%');
+                    });
+                }
             })
             ->orderBy('start_time', 'asc')
             ->get(['id_agenda as id', 'agenda_name as title', 'start_time', 'end_time', 'location', 'is_public']);
