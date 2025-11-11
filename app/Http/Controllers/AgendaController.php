@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Agenda;
 use App\Models\Unit;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -270,7 +271,7 @@ class AgendaController extends Controller
      */
     public function notification(Request $request)
     {
-        $user = Auth::user();
+        $user = User::find(Auth::user()->id_user);
         $userId = $user ? $user->id_user : null;
 
         // Filters
@@ -315,7 +316,7 @@ class AgendaController extends Controller
         // Simpan ke database agar tetap tersimpan setelah logout/login
         if ($user) {
             $user->last_seen_notification_at = now();
-            $user->Auth::save();
+            $user->save();
         }
 
         if ($request->wantsJson()) {
