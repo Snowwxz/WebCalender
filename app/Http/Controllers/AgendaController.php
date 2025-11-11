@@ -314,7 +314,7 @@ class AgendaController extends Controller
         // Simpan ke database agar tetap tersimpan setelah logout/login
         if ($user) {
             $user->last_seen_notification_at = now();
-            $user->Auth::save();
+            $user->save();
         }
 
         if ($request->wantsJson()) {
