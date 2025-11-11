@@ -87,7 +87,7 @@
 
                         <div class="input-group lokasi-group">
                             <label for="lokasi"><i class="fas fa-map-marker-alt"></i> Lokasi</label>
-                            <input type="text" id="lokasi" name="lokasi" placeholder="Masukkan lokasi kegiatan">
+                            <input type="text" id="location" name="location" placeholder="Masukkan lokasi kegiatan">
                         </div>
                     </div>
 
@@ -163,7 +163,7 @@
                     <!-- Catatan - Full Width -->
                     <div class="input-group fullwidth-group">
                         <label><i class="fa-solid fa-file-lines" style="color:#6b8f71;"></i> Catatan</label>
-                        <textarea name="catatan" placeholder="Masukkan catatan tambahan (opsional)" rows="3">{{ old('catatan') }}</textarea>
+                        <textarea name="notes" placeholder="Masukkan catatan tambahan (opsional)" rows="3">{{ old('notes') }}</textarea>
                     </div>
 
                 </div>
@@ -221,7 +221,6 @@
                 'agenda_name',
                 'description',
                 'id_unit',
-                'person_in_charge',
                 'date',
                 'start_time',
                 'end_time',
@@ -256,7 +255,6 @@
                             'agenda_name': 'Nama Agenda',
                             'description': 'Deskripsi Agenda',
                             'id_unit': 'Nama Instansi',
-                            'person_in_charge': 'Penanggung Jawab',
                             'date': 'Tanggal',
                             'start_time': 'Waktu Mulai',
                             'end_time': 'Waktu Selesai',
@@ -496,7 +494,7 @@
                 // Cegah duplikat - cek di listItems dan selectedValues
                 const existsInList = listItems.some(li => li.getAttribute('data-value').toLowerCase() === cleanName.toLowerCase());
                 const existsInSelected = selectedValues.some(val => val.toLowerCase() === cleanName.toLowerCase());
-                
+
                 if (existsInList || existsInSelected) {
                     alert('Instansi sudah ada!');
                     if (addNewInput) {
@@ -539,14 +537,14 @@
             function filterList(term) {
                 const lower = term.toLowerCase().trim();
                 const addNewInstansiOption = dropdown.querySelector('.add-new-instansi-option');
-                
+
                 // Filter existing items
                 listItems.forEach(li => {
                     const text = li.querySelector('.item-text').textContent.toLowerCase();
                     const match = !lower || text.includes(lower);
                     li.style.display = match ? 'flex' : 'none';
                 });
-                
+
                 // Tampilkan "Pilih Semua" jika ada hasil atau tidak ada search term
                 if (!lower || listItems.some(li => {
                     const text = li.querySelector('.item-text').textContent.toLowerCase();
@@ -556,7 +554,7 @@
                 } else {
                     selectAllOption.style.display = 'none';
                 }
-                
+
                 // Tampilkan opsi "Tambah Instansi Baru" kecuali sedang menampilkan input field
                 if (addNewInstansiOption) {
                     if (addNewInputContainer && addNewInputContainer.style.display === 'none') {
@@ -569,7 +567,7 @@
 
             // Event listeners
             searchInput.addEventListener('input', e => filterList(e.target.value));
-            
+
             // Event listener untuk opsi "Tambah Instansi Baru"
             const addNewInstansiOption = dropdown.querySelector('.add-new-instansi-option');
             if (addNewInstansiOption) {
@@ -583,7 +581,7 @@
                     selectAllOption.style.display = 'none';
                 });
             }
-            
+
             // Event listener untuk input field baru
             if (addNewInput) {
                 addNewInput.addEventListener('keydown', (e) => {
@@ -598,7 +596,7 @@
                     }
                 });
             }
-            
+
             // Event listener untuk tombol Tambahkan
             if (addConfirmBtn) {
                 addConfirmBtn.addEventListener('click', (e) => {
@@ -609,7 +607,7 @@
                     }
                 });
             }
-            
+
             // Event listener untuk tombol Batal
             if (addCancelBtn) {
                 addCancelBtn.addEventListener('click', (e) => {
