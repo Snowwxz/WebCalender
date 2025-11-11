@@ -366,7 +366,7 @@ body .app-container>.main-content {
     visibility: hidden;
     pointer-events: none;
     transition: all 0.3s ease;
-    z-index: 9999;
+    z-index: 10001;
 }
 
 .user-form-modal.show {
