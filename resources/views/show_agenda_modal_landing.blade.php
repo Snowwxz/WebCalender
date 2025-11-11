@@ -26,7 +26,11 @@
                             <i class="fas fa-align-left" style="color: #82A98D;"></i>
                             Deskripsi Agenda
                         </label>
-                        <button type="button" class="btn-copy" id="copyAgendaBtn" title="Salin Agenda">
+                        <button type="button" class="btn btn-sm copy-agenda-btn" id="copyAgendaBtn"
+                            title="Salin Agenda"
+                            style="border: none; color: #82A98D; background: none; padding: 4px 8px; transition: all 0.3s ease; outline: none; box-shadow: none;"
+                            onmouseover="this.style.color='black'; this.style.backgroundColor='rgba(130, 169, 141, 0.1)';"
+                            onmouseout="this.style.color='#82A98D'; this.style.backgroundColor='';">
                             <i class="fas fa-copy"></i> Salin
                         </button>
                     </div>
