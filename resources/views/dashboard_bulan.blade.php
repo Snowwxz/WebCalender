@@ -472,8 +472,8 @@
                         (data.start_time ?? '-');
                     document.getElementById('showAgendaTime').innerText = timeText;
 
-                document.getElementById('showAgendaLocation').innerText = data.location ?? '-';
-                document.getElementById('showAgendaDesc').innerText = data.description ?? '-';
+                    document.getElementById('showAgendaLocation').innerText = data.location ?? '-';
+                    document.getElementById('showAgendaDesc').innerText = data.description ?? '-';
 
                     // Isi data instansi
                     const involved = data.involved_institution ?? '-';
@@ -496,8 +496,12 @@
                     }
                 }
 
-                // Tampilkan modal
-                new bootstrap.Modal(document.getElementById('showAgendaModal')).show();
+                const notesEl = document.getElementById('showAgendaNotes');
+                if (notesEl) notesEl.innerText = data.notes ?? '-';
+
+
+            // Tampilkan modal
+            new bootstrap.Modal(document.getElementById('showAgendaModal')).show();
             }
         </script>
 
