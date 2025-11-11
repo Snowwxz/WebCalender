@@ -141,6 +141,12 @@
                                             {{ $agenda->is_public ? 'Publik' : 'Privasi' }}
                                         </span>
                                     </div>
+                                    @if (!empty($agenda->notes))
+                                        <div class="detail-item">
+                                            <i class="fa-solid fa-file-lines"></i>
+                                            <span><strong>Catatan:</strong> {{ $agenda->notes }}</span>
+                                        </div>
+                                    @endif
                                 </div>
 
                                 <div class="details-right">
@@ -166,8 +172,8 @@
                                     </div>
 
                                     <div class="detail-item participants">
-                                        <i class="fas fa-people-group"></i>
-                                        <span><strong>Instansi Terlibat:</strong>
+                                        <i class="fas fa-users"></i>
+                                        <span><strong>Dihadiri:</strong>
                                             {{ $agenda->involved_institution ?? '-' }}</span>
                                     </div>
 
@@ -175,12 +181,6 @@
                                         <div class="detail-item">
                                             <i class="fas fa-comment-dots"></i>
                                             <span><strong>Alasan Ditolak:</strong> {{ $agenda->reason }}</span>
-                                        </div>
-                                    @endif
-                                    @if (!empty($agenda->notes))
-                                        <div class="detail-item">
-                                            <i class="fas fa-sticky-note"></i>
-                                            <span><strong>Catatan:</strong> {{ $agenda->notes }}</span>
                                         </div>
                                     @endif
                                 </div>
