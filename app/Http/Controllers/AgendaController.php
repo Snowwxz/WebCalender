@@ -82,6 +82,7 @@ class AgendaController extends Controller
             'location' => 'nullable|string|max:255',
             'involved_institution' => 'nullable|string|max:500',
             'is_public' => 'required|in:0,1',
+            'notes' => 'nullable|string|max:1000',
         ]);
 
         try {
@@ -95,8 +96,9 @@ class AgendaController extends Controller
             $agenda->involved_institution = $validated['involved_institution'];
             $agenda->is_public = $validated['is_public'];
             $agenda->id_unit = Auth::user()->id_unit;
-            $agenda->id_user = Auth::user()->id_user;
+            $agenda->id_user = Auth::id();
             $agenda->status = 'pending';
+            $agenda->notes = $validated['notes'] ?? null;
             $agenda->save();
 
             // ⚙ Jika request datang via AJAX / fetch
@@ -141,14 +143,14 @@ class AgendaController extends Controller
     {
         $agenda = Agenda::findOrFail($id_agenda);
         $units = Unit::orderBy('unit_name', 'asc')->get();
-        
+
         $user = Auth::user();
         $unitName = null;
         if ($user && $user->id_unit) {
             $unit = Unit::find($user->id_unit);
             $unitName = $unit ? $unit->unit_name : null;
         }
-        
+
         return view('agenda_edit', compact('agenda', 'units', 'unitName'));
     }
 
@@ -169,19 +171,19 @@ class AgendaController extends Controller
             'involved_institution' => 'nullable|string|max:500',
             'status'             => 'nullable|string|in:pending,approved,rejected',
             'is_public'          => 'required|in:0,1',
+            'notes' => 'nullable|string|max:1000',
             'id_unit'            => 'required|exists:units,id_unit',
         ]);
 
         $agenda->agenda_name = $validated['agenda_name'];
-        $agenda->description = $validated['description'] ?? null;
+        $agenda->description = $validated['description'];
         $agenda->date = $validated['date'];
-        $agenda->start_time = $validated['start_time'] ?? null;
-        $agenda->end_time = $validated['end_time'] ?? null;
-        $agenda->location = $validated['lokasi'] ?? null;
-        $agenda->involved_institution = $validated['instansi_ikut'] ?? null;
-        $agenda->location = $validated['location'] ?? null;
+        $agenda->start_time = $validated['start_time'];
+        $agenda->end_time = $validated['end_time'];
+        $agenda->location = $validated['location'];
         $agenda->involved_institution = $validated['involved_institution'] ?? null;
         $agenda->is_public = $validated['is_public'];
+        $agenda->notes = $validated['notes'] ?? null;
         $agenda->id_unit = $validated['id_unit'];
 
         // hanya admin yang boleh ubah status
@@ -277,8 +279,8 @@ class AgendaController extends Controller
      */
     public function notification(Request $request)
     {
-        $user = User::find(Auth::user()->id_user);
-        $userId = $user ? $user->id_user : null;
+        $userId = Auth::id();
+        $user = Auth::user();
 
         // Filters
         $status = $request->query('status', 'all');

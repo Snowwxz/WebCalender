@@ -68,17 +68,12 @@
                     <div class="form-column">
                         <div class="input-group">
                             <label><i class="fas fa-building"></i> Nama Instansi (Pengaju)</label>
-                            <input type="text" 
+                            <input type="text"
                                 value="{{ Auth::user()->unit->unit_name ?? 'Tidak Diketahui' }}" readonly
                                 style="background-color:#f2f2f2; cursor:not-allowed;">
                             <input type="hidden" name="id_unit" value="{{ Auth::user()->id_unit }}">
                         </div>
 
-                        <div class="input-group">
-                            <label><i class="fas fa-user-tie"></i> Penanggung Jawab</label>
-                            <input type="text" name="person_in_charge" placeholder="Masukkan nama penanggung jawab"
-                                value="{{ old('person_in_charge', $agenda->person_in_charge) }}" required>
-                        </div>
 
                         <div class="input-group">
                             <label><i class="fas fa-eye"></i> Kategori Agenda</label>
@@ -234,27 +229,27 @@
                 }
             }
 
-            function toggleDropdown(){ 
-                const isOpen = dropdown.classList.toggle('open'); 
-                root.classList.toggle('open', isOpen); 
-                if(isOpen) { 
+            function toggleDropdown(){
+                const isOpen = dropdown.classList.toggle('open');
+                root.classList.toggle('open', isOpen);
+                if(isOpen) {
                     searchInput.value = '';
-                    filterList(''); 
+                    filterList('');
                     hideAddNewInput();
                     // Pastikan opsi "Tambah Instansi Baru" ditampilkan
                     const addNewInstansiOption = dropdown.querySelector('.add-new-instansi-option');
                     if (addNewInstansiOption) {
                         addNewInstansiOption.style.display = 'block';
                     }
-                    searchInput.focus(); 
+                    searchInput.focus();
                 } else {
                     hideAddNewInput();
                     searchInput.value = '';
                 }
             }
-            function closeDropdown(){ 
-                dropdown.classList.remove('open'); 
-                root.classList.remove('open'); 
+            function closeDropdown(){
+                dropdown.classList.remove('open');
+                root.classList.remove('open');
                 hideAddNewInput();
                 searchInput.value = '';
                 // Pastikan opsi "Tambah Instansi Baru" ditampilkan saat dropdown ditutup
@@ -264,18 +259,18 @@
                 }
             }
 
-            function addChip(value){ 
-                if(selectedValues.includes(value)) return; 
-                selectedValues.push(value); 
-                const chip=document.createElement('span'); 
-                chip.className='chip'; 
-                chip.textContent=value; 
-                const btn=document.createElement('button'); 
-                btn.className='chip-remove'; 
-                btn.innerHTML='&times;'; 
-                btn.onclick=()=>{ 
-                    chip.remove(); 
-                    selectedValues = selectedValues.filter(v=>v!==value); 
+            function addChip(value){
+                if(selectedValues.includes(value)) return;
+                selectedValues.push(value);
+                const chip=document.createElement('span');
+                chip.className='chip';
+                chip.textContent=value;
+                const btn=document.createElement('button');
+                btn.className='chip-remove';
+                btn.innerHTML='&times;';
+                btn.onclick=()=>{
+                    chip.remove();
+                    selectedValues = selectedValues.filter(v=>v!==value);
                     // Hanya showItem jika item ada di listItems (untuk instansi yang ada di dropdown)
                     const itemExists = listItems.some(li => {
                         const val = li.getAttribute('data-value') || li.textContent.trim();
@@ -284,10 +279,10 @@
                     if (itemExists) {
                         showItem(value);
                     }
-                    syncHidden(); 
-                }; 
-                chip.appendChild(btn); 
-                selectedWrap.appendChild(chip); 
+                    syncHidden();
+                };
+                chip.appendChild(btn);
+                selectedWrap.appendChild(chip);
                 // Hanya hideItem jika item ada di listItems (untuk instansi yang ada di dropdown)
                 const itemExists = listItems.some(li => {
                     const val = li.getAttribute('data-value') || li.textContent.trim();
@@ -296,13 +291,13 @@
                 if (itemExists) {
                     hideItem(value);
                 }
-                syncHidden(); 
+                syncHidden();
             }
-            function syncHidden(){ 
-                hiddenField.value = selectedValues.join(', '); 
-                mainInput.style.display = selectedValues.length ? 'none' : 'inline'; 
+            function syncHidden(){
+                hiddenField.value = selectedValues.join(', ');
+                mainInput.style.display = selectedValues.length ? 'none' : 'inline';
             }
-            
+
             function addNewItem(name) {
                 const cleanName = name.trim();
                 if (!cleanName) {
@@ -310,14 +305,14 @@
                     if (addNewInput) addNewInput.focus();
                     return;
                 }
-                
+
                 // Cegah duplikat - cek di listItems dan selectedValues
                 const existsInList = listItems.some(li => {
                     const val = li.getAttribute('data-value') || li.textContent.trim();
                     return val.toLowerCase() === cleanName.toLowerCase();
                 });
                 const existsInSelected = selectedValues.some(val => val.toLowerCase() === cleanName.toLowerCase());
-                
+
                 if (existsInList || existsInSelected) {
                     alert('Instansi sudah ada!');
                     if (addNewInput) {
@@ -326,29 +321,29 @@
                     }
                     return;
                 }
-                
+
                 // Jangan tambahkan ke dropdown list, hanya tambahkan sebagai chip yang dipilih
                 // Tambahkan langsung ke selected
                 addChip(cleanName);
-                
+
                 // Kosongkan input dan sembunyikan container
                 hideAddNewInput();
-                
+
                 // Filter list untuk reset tampilan
                 filterList('');
             }
-            
-            function filterList(term){ 
+
+            function filterList(term){
                 const lower = term.toLowerCase().trim();
                 const addNewInstansiOption = dropdown.querySelector('.add-new-instansi-option');
-                
+
                 // Filter list items (hanya item yang ada di listItems, bukan opsi "Tambah Instansi Baru")
                 listItems.forEach(li=> {
                     const text = (li.getAttribute('data-value') || li.textContent.trim()).toLowerCase();
                     const match = !lower || text.includes(lower);
                     li.style.display = match ? 'block' : 'none';
                 });
-                
+
                 // Tampilkan opsi "Tambah Instansi Baru" kecuali sedang menampilkan input field
                 if (addNewInstansiOption) {
                     if (addNewInputContainer && addNewInputContainer.style.display === 'none') {
@@ -361,7 +356,7 @@
 
             // Event listener untuk search input
             searchInput.addEventListener('input', e=>filterList(e.target.value));
-            
+
             // Event listener untuk opsi "Tambah Instansi Baru"
             const addNewInstansiOption = dropdown.querySelector('.add-new-instansi-option');
             if (addNewInstansiOption) {
@@ -373,7 +368,7 @@
                     addNewInstansiOption.style.display = 'none';
                 });
             }
-            
+
             // Event listener untuk input field baru
             if (addNewInput) {
                 addNewInput.addEventListener('keydown', (e) => {
@@ -388,7 +383,7 @@
                     }
                 });
             }
-            
+
             // Event listener untuk tombol Tambahkan
             if (addConfirmBtn) {
                 addConfirmBtn.addEventListener('click', (e) => {
@@ -399,7 +394,7 @@
                     }
                 });
             }
-            
+
             // Event listener untuk tombol Batal
             if (addCancelBtn) {
                 addCancelBtn.addEventListener('click', (e) => {
@@ -409,23 +404,23 @@
                     searchInput.focus();
                 });
             }
-            
+
             arrow.addEventListener('click', toggleDropdown);
             container.addEventListener('click', toggleDropdown);
-            
+
             // Event listener untuk list items (kecuali opsi "Tambah Instansi Baru")
             listItems.forEach(li=> {
                 // Skip jika ini adalah opsi "Tambah Instansi Baru"
                 if (li.classList.contains('add-new-instansi-option')) {
                     return;
                 }
-                li.addEventListener('click', ()=>{ 
+                li.addEventListener('click', ()=>{
                     const value = li.getAttribute('data-value') || li.textContent.trim();
-                    addChip(value); 
-                    closeDropdown(); 
+                    addChip(value);
+                    closeDropdown();
                 });
             });
-            
+
             document.addEventListener('click', e=>{ if(!root.contains(e.target)) closeDropdown(); });
 
             renderInitial();
