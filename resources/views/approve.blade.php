@@ -123,7 +123,7 @@
                                 <div class="details-left">
                                     <div class="detail-item">
                                         <i class="fas fa-building"></i>
-                                        <span><strong>Nama Instansi (Pengaju):</strong>
+                                        <span><strong>Pelaksana:</strong>
                                             {{ $agenda->unit->unit_name ?? '-' }}
                                         </span>
                                     </div>
@@ -172,7 +172,7 @@
                                     </div>
 
                                     <div class="detail-item participants">
-                                        <i class="fas fa-users"></i>
+                                        <i class="fas fa-people-group"></i>
                                         <span><strong>Dihadiri:</strong>
                                             {{ $agenda->involved_institution ?? '-' }}</span>
                                     </div>

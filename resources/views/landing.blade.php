@@ -262,6 +262,9 @@
                         `<span class="badge rounded-pill" style="background-color:${bg}; color:#2F3E35; padding:6px 10px;">${text}</span>`;
                 }
 
+                const notesEl = document.getElementById('showAgendaNotes');
+                if (notesEl) notesEl.innerText = data.notes ?? '-';
+                
                 new bootstrap.Modal(document.getElementById('showAgendaModal')).show();
             }
 
