@@ -2,7 +2,7 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/agenda-create.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 @endpush
 
@@ -85,9 +85,9 @@
                             </select>
                         </div>
 
-                        <div class="input-group">
-                            <label><i class="fas fa-location-dot"></i> Lokasi</label>
-                            <input type="text" name="location" placeholder="Masukkan lokasi kegiatan" required>
+                        <div class="input-group lokasi-group">
+                            <label for="lokasi"><i class="fas fa-map-marker-alt"></i> Lokasi</label>
+                            <input type="text" id="lokasi" name="lokasi" placeholder="Masukkan lokasi kegiatan">
                         </div>
                     </div>
 
@@ -116,15 +116,23 @@
                         <div class="chips-multiselect" id="involvedInstansi">
                             <div class="chips-container">
                                 <div class="chips-selected"></div>
-                                <input type="text" class="chips-input"
-                                    placeholder="-- Pilih Instansi yang Hadir --">
+                                <input type="text" class="chips-input" placeholder="-- Pilih Instansi yang Hadir --"
+                                    readonly style="cursor: pointer;">
                             </div>
                             <span class="chips-arrow"><i class="fas fa-chevron-down"></i></span>
 
                             <div class="chips-dropdown">
-                                <div class="chips-search">
+                                <div class="chips-add-new"
+                                    style="display: flex; gap: 8px; align-items: center; padding: 10px 12px;">
+                                    <input type="text" id="newInstansiInput" class="chips-new-input same-style-as-search"
+                                        placeholder="Tambah instansi baru...">
+                                    <button type="button" class="saveInstansiBtn">Simpan</button>
+                                </div>
+
+                                <div class="chips-search" style="border-top: 1px solid #e5e7eb; padding-top: 8px;">
                                     <input type="text" class="chips-search-input" placeholder="Cari instansi..." />
                                 </div>
+
                                 <ul>
                                     <li class="select-all-option" data-action="select-all">
                                         <span class="check-icon"></span>
@@ -147,6 +155,13 @@
                         <input type="hidden" name="involved_institution" id="involvedInstitutionField"
                             value="{{ old('involved_institution') }}">
                     </div>
+
+                    <!-- Catatan - Full Width -->
+                    <div class="input-group fullwidth-group">
+                        <label><i class="fa-solid fa-file-lines" style="color:#6b8f71;"></i> Catatan</label>
+                        <textarea name="catatan" placeholder="Masukkan catatan tambahan (opsional)" rows="3">{{ old('catatan') }}</textarea>
+                    </div>
+
                 </div>
 
                 <div class="form-submit">
@@ -381,7 +396,7 @@
             function selectAll() {
                 const allValues = listItems.map(li => li.getAttribute('data-value'));
                 const allSelected = listItems.length === selectedValues.length;
-                
+
                 if (allSelected) {
                     // Deselect all
                     selectedValues = [];
@@ -430,6 +445,17 @@
 
             // Event listeners
             searchInput.addEventListener('input', e => filterList(e.target.value));
+
+            // Event listener untuk tombol Tambah
+            const addNewBtn = document.getElementById('addNewBtn');
+            if (addNewBtn) {
+                addNewBtn.addEventListener('click', () => {
+                    const searchTerm = searchInput.value.trim();
+                    if (searchTerm) {
+                        addNewItem(searchTerm);
+                    }
+                });
+            }
             arrow.addEventListener('click', (e) => {
                 e.stopPropagation();
                 toggleDropdown();
@@ -478,6 +504,80 @@
             // Initialize on page load
             initializeValues();
         })();
+
+        // === FITUR TAMBAH INSTANSI BARU ===
+        const newInstansiInput = document.getElementById('newInstansiInput');
+        const saveInstansiBtn = document.getElementById('saveInstansiBtn');
+        const listContainer = dropdown.querySelector('ul');
+
+        function addNewItem(name) {
+            const cleanName = name.trim();
+            if (!cleanName) return;
+
+            // Cegah duplikat
+            const exists = listItems.some(li => li.getAttribute('data-value').toLowerCase() === cleanName.toLowerCase());
+            if (exists) {
+                alert('Instansi sudah ada di daftar!');
+                newInstansiInput.value = '';
+                return;
+            }
+
+            // Buat elemen baru
+            const li = document.createElement('li');
+            li.className = 'dropdown-item';
+            li.setAttribute('data-value', cleanName);
+            li.innerHTML = `
+        <span class="check-icon"></span>
+        <span class="item-text">${cleanName}</span>
+        <i class="fas fa-check checkmark-icon"></i>
+    `;
+
+            // Event click untuk item baru
+            li.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleItem(cleanName);
+            });
+
+            // Masukkan ke list sebelum "Pilih Semua"
+            listContainer.appendChild(li);
+            listItems.push(li);
+
+            // Tambahkan langsung ke selected
+            selectedValues.push(cleanName);
+            addChip(cleanName);
+            updateItemState(cleanName);
+            syncHidden();
+
+            // Kosongkan input
+            newInstansiInput.value = '';
+
+            // Toast notifikasi ringan
+            Toastify({
+                text: `Instansi "${cleanName}" berhasil ditambahkan!`,
+                duration: 2500,
+                gravity: "top",
+                position: "center",
+                style: {
+                    background: "#d1fae5",
+                    color: "#065f46",
+                    borderRadius: "8px",
+                    fontSize: "0.9rem"
+                }
+            }).showToast();
+        }
+
+        // klik tombol simpan
+        saveInstansiBtn.addEventListener('click', () => {
+            addNewItem(newInstansiInput.value);
+        });
+
+        // tekan Enter di input
+        newInstansiInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addNewItem(newInstansiInput.value);
+            }
+        });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
