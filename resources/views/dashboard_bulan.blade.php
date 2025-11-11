@@ -465,48 +465,44 @@
         <script>
             // === 🔹 MODAL DETAIL AGENDA ===
             function openShowAgendaModal(data) {
-                document.getElementById('showAgendaName').innerText = data.agenda_name ?? '-';
-                document.getElementById('showAgendaDate').innerText = formatDate(data.date);
+                // Gunakan fungsi global fillAgendaModal jika tersedia
+                if (typeof window.fillAgendaModal === 'function') {
+                    window.fillAgendaModal(data);
+                } else {
+                    // Fallback: isi manual jika fungsi global belum tersedia
+                    document.getElementById('showAgendaName').innerText = data.agenda_name ?? '-';
+                    document.getElementById('showAgendaDate').innerText = formatDate(data.date);
 
-                const timeText = (data.start_time && data.end_time) ?
-                    `${data.start_time} - ${data.end_time}` :
-                    (data.start_time ?? '-');
-                document.getElementById('showAgendaTime').innerText = timeText;
+                    const timeText = (data.start_time && data.end_time) ?
+                        `${data.start_time} - ${data.end_time}` :
+                        (data.start_time ?? '-');
+                    document.getElementById('showAgendaTime').innerText = timeText;
 
-                document.getElementById('showAgendaLocation').innerText = data.location ?? '-';
-                document.getElementById('showAgendaPIC').innerText = data.person_in_charge ?? '-';
-                document.getElementById('showAgendaDesc').innerText = data.description ?? '-';
+                    document.getElementById('showAgendaLocation').innerText = data.location ?? '-';
+                    document.getElementById('showAgendaDesc').innerText = data.description ?? '-';
 
-                const involved = data.involved_institution ?? '-';
-                const unitName = data.unit && data.unit.unit_name ? data.unit.unit_name : '-';
+                    // Isi data instansi
+                    const involved = data.involved_institution ?? '-';
+                    const unitName = data.unit && data.unit.unit_name ? data.unit.unit_name : '-';
 
-                const unitEl = document.getElementById('showAgendaUnit');
-                if (unitEl) unitEl.innerText = unitName;
+                    const unitEl = document.getElementById('showAgendaUnit');
+                    if (unitEl) unitEl.innerText = unitName;
 
-                const involvedEl = document.getElementById('showAgendaInvolved');
-                if (involvedEl) involvedEl.innerText = involved;
+                    const involvedEl = document.getElementById('showAgendaInvolved');
+                    if (involvedEl) involvedEl.innerText = involved;
 
-                const accessEl = document.getElementById('showAgendaAccess');
-                if (accessEl) {
-                    const isPublic = data.is_public == 1;
-                    const bg = isPublic ? '#A8E6A3' : '#FFB67E';
-                    const text = isPublic ? 'Publik' : 'Privasi';
-                    accessEl.innerHTML =
-                        `<span class="badge rounded-pill" style="background-color:${bg}; color:#2F3E35; padding:6px 10px;">${text}</span>`;
+                    // Isi status akses (publik/privasi)
+                    const accessEl = document.getElementById('showAgendaAccess');
+                    if (accessEl) {
+                        const isPublic = data.is_public == 1;
+                        const bg = isPublic ? '#A8E6A3' : '#FFB67E';
+                        const text = isPublic ? 'Publik' : 'Privasi';
+                        accessEl.innerHTML =
+                            `<span class="badge rounded-pill" style="background-color:${bg}; color:#2F3E35; padding:6px 10px;">${text}</span>`;
+                    }
                 }
 
-                const statusEl = document.getElementById('showAgendaStatus');
-                if (statusEl) {
-                    statusEl.innerText =
-                        data.status === 'approved' ? 'Disetujui' :
-                        data.status === 'pending' ? 'Menunggu' :
-                        data.status === 'rejected' ? 'Ditolak' : 'Tidak Diketahui';
-
-                    statusEl.className = "badge rounded-pill px-3 py-2 text-white " +
-                        (data.status === 'approved' ? 'bg-success' :
-                            data.status === 'rejected' ? 'bg-danger' : 'bg-warning text-dark');
-                }
-
+                // Tampilkan modal
                 new bootstrap.Modal(document.getElementById('showAgendaModal')).show();
             }
         </script>

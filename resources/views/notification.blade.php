@@ -1,4 +1,4 @@
-    @extends('layouts.main')
+@extends('layouts.main')
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/notification.css') }}">
@@ -107,45 +107,10 @@
                             <div class="details-grid">
                                 <div class="details-left">
                                     <div class="detail-item">
-                                        <i class="fas fa-building"></i>
-                                        <span><strong>Nama Instansi (Pengaju):</strong>
-                                            {{ $item->unit->unit_name ?? '-' }}</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <i class="fas fa-user-tie"></i>
-                                        <span><strong>Penanggung Jawab:</strong>
-                                            {{ $item->person_in_charge ?? '-' }}</span>
-                                    </div>
-                                    <div class="detail-item">
                                         <i class="fas fa-calendar-alt"></i>
                                         <span><strong>Tanggal:</strong>
                                             {{ \Carbon\Carbon::parse($item->date)->locale('id')->translatedFormat('l, d F Y') }}</span>
                                     </div>
-                                    <div class="detail-item">
-                                        <i class="fas fa-eye"></i>
-                                        <span>
-                                            <strong>Status:</strong>
-                                            {{ $item->is_public ? 'Publik' : 'Privasi' }}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div class="details-right">
-                                    <div class="detail-item">
-                                        <i class="fas fa-map-marker-alt"></i>
-                                        <span><strong>Lokasi:</strong> {{ $item->location ?? '-' }}</span>
-                                    </div>
-                                    <div class="detail-item participants">
-                                        <i class="fas fa-people-group"></i>
-                                        <span><strong>Instansi Terlibat:</strong>
-                                            {{ $item->involved_institution ?? '-' }}</span>
-                                    </div>
-                                    @if ($item->status === 'rejected' && !empty($item->reason))
-                                        <div class="detail-item">
-                                            <i class="fas fa-comment-dots"></i>
-                                            <span><strong>Alasan Ditolak:</strong> {{ $item->reason }}</span>
-                                        </div>
-                                    @endif
                                     <div class="detail-item">
                                         <i class="fas fa-clock"></i>
                                         <span><strong>Waktu Pelaksanaan:</strong>
@@ -161,12 +126,42 @@
                                             @endif
                                         </span>
                                     </div>
+                                    <div class="detail-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span><strong>Lokasi:</strong> {{ $item->location ?? '-' }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="details-right">
+                                    <div class="detail-item">
+                                        <i class="fas fa-building"></i>
+                                        <span><strong>Pelaksana:</strong>
+                                            {{ $item->unit->unit_name ?? '-' }}</span>
+                                    </div>
+                                    <div class="detail-item participants">
+                                        <i class="fas fa-people-group"></i>
+                                        <span><strong>Dihadiri:</strong>
+                                            {{ $item->involved_institution ?? '-' }}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="fas fa-eye"></i>
+                                        <span>
+                                            <strong>Status:</strong>
+                                            {{ $item->is_public ? 'Publik' : 'Privasi' }}
+                                        </span>
+                                    </div>
+                                    @if ($item->status === 'rejected' && !empty($item->reason))
+                                        <div class="detail-item">
+                                            <i class="fas fa-comment-dots"></i>
+                                            <span><strong>Alasan Ditolak:</strong> {{ $item->reason }}</span>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
 
                             <!-- Card Footer -->
                             <div class="card-footer">
-                                <div class="submission-info">
+                                <div class="submission-info">   
                                     <i class="fas fa-user"></i>
                                     <span>{{ $item->unit->unit_name ?? '-' }}</span>
                                     <span class="submission-time">
@@ -497,6 +492,147 @@
         to {
             opacity: 0;
             transform: translate(-50%, -10px) scale(0.95);
+        }
+    }
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .page-subtitle {
+        font-size: 1rem;
+        color: #6c757d;
+    }
+
+    .page-header .nav-tabs {
+        border-bottom: none;
+    }
+
+    .page-header .nav-link {
+        color: #495057;
+    }
+
+    .page-header .nav-link.active {
+        font-weight: 600;
+        color: #007bff;
+        border-color: #dee2e6 #dee2e6 #f8f9fa;
+    }
+
+    .search-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .search-bar .form-control {
+        width: 250px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: #adb5bd;
+    }
+
+    .empty-state p {
+        font-size: 1.2rem;
+        color: #6c757d;
+        margin-top: 1rem;
+    }
+
+    .agenda-list .card {
+        margin-bottom: 1.5rem;
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+
+    .card-subtitle {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .details-left,
+    .details-right {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .detail-item i {
+        width: 16px;
+        text-align: center;
+    }
+
+    .participants {
+        white-space: normal;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+    }
+
+    .card-content {
+        padding-top: 1rem;
+    }
+
+    .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #f8f9fa;
+    }
+
+    .footer-info {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+
+    .footer-actions .btn {
+        margin-left: 0.5rem;
+    }
+
+    .pagination-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .details-grid {
+            grid-template-columns: 1fr;
         }
     }
 </style>
