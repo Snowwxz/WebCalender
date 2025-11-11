@@ -21,10 +21,15 @@
 
                 <!-- Deskripsi Agenda -->
                 <div class="mb-3">
-                    <label class="text-secondary small d-flex align-items-center gap-2 mb-2">
-                        <i class="fas fa-align-left" style="color: #82A98D;"></i>
-                        Deskripsi Agenda
-                    </label>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="text-secondary small d-flex align-items-center gap-2 mb-0">
+                            <i class="fas fa-align-left" style="color: #82A98D;"></i>
+                            Deskripsi Agenda
+                        </label>
+                        <button type="button" class="btn-copy" id="copyAgendaBtn" title="Salin Agenda">
+                            <i class="fas fa-copy"></i> Salin
+                        </button>
+                    </div>
                     <div class="border rounded-3 p-3 bg-light fw-semibold" id="showAgendaDesc"
                         style="white-space: pre-wrap; min-height: 60px;">
                         -
@@ -57,6 +62,24 @@
                             </label>
                             <div class="fw-semibold" id="showAgendaLocation">-</div>
                         </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div>
+                            <label class="text-secondary small d-flex align-items-center gap-2 mb-1">
+                                <i class="fas fa-building" style="color: #82A98D;"></i>
+                                Pelaksana
+                            </label>
+                            <div class="fw-semibold" id="showAgendaUnit">-</div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="text-secondary small d-flex align-items-center gap-2 mb-1">
+                                <i class="fas fa-users" style="color: #82A98D;"></i>
+                                Dihadiri
+                            </label>
+                            <div class="fw-semibold" id="showAgendaInvolved">-</div>
+                        </div>
 
                         <div class="mt-3">
                             <label class="text-secondary small d-flex align-items-center gap-2 mb-1">
@@ -66,31 +89,16 @@
                             <div class="fw-semibold" id="showAgendaAccess">-</div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="col-md-6">
-                        <div>
-                            <label class="text-secondary small d-flex align-items-center gap-2 mb-1">
-                                <i class="fas fa-building" style="color: #82A98D;"></i>
-                                Instansi Pengaju
-                            </label>
-                            <div class="fw-semibold" id="showAgendaUnit">-</div>
-                        </div>
-
-                        <div class="mt-3">
-                            <label class="text-secondary small d-flex align-items-center gap-2 mb-1">
-                                <i class="fas fa-users" style="color: #82A98D;"></i>
-                                Instansi yang Diundang
-                            </label>
-                            <div class="fw-semibold" id="showAgendaInvolved">-</div>
-                        </div>
-
-                        <div class="mt-3">
-                            <label class="text-secondary small d-flex align-items-center gap-2 mb-1">
-                                <i class="fas fa-user-tie" style="color: #82A98D;"></i>
-                                Penanggung Jawab
-                            </label>
-                            <div class="fw-semibold" id="showAgendaPIC">-</div>
-                        </div>
+                <div class="mt-4">
+                    <label class="text-secondary small d-flex align-items-center gap-2 mb-1">
+                        <i class="fa-solid fa-file-lines" style="color: #82A98D;"></i>
+                        Catatan
+                    </label>
+                    <div class="fw-semibold border rounded-3 p-3 bg-light" id="showAgendaNotes"
+                        style="white-space: pre-wrap; min-height: 60px;">
+                        -
                     </div>
                 </div>
 
@@ -98,3 +106,74 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const copyBtn = document.getElementById('copyAgendaBtn');
+    if (!copyBtn) return;
+
+    copyBtn.addEventListener('click', function() {
+        try {
+            const get = id => document.getElementById(id)?.textContent.trim() || "-";
+
+            const agendaData = {
+                name: get('showAgendaName'),
+                desc: get('showAgendaDesc'),
+                date: get('showAgendaDate'),
+                time: get('showAgendaTime'),
+                location: get('showAgendaLocation'),
+                unit: get('showAgendaUnit'),
+                involved: get('showAgendaInvolved'),
+                access: get('showAgendaAccess'),
+                notes: get('showAgendaNotes')
+            };
+
+            const textToCopy =
+`AGENDA: ${agendaData.name}
+
+Deskripsi: ${agendaData.desc}
+
+Tanggal: ${agendaData.date}
+Waktu: ${agendaData.time}
+Lokasi: ${agendaData.location}
+
+Pelaksana: ${agendaData.unit}
+Dihadiri: ${agendaData.involved}
+Status: ${agendaData.access}
+
+Catatan: ${agendaData.notes}`;
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(textToCopy).then(showSuccessFeedback).catch(() => fallbackCopy(textToCopy));
+            } else fallbackCopy(textToCopy);
+        } catch (err) {
+            console.error('Error saat menyalin agenda:', err);
+            alert('Terjadi kesalahan saat menyalin agenda');
+        }
+    });
+
+    function fallbackCopy(text) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        textArea.remove();
+        showSuccessFeedback();
+    }
+
+    function showSuccessFeedback() {
+        const original = copyBtn.innerHTML;
+        copyBtn.innerHTML = '<i class="fas fa-check"></i> Tersalin!';
+        copyBtn.style.color = 'white';
+        copyBtn.style.backgroundColor = '#82A98D';
+        setTimeout(() => {
+            copyBtn.innerHTML = original;
+            copyBtn.style.color = '#82A98D';
+            copyBtn.style.backgroundColor = '';
+        }, 2000);
+    }
+});
+</script>
