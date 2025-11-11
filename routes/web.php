@@ -120,6 +120,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+    // Password update route
+    Route::put('/password', [\App\Http\Controllers\Auth\PasswordController::class, 'update'])->name('password.update');
 
     Route::get('/approve', [ApproveController::class, 'index'])->name('approve');
     Route::put('/approve/agenda/{id_agenda}', [AgendaController::class, 'update'])->name('approve.update');

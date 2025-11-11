@@ -19,7 +19,20 @@
                         @if (Auth::user()->profile_photo_path)
                             <img src="{{ Auth::user()->profile_photo_path }}" alt="Profile" class="profile-image">
                         @else
-                            <div class="profile-initials">{{ substr(Auth::user()->name, 0, 2) }}</div>
+                            @php
+                                $user = Auth::user();
+                                $initials = '';
+                                $nameParts = explode(' ', $user->name);
+                                if (count($nameParts) > 0) {
+                                    $initials = strtoupper(substr($nameParts[0], 0, 1));
+                                    if (count($nameParts) > 1) {
+                                        $initials .= strtoupper(substr($nameParts[count($nameParts) - 1], 0, 1));
+                                    }
+                                } else {
+                                    $initials = strtoupper(substr($user->name, 0, 1));
+                                }
+                            @endphp
+                            <div class="profile-initials">{{ $initials }}</div>
                         @endif
                     </div>
                     <div class="user-info">

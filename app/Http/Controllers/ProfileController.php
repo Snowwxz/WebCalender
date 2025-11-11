@@ -16,8 +16,17 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
+        $user = $request->user();
+        
+        // Load user's agendas
+        $agendas = $user->agenda()
+            ->orderBy('date', 'desc')
+            ->orderBy('start_time', 'desc')
+            ->get();
+        
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user' => $user,
+            'agendas' => $agendas,
         ]);
     }
 
