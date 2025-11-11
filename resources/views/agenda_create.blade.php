@@ -2,7 +2,7 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/agenda-create.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 @endpush
 
@@ -72,15 +72,9 @@
                     <!-- Kolom kiri -->
                     <div class="form-column">
                         <div class="input-group">
-                            <label><i class="fas fa-building"></i> Nama Instansi (Pengaju)</label>
+                            <label><i class="fas fa-building"></i> Pelaksana</label>
                             <input type="text" value="{{ $unitName }}" readonly>
                             <input type="hidden" name="id_unit" value="{{ Auth::user()->id_unit }}">
-                        </div>
-
-                        <div class="input-group">
-                            <label><i class="fas fa-user-tie"></i> Penanggung Jawab</label>
-                            <input type="text" name="person_in_charge" placeholder="Masukkan nama penanggung jawab"
-                                required>
                         </div>
 
                         <div class="input-group">
@@ -91,34 +85,9 @@
                             </select>
                         </div>
 
-                        <!-- 🟢 Instansi yang Ikut Serta sekarang pindah ke kolom kiri -->
-                        <div class="input-group">
-                            <label><i class="fas fa-people-group"></i> Instansi yang Ikut Serta</label>
-
-                            <div class="chips-multiselect" id="involvedInstansi">
-                                <div class="chips-container">
-                                    <div class="chips-selected"></div>
-                                    <input type="text" class="chips-input"
-                                        placeholder="-- Pilih Instansi yang Ikut Serta --">
-                                </div>
-                                <span class="chips-arrow"><i class="fas fa-chevron-down"></i></span>
-
-                                <div class="chips-dropdown">
-                                    <div class="chips-search">
-                                        <input type="text" class="chips-search-input" placeholder="Cari instansi..." />
-                                    </div>
-                                    <ul>
-                                        @foreach ($units as $unit)
-                                            @if ($unit->id_unit !== Auth::user()->id_unit && strtolower($unit->unit_name) !== 'protokol')
-                                                <li data-value="{{ $unit->unit_name }}">{{ $unit->unit_name }}</li>
-                                            @endif
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <input type="hidden" name="involved_institution" id="involvedInstitutionField"
-                                value="{{ old('involved_institution') }}">
+                        <div class="input-group lokasi-group">
+                            <label for="lokasi"><i class="fas fa-map-marker-alt"></i> Lokasi</label>
+                            <input type="text" id="lokasi" name="lokasi" placeholder="Masukkan lokasi kegiatan">
                         </div>
                     </div>
 
@@ -138,13 +107,61 @@
                             <label><i class="fas fa-clock"></i> Waktu Selesai</label>
                             <input type="time" name="end_time" required>
                         </div>
-
-                        <!-- Lokasi sekarang pindah ke kolom kanan -->
-                        <div class="input-group">
-                            <label><i class="fas fa-location-dot"></i> Lokasi</label>
-                            <input type="text" name="location" placeholder="Masukkan lokasi kegiatan" required>
-                        </div>
                     </div>
+
+                    <!-- Dihadiri - Full Width -->
+                    <div class="input-group fullwidth-group">
+                        <label><i class="fas fa-people-group"></i> Dihadiri</label>
+
+                        <div class="chips-multiselect" id="involvedInstansi">
+                            <div class="chips-container">
+                                <div class="chips-selected"></div>
+                                <input type="text" class="chips-input" placeholder="-- Pilih Instansi yang Hadir --"
+                                    readonly style="cursor: pointer;">
+                            </div>
+                            <span class="chips-arrow"><i class="fas fa-chevron-down"></i></span>
+
+                            <div class="chips-dropdown">
+                                <div class="chips-add-new"
+                                    style="display: flex; gap: 8px; align-items: center; padding: 10px 12px;">
+                                    <input type="text" id="newInstansiInput" class="chips-new-input same-style-as-search"
+                                        placeholder="Tambah instansi baru...">
+                                    <button type="button" class="saveInstansiBtn">Simpan</button>
+                                </div>
+
+                                <div class="chips-search" style="border-top: 1px solid #e5e7eb; padding-top: 8px;">
+                                    <input type="text" class="chips-search-input" placeholder="Cari instansi..." />
+                                </div>
+
+                                <ul>
+                                    <li class="select-all-option" data-action="select-all">
+                                        <span class="check-icon"></span>
+                                        <span class="item-text">Pilih Semua</span>
+                                        <i class="fas fa-check checkmark-icon"></i>
+                                    </li>
+                                    @foreach ($units as $unit)
+                                        @if ($unit->id_unit !== Auth::user()->id_unit && strtolower($unit->unit_name) !== 'protokol')
+                                            <li data-value="{{ $unit->unit_name }}" class="dropdown-item">
+                                                <span class="check-icon"></span>
+                                                <span class="item-text">{{ $unit->unit_name }}</span>
+                                                <i class="fas fa-check checkmark-icon"></i>
+                                            </li>
+                                        @endif
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="involved_institution" id="involvedInstitutionField"
+                            value="{{ old('involved_institution') }}">
+                    </div>
+
+                    <!-- Catatan - Full Width -->
+                    <div class="input-group fullwidth-group">
+                        <label><i class="fa-solid fa-file-lines" style="color:#6b8f71;"></i> Catatan</label>
+                        <textarea name="catatan" placeholder="Masukkan catatan tambahan (opsional)" rows="3">{{ old('catatan') }}</textarea>
+                    </div>
+
                 </div>
 
                 <div class="form-submit">
@@ -275,7 +292,8 @@
             const mainInput = root.querySelector('.chips-input');
             const selectedWrap = root.querySelector('.chips-selected');
             const hiddenField = document.getElementById('involvedInstitutionField');
-            const listItems = Array.from(dropdown.querySelectorAll('li'));
+            const listItems = Array.from(dropdown.querySelectorAll('li.dropdown-item'));
+            const selectAllOption = dropdown.querySelector('.select-all-option');
             const container = root.querySelector('.chips-container');
 
             let selectedValues = [];
@@ -283,7 +301,17 @@
             function toggleDropdown() {
                 const isOpen = dropdown.classList.toggle('open');
                 root.classList.toggle('open', isOpen);
-                if (isOpen) searchInput.focus();
+                if (isOpen) {
+                    searchInput.focus();
+                    // Restore all items visibility and update states
+                    listItems.forEach(li => {
+                        li.style.display = 'flex';
+                        const value = li.getAttribute('data-value');
+                        updateItemState(value);
+                    });
+                    selectAllOption.style.display = 'flex';
+                    updateSelectAllState();
+                }
             }
 
             function closeDropdown() {
@@ -291,39 +319,102 @@
                 root.classList.remove('open');
             }
 
+            function toggleItem(value) {
+                const index = selectedValues.indexOf(value);
+                if (index > -1) {
+                    // Remove item
+                    selectedValues.splice(index, 1);
+                    removeChip(value);
+                } else {
+                    // Add item
+                    selectedValues.push(value);
+                    addChip(value);
+                }
+                updateItemState(value);
+                updateSelectAllState();
+                syncHidden();
+            }
+
             function addChip(value) {
-                if (selectedValues.includes(value)) return;
-                selectedValues.push(value);
+                // Check if chip already exists
+                const existingChip = selectedWrap.querySelector(`.chip[data-value="${value}"]`);
+                if (existingChip) return;
 
                 const chip = document.createElement('span');
                 chip.className = 'chip';
+                chip.setAttribute('data-value', value);
                 chip.textContent = value;
 
                 const btn = document.createElement('button');
                 btn.className = 'chip-remove';
                 btn.innerHTML = '&times;';
-                btn.onclick = () => {
-                    chip.remove();
-                    selectedValues = selectedValues.filter(v => v !== value);
-                    // 🔥 tampilkan lagi item di dropdown
-                    listItems.forEach(li => {
-                        if (li.textContent.trim() === value) {
-                            li.style.display = 'block';
-                        }
-                    });
-                    syncHidden();
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    toggleItem(value);
                 };
 
                 chip.appendChild(btn);
                 selectedWrap.appendChild(chip);
+            }
 
-                // 🔥 sembunyikan item yang dipilih
-                listItems.forEach(li => {
-                    if (li.textContent.trim() === value) {
-                        li.style.display = 'none';
+            function removeChip(value) {
+                const chip = selectedWrap.querySelector(`.chip[data-value="${value}"]`);
+                if (chip) {
+                    chip.remove();
+                }
+            }
+
+            function updateItemState(value) {
+                const item = listItems.find(li => li.getAttribute('data-value') === value);
+                if (item) {
+                    const isSelected = selectedValues.includes(value);
+                    item.classList.toggle('selected', isSelected);
+                    const checkmark = item.querySelector('.checkmark-icon');
+                    if (checkmark) {
+                        checkmark.style.display = isSelected ? 'inline-block' : 'none';
                     }
-                });
+                    const checkIcon = item.querySelector('.check-icon');
+                    if (checkIcon) {
+                        checkIcon.classList.toggle('checked', isSelected);
+                    }
+                }
+            }
 
+            function updateSelectAllState() {
+                const allSelected = listItems.length > 0 && listItems.length === selectedValues.length;
+                selectAllOption.classList.toggle('selected', allSelected);
+                const selectAllCheckmark = selectAllOption.querySelector('.checkmark-icon');
+                if (selectAllCheckmark) {
+                    selectAllCheckmark.style.display = allSelected ? 'inline-block' : 'none';
+                }
+                const selectAllCheckIcon = selectAllOption.querySelector('.check-icon');
+                if (selectAllCheckIcon) {
+                    selectAllCheckIcon.classList.toggle('checked', allSelected);
+                }
+            }
+
+            function selectAll() {
+                const allValues = listItems.map(li => li.getAttribute('data-value'));
+                const allSelected = listItems.length === selectedValues.length;
+
+                if (allSelected) {
+                    // Deselect all
+                    selectedValues = [];
+                    listItems.forEach(li => {
+                        const value = li.getAttribute('data-value');
+                        removeChip(value);
+                        updateItemState(value);
+                    });
+                } else {
+                    // Select all
+                    selectedValues = [...allValues];
+                    listItems.forEach(li => {
+                        const value = li.getAttribute('data-value');
+                        addChip(value);
+                        updateItemState(value);
+                    });
+                }
+                updateSelectAllState();
                 syncHidden();
             }
 
@@ -344,23 +435,48 @@
             function filterList(term) {
                 const lower = term.toLowerCase();
                 listItems.forEach(li => {
-                    const match = li.textContent.toLowerCase().includes(lower);
-                    li.style.display = match ? 'block' : 'none';
+                    const text = li.querySelector('.item-text').textContent.toLowerCase();
+                    const match = text.includes(lower);
+                    li.style.display = match ? 'flex' : 'none';
                 });
+                // Always show select all option
+                selectAllOption.style.display = 'flex';
             }
 
+            // Event listeners
             searchInput.addEventListener('input', e => filterList(e.target.value));
-            arrow.addEventListener('click', toggleDropdown);
 
-            // bikin seluruh area card bisa diklik
-            container.addEventListener('click', () => {
+            // Event listener untuk tombol Tambah
+            const addNewBtn = document.getElementById('addNewBtn');
+            if (addNewBtn) {
+                addNewBtn.addEventListener('click', () => {
+                    const searchTerm = searchInput.value.trim();
+                    if (searchTerm) {
+                        addNewItem(searchTerm);
+                    }
+                });
+            }
+            arrow.addEventListener('click', (e) => {
+                e.stopPropagation();
                 toggleDropdown();
             });
 
+            container.addEventListener('click', (e) => {
+                if (e.target !== searchInput && !e.target.closest('.chips-selected')) {
+                    toggleDropdown();
+                }
+            });
+
+            selectAllOption.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectAll();
+            });
+
             listItems.forEach(li => {
-                li.addEventListener('click', () => {
-                    addChip(li.textContent.trim());
-                    closeDropdown();
+                li.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const value = li.getAttribute('data-value');
+                    toggleItem(value);
                 });
             });
 
@@ -368,8 +484,100 @@
                 if (!root.contains(e.target)) closeDropdown();
             });
 
-            syncHidden(); // set initial empty state 👈 TAMBAHKAN DI SINI
+            // Initialize - restore from old values if exists
+            function initializeValues() {
+                const oldValue = hiddenField.value;
+                if (oldValue && oldValue.trim() !== '') {
+                    const restoredValues = oldValue.split(',').map(v => v.trim()).filter(Boolean);
+                    restoredValues.forEach(value => {
+                        if (!selectedValues.includes(value)) {
+                            selectedValues.push(value);
+                            addChip(value);
+                        }
+                        updateItemState(value);
+                    });
+                    updateSelectAllState();
+                }
+                syncHidden();
+            }
+
+            // Initialize on page load
+            initializeValues();
         })();
+
+        // === FITUR TAMBAH INSTANSI BARU ===
+        const newInstansiInput = document.getElementById('newInstansiInput');
+        const saveInstansiBtn = document.getElementById('saveInstansiBtn');
+        const listContainer = dropdown.querySelector('ul');
+
+        function addNewItem(name) {
+            const cleanName = name.trim();
+            if (!cleanName) return;
+
+            // Cegah duplikat
+            const exists = listItems.some(li => li.getAttribute('data-value').toLowerCase() === cleanName.toLowerCase());
+            if (exists) {
+                alert('Instansi sudah ada di daftar!');
+                newInstansiInput.value = '';
+                return;
+            }
+
+            // Buat elemen baru
+            const li = document.createElement('li');
+            li.className = 'dropdown-item';
+            li.setAttribute('data-value', cleanName);
+            li.innerHTML = `
+        <span class="check-icon"></span>
+        <span class="item-text">${cleanName}</span>
+        <i class="fas fa-check checkmark-icon"></i>
+    `;
+
+            // Event click untuk item baru
+            li.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleItem(cleanName);
+            });
+
+            // Masukkan ke list sebelum "Pilih Semua"
+            listContainer.appendChild(li);
+            listItems.push(li);
+
+            // Tambahkan langsung ke selected
+            selectedValues.push(cleanName);
+            addChip(cleanName);
+            updateItemState(cleanName);
+            syncHidden();
+
+            // Kosongkan input
+            newInstansiInput.value = '';
+
+            // Toast notifikasi ringan
+            Toastify({
+                text: `Instansi "${cleanName}" berhasil ditambahkan!`,
+                duration: 2500,
+                gravity: "top",
+                position: "center",
+                style: {
+                    background: "#d1fae5",
+                    color: "#065f46",
+                    borderRadius: "8px",
+                    fontSize: "0.9rem"
+                }
+            }).showToast();
+        }
+
+        // klik tombol simpan
+        saveInstansiBtn.addEventListener('click', () => {
+            addNewItem(newInstansiInput.value);
+        });
+
+        // tekan Enter di input
+        newInstansiInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addNewItem(newInstansiInput.value);
+            }
+        });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
