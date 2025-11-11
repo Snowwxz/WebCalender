@@ -93,12 +93,6 @@
                                 </div>
 
                                 <div class="input-group">
-                                    <label><i class="fas fa-user-tie"></i> Penanggung Jawab</label>
-                                    <input type="text" name="person_in_charge" id="person_in_charge"
-                                        placeholder="Masukkan nama penanggung jawab">
-                                </div>
-
-                                <div class="input-group">
                                     <label><i class="fas fa-eye"></i> Kategori Agenda</label>
                                     <select name="is_public" id="is_public">
                                         <option value="1">Publik</option>
@@ -478,8 +472,8 @@
                         (data.start_time ?? '-');
                     document.getElementById('showAgendaTime').innerText = timeText;
 
-                    document.getElementById('showAgendaLocation').innerText = data.location ?? '-';
-                    document.getElementById('showAgendaDesc').innerText = data.description ?? '-';
+                document.getElementById('showAgendaLocation').innerText = data.location ?? '-';
+                document.getElementById('showAgendaDesc').innerText = data.description ?? '-';
 
                     // Isi data instansi
                     const involved = data.involved_institution ?? '-';

@@ -26,7 +26,7 @@ class LandingController extends Controller
         $agenda = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($year, $month) {
             return Agenda::query()
                 ->with(['unit'])
-                ->selectRaw("id_agenda, agenda_name, DATE(date) as date, location, description, start_time, end_time, person_in_charge, involved_institution, is_public, status, id_unit")
+                ->selectRaw("id_agenda, agenda_name, DATE(date) as date, location, description, start_time, end_time, involved_institution, is_public, status, id_unit")
                 ->whereMonth('date', $month)
                 ->where('status', 'approved')
                 ->where('is_public', 1)
@@ -50,7 +50,7 @@ class LandingController extends Controller
         $agenda = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($date) {
             return Agenda::query()
                 ->with(['unit'])
-                ->select('id_agenda', 'agenda_name', 'date', 'location', 'start_time', 'end_time', 'description', 'person_in_charge', 'involved_institution', 'is_public', 'status', 'id_unit')
+                ->select('id_agenda', 'agenda_name', 'date', 'location', 'start_time', 'end_time', 'description', 'involved_institution', 'is_public', 'status', 'id_unit')
                 ->whereDate('date', $date)
                 ->where('status', 'approved')
                 ->where('is_public', 1)
