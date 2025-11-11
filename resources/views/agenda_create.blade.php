@@ -122,15 +122,15 @@
                             <span class="chips-arrow"><i class="fas fa-chevron-down"></i></span>
 
                             <div class="chips-dropdown">
-                                <div class="chips-add-new"
-                                    style="display: flex; gap: 8px; align-items: center; padding: 10px 12px;">
-                                    <input type="text" id="newInstansiInput" class="chips-new-input same-style-as-search"
-                                        placeholder="Tambah instansi baru...">
-                                    <button type="button" class="saveInstansiBtn">Simpan</button>
-                                </div>
-
-                                <div class="chips-search" style="border-top: 1px solid #e5e7eb; padding-top: 8px;">
+                                <div class="chips-search">
                                     <input type="text" class="chips-search-input" placeholder="Cari instansi..." />
+                                </div>
+                                <div class="chips-add-new-input-container" style="display: none; padding: 10px 12px; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">
+                                    <input type="text" class="chips-add-new-input" placeholder="Ketik nama instansi baru..." style="width: 100%; padding: 8px 12px; border: 1px solid #6b8f71; border-radius: 6px; font-size: 14px; outline: none;" />
+                                    <div style="display: flex; gap: 8px; margin-top: 8px;">
+                                        <button type="button" class="chips-add-confirm-btn" style="flex: 1; padding: 6px 12px; background: #6b8f71; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;">Tambahkan</button>
+                                        <button type="button" class="chips-add-cancel-btn" style="flex: 1; padding: 6px 12px; background: #e5e7eb; color: #374151; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;">Batal</button>
+                                    </div>
                                 </div>
 
                                 <ul>
@@ -148,6 +148,10 @@
                                             </li>
                                         @endif
                                     @endforeach
+                                    <li class="add-new-instansi-option" data-action="add-new" style="padding: 10px 12px; cursor: pointer; border-top: 1px solid #e5e7eb; color: #6b8f71; font-weight: 500; display: flex; align-items: center; list-style: none;">
+                                        <i class="fas fa-plus-circle" style="margin-right: 8px;"></i>
+                                        <span>Lainnya...</span>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -290,16 +294,55 @@
             const mainInput = root.querySelector('.chips-input');
             const selectedWrap = root.querySelector('.chips-selected');
             const hiddenField = document.getElementById('involvedInstitutionField');
-            const listItems = Array.from(dropdown.querySelectorAll('li.dropdown-item'));
+            // Ambil list items, tapi exclude opsi "Tambah Instansi Baru"
+            const allListItems = Array.from(dropdown.querySelectorAll('li.dropdown-item'));
+            const listItems = allListItems.filter(li => !li.classList.contains('add-new-instansi-option'));
             const selectAllOption = dropdown.querySelector('.select-all-option');
             const container = root.querySelector('.chips-container');
+            const addNewInputContainer = dropdown.querySelector('.chips-add-new-input-container');
+            const addNewInput = dropdown.querySelector('.chips-add-new-input');
+            const addConfirmBtn = dropdown.querySelector('.chips-add-confirm-btn');
+            const addCancelBtn = dropdown.querySelector('.chips-add-cancel-btn');
 
             let selectedValues = [];
+
+            function showAddNewInput(initialValue = '') {
+                if (addNewInputContainer) {
+                    addNewInputContainer.style.display = 'block';
+                    if (addNewInput) {
+                        addNewInput.value = initialValue;
+                        setTimeout(() => addNewInput.focus(), 100);
+                    }
+                }
+            }
+
+            function hideAddNewInput() {
+                if (addNewInputContainer) {
+                    addNewInputContainer.style.display = 'none';
+                    if (addNewInput) {
+                        addNewInput.value = '';
+                    }
+                    // Tampilkan kembali opsi "Tambah Instansi Baru"
+                    const addNewInstansiOption = dropdown.querySelector('.add-new-instansi-option');
+                    if (addNewInstansiOption) {
+                        addNewInstansiOption.style.display = 'flex';
+                    }
+                }
+            }
 
             function toggleDropdown() {
                 const isOpen = dropdown.classList.toggle('open');
                 root.classList.toggle('open', isOpen);
                 if (isOpen) {
+                    // Clear search and reset filter when opening
+                    searchInput.value = '';
+                    filterList('');
+                    hideAddNewInput();
+                    // Pastikan opsi "Tambah Instansi Baru" ditampilkan
+                    const addNewInstansiOption = dropdown.querySelector('.add-new-instansi-option');
+                    if (addNewInstansiOption) {
+                        addNewInstansiOption.style.display = 'flex';
+                    }
                     searchInput.focus();
                     // Restore all items visibility and update states
                     listItems.forEach(li => {
@@ -309,12 +352,22 @@
                     });
                     selectAllOption.style.display = 'flex';
                     updateSelectAllState();
+                } else {
+                    hideAddNewInput();
                 }
             }
 
             function closeDropdown() {
                 dropdown.classList.remove('open');
                 root.classList.remove('open');
+                hideAddNewInput();
+                // Clear search when closing
+                searchInput.value = '';
+                // Pastikan opsi "Tambah Instansi Baru" ditampilkan saat dropdown ditutup
+                const addNewInstansiOption = dropdown.querySelector('.add-new-instansi-option');
+                if (addNewInstansiOption) {
+                    addNewInstansiOption.style.display = 'flex';
+                }
             }
 
             function toggleItem(value) {
@@ -430,30 +483,141 @@
                 }
             }
 
+            function addNewItem(name) {
+                const cleanName = name.trim();
+                if (!cleanName) {
+                    alert('Nama instansi tidak boleh kosong!');
+                    if (addNewInput) addNewInput.focus();
+                    return;
+                }
+
+                // Cegah duplikat - cek di listItems dan selectedValues
+                const existsInList = listItems.some(li => li.getAttribute('data-value').toLowerCase() === cleanName.toLowerCase());
+                const existsInSelected = selectedValues.some(val => val.toLowerCase() === cleanName.toLowerCase());
+                
+                if (existsInList || existsInSelected) {
+                    alert('Instansi sudah ada!');
+                    if (addNewInput) {
+                        addNewInput.value = '';
+                        addNewInput.focus();
+                    }
+                    return;
+                }
+
+                // Jangan tambahkan ke dropdown list, hanya tambahkan sebagai chip yang dipilih
+                // Tambahkan langsung ke selected
+                selectedValues.push(cleanName);
+                addChip(cleanName);
+                updateSelectAllState();
+                syncHidden();
+
+                // Kosongkan input dan sembunyikan container
+                hideAddNewInput();
+
+                // Filter list untuk reset tampilan
+                filterList('');
+
+                // Toast notifikasi ringan
+                if (typeof Toastify !== 'undefined') {
+                    Toastify({
+                        text: `Instansi "${cleanName}" berhasil ditambahkan!`,
+                        duration: 2500,
+                        gravity: "top",
+                        position: "center",
+                        style: {
+                            background: "#d1fae5",
+                            color: "#065f46",
+                            borderRadius: "8px",
+                            fontSize: "0.9rem"
+                        }
+                    }).showToast();
+                }
+            }
+
             function filterList(term) {
-                const lower = term.toLowerCase();
+                const lower = term.toLowerCase().trim();
+                const addNewInstansiOption = dropdown.querySelector('.add-new-instansi-option');
+                
+                // Filter existing items
                 listItems.forEach(li => {
                     const text = li.querySelector('.item-text').textContent.toLowerCase();
-                    const match = text.includes(lower);
+                    const match = !lower || text.includes(lower);
                     li.style.display = match ? 'flex' : 'none';
                 });
-                // Always show select all option
-                selectAllOption.style.display = 'flex';
+                
+                // Tampilkan "Pilih Semua" jika ada hasil atau tidak ada search term
+                if (!lower || listItems.some(li => {
+                    const text = li.querySelector('.item-text').textContent.toLowerCase();
+                    return text.includes(lower);
+                })) {
+                    selectAllOption.style.display = 'flex';
+                } else {
+                    selectAllOption.style.display = 'none';
+                }
+                
+                // Tampilkan opsi "Tambah Instansi Baru" kecuali sedang menampilkan input field
+                if (addNewInstansiOption) {
+                    if (addNewInputContainer && addNewInputContainer.style.display === 'none') {
+                        addNewInstansiOption.style.display = 'flex';
+                    } else {
+                        addNewInstansiOption.style.display = 'none';
+                    }
+                }
             }
 
             // Event listeners
             searchInput.addEventListener('input', e => filterList(e.target.value));
-
-            // Event listener untuk tombol Tambah
-            const addNewBtn = document.getElementById('addNewBtn');
-            if (addNewBtn) {
-                addNewBtn.addEventListener('click', () => {
-                    const searchTerm = searchInput.value.trim();
-                    if (searchTerm) {
-                        addNewItem(searchTerm);
+            
+            // Event listener untuk opsi "Tambah Instansi Baru"
+            const addNewInstansiOption = dropdown.querySelector('.add-new-instansi-option');
+            if (addNewInstansiOption) {
+                addNewInstansiOption.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    // Tampilkan input field
+                    showAddNewInput('');
+                    // Sembunyikan opsi "Tambah Instansi Baru" saat input field ditampilkan
+                    addNewInstansiOption.style.display = 'none';
+                    // Sembunyikan "Pilih Semua" saat input field ditampilkan
+                    selectAllOption.style.display = 'none';
+                });
+            }
+            
+            // Event listener untuk input field baru
+            if (addNewInput) {
+                addNewInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (addConfirmBtn) addConfirmBtn.click();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        hideAddNewInput();
+                        selectAllOption.style.display = 'flex';
+                        searchInput.focus();
                     }
                 });
             }
+            
+            // Event listener untuk tombol Tambahkan
+            if (addConfirmBtn) {
+                addConfirmBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (addNewInput && addNewInput.value.trim()) {
+                        addNewItem(addNewInput.value.trim());
+                        selectAllOption.style.display = 'flex';
+                    }
+                });
+            }
+            
+            // Event listener untuk tombol Batal
+            if (addCancelBtn) {
+                addCancelBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    hideAddNewInput();
+                    selectAllOption.style.display = 'flex';
+                    searchInput.focus();
+                });
+            }
+
             arrow.addEventListener('click', (e) => {
                 e.stopPropagation();
                 toggleDropdown();
@@ -502,80 +666,6 @@
             // Initialize on page load
             initializeValues();
         })();
-
-        // === FITUR TAMBAH INSTANSI BARU ===
-        const newInstansiInput = document.getElementById('newInstansiInput');
-        const saveInstansiBtn = document.getElementById('saveInstansiBtn');
-        const listContainer = dropdown.querySelector('ul');
-
-        function addNewItem(name) {
-            const cleanName = name.trim();
-            if (!cleanName) return;
-
-            // Cegah duplikat
-            const exists = listItems.some(li => li.getAttribute('data-value').toLowerCase() === cleanName.toLowerCase());
-            if (exists) {
-                alert('Instansi sudah ada di daftar!');
-                newInstansiInput.value = '';
-                return;
-            }
-
-            // Buat elemen baru
-            const li = document.createElement('li');
-            li.className = 'dropdown-item';
-            li.setAttribute('data-value', cleanName);
-            li.innerHTML = `
-        <span class="check-icon"></span>
-        <span class="item-text">${cleanName}</span>
-        <i class="fas fa-check checkmark-icon"></i>
-    `;
-
-            // Event click untuk item baru
-            li.addEventListener('click', (e) => {
-                e.stopPropagation();
-                toggleItem(cleanName);
-            });
-
-            // Masukkan ke list sebelum "Pilih Semua"
-            listContainer.appendChild(li);
-            listItems.push(li);
-
-            // Tambahkan langsung ke selected
-            selectedValues.push(cleanName);
-            addChip(cleanName);
-            updateItemState(cleanName);
-            syncHidden();
-
-            // Kosongkan input
-            newInstansiInput.value = '';
-
-            // Toast notifikasi ringan
-            Toastify({
-                text: `Instansi "${cleanName}" berhasil ditambahkan!`,
-                duration: 2500,
-                gravity: "top",
-                position: "center",
-                style: {
-                    background: "#d1fae5",
-                    color: "#065f46",
-                    borderRadius: "8px",
-                    fontSize: "0.9rem"
-                }
-            }).showToast();
-        }
-
-        // klik tombol simpan
-        saveInstansiBtn.addEventListener('click', () => {
-            addNewItem(newInstansiInput.value);
-        });
-
-        // tekan Enter di input
-        newInstansiInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                addNewItem(newInstansiInput.value);
-            }
-        });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
