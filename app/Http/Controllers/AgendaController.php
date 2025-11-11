@@ -32,11 +32,11 @@ class AgendaController extends Controller
         if ($user->role !== 'superadmin') {
             $userUnit = $user->unit;
             $userUnitName = $userUnit ? $userUnit->unit_name : null;
-            
+
             $query->where(function ($q) use ($userId, $userUnitName) {
                 $q->where('is_public', 1)
                     ->orWhere('id_user', $userId);
-                
+
                 // Tambahkan kondisi untuk agenda privat yang mengundang instansi user
                 if ($userUnitName) {
                     $q->orWhere(function ($subQ) use ($userUnitName) {
@@ -333,10 +333,11 @@ class AgendaController extends Controller
 
         // Tandai notifikasi user sudah dibuka agar badge hilang
         // Simpan ke database agar tetap tersimpan setelah logout/login
-        if ($user && $user->id_user) {
-            \App\Models\User::where('id_user', $user->id_user)
-                ->update(['last_seen_notification_at' => now()]);
+        if ($user && $user instanceof \App\Models\User) {
+        $user->last_seen_notification_at = now();
+        $user->save();
         }
+
 
         if ($request->wantsJson()) {
             return response()->json($agenda);
@@ -370,7 +371,7 @@ class AgendaController extends Controller
             ->where(function ($q) use ($userId, $userUnitName) {
                 $q->where('is_public', 1) // publik
                     ->orWhere('id_user', $userId); // private tapi milik sendiri
-                
+
                 // Tambahkan kondisi untuk agenda privat yang mengundang instansi user
                 if ($userUnitName) {
                     $q->orWhere(function ($subQ) use ($userUnitName) {
@@ -416,7 +417,7 @@ class AgendaController extends Controller
             ->where(function ($q) use ($userId, $userUnitName) {
                 $q->where('is_public', 1)
                     ->orWhere('id_user', $userId);
-                
+
                 // Tambahkan kondisi untuk agenda privat yang mengundang instansi user
                 if ($userUnitName) {
                     $q->orWhere(function ($subQ) use ($userUnitName) {

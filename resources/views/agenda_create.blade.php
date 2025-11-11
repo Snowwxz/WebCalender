@@ -668,67 +668,89 @@
         })();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
     <script>
         function showConfirmSubmit() {
-            const toast = Toastify({
-                text: "",
-                duration: -1,
-                close: false,
-                gravity: "top",
-                position: "center",
-                stopOnFocus: true,
-                escapeMarkup: false,
-                style: {
-                    background: "#FFF6F2",
-                    border: "1px solid #FDD8D3",
-                    borderRadius: "10px",
-                    boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
-                    padding: "20px 30px",
-                    textAlign: "center",
-                    color: "#333",
-                    fontFamily: "Poppins, sans-serif",
-                },
-                onClick: function() {} // biar nggak nutup waktu diklik
-            }).showToast();
+            const toastContent = document.createElement('div');
+            toastContent.innerHTML = `
+                <div style="
+                    font-family: 'Poppins', sans-serif;
+                    color: #2F3E35;
+                    font-weight: 500;
+                    font-size: 15px;
+                    margin-bottom: 12px;
+                ">
+                    Apakah yakin ingin mengajukan agenda?
+                </div>
+                <div style="display: flex; gap: 8px; justify-content: center;">
+                    <button id="confirmSubmit" style="
+                        background: #F7B7B7;
+                        border: none;
+                        padding: 7px 16px;
+                        border-radius: 8px;
+                        color: #7A1C1C;
+                        font-weight: 600;
+                        font-family: 'Poppins', sans-serif;
+                        cursor: pointer;
+                        transition: all 0.25s ease;
+                    "
+                    onmouseover="this.style.background='#F4A8A8'; this.style.color='#691414';"
+                    onmouseout="this.style.background='#F7B7B7'; this.style.color='#7A1C1C';"
+                    onmousedown="this.style.background='#E68D8D'; this.style.color='#5C1111';"
+                    onmouseup="this.style.background='#F4A8A8'; this.style.color='#691414';">
+                        Ya, ajukan
+                    </button>
 
-            // ambil elemen toast yg baru muncul
-            const toastEl = document.querySelector(".toastify");
-
-            toastEl.innerHTML = `
-                <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
-                    <span style="font-size:1rem; font-weight:500;">Apakah yakin ingin mengajukan agenda?</span>
-                    <div style="display:flex; gap:12px;">
-                        <button id="confirmSubmit" style="
-                            background:#F7B7B7;
-                            border:none;
-                            padding:7px 18px;
-                            border-radius:8px;
-                            color:#7A1C1C;
-                            font-weight:600;
-                            cursor:pointer;
-                            transition:background 0.2s ease;
-                        ">Ya, ajukan</button>
-                        <button id="cancelSubmit" style="
-                            background:#E5E7EB;
-                            border:none;
-                            padding:7px 18px;
-                            border-radius:8px;
-                            color:#374151;
-                            font-weight:600;
-                            cursor:pointer;
-                            transition:background 0.2s ease;
-                        ">Batal</button>
-                    </div>
+                    <button id="cancelSubmit" style="
+                        background: #E6E7E8;
+                        border: none;
+                        padding: 7px 16px;
+                        border-radius: 8px;
+                        color: #2F3E35;
+                        font-weight: 600;
+                        font-family: 'Poppins', sans-serif;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                    "
+                    onmouseover="this.style.background='#D9DADB';"
+                    onmouseout="this.style.background='#E6E7E8';">
+                        Batal
+                    </button>
                 </div>
             `;
 
-            document.getElementById("confirmSubmit").addEventListener("click", () => {
+            const toast = Toastify({
+                node: toastContent,
+                duration: -1,
+                gravity: "top",
+                position: "center",
+                stopOnFocus: true,
+                close: false,
+                offset: {
+                    x: 0,
+                    y: 20
+                },
+                style: {
+                    background: "#FFF1E6",
+                    border: "1px solid #F7B7B7",
+                    borderRadius: "12px",
+                    padding: "18px 24px",
+                    boxShadow: "0 6px 20px rgba(0, 0, 0, 0.08)",
+                    textAlign: "center",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    animation: "fadeIn 0.3s ease",
+                },
+            }).showToast();
+
+            toastContent.querySelector('#confirmSubmit').addEventListener('click', () => {
                 toast.hideToast(); // tutup konfirmasi
-                document.getElementById("agendaForm").submit(); // kirim form
+                document.getElementById('agendaForm').submit(); // kirim form
             });
 
-            document.getElementById("cancelSubmit").addEventListener("click", () => {
+            toastContent.querySelector('#cancelSubmit').addEventListener('click', () => {
                 toast.hideToast();
             });
         }
@@ -738,6 +760,86 @@
             e.preventDefault(); // cegah kirim langsung
             showConfirmSubmit(); // munculkan toast konfirmasi
         });
+
+        // ======== TOAST SUKSES (senada tema hijau pastel) ========
+        function showSuccessToast(message) {
+            const popup = document.createElement('div');
+            popup.className = 'toastify-popup toastify-success';
+            popup.innerHTML = `
+                <i class="bi bi-check-circle-fill" style="color:#5FA776; font-size:16px;"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(popup);
+
+            popup.classList.add('toastify-popup-show');
+            setTimeout(() => {
+                popup.classList.remove('toastify-popup-show');
+                popup.classList.add('toastify-popup-hide');
+                setTimeout(() => popup.remove(), 300);
+            }, 2500);
+        }
     </script>
+
+    <style>
+        .toastify-success {
+            position: fixed;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #E9F4EC;
+            color: #234B2C;
+            border: 1px solid #A6C8A3;
+            border-radius: 6px;
+            padding: 8px 18px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            z-index: 9999;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            width: auto;
+            max-width: 300px;
+            min-height: unset;
+        }
+
+        .toastify-popup-show {
+            animation: toastIn 0.35s ease forwards;
+        }
+
+        .toastify-popup-hide {
+            animation: toastOut 0.25s ease forwards;
+        }
+
+        @keyframes toastIn {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -30px) scale(0.95);
+            }
+
+            80% {
+                opacity: 1;
+                transform: translate(-50%, 8px) scale(1.03);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translate(-50%, 0) scale(1);
+            }
+        }
+
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+                transform: translate(-50%, 0) scale(1);
+            }
+
+            to {
+                opacity: 0;
+                transform: translate(-50%, -10px) scale(0.95);
+            }
+        }
+    </style>
 
 @endsection

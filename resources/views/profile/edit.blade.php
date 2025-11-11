@@ -19,266 +19,433 @@
         </div>
 
         <div class="profile-content">
-            <!-- Profile Information Card -->
+            @if (session('status') === 'profile-updated')
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Profil berhasil diperbarui</span>
+                </div>
+            @endif
+
+            @if (session('status') === 'password-updated')
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Password berhasil diperbarui</span>
+                </div>
+            @endif
+
+            <!-- User Profile Header -->
+            <div class="profile-header-card">
+                <div class="profile-avatar-section">
+                    <div class="profile-avatar-large">
+                        @php
+                            $initials = '';
+                            $nameParts = explode(' ', $user->name);
+                            if (count($nameParts) > 0) {
+                                $initials = strtoupper(substr($nameParts[0], 0, 1));
+                                if (count($nameParts) > 1) {
+                                    $initials .= strtoupper(substr($nameParts[count($nameParts) - 1], 0, 1));
+                                }
+                            } else {
+                                $initials = strtoupper(substr($user->name, 0, 1));
+                            }
+                        @endphp
+                        <span class="avatar-initials">{{ $initials }}</span>
+                    </div>
+                </div>
+                <div class="profile-info-section">
+                    <h2 class="profile-name">{{ $user->name }}</h2>
+                    <p class="profile-email">{{ $user->email }}</p>
+                    <p class="profile-institution">{{ $user->unit->unit_name ?? 'Belum ada instansi' }}</p>
+                    <button type="button" class="btn-edit-profile" onclick="openEditProfileModal()">
+                        <i class="fas fa-pencil-alt"></i>
+                        Edit Profile
+                    </button>
+                </div>
+            </div>
+
+            <!-- User's Agendas Card -->
             <div class="profile-card">
                 <div class="card-header">
                     <div class="card-header-content">
                         <div class="card-icon">
-                            <i class="fas fa-user"></i>
+                            <i class="fas fa-calendar-check"></i>
                         </div>
                         <div>
-                            <h2 class="card-title">Informasi Profil</h2>
-                            <p class="card-subtitle">Perbarui informasi profil dan alamat email Anda</p>
+                            <h2 class="card-title">Daftar Agenda Saya</h2>
+                            <p class="card-subtitle">Semua agenda yang telah Anda buat</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="card-body">
-                    @if (session('status') === 'profile-updated')
-                        <div class="alert alert-success">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Profil berhasil diperbarui</span>
+                    @if($agendas->count() > 0)
+                        <div class="agenda-list">
+                            @foreach($agendas as $agenda)
+                                <div class="agenda-item-card">
+                                    <div class="agenda-item-header">
+                                        <h3 class="agenda-item-title">{{ $agenda->agenda_name }}</h3>
+                                        <span class="agenda-status status-{{ $agenda->status }}">
+                                            {{ ucfirst($agenda->status) }}
+                                        </span>
+                                    </div>
+                                    <div class="agenda-item-details">
+                                        <div class="agenda-detail">
+                                            <i class="fas fa-calendar"></i>
+                                            <span>{{ \Carbon\Carbon::parse($agenda->date)->locale('id')->translatedFormat('d F Y') }}</span>
+                                        </div>
+                                        @if($agenda->start_time && $agenda->end_time)
+                                            <div class="agenda-detail">
+                                                <i class="fas fa-clock"></i>
+                                                <span>{{ \Carbon\Carbon::parse($agenda->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($agenda->end_time)->format('H:i') }}</span>
+                                            </div>
+                                        @endif
+                                        @if($agenda->location)
+                                            <div class="agenda-detail">
+                                                <i class="fas fa-map-marker-alt"></i>
+                                                <span>{{ $agenda->location }}</span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="agenda-item-actions">
+                                        <a href="{{ route('agenda.show', $agenda->id_agenda) }}" class="btn-link">
+                                            <i class="fas fa-eye"></i> Lihat Detail
+                                        </a>
+                                        @if($agenda->status === 'pending' || $agenda->status === 'rejected')
+                                            <a href="{{ route('agenda.edit', $agenda->id_agenda) }}" class="btn-link">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-times"></i>
+                            <p>Anda belum memiliki agenda</p>
+                            <a href="{{ route('agenda.create') }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Buat Agenda Baru
+                            </a>
                         </div>
                     @endif
-
-                    <form method="POST" action="{{ route('profile.update') }}" class="profile-form">
-                        @csrf
-                        @method('patch')
-
-                        <div class="form-group">
-                            <label for="name" class="form-label">
-                                <i class="fas fa-user"></i>
-                                Nama Lengkap
-                            </label>
-                            <input type="text" 
-                                   id="name" 
-                                   name="name" 
-                                   class="form-input @error('name') is-invalid @enderror" 
-                                   value="{{ old('name', $user->name) }}" 
-                                   required 
-                                   autofocus>
-                            @error('name')
-                                <div class="error-message">
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    {{ $message }}
-                                </div>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label for="email" class="form-label">
-                                <i class="fas fa-envelope"></i>
-                                Email
-                            </label>
-                            <input type="email" 
-                                   id="email" 
-                                   name="email" 
-                                   class="form-input @error('email') is-invalid @enderror" 
-                                   value="{{ old('email', $user->email) }}" 
-                                   required>
-                            @error('email')
-                                <div class="error-message">
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    {{ $message }}
-                                </div>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label for="username" class="form-label">
-                                <i class="fas fa-at"></i>
-                                Username
-                            </label>
-                            <input type="text" 
-                                   id="username" 
-                                   name="username" 
-                                   class="form-input @error('username') is-invalid @enderror" 
-                                   value="{{ old('username', $user->username) }}">
-                            @error('username')
-                                <div class="error-message">
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    {{ $message }}
-                                </div>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label for="contact" class="form-label">
-                                <i class="fas fa-phone"></i>
-                                Kontak
-                            </label>
-                            <input type="text" 
-                                   id="contact" 
-                                   name="contact" 
-                                   class="form-input @error('contact') is-invalid @enderror" 
-                                   value="{{ old('contact', $user->contact) }}" 
-                                   placeholder="Nomor telepon atau kontak lainnya">
-                            @error('contact')
-                                <div class="error-message">
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    {{ $message }}
-                                </div>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">
-                                <i class="fas fa-building"></i>
-                                Instansi/Unit
-                            </label>
-                            <input type="text" 
-                                   class="form-input" 
-                                   value="{{ $user->unit->unit_name ?? 'Belum ada instansi' }}" 
-                                   disabled>
-                            <small class="form-help">Instansi tidak dapat diubah dari halaman profil</small>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">
-                                <i class="fas fa-user-shield"></i>
-                                Role
-                            </label>
-                            <input type="text" 
-                                   class="form-input" 
-                                   value="{{ ucfirst($user->role === 'superadmin' ? 'Super Admin' : ($user->role === 'admin' ? 'Protokol' : 'User')) }}" 
-                                   disabled>
-                        </div>
-
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i>
-                                Simpan Perubahan
-                            </button>
-                        </div>
-                    </form>
                 </div>
             </div>
 
-            <!-- Account Information Card -->
+            <!-- Account Actions Card -->
             <div class="profile-card">
                 <div class="card-header">
                     <div class="card-header-content">
                         <div class="card-icon">
-                            <i class="fas fa-info-circle"></i>
+                            <i class="fas fa-cog"></i>
                         </div>
                         <div>
-                            <h2 class="card-title">Informasi Akun</h2>
-                            <p class="card-subtitle">Detail informasi akun Anda</p>
+                            <h2 class="card-title">Pengaturan Akun</h2>
+                            <p class="card-subtitle">Kelola pengaturan akun Anda</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="card-body">
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <div class="info-label">
-                                <i class="fas fa-calendar-alt"></i>
-                                Tanggal Bergabung
-                            </div>
-                            <div class="info-value">
-                                {{ \Carbon\Carbon::parse($user->created_at)->locale('id')->translatedFormat('d F Y') }}
-                            </div>
-                        </div>
-
-                        <div class="info-item">
-                            <div class="info-label">
-                                <i class="fas fa-clock"></i>
-                                Terakhir Diperbarui
-                            </div>
-                            <div class="info-value">
-                                {{ \Carbon\Carbon::parse($user->updated_at)->locale('id')->diffForHumans() }}
-                            </div>
-                        </div>
-
-                        @if($user->email_verified_at)
-                            <div class="info-item">
-                                <div class="info-label">
-                                    <i class="fas fa-check-circle"></i>
-                                    Status Email
-                                </div>
-                                <div class="info-value verified">
-                                    <i class="fas fa-check"></i>
-                                    Terverifikasi
-                                </div>
-                            </div>
-                        @else
-                            <div class="info-item">
-                                <div class="info-label">
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    Status Email
-                                </div>
-                                <div class="info-value unverified">
-                                    <i class="fas fa-times"></i>
-                                    Belum Terverifikasi
-                                </div>
-                            </div>
-                        @endif
+                    <div class="account-actions">
+                        <button type="button" class="btn btn-secondary" onclick="openPasswordModal()">
+                            <i class="fas fa-key"></i>
+                            Ubah Password
+                        </button>
+                        <button type="button" class="btn btn-danger" onclick="openDeleteModal()">
+                            <i class="fas fa-trash-alt"></i>
+                            Hapus Akun
+                        </button>
                     </div>
-                </div>
-            </div>
-
-            <!-- Delete Account Card -->
-            <div class="profile-card danger-card">
-                <div class="card-header">
-                    <div class="card-header-content">
-                        <div class="card-icon danger-icon">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <div>
-                            <h2 class="card-title">Hapus Akun</h2>
-                            <p class="card-subtitle">Hapus akun Anda secara permanen</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card-body">
-                    <p class="danger-text">
-                        Setelah akun Anda dihapus, semua sumber daya dan data Anda akan dihapus secara permanen. 
-                        Sebelum menghapus akun Anda, harap unduh data atau informasi yang ingin Anda simpan.
-                    </p>
-
-                    <form method="POST" action="{{ route('profile.destroy') }}" class="delete-form" onsubmit="return confirmDelete(event)">
-                        @csrf
-                        @method('delete')
-
-                        <div class="form-group">
-                            <label for="password" class="form-label">
-                                <i class="fas fa-lock"></i>
-                                Konfirmasi Password
-                            </label>
-                            <input type="password" 
-                                   id="password" 
-                                   name="password" 
-                                   class="form-input @error('password', 'userDeletion') is-invalid @enderror" 
-                                   placeholder="Masukkan password untuk konfirmasi" 
-                                   required>
-                            @error('password', 'userDeletion')
-                                <div class="error-message">
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    {{ $message }}
-                                </div>
-                            @enderror
-                        </div>
-
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-danger">
-                                <i class="fas fa-trash-alt"></i>
-                                Hapus Akun
-                            </button>
-                        </div>
-                    </form>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Profile</h2>
+                <button type="button" class="modal-close" onclick="closeEditProfileModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form method="POST" action="{{ route('profile.update') }}" class="profile-form">
+                @csrf
+                @method('patch')
+
+                <div class="form-group">
+                    <label for="edit_name" class="form-label">
+                        <i class="fas fa-user"></i>
+                        Nama Lengkap
+                    </label>
+                    <input type="text" 
+                           id="edit_name" 
+                           name="name" 
+                           class="form-input @error('name') is-invalid @enderror" 
+                           value="{{ old('name', $user->name) }}" 
+                           required>
+                    @error('name')
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ $message }}
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="edit_email" class="form-label">
+                        <i class="fas fa-envelope"></i>
+                        Email
+                    </label>
+                    <input type="email" 
+                           id="edit_email" 
+                           name="email" 
+                           class="form-input @error('email') is-invalid @enderror" 
+                           value="{{ old('email', $user->email) }}" 
+                           required>
+                    @error('email')
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ $message }}
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="edit_username" class="form-label">
+                        <i class="fas fa-at"></i>
+                        Username
+                    </label>
+                    <input type="text" 
+                           id="edit_username" 
+                           name="username" 
+                           class="form-input @error('username') is-invalid @enderror" 
+                           value="{{ old('username', $user->username) }}">
+                    @error('username')
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ $message }}
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="edit_contact" class="form-label">
+                        <i class="fas fa-phone"></i>
+                        Kontak
+                    </label>
+                    <input type="text" 
+                           id="edit_contact" 
+                           name="contact" 
+                           class="form-input @error('contact') is-invalid @enderror" 
+                           value="{{ old('contact', $user->contact) }}" 
+                           placeholder="Nomor telepon atau kontak lainnya">
+                    @error('contact')
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ $message }}
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditProfileModal()">
+                        Batal
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Simpan Perubahan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Password Update Modal -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Ubah Password</h2>
+                <button type="button" class="modal-close" onclick="closePasswordModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form method="POST" action="{{ route('password.update') }}" class="password-form">
+                @csrf
+                @method('put')
+
+                <div class="form-group">
+                    <label for="current_password" class="form-label">
+                        <i class="fas fa-lock"></i>
+                        Password Saat Ini
+                    </label>
+                    <input type="password" 
+                           id="current_password" 
+                           name="current_password" 
+                           class="form-input @error('current_password', 'updatePassword') is-invalid @enderror" 
+                           placeholder="Masukkan password saat ini" 
+                           required>
+                    @error('current_password', 'updatePassword')
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ $message }}
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        <i class="fas fa-key"></i>
+                        Password Baru
+                    </label>
+                    <input type="password" 
+                           id="password" 
+                           name="password" 
+                           class="form-input @error('password', 'updatePassword') is-invalid @enderror" 
+                           placeholder="Masukkan password baru" 
+                           required>
+                    @error('password', 'updatePassword')
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ $message }}
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="password_confirmation" class="form-label">
+                        <i class="fas fa-key"></i>
+                        Konfirmasi Password Baru
+                    </label>
+                    <input type="password" 
+                           id="password_confirmation" 
+                           name="password_confirmation" 
+                           class="form-input" 
+                           placeholder="Konfirmasi password baru" 
+                           required>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closePasswordModal()">
+                        Batal
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Simpan Password
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Account Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Hapus Akun</h2>
+                <button type="button" class="modal-close" onclick="closeDeleteModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="danger-text">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>
+                        Setelah akun Anda dihapus, semua sumber daya dan data Anda akan dihapus secara permanen. 
+                        Sebelum menghapus akun Anda, harap unduh data atau informasi yang ingin Anda simpan.
+                    </p>
+                </div>
+
+                <form method="POST" action="{{ route('profile.destroy') }}" class="delete-form" onsubmit="return confirmDelete(event)">
+                    @csrf
+                    @method('delete')
+
+                    <div class="form-group">
+                        <label for="delete_password" class="form-label">
+                            <i class="fas fa-lock"></i>
+                            Konfirmasi Password
+                        </label>
+                        <input type="password" 
+                               id="delete_password" 
+                               name="password" 
+                               class="form-input @error('password', 'userDeletion') is-invalid @enderror" 
+                               placeholder="Masukkan password untuk konfirmasi" 
+                               required>
+                        @error('password', 'userDeletion')
+                            <div class="error-message">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">
+                            Batal
+                        </button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash-alt"></i>
+                            Hapus Akun
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
+        function openEditProfileModal() {
+            document.getElementById('editProfileModal').style.display = 'flex';
+        }
+
+        function closeEditProfileModal() {
+            document.getElementById('editProfileModal').style.display = 'none';
+        }
+
+        function openPasswordModal() {
+            document.getElementById('passwordModal').style.display = 'flex';
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+            // Reset form
+            document.querySelector('.password-form').reset();
+        }
+
+        function openDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'flex';
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+            // Reset form
+            document.querySelector('.delete-form').reset();
+        }
+
         function confirmDelete(event) {
             event.preventDefault();
             if (confirm('Apakah Anda yakin ingin menghapus akun? Tindakan ini tidak dapat dibatalkan!')) {
                 event.target.submit();
             }
             return false;
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const editProfileModal = document.getElementById('editProfileModal');
+            const passwordModal = document.getElementById('passwordModal');
+            const deleteModal = document.getElementById('deleteModal');
+            
+            if (event.target === editProfileModal) {
+                closeEditProfileModal();
+            }
+            if (event.target === passwordModal) {
+                closePasswordModal();
+            }
+            if (event.target === deleteModal) {
+                closeDeleteModal();
+            }
         }
     </script>
 @endsection
