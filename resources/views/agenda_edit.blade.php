@@ -574,9 +574,35 @@
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    
+    <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        #confirmSubmit:hover {
+            background: #F5A8A8 !important;
+        }
+        
+        #cancelSubmit:hover {
+            background: #D1D5DB !important;
+        }
+    </style>
 
     <script>
         function showConfirmSubmit() {
+            if (typeof Toastify === 'undefined') {
+                console.error('Toastify tidak tersedia');
+                return;
+            }
+            
             const toast = Toastify({
                 text: "",
                 duration: -1,
@@ -586,24 +612,29 @@
                 stopOnFocus: true,
                 escapeMarkup: false,
                 style: {
-                    background: "#FFF6F2",
-                    border: "1px solid #FDD8D3",
+                    background: "#FFF1E6",
+                    border: "1px solid #F7B7B7",
                     borderRadius: "10px",
                     boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
                     padding: "20px 30px",
                     textAlign: "center",
                     color: "#333",
                     fontFamily: "Poppins, sans-serif",
+                    animation: "fadeIn 0.3s ease",
                 },
                 onClick: function() {} // biar nggak nutup waktu diklik
             }).showToast();
 
             // ambil elemen toast yg baru muncul
             const toastEl = document.querySelector(".toastify");
+            if (!toastEl) {
+                console.error('Elemen toast tidak ditemukan');
+                return;
+            }
 
             toastEl.innerHTML = `
                     <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
-                        <span style="font-size:1rem; font-weight:500;">Apakah yakin ingin mengajukan agenda?</span>
+                        <span style="font-size:1rem; font-weight:500;">Apakah yakin ingin menyimpan perubahan agenda?</span>
                         <div style="display:flex; gap:12px;">
                             <button id="confirmSubmit" style="
                             background:#F7B7B7;
@@ -614,7 +645,7 @@
                             font-weight:600;
                             cursor:pointer;
                             transition:background 0.2s ease;
-                        ">Ya, ajukan</button>
+                        ">Ya, simpan</button>
                             <button id="cancelSubmit" style="
                             background:#E5E7EB;
                             border:none;
@@ -629,20 +660,44 @@
                     </div>
                 `;
 
-            document.getElementById("confirmSubmit").addEventListener("click", () => {
-                toast.hideToast(); // tutup konfirmasi
-                document.getElementById("agendaForm").submit(); // kirim form
-            });
-
-            document.getElementById("cancelSubmit").addEventListener("click", () => {
-                toast.hideToast();
-            });
+            const confirmBtn = document.getElementById("confirmSubmit");
+            const cancelBtn = document.getElementById("cancelSubmit");
+            
+            if (confirmBtn) {
+                confirmBtn.addEventListener("click", () => {
+                    toast.hideToast(); // tutup konfirmasi
+                    const form = document.getElementById("agendaForm");
+                    if (form) {
+                        form.submit(); // kirim form
+                    }
+                });
+            }
+            
+            if (cancelBtn) {
+                cancelBtn.addEventListener("click", () => {
+                    toast.hideToast();
+                });
+            }
         }
 
         // intercept tombol submit bawaan form
-        document.getElementById("agendaForm").addEventListener("submit", function(e) {
-            e.preventDefault(); // cegah kirim langsung
-            showConfirmSubmit(); // munculkan toast konfirmasi
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById("agendaForm");
+            if (form) {
+                form.addEventListener("submit", function(e) {
+                    e.preventDefault(); // cegah kirim langsung
+                    if (typeof showConfirmSubmit === 'function') {
+                        showConfirmSubmit(); // munculkan toast konfirmasi
+                    } else {
+                        console.error('Fungsi showConfirmSubmit tidak tersedia');
+                        // Jika fungsi tidak tersedia, submit form secara normal
+                        this.submit();
+                    }
+                });
+            } else {
+                console.error('Form dengan ID agendaForm tidak ditemukan');
+            }
         });
+    </script>
 
     @endsection
