@@ -62,4 +62,10 @@ class Agenda extends Model
     {
         return $this->belongsTo(Unit::class, 'id_unit', 'id_unit');
     }
+
+    // ini relasikan ke agenda_log buat terdaftar
+    public function logs()
+    {
+        return $this->hasMany(AgendaLog::class, 'agenda_id');
+    }
 }

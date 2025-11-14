@@ -75,6 +75,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/agenda/{id_agenda}', [AgendaController::class, 'destroy'])->name('agenda.destroy');
         Route::post('/agenda/{id_agenda}/reject', [AgendaController::class, 'reject'])->name('agenda.reject');
         Route::get('notification', [AgendaController::class, 'notification'])->name('agenda.notification');
+
+        Route::get('/agenda/{id}/logs', [AgendaController::class, 'logs'])->name('agenda.logs');
     });
 
 
@@ -120,7 +122,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
+
     // Password update route
     Route::put('/password', [\App\Http\Controllers\Auth\PasswordController::class, 'update'])->name('password.update');
 

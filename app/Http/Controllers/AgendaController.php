@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Agenda;
 use App\Models\Unit;
 use App\Models\User;
+use App\Models\AgendaLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -172,6 +173,9 @@ class AgendaController extends Controller
     {
         $agenda = Agenda::findOrFail($id_agenda);
 
+        // capture old data
+        $oldData = $agenda->toArray();
+
         $validated = $request->validate([
             'agenda_name'        => 'required|string|max:255',
             'description'        => 'required|string',
@@ -206,6 +210,15 @@ class AgendaController extends Controller
         }
 
         $agenda->save();
+        // *** THEN WRITE LOG ENTRY ***
+        AgendaLog::create([
+            'agenda_id' => $agenda->id_agenda,
+            'user_id'   => Auth::id(),
+            'action'    => 'updated',
+            'description' => 'Agenda updated',
+            'old_data' => $oldData,
+            'new_data' => $agenda->toArray(),
+        ]);
 
         return redirect()
             ->route('agenda.notification')
@@ -227,9 +240,21 @@ class AgendaController extends Controller
             ], 403);
         }
 
+        $oldData = $agenda->toArray();
+
         $agenda->status = $request->status;
         $agenda->approved_by = ($request->status === 'approved') ? Auth::id() : null;
         $agenda->save();
+
+        // log it
+        AgendaLog::create([
+            'agenda_id' => $agenda->id_agenda,
+            'user_id'   => Auth::id(),
+            'action'    => 'status_changed',
+            'description' => "Status changed to {$request->status}",
+            'old_data' => $oldData,
+            'new_data' => $agenda->toArray(),
+        ]);
 
         return response()->json([
             'success' => true,
@@ -334,8 +359,8 @@ class AgendaController extends Controller
         // Tandai notifikasi user sudah dibuka agar badge hilang
         // Simpan ke database agar tetap tersimpan setelah logout/login
         if ($user && $user instanceof \App\Models\User) {
-        $user->last_seen_notification_at = now();
-        $user->save();
+            $user->last_seen_notification_at = now();
+            $user->save();
         }
 
 
@@ -539,5 +564,12 @@ class AgendaController extends Controller
                 // 'trace' => $e->getTraceAsString()
             ], 500);
         }
+    }
+
+    public function logs($id_agenda)
+    {
+        $agenda = Agenda::with('logs.user')->findOrFail($id_agenda);
+
+        return view('agenda.logs', compact('agenda'));
     }
 }
