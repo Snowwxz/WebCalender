@@ -12,15 +12,64 @@
 
     <div class="header-right">
         @auth
+            {{-- Notification Bell --}}
+            @php
+                $notificationCount = 0;
+                $user = Auth::user();
+                if ($user) {
+                    if ($user->role === 'admin') {
+                        $lastSeen = $user->last_seen_approve_at;
+                        $notificationCount = \App\Models\Agenda::where('status', 'pending')
+                            ->when($lastSeen, function ($q) use ($lastSeen) {
+                                $q->where('created_at', '>', $lastSeen);
+                            })
+                            ->count();
+                    } elseif ($user->role !== 'superadmin') {
+                        $lastSeenU = $user->last_seen_notification_at;
+                        $userId = $user->id_user;
+                        $notificationCount = \App\Models\Agenda::where('id_user', $userId)
+                            ->whereIn('status', ['approved', 'rejected'])
+                            ->when($lastSeenU, function ($q) use ($lastSeenU) {
+                                $q->where('updated_at', '>', $lastSeenU);
+                            }, function ($q) {
+                                $q->where('updated_at', '>=', now()->startOfDay());
+                            })
+                            ->count();
+                    }
+                    $notificationRoute = ($user->role === 'admin') ? route('approve') : route('agenda.notification');
+                } else {
+                    $notificationRoute = route('agenda.notification');
+                }
+            @endphp
+            @if($user)
+            <div class="notification-bell-section">
+                <div class="notification-bell-wrapper" onclick="toggleNotificationDropdown()">
+                    <i class="fas fa-bell"></i>
+                    @if($notificationCount > 0)
+                        <span class="notification-badge-header">{{ $notificationCount > 99 ? '99+' : $notificationCount }}</span>
+                    @endif
+                </div>
+                <div class="notification-dropdown" id="notificationDropdown">
+                    <div class="notification-dropdown-header">
+                        <h3>Notifikasi</h3>
+                        <a href="{{ $notificationRoute }}" class="view-all-link">Lihat Semua</a>
+                    </div>
+                    <div class="notification-dropdown-content" id="notificationContent">
+                        <div class="notification-loading">Memuat notifikasi...</div>
+                    </div>
+                </div>
+            </div>
+            @endif
+
             {{-- user profile section --}}
+            @if($user)
             <div class="user-profile-section">
                 <div class="user-profile" onclick="toggleDropdown()">
                     <div class="user-avatar">
-                        @if (Auth::user()->profile_photo_path)
-                            <img src="{{ Auth::user()->profile_photo_path }}" alt="Profile" class="profile-image">
+                        @if ($user->profile_photo_path)
+                            <img src="{{ $user->profile_photo_path }}" alt="Profile" class="profile-image">
                         @else
                             @php
-                                $user = Auth::user();
                                 $initials = '';
                                 $nameParts = explode(' ', $user->name);
                                 if (count($nameParts) > 0) {
@@ -36,14 +85,14 @@
                         @endif
                     </div>
                     <div class="user-info">
-                        <div class="username">{{ Auth::user()->name }}</div>
+                        <div class="username">{{ $user->name }}</div>
                         <div class="user-email">
-                            @if (Auth::user()->role === 'superadmin')
+                            @if ($user->role === 'superadmin')
                                 Super Admin
-                            @elseif (Auth::user()->role === 'admin')
+                            @elseif ($user->role === 'admin')
                                 Protokol
-                            @elseif (Auth::user()->unit)
-                                {{ Auth::user()->unit->unit_name }}
+                            @elseif ($user->unit)
+                                {{ $user->unit->unit_name }}
                             @else
                                 Belum Ada Instansi
                             @endif
@@ -75,6 +124,7 @@
                     </form>
                 </div>
             </div>
+            @endif
         @else
             <div class="login-section">
                 <button class="login-btn" onclick="window.location.href='/login'">
@@ -88,6 +138,12 @@
 </header>
 
 <script>
+    @php
+        $jsUser = Auth::user();
+        $jsNotificationRoute = ($jsUser && $jsUser->role === 'admin') ? route('approve') : route('agenda.notification');
+    @endphp
+    const notificationRoute = '{{ $jsNotificationRoute ?? route('agenda.notification') }}';
+
     function toggleDropdown() {
         const dropdown = document.getElementById('userDropdown');
         dropdown.classList.toggle('show');
@@ -102,6 +158,105 @@
             dropdown.classList.remove('show');
         }
     });
+
+    // Notification Dropdown Functions
+    function toggleNotificationDropdown() {
+        const dropdown = document.getElementById('notificationDropdown');
+        const isOpen = dropdown.classList.contains('show');
+        
+        dropdown.classList.toggle('show');
+        
+        // Jika dropdown dibuka, load notifikasi
+        if (!isOpen) {
+            loadNotifications();
+        }
+    }
+
+    function loadNotifications() {
+        const content = document.getElementById('notificationContent');
+        content.innerHTML = '<div class="notification-loading">Memuat notifikasi...</div>';
+
+        fetch('{{ route("api.notifications") }}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.notifications && data.notifications.length > 0) {
+                    let html = '';
+                    data.notifications.forEach(notif => {
+                        const statusText = notif.status === 'approved' ? 'Disetujui' : 
+                                         notif.status === 'rejected' ? 'Ditolak' : 'Menunggu';
+                        const statusClass = notif.status === 'approved' ? 'approved' : 
+                                          notif.status === 'rejected' ? 'rejected' : 'pending';
+                        const icon = notif.status === 'approved' ? 'fa-check-circle' : 
+                                   notif.status === 'rejected' ? 'fa-times-circle' : 'fa-clock';
+                        const date = new Date(notif.updated_at || notif.created_at);
+                        const dateStr = date.toLocaleDateString('id-ID', { 
+                            day: 'numeric', 
+                            month: 'short', 
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                        
+                        html += `
+                            <div class="notification-item ${statusClass}" onclick="window.location.href='${notificationRoute}'">
+                                <div class="notification-icon">
+                                    <i class="fas ${icon}"></i>
+                                </div>
+                                <div class="notification-text">
+                                    <div class="notification-title">${notif.agenda_name}</div>
+                                    <div class="notification-message">Agenda ${statusText.toLowerCase()}</div>
+                                    <div class="notification-time">${dateStr}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    content.innerHTML = html;
+                } else {
+                    content.innerHTML = '<div class="notification-empty">Tidak ada notifikasi baru</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading notifications:', error);
+                content.innerHTML = '<div class="notification-error">Gagal memuat notifikasi</div>';
+            });
+    }
+
+    // Tutup notification dropdown kalau klik di luar area
+    window.addEventListener('click', function(e) {
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        const notificationBell = document.querySelector('.notification-bell-wrapper');
+
+        if (notificationDropdown && notificationBell && !notificationBell.contains(e.target) && !notificationDropdown.contains(e.target)) {
+            notificationDropdown.classList.remove('show');
+        }
+    });
+
+    // Auto refresh notification count setiap 30 detik
+    setInterval(function() {
+        fetch('{{ route("api.notifications") }}')
+            .then(response => response.json())
+            .then(data => {
+                const badge = document.querySelector('.notification-badge-header');
+                if (data.count > 0) {
+                    if (badge) {
+                        badge.textContent = data.count > 99 ? '99+' : data.count;
+                    } else {
+                        const bellWrapper = document.querySelector('.notification-bell-wrapper');
+                        if (bellWrapper) {
+                            const newBadge = document.createElement('span');
+                            newBadge.className = 'notification-badge-header';
+                            newBadge.textContent = data.count > 99 ? '99+' : data.count;
+                            bellWrapper.appendChild(newBadge);
+                        }
+                    }
+                } else {
+                    if (badge) {
+                        badge.remove();
+                    }
+                }
+            })
+            .catch(error => console.error('Error refreshing notification count:', error));
+    }, 30000);
 </script>
 
 <!-- Tambahkan Bootstrap Icons untuk icon centang bulat -->

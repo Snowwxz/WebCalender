@@ -372,6 +372,68 @@ class AgendaController extends Controller
     }
 
     /**
+     * ✅ API untuk mendapatkan notifikasi terbaru (untuk dropdown header)
+     */
+    public function getNotifications(Request $request)
+    {
+        $user = Auth::user();
+        $userId = $user->id_user;
+        
+        // Untuk user biasa: ambil agenda yang statusnya approved/rejected setelah last_seen
+        // Untuk admin: ambil agenda pending yang dibuat setelah last_seen
+        if ($user->role === 'admin') {
+            $lastSeen = $user->last_seen_approve_at;
+            $notifications = Agenda::with(['unit', 'user'])
+                ->where('status', 'pending')
+                ->when($lastSeen, function ($q) use ($lastSeen) {
+                    $q->where('created_at', '>', $lastSeen);
+                })
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get();
+        } else {
+            $lastSeenU = $user->last_seen_notification_at;
+            $notifications = Agenda::with(['unit'])
+                ->where('id_user', $userId)
+                ->whereIn('status', ['approved', 'rejected'])
+                ->when($lastSeenU, function ($q) use ($lastSeenU) {
+                    $q->where('updated_at', '>', $lastSeenU);
+                }, function ($q) {
+                    $q->where('updated_at', '>=', now()->startOfDay());
+                })
+                ->orderBy('updated_at', 'desc')
+                ->limit(10)
+                ->get();
+        }
+
+        // Hitung total notifikasi baru
+        $count = 0;
+        if ($user->role === 'admin') {
+            $lastSeen = $user->last_seen_approve_at;
+            $count = Agenda::where('status', 'pending')
+                ->when($lastSeen, function ($q) use ($lastSeen) {
+                    $q->where('created_at', '>', $lastSeen);
+                })
+                ->count();
+        } else {
+            $lastSeenU = $user->last_seen_notification_at;
+            $count = Agenda::where('id_user', $userId)
+                ->whereIn('status', ['approved', 'rejected'])
+                ->when($lastSeenU, function ($q) use ($lastSeenU) {
+                    $q->where('updated_at', '>', $lastSeenU);
+                }, function ($q) {
+                    $q->where('updated_at', '>=', now()->startOfDay());
+                })
+                ->count();
+        }
+
+        return response()->json([
+            'notifications' => $notifications,
+            'count' => $count
+        ]);
+    }
+
+    /**
      * ✅ Ambil daftar agenda berdasarkan tanggal (untuk klik kalender).
      * Digunakan di dashboard user (AJAX).
      */

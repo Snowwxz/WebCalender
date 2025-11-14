@@ -18,6 +18,9 @@
 .header-left,
 .header-right {
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .header-center {
@@ -743,4 +746,253 @@
     .dropdown-arrow {
         display: none;
     }
+
+    .notification-bell-section {
+        margin-right: 8px;
+    }
+
+    .notification-bell-wrapper {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+
+    .notification-dropdown {
+        right: 0;
+        width: 320px;
+    }
+}
+
+/* Notification Bell Styles */
+.notification-bell-section {
+    position: relative;
+    margin-right: 12px;
+    z-index: 1002;
+}
+
+.notification-bell-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.notification-bell-wrapper:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.notification-bell-wrapper i {
+    font-size: 18px;
+    color: #6b7280;
+    transition: color 0.2s ease;
+}
+
+.notification-bell-wrapper:hover i {
+    color: #374151;
+}
+
+.notification-badge-header {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: #e63946;
+    color: #fff;
+    font-size: 11px;
+    line-height: 18px;
+    text-align: center;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    width: 380px;
+    max-height: 500px;
+    z-index: 1008;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.notification-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.notification-dropdown-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.notification-dropdown-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.view-all-link {
+    font-size: 13px;
+    color: #82A98D;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.view-all-link:hover {
+    color: #5FA776;
+    text-decoration: underline;
+}
+
+.notification-dropdown-content {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 8px 0;
+}
+
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.notification-item:hover {
+    background: #f9fafb;
+}
+
+.notification-item.approved {
+    border-left-color: #10b981;
+}
+
+.notification-item.rejected {
+    border-left-color: #ef4444;
+}
+
+.notification-item.pending {
+    border-left-color: #f59e0b;
+}
+
+.notification-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.notification-item.approved .notification-icon {
+    background: #d1fae5;
+    color: #10b981;
+}
+
+.notification-item.rejected .notification-icon {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.notification-item.pending .notification-icon {
+    background: #fef3c7;
+    color: #f59e0b;
+}
+
+.notification-icon i {
+    font-size: 16px;
+}
+
+.notification-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 4px;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    -webkit-box-orient: vertical;
+}
+
+.notification-message {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+.notification-time {
+    font-size: 11px;
+    color: #9ca3af;
+}
+
+.notification-loading,
+.notification-empty,
+.notification-error {
+    padding: 24px 16px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.notification-error {
+    color: #ef4444;
+}
+
+/* Scrollbar styling untuk notification dropdown */
+.notification-dropdown-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notification-dropdown-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.notification-dropdown-content::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.notification-dropdown-content::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
 }

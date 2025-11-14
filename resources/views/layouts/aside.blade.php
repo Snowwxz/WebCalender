@@ -53,14 +53,14 @@
                       <i class="fas fa-plus"></i>
                       <span class="nav-label">Tambah Agenda</span>
                   </a>
-                  <a href="{{ Auth::user()->role === 'admin' ? route('approve') : route('agenda.notification') }}" class="nav-icon {{ request()->routeIs('approve') || request()->routeIs('agenda.notification') || request()->routeIs('agenda.edit') ? 'active' : '' }}" title="Notifikasi" style="position: relative;">
-                      <i class="fas fa-bell"></i>
+                  <a href="{{ Auth::user()->role === 'admin' ? route('approve') : route('agenda.notification') }}" class="nav-icon {{ request()->routeIs('approve') || request()->routeIs('agenda.notification') || request()->routeIs('agenda.edit') ? 'active' : '' }}" title="Daftar Agenda" style="position: relative;">
+                      <i class="fas fa-file-alt"></i>
                       @if (Auth::user()->role === 'admin' && $adminBadge > 0)
                           <span class="notif-badge" style="position:absolute; top:6px; right:6px; min-width:18px; height:18px; padding:0 5px; border-radius:9px; background:#e63946; color:#fff; font-size:11px; line-height:18px; text-align:center; font-weight:600;">{{ $adminBadge }}</span>
                       @elseif (Auth::user()->role !== 'admin' && Auth::user()->role !== 'superadmin' && $userBadge > 0)
                           <span class="notif-badge" style="position:absolute; top:6px; right:6px; min-width:18px; height:18px; padding:0 5px; border-radius:9px; background:#e63946; color:#fff; font-size:11px; line-height:18px; text-align:center; font-weight:600;">{{ $userBadge }}</span>
                       @endif
-                      <span class="nav-label">Notifikasi</span>
+                      <span class="nav-label">Daftar Agenda</span>
                   </a>
               @endif
           @else
@@ -80,12 +80,12 @@
                           <i class="fas fa-plus"></i>
                           <span class="nav-label">Tambah Agenda</span>
                       </a>
-                      <a href="{{ route('agenda.notification') }}" class="nav-icon {{ request()->routeIs('agenda.notification') || request()->routeIs('agenda.edit') ? 'active' : '' }}" title="Notifikasi" style="position: relative;">
-                          <i class="fas fa-bell"></i>
+                      <a href="{{ route('agenda.notification') }}" class="nav-icon {{ request()->routeIs('agenda.notification') || request()->routeIs('agenda.edit') ? 'active' : '' }}" title="Daftar Agenda" style="position: relative;">
+                          <i class="fas fa-file-alt"></i>
                           @if ($userBadge > 0)
                               <span class="notif-badge" style="position:absolute; top:6px; right:6px; min-width:18px; height:18px; padding:0 5px; border-radius:9px; background:#e63946; color:#fff; font-size:11px; line-height:18px; text-align:center; font-weight:600;">{{ $userBadge }}</span>
                           @endif
-                          <span class="nav-label">Notifikasi</span>
+                          <span class="nav-label">Daftar Agenda</span>
                       </a>
                   @endif
              @else

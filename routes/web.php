@@ -79,6 +79,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/agenda/{id}/logs', [AgendaController::class, 'logs'])->name('agenda.logs');
     });
 
+    // ✅ API Notifikasi untuk dropdown header
+    Route::get('/api/notifications', [AgendaController::class, 'getNotifications'])->name('api.notifications');
+
 
     // ✅ Route khusus tiap role
     Route::middleware('role:superadmin,admin,user')->group(function () {
