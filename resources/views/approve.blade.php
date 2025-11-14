@@ -284,9 +284,57 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Toastify CSS & JS harus dimuat sebelum script yang menggunakan showToast -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
     <script>
+        // ======== TOASTIFY FUNCTION (harus didefinisikan dulu) ========
+        function showToast(message, type = "success") {
+            const toastNode = document.createElement('div');
+            toastNode.innerHTML = `
+                <div style="
+                    font-family: 'Poppins', sans-serif;
+                    font-weight: 500;
+                    font-size: 15px;
+                    color: ${type === 'success' ? '#256D43' : '#8b0000'};
+                ">
+                    ${message}
+                </div>
+            `;
+
+            Toastify({
+                node: toastNode,
+                duration: 2500,
+                gravity: "top",
+                position: "center",
+                style: {
+                    background: type === 'success' ? '#E6F9EE' : '#fde4e4',
+                    border: type === 'success' ? '1px solid #C4E7D0' : '1px solid #f8b4b4',
+                    borderRadius: '10px',
+                    padding: '14px 28px',
+                    boxShadow: '0 6px 14px rgba(0,0,0,0.08)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }
+            }).showToast();
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
+            // Tampilkan toast dari sessionStorage setelah page reload selesai
+            const toastMessage = sessionStorage.getItem('toastMessage');
+            const toastType = sessionStorage.getItem('toastType');
+            
+            if (toastMessage && toastType) {
+                // Tunggu sedikit agar DOM benar-benar siap
+                setTimeout(() => {
+                    showToast(toastMessage, toastType);
+                    // Hapus dari sessionStorage setelah ditampilkan
+                    sessionStorage.removeItem('toastMessage');
+                    sessionStorage.removeItem('toastType');
+                }, 300);
+            }
             const rejectModal = document.getElementById("rejectModal");
             const rejectModalClose = document.getElementById("rejectModalClose");
             const rejectModalCancel = document.getElementById("rejectModalCancel");
@@ -419,9 +467,7 @@
         <p>Agenda telah disetujui</p>
     </div>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // ========== HANDLE SUBMIT ==========
         const actionForms = document.querySelectorAll('.action-form');
@@ -605,14 +651,12 @@
                         typeof data.success === 'boolean';
 
                     if (isSuccess) {
-                        // Baru tampilkan toast success SETELAH semua validasi berhasil
-                        // Pastikan semua proses async selesai sebelum menampilkan toast
-                        showToast('Agenda telah disetujui', 'success');
-
-                        // Reload setelah 1.5 detik untuk update tampilan
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1500);
+                        // Simpan pesan ke sessionStorage untuk ditampilkan setelah reload
+                        sessionStorage.setItem('toastMessage', 'Agenda telah disetujui');
+                        sessionStorage.setItem('toastType', 'success');
+                        
+                        // Reload langsung setelah proses selesai
+                        location.reload();
                     } else {
                         // Tampilkan error dari response
                         showToast(data?.message || 'Gagal menyetujui agenda', 'error');
@@ -637,38 +681,6 @@
                 toast.hideToast();
             });
         };
-
-        // ======== TOASTIFY ========
-        function showToast(message, type = "success") {
-            const toastNode = document.createElement('div');
-            toastNode.innerHTML = `
-                <div style="
-                    font-family: 'Poppins', sans-serif;
-                    font-weight: 500;
-                    font-size: 15px;
-                    color: ${type === 'success' ? '#256D43' : '#8b0000'};
-                ">
-                    ${message}
-                </div>
-            `;
-
-            Toastify({
-                node: toastNode,
-                duration: 2500,
-                gravity: "top",
-                position: "center",
-                style: {
-                    background: type === 'success' ? '#E6F9EE' : '#fde4e4',
-                    border: type === 'success' ? '1px solid #C4E7D0' : '1px solid #f8b4b4',
-                    borderRadius: '10px',
-                    padding: '14px 28px',
-                    boxShadow: '0 6px 14px rgba(0,0,0,0.08)',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }
-            }).showToast();
-        }
     </script>
 
     <script>
