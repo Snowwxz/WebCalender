@@ -179,5 +179,30 @@ Catatan: ${agendaData.notes}`;
             copyBtn.style.backgroundColor = '';
         }, 2000);
     }
+
+    // 🔽 TAMBAHKAN BAGIAN INI 🔽
+    $('#showAgendaModal').on('show.bs.modal', function (event) {
+        const button = $(event.relatedTarget);
+        const name = button.data('name');
+        const desc = button.data('desc');
+        const date = button.data('date');
+        const time = button.data('time');
+        const location = button.data('location');
+        const unit = button.data('unit');
+        const involved = button.data('involved');
+        const access = button.data('access');
+        const notes = button.data('notes'); // penting!
+
+        const modal = $(this);
+        modal.find('#showAgendaName').text(name || '-');
+        modal.find('#showAgendaDesc').text(desc || '-');
+        modal.find('#showAgendaDate').text(date || '-');
+        modal.find('#showAgendaTime').text(time || '-');
+        modal.find('#showAgendaLocation').text(location || '-');
+        modal.find('#showAgendaUnit').text(unit || '-');
+        modal.find('#showAgendaInvolved').text(involved || '-');
+        modal.find('#showAgendaAccess').text(access || '-');
+        modal.find('#showAgendaNotes').text(notes || '-'); // supaya catatan muncul
+    });
 });
 </script>

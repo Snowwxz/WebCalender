@@ -126,6 +126,12 @@
                                                     {{ $item->is_public ? 'Publik' : 'Privasi' }}
                                                 </span>
                                             </div>
+                                            @if (!empty($item->notes))
+                                                <div class="detail-item">
+                                                    <i class="fa-solid fa-file-lines"></i>
+                                                    <span><strong>Catatan:</strong> {{ $item->notes }}</span>
+                                                </div>
+                                            @endif
                                         </div>
 
                                         <div class="details-right">
@@ -134,7 +140,7 @@
                                                 <span><strong>Lokasi:</strong> {{ $item->location ?? '-' }}</span>
                                             </div>
                                             <div class="detail-item participants">
-                                                <i class="fas fa-people-group"></i>
+                                                <i class="fas fa-users"></i>
                                                 <span><strong>Dihadiri:</strong>
                                                     {{ $item->involved_institution ?? '-' }}</span>
                                             </div>
@@ -142,12 +148,6 @@
                                                 <div class="detail-item">
                                                     <i class="fas fa-comment-dots"></i>
                                                     <span><strong>Alasan Ditolak:</strong> {{ $item->reason }}</span>
-                                                </div>
-                                            @endif
-                                            @if (!empty($item->notes))
-                                                <div class="detail-item">
-                                                    <i class="fas fa-sticky-note"></i>
-                                                    <span><strong>Catatan:</strong> {{ $item->notes }}</span>
                                                 </div>
                                             @endif
                                             <div class="detail-item">
