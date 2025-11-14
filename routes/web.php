@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 // 🔹 LANDING & PUBLIC ROUTES
-Route::get('/', [LandingController::class, 'login'])->name('login.index');
+Route::get('/', [LandingController::class, 'index'])->name('landing.index');
 
 Route::get('/landing', function (Request $request) {
     $month = $request->query('month');
@@ -76,6 +76,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/agenda/{id_agenda}/reject', [AgendaController::class, 'reject'])->name('agenda.reject');
         Route::get('notification', [AgendaController::class, 'notification'])->name('agenda.notification');
     });
+
+    // ✅ API Notifikasi untuk dropdown header
+    Route::get('/api/notifications', [AgendaController::class, 'getNotifications'])->name('api.notifications');
 
 
     // ✅ Route khusus tiap role
