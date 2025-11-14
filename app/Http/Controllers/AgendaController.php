@@ -28,11 +28,22 @@ class AgendaController extends Controller
             ->where('status', 'approved')
             ->orderBy('date', 'desc');
 
-        // 🔹 Kalau bukan superadmin, batasi hanya publik atau milik sendiri
+        // 🔹 Kalau bukan superadmin, batasi hanya publik atau milik sendiri atau diundang
         if ($user->role !== 'superadmin') {
-            $query->where(function ($q) use ($userId) {
+            $userUnit = $user->unit;
+            $userUnitName = $userUnit ? $userUnit->unit_name : null;
+
+            $query->where(function ($q) use ($userId, $userUnitName) {
                 $q->where('is_public', 1)
                     ->orWhere('id_user', $userId);
+
+                // Tambahkan kondisi untuk agenda privat yang mengundang instansi user
+                if ($userUnitName) {
+                    $q->orWhere(function ($subQ) use ($userUnitName) {
+                        $subQ->where('is_public', 0)
+                            ->where('involved_institution', 'like', '%' . $userUnitName . '%');
+                    });
+                }
             });
         }
 
@@ -322,10 +333,11 @@ class AgendaController extends Controller
 
         // Tandai notifikasi user sudah dibuka agar badge hilang
         // Simpan ke database agar tetap tersimpan setelah logout/login
-        if ($user) {
-            $user->last_seen_notification_at = now();
-            $user->save();
+        if ($user && $user instanceof \App\Models\User) {
+        $user->last_seen_notification_at = now();
+        $user->save();
         }
+
 
         if ($request->wantsJson()) {
             return response()->json($agenda);
@@ -335,13 +347,76 @@ class AgendaController extends Controller
     }
 
     /**
+     * ✅ API untuk mendapatkan notifikasi terbaru (untuk dropdown header)
+     */
+    public function getNotifications(Request $request)
+    {
+        $user = Auth::user();
+        $userId = $user->id_user;
+        
+        // Untuk user biasa: ambil agenda yang statusnya approved/rejected setelah last_seen
+        // Untuk admin: ambil agenda pending yang dibuat setelah last_seen
+        if ($user->role === 'admin') {
+            $lastSeen = $user->last_seen_approve_at;
+            $notifications = Agenda::with(['unit', 'user'])
+                ->where('status', 'pending')
+                ->when($lastSeen, function ($q) use ($lastSeen) {
+                    $q->where('created_at', '>', $lastSeen);
+                })
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get();
+        } else {
+            $lastSeenU = $user->last_seen_notification_at;
+            $notifications = Agenda::with(['unit'])
+                ->where('id_user', $userId)
+                ->whereIn('status', ['approved', 'rejected'])
+                ->when($lastSeenU, function ($q) use ($lastSeenU) {
+                    $q->where('updated_at', '>', $lastSeenU);
+                }, function ($q) {
+                    $q->where('updated_at', '>=', now()->startOfDay());
+                })
+                ->orderBy('updated_at', 'desc')
+                ->limit(10)
+                ->get();
+        }
+
+        // Hitung total notifikasi baru
+        $count = 0;
+        if ($user->role === 'admin') {
+            $lastSeen = $user->last_seen_approve_at;
+            $count = Agenda::where('status', 'pending')
+                ->when($lastSeen, function ($q) use ($lastSeen) {
+                    $q->where('created_at', '>', $lastSeen);
+                })
+                ->count();
+        } else {
+            $lastSeenU = $user->last_seen_notification_at;
+            $count = Agenda::where('id_user', $userId)
+                ->whereIn('status', ['approved', 'rejected'])
+                ->when($lastSeenU, function ($q) use ($lastSeenU) {
+                    $q->where('updated_at', '>', $lastSeenU);
+                }, function ($q) {
+                    $q->where('updated_at', '>=', now()->startOfDay());
+                })
+                ->count();
+        }
+
+        return response()->json([
+            'notifications' => $notifications,
+            'count' => $count
+        ]);
+    }
+
+    /**
      * ✅ Ambil daftar agenda berdasarkan tanggal (untuk klik kalender).
      * Digunakan di dashboard user (AJAX).
      */
     public function getAgendaByDate(Request $request)
     {
         $date = $request->input('date');
-        $userId = Auth::user()->id_user;
+        $user = Auth::user();
+        $userId = $user->id_user;
 
         if (!$date) {
             return response()->json([
@@ -350,11 +425,22 @@ class AgendaController extends Controller
             ], 400);
         }
 
+        $userUnit = $user->unit;
+        $userUnitName = $userUnit ? $userUnit->unit_name : null;
+
         $agenda = Agenda::with(['unit', 'user', 'approver'])
             ->whereDate('date', $date)
-            ->where(function ($q) use ($userId) {
+            ->where(function ($q) use ($userId, $userUnitName) {
                 $q->where('is_public', 1) // publik
                     ->orWhere('id_user', $userId); // private tapi milik sendiri
+
+                // Tambahkan kondisi untuk agenda privat yang mengundang instansi user
+                if ($userUnitName) {
+                    $q->orWhere(function ($subQ) use ($userUnitName) {
+                        $subQ->where('is_public', 0)
+                            ->where('involved_institution', 'like', '%' . $userUnitName . '%');
+                    });
+                }
             })
             ->where('status', 'approved')
             ->orderBy('start_time', 'asc')
@@ -382,13 +468,25 @@ class AgendaController extends Controller
     public function getAgendaHari(Request $request)
     {
         $date = $request->query('tanggal', date('Y-m-d'));
-        $userId = Auth::user()->id_user;
+        $user = Auth::user();
+        $userId = $user->id_user;
+
+        $userUnit = $user->unit;
+        $userUnitName = $userUnit ? $userUnit->unit_name : null;
 
         $agenda = Agenda::whereDate('date', $date)
             ->where('status', 'approved')
-            ->where(function ($q) use ($userId) {
+            ->where(function ($q) use ($userId, $userUnitName) {
                 $q->where('is_public', 1)
                     ->orWhere('id_user', $userId);
+
+                // Tambahkan kondisi untuk agenda privat yang mengundang instansi user
+                if ($userUnitName) {
+                    $q->orWhere(function ($subQ) use ($userUnitName) {
+                        $subQ->where('is_public', 0)
+                            ->where('involved_institution', 'like', '%' . $userUnitName . '%');
+                    });
+                }
             })
             ->orderBy('start_time', 'asc')
             ->get(['id_agenda as id', 'agenda_name as title', 'start_time', 'end_time', 'location', 'is_public']);
