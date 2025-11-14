@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 // 🔹 LANDING & PUBLIC ROUTES
-Route::get('/', [LandingController::class, 'index'])->name('landing.index');
+Route::get('/', [LandingController::class, 'login'])->name('login.index');
 
 Route::get('/landing', function (Request $request) {
     $month = $request->query('month');
@@ -120,7 +120,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
+
     // Password update route
     Route::put('/password', [\App\Http\Controllers\Auth\PasswordController::class, 'update'])->name('password.update');
 
