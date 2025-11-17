@@ -280,7 +280,6 @@
         }
     </style>
 @endonce
-
 @once
     <script>
         (function() {
@@ -422,3 +421,4 @@
         })();
     </script>
 @endonce
+
