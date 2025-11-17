@@ -634,4 +634,104 @@ class AgendaController extends Controller
 
         return view('agenda.logs', compact('agenda'));
     }
+
+    /**
+     * ✅ API untuk mendapatkan detail log agenda (untuk modal)
+     */
+    public function getAgendaLogs($id_agenda)
+    {
+        $agenda = Agenda::with(['logs.user' => function($query) {
+            $query->select('id_user', 'name', 'email');
+        }])->findOrFail($id_agenda);
+
+        $logs = $agenda->logs()
+            ->where('action', 'updated')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function($log) {
+                return [
+                    'id' => $log->id,
+                    'action' => $log->action,
+                    'description' => $log->description,
+                    'updated_at' => $log->created_at->format('d F Y, H:i'),
+                    'updated_at_human' => $log->created_at->locale('id')->diffForHumans(),
+                    'user' => $log->user ? [
+                        'name' => $log->user->name,
+                        'email' => $log->user->email,
+                    ] : null,
+                    'old_data' => $log->old_data,
+                    'new_data' => $log->new_data,
+                    'changes' => $this->getChanges($log->old_data, $log->new_data),
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'logs' => $logs,
+        ]);
+    }
+
+    /**
+     * ✅ Helper untuk mendapatkan perubahan data
+     */
+    private function getChanges($oldData, $newData)
+    {
+        if (!$oldData || !$newData) {
+            return [];
+        }
+
+        $changes = [];
+        $fields = [
+            'agenda_name' => 'Nama Agenda',
+            'description' => 'Deskripsi',
+            'date' => 'Tanggal',
+            'start_time' => 'Waktu Mulai',
+            'end_time' => 'Waktu Selesai',
+            'location' => 'Lokasi',
+            'involved_institution' => 'Instansi Terlibat',
+            'is_public' => 'Status Publikasi',
+            'notes' => 'Catatan',
+        ];
+
+        foreach ($fields as $key => $label) {
+            $oldValue = $oldData[$key] ?? null;
+            $newValue = $newData[$key] ?? null;
+
+            // Handle is_public (0/1 to boolean text)
+            if ($key === 'is_public') {
+                $oldValue = $oldValue == 1 ? 'Publik' : 'Privasi';
+                $newValue = $newValue == 1 ? 'Publik' : 'Privasi';
+            }
+
+            // Handle date format
+            if ($key === 'date' && $oldValue && $newValue) {
+                try {
+                    $oldValue = \Carbon\Carbon::parse($oldValue)->locale('id')->translatedFormat('l, d F Y');
+                    $newValue = \Carbon\Carbon::parse($newValue)->locale('id')->translatedFormat('l, d F Y');
+                } catch (\Exception $e) {
+                    // Keep original if parsing fails
+                }
+            }
+
+            // Handle time format
+            if (in_array($key, ['start_time', 'end_time']) && $oldValue && $newValue) {
+                try {
+                    $oldValue = \Carbon\Carbon::parse($oldValue)->format('H:i');
+                    $newValue = \Carbon\Carbon::parse($newValue)->format('H:i');
+                } catch (\Exception $e) {
+                    // Keep original if parsing fails
+                }
+            }
+
+            if ($oldValue != $newValue) {
+                $changes[] = [
+                    'field' => $label,
+                    'old_value' => $oldValue ?? '-',
+                    'new_value' => $newValue ?? '-',
+                ];
+            }
+        }
+
+        return $changes;
+    }
 }

@@ -204,6 +204,11 @@
                                     Diajukan
                                     {{ \Carbon\Carbon::parse($agenda->created_at)->locale('id')->diffForHumans() }}
                                 </span>
+                                @if ($agenda->logs_count > 0)
+                                    <span class="update-badge" onclick="showUpdateModal({{ $agenda->id_agenda }})" style="cursor: pointer;">
+                                        <i class="fas fa-sync-alt"></i> Has been updated
+                                    </span>
+                                @endif
                             </div>
 
 
@@ -245,6 +250,42 @@
                 @endforeach
             </div>
         @endif
+    </div>
+
+    <!-- Update Log Modal -->
+    <div id="updateLogModal" class="reject-modal-overlay">
+        <div class="reject-modal-container" style="max-width: 700px;">
+            <!-- Header -->
+            <div class="reject-modal-header">
+                <div class="reject-modal-title-wrap">
+                    <div class="reject-modal-icon" style="background: #dbeafe; color: #3b82f6;">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3 class="reject-modal-title">Riwayat Update Agenda</h3>
+                </div>
+                <button type="button" id="updateLogModalClose" class="reject-modal-close close-modal" aria-label="Tutup">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="reject-modal-body" id="updateLogModalBody" style="max-height: 500px; overflow-y: auto;">
+                <div style="text-align: center; padding: 40px;">
+                    <div class="spinner-border" role="status" style="color: #6E9579;">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <p style="margin-top: 16px; color: #6b7280;">Memuat data...</p>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="reject-modal-footer">
+                <button type="button" id="updateLogModalCloseBtn" class="reject-btn-confirm" style="background: linear-gradient(135deg, #6E9579 0%, #55745f 100%);">
+                    <i class="fas fa-times"></i>
+                    Tutup
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Reject Confirmation Modal (SiKota Style) -->
@@ -289,6 +330,154 @@
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
     <script>
+        // ======== UPDATE LOG MODAL ========
+        const updateLogModal = document.getElementById("updateLogModal");
+        const updateLogModalClose = document.getElementById("updateLogModalClose");
+        const updateLogModalCloseBtn = document.getElementById("updateLogModalCloseBtn");
+        const updateLogModalBody = document.getElementById("updateLogModalBody");
+        const sidebar = document.querySelector('.sidebar');
+
+        function closeUpdateLogModal() {
+            updateLogModal.classList.remove('show');
+            updateLogModal.style.display = 'none';
+            updateLogModal.style.opacity = '';
+            if (sidebar) sidebar.classList.remove('dimmed');
+        }
+
+        [updateLogModalClose, updateLogModalCloseBtn].forEach(btn => {
+            if (btn) {
+                btn.addEventListener("click", closeUpdateLogModal);
+            }
+        });
+
+        updateLogModal.addEventListener('click', (e) => {
+            if (e.target === updateLogModal) {
+                closeUpdateLogModal();
+            }
+        });
+
+        window.showUpdateModal = async function(agendaId) {
+            updateLogModal.classList.add('show');
+            updateLogModal.style.display = 'flex';
+            updateLogModal.style.opacity = '1';
+            if (sidebar) sidebar.classList.add('dimmed');
+
+            // Reset body content
+            updateLogModalBody.innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <div class="spinner-border" role="status" style="color: #6E9579;">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <p style="margin-top: 16px; color: #6b7280;">Memuat data...</p>
+                </div>
+            `;
+
+            try {
+                const response = await fetch(`/dashboard/api/agenda/${agendaId}/logs`, {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    updateLogModalBody.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #ef4444;">
+                            <i class="fas fa-exclamation-circle" style="font-size: 48px; margin-bottom: 16px;"></i>
+                            <p>Gagal memuat data log agenda.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                if (!data.logs || data.logs.length === 0) {
+                    updateLogModalBody.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #6b7280;">
+                            <i class="fas fa-info-circle" style="font-size: 48px; margin-bottom: 16px;"></i>
+                            <p>Tidak ada riwayat update untuk agenda ini.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Render logs
+                let html = '<div style="display: flex; flex-direction: column; gap: 20px;">';
+                data.logs.forEach((log, index) => {
+                    html += `
+                        <div style="border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; background: #fafafa;">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                                <div>
+                                    <div style="font-weight: 600; color: #1f2937; margin-bottom: 4px;">
+                                        Update #${data.logs.length - index}
+                                    </div>
+                                    <div style="font-size: 13px; color: #6b7280;">
+                                        <i class="fas fa-clock" style="margin-right: 6px;"></i>
+                                        ${log.updated_at} (${log.updated_at_human})
+                                    </div>
+                                </div>
+                            </div>
+                            ${log.user ? `
+                                <div style="margin-bottom: 16px; padding: 12px; background: white; border-radius: 8px; border: 1px solid #e5e7eb;">
+                                    <div style="font-size: 13px; color: #6b7280; margin-bottom: 4px;">Diupdate oleh:</div>
+                                    <div style="font-weight: 600; color: #1f2937;">
+                                        <i class="fas fa-user" style="margin-right: 6px; color: #6E9579;"></i>
+                                        ${log.user.name}
+                                    </div>
+                                    <div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">
+                                        ${log.user.email}
+                                    </div>
+                                </div>
+                            ` : ''}
+                            ${log.changes && log.changes.length > 0 ? `
+                                <div>
+                                    <div style="font-weight: 600; color: #1f2937; margin-bottom: 12px;">
+                                        <i class="fas fa-edit" style="margin-right: 6px; color: #6E9579;"></i>
+                                        Perubahan Data:
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                                        ${log.changes.map(change => `
+                                            <div style="padding: 12px; background: white; border-radius: 8px; border-left: 3px solid #6E9579;">
+                                                <div style="font-weight: 600; color: #374151; margin-bottom: 8px; font-size: 14px;">
+                                                    ${change.field}
+                                                </div>
+                                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 13px;">
+                                                    <div>
+                                                        <div style="color: #6b7280; margin-bottom: 4px;">Sebelumnya:</div>
+                                                        <div style="color: #ef4444; font-weight: 500; padding: 6px; background: #fef2f2; border-radius: 4px;">
+                                                            ${change.old_value}
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <div style="color: #6b7280; margin-bottom: 4px;">Sekarang:</div>
+                                                        <div style="color: #059669; font-weight: 500; padding: 6px; background: #d1fae5; border-radius: 4px;">
+                                                            ${change.new_value}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            ` : '<div style="color: #6b7280; font-size: 14px;">Tidak ada perubahan data yang tercatat.</div>'}
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                updateLogModalBody.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading update log:', error);
+                updateLogModalBody.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #ef4444;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 48px; margin-bottom: 16px;"></i>
+                        <p>Terjadi kesalahan saat memuat data.</p>
+                    </div>
+                `;
+            }
+        };
+
         // ======== TOASTIFY FUNCTION (harus didefinisikan dulu) ========
         function showToast(message, type = "success") {
             const toastNode = document.createElement('div');

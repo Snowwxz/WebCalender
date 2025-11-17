@@ -20,8 +20,9 @@ class ApproveController extends Controller
         $countApproved = Agenda::where('status', 'approved')->count();
         $countRejected = Agenda::where('status', 'rejected')->count();
 
-        // Base query
-        $agendaQuery = Agenda::with('unit', 'user');
+        // Base query (LOAD LOG COUNT)
+        $agendaQuery = Agenda::with('unit', 'user')
+            ->withCount('logs');
 
         // Filter status
         if ($status !== 'all') {
