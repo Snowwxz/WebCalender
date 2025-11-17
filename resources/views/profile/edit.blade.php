@@ -9,7 +9,7 @@
     <div class="profile-page">
         <div class="profile-header">
             <div class="header-left">
-                <a href="{{ route('dashboard.bulan') }}" class="back-btn" title="Kembali ke Dashboard">
+                <a href="{{ url('/dashboard/bulan') }}" class="back-btn" title="Kembali ke Dashboard">
                     <i class="fas fa-arrow-left"></i>
                 </a>
                 <div class="header-title">
@@ -190,8 +190,8 @@
     </div>
 
     <div class="modal fade" id="showAgendaModal" tabindex="-1" aria-labelledby="showAgendaLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl" style="--bs-modal-width: 1240px; margin: 0 auto; max-width: calc(100vw - 100px);">
-            <div class="modal-content border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="modal-dialog modal-dialog-centered modal-xl" style="--bs-modal-width: 860px; max-width: calc(100vw - 200px);">
+            <div class="modal-content border-0 shadow-sm rounded-4 overflow-hidden" style="width:100%; max-width:none;">
                 <div class="modal-header" style="background-color: #F6F8F7; border: none;">
                     <h5 class="modal-title fw-semibold d-flex align-items-center gap-2" id="showAgendaLabel" style="color: #4A7C59;">
                         <i class="fas fa-calendar-alt" style="color: #4A7C59;"></i>
@@ -276,14 +276,14 @@
 
     <!-- Edit Profile Modal -->
     <div id="editProfileModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Edit Profile</h2>
-                <button type="button" class="modal-close" onclick="closeEditProfileModal()">
+        <div class="modal-content" style="width: 860px; max-width: 95vw; border-radius: 16px;">
+            <div class="modal-header" style="background-color: #F6F8F7; border: none; padding: 16px 20px; align-items: center;">
+                <h2 style="margin:0; font-size:1.25rem; color:#2F3E35;">Edit Profile</h2>
+                <button type="button" class="modal-close" onclick="closeEditProfileModal()" style="background:transparent; border:none; color:#6b8f71; font-size:20px; cursor:pointer;">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <form method="POST" action="{{ route('profile.update') }}" class="profile-form">
+            <form method="POST" action="{{ route('profile.update') }}" class="profile-form" style="padding: 16px 20px;">
                 @csrf
                 @method('patch')
 
@@ -363,9 +363,6 @@
                 </div>
 
                 <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeEditProfileModal()">
-                        Batal
-                    </button>
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save"></i>
                         Simpan Perubahan
@@ -377,14 +374,14 @@
 
     <!-- Password Update Modal -->
     <div id="passwordModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Ubah Password</h2>
-                <button type="button" class="modal-close" onclick="closePasswordModal()">
+        <div class="modal-content" style="width: 860px; max-width: 95vw; border-radius: 16px;">
+            <div class="modal-header" style="background-color: #F6F8F7; border: none; padding: 16px 20px; align-items: center;">
+                <h2 style="margin:0; font-size:1.25rem; color:#2F3E35;">Ubah Password</h2>
+                <button type="button" class="modal-close" onclick="closePasswordModal()" style="background:transparent; border:none; color:#6b8f71; font-size:20px; cursor:pointer;">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <form method="POST" action="{{ route('password.update') }}" class="password-form">
+            <form method="POST" action="{{ route('password.update') }}" class="password-form" style="padding: 16px 20px;">
                 @csrf
                 @method('put')
 
@@ -440,9 +437,6 @@
                 </div>
 
                 <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closePasswordModal()">
-                        Batal
-                    </button>
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save"></i>
                         Simpan Password
@@ -494,9 +488,6 @@
                     </div>
 
                     <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">
-                            Batal
-                        </button>
                         <button type="submit" class="btn btn-danger">
                             <i class="fas fa-trash-alt"></i>
                             Hapus Akun
