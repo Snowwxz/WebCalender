@@ -75,7 +75,7 @@
                         <div class="input-group">
                             <label><i class="fas fa-building"></i> Pelaksana</label>
                             <input type="text" value="{{ $unitName }}" readonly>
-                            <input type="hidden" name="id_unit" value="{{ Auth::user()->id_unit }}">
+                            <input type="hidden" name="id_unit" value="{{ $agenda->id_unit }}">
                         </div>
 
                         <div class="input-group">
@@ -574,35 +574,9 @@
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    
-    <style>
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        #confirmSubmit:hover {
-            background: #F5A8A8 !important;
-        }
-        
-        #cancelSubmit:hover {
-            background: #D1D5DB !important;
-        }
-    </style>
 
     <script>
         function showConfirmSubmit() {
-            if (typeof Toastify === 'undefined') {
-                console.error('Toastify tidak tersedia');
-                return;
-            }
-            
             const toast = Toastify({
                 text: "",
                 duration: -1,
@@ -633,10 +607,10 @@
             }
 
             toastEl.innerHTML = `
-                    <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
-                        <span style="font-size:1rem; font-weight:500;">Apakah yakin ingin menyimpan perubahan agenda?</span>
-                        <div style="display:flex; gap:12px;">
-                            <button id="confirmSubmit" style="
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+                            <span style="font-size:1rem; font-weight:500;">Apakah yakin ingin mengajukan agenda?</span>
+                            <div style="display:flex; gap:12px;">
+                                <button id="confirmSubmit" style="
                             background:#F7B7B7;
                             border:none;
                             padding:7px 18px;
@@ -645,8 +619,8 @@
                             font-weight:600;
                             cursor:pointer;
                             transition:background 0.2s ease;
-                        ">Ya, simpan</button>
-                            <button id="cancelSubmit" style="
+                        ">Ya, ajukan</button>
+                                <button id="cancelSubmit" style="
                             background:#E5E7EB;
                             border:none;
                             padding:7px 18px;
@@ -656,28 +630,18 @@
                             cursor:pointer;
                             transition:background 0.2s ease;
                         ">Batal</button>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
 
-            const confirmBtn = document.getElementById("confirmSubmit");
-            const cancelBtn = document.getElementById("cancelSubmit");
-            
-            if (confirmBtn) {
-                confirmBtn.addEventListener("click", () => {
-                    toast.hideToast(); // tutup konfirmasi
-                    const form = document.getElementById("agendaForm");
-                    if (form) {
-                        form.submit(); // kirim form
-                    }
-                });
-            }
-            
-            if (cancelBtn) {
-                cancelBtn.addEventListener("click", () => {
-                    toast.hideToast();
-                });
-            }
+            document.getElementById("confirmSubmit").addEventListener("click", () => {
+                toast.hideToast(); // tutup konfirmasi
+                document.getElementById("agendaForm").submit(); // kirim form
+            });
+
+            document.getElementById("cancelSubmit").addEventListener("click", () => {
+                toast.hideToast();
+            });
         }
 
         // intercept tombol submit bawaan form

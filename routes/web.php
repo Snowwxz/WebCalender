@@ -75,6 +75,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/agenda/{id_agenda}', [AgendaController::class, 'destroy'])->name('agenda.destroy');
         Route::post('/agenda/{id_agenda}/reject', [AgendaController::class, 'reject'])->name('agenda.reject');
         Route::get('notification', [AgendaController::class, 'notification'])->name('agenda.notification');
+
+        Route::get('/agenda/{id}/logs', [AgendaController::class, 'logs'])->name('agenda.logs');
+        Route::get('/api/agenda/{id_agenda}/logs', [AgendaController::class, 'getAgendaLogs'])->name('api.agenda.logs');
     });
 
     // ✅ API Notifikasi untuk dropdown header

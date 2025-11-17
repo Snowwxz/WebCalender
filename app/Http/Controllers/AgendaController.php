@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Agenda;
 use App\Models\Unit;
 use App\Models\User;
+use App\Models\AgendaLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -168,49 +169,53 @@ class AgendaController extends Controller
     /**
      * ✅ Update agenda (baik dari admin maupun user).
      */
-    public function update(Request $request, $id_agenda)
+    public function update(Request $request, $id)
     {
-        $agenda = Agenda::findOrFail($id_agenda);
+        $agenda = Agenda::findOrFail($id);
+
+        // capture old data
+        $oldData = $agenda->toArray();
 
         $validated = $request->validate([
-            'agenda_name'        => 'required|string|max:255',
-            'description'        => 'required|string',
-            'date'               => 'required|date',
-            'start_time'         => 'required|date_format:H:i',
-            'end_time'           => 'required|date_format:H:i|after_or_equal:start_time',
-            'location'           => 'required|string|max:255',
-            'involved_institution' => 'nullable|string|max:500',
-            'status'             => 'nullable|string|in:pending,approved,rejected',
-            'is_public'          => 'required|in:0,1',
-            'notes' => 'nullable|string|max:1000',
-            'id_unit'            => 'required|exists:units,id_unit',
+            'agenda_name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'id_unit' => 'required|exists:units,id_unit',
+            'is_public' => 'required|boolean',
+            'location' => 'nullable|string',
+            'date' => 'required|date',
+            'start_time' => 'required',
+            'end_time' => 'required',
+            'involved_institution' => 'nullable|string',
+            'notes' => 'nullable|string',
         ]);
 
-        $agenda->agenda_name = $validated['agenda_name'];
-        $agenda->description = $validated['description'];
-        $agenda->date = $validated['date'];
-        $agenda->start_time = $validated['start_time'];
-        $agenda->end_time = $validated['end_time'];
-        $agenda->location = $validated['location'];
-        $agenda->involved_institution = $validated['involved_institution'] ?? null;
-        $agenda->is_public = $validated['is_public'];
-        $agenda->notes = $validated['notes'] ?? null;
-        $agenda->id_unit = $validated['id_unit'];
+        $agenda = Agenda::findOrFail($id);
+        $agenda->update($validated);
+        
+        // Reload agenda untuk mendapatkan data terbaru
+        $agenda->refresh();
 
-        // hanya admin yang boleh ubah status
+        // *** WRITE LOG ENTRY untuk semua user (admin dan user biasa) ***
+        AgendaLog::create([
+            'agenda_id' => $agenda->id_agenda,
+            'user_id'   => Auth::id(),
+            'action'    => 'updated',
+            'description' => Auth::user()->role === 'admin' ? 'Agenda updated by admin' : 'Agenda updated by user',
+            'old_data' => $oldData,
+            'new_data' => $agenda->toArray(),
+        ]);
+
+        // 🔥 Perbedaan redirect berdasarkan role pengguna
         if (Auth::user()->role === 'admin') {
-            if (isset($validated['status'])) {
-                $agenda->status = $validated['status'];
-                $agenda->approved_by = ($validated['status'] === 'approved') ? Auth::id() : null;
-            }
+            return redirect()->route('approve')
+                ->with('success', 'Agenda berhasil diperbarui');
         }
-
-        $agenda->save();
 
         return redirect()
             ->route('agenda.notification')
             ->with('success', 'Agenda berhasil diperbarui.');
     }
+
 
     public function updateStatus(Request $request, $id_agenda)
     {
@@ -227,9 +232,21 @@ class AgendaController extends Controller
             ], 403);
         }
 
+        $oldData = $agenda->toArray();
+
         $agenda->status = $request->status;
         $agenda->approved_by = ($request->status === 'approved') ? Auth::id() : null;
         $agenda->save();
+
+        // log it
+        AgendaLog::create([
+            'agenda_id' => $agenda->id_agenda,
+            'user_id'   => Auth::id(),
+            'action'    => 'status_changed',
+            'description' => "Status changed to {$request->status}",
+            'old_data' => $oldData,
+            'new_data' => $agenda->toArray(),
+        ]);
 
         return response()->json([
             'success' => true,
@@ -334,8 +351,8 @@ class AgendaController extends Controller
         // Tandai notifikasi user sudah dibuka agar badge hilang
         // Simpan ke database agar tetap tersimpan setelah logout/login
         if ($user && $user instanceof \App\Models\User) {
-        $user->last_seen_notification_at = now();
-        $user->save();
+            $user->last_seen_notification_at = now();
+            $user->save();
         }
 
 
@@ -353,7 +370,7 @@ class AgendaController extends Controller
     {
         $user = Auth::user();
         $userId = $user->id_user;
-        
+
         // Untuk user biasa: ambil agenda yang statusnya approved/rejected setelah last_seen
         // Untuk admin: ambil agenda pending yang dibuat setelah last_seen
         if ($user->role === 'admin') {
@@ -601,5 +618,112 @@ class AgendaController extends Controller
                 // 'trace' => $e->getTraceAsString()
             ], 500);
         }
+    }
+
+    public function logs($id_agenda)
+    {
+        $agenda = Agenda::with('logs.user')->findOrFail($id_agenda);
+
+        return view('agenda.logs', compact('agenda'));
+    }
+
+    /**
+     * ✅ API untuk mendapatkan detail log agenda (untuk modal)
+     */
+    public function getAgendaLogs($id_agenda)
+    {
+        $agenda = Agenda::with(['logs.user' => function($query) {
+            $query->select('id_user', 'name', 'email');
+        }])->findOrFail($id_agenda);
+
+        $logs = $agenda->logs()
+            ->where('action', 'updated')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function($log) {
+                return [
+                    'id' => $log->id,
+                    'action' => $log->action,
+                    'description' => $log->description,
+                    'updated_at' => $log->created_at->format('d F Y, H:i'),
+                    'updated_at_human' => $log->created_at->locale('id')->diffForHumans(),
+                    'user' => $log->user ? [
+                        'name' => $log->user->name,
+                        'email' => $log->user->email,
+                    ] : null,
+                    'old_data' => $log->old_data,
+                    'new_data' => $log->new_data,
+                    'changes' => $this->getChanges($log->old_data, $log->new_data),
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'logs' => $logs,
+        ]);
+    }
+
+    /**
+     * ✅ Helper untuk mendapatkan perubahan data
+     */
+    private function getChanges($oldData, $newData)
+    {
+        if (!$oldData || !$newData) {
+            return [];
+        }
+
+        $changes = [];
+        $fields = [
+            'agenda_name' => 'Nama Agenda',
+            'description' => 'Deskripsi',
+            'date' => 'Tanggal',
+            'start_time' => 'Waktu Mulai',
+            'end_time' => 'Waktu Selesai',
+            'location' => 'Lokasi',
+            'involved_institution' => 'Instansi Terlibat',
+            'is_public' => 'Status Publikasi',
+            'notes' => 'Catatan',
+        ];
+
+        foreach ($fields as $key => $label) {
+            $oldValue = $oldData[$key] ?? null;
+            $newValue = $newData[$key] ?? null;
+
+            // Handle is_public (0/1 to boolean text)
+            if ($key === 'is_public') {
+                $oldValue = $oldValue == 1 ? 'Publik' : 'Privasi';
+                $newValue = $newValue == 1 ? 'Publik' : 'Privasi';
+            }
+
+            // Handle date format
+            if ($key === 'date' && $oldValue && $newValue) {
+                try {
+                    $oldValue = \Carbon\Carbon::parse($oldValue)->locale('id')->translatedFormat('l, d F Y');
+                    $newValue = \Carbon\Carbon::parse($newValue)->locale('id')->translatedFormat('l, d F Y');
+                } catch (\Exception $e) {
+                    // Keep original if parsing fails
+                }
+            }
+
+            // Handle time format
+            if (in_array($key, ['start_time', 'end_time']) && $oldValue && $newValue) {
+                try {
+                    $oldValue = \Carbon\Carbon::parse($oldValue)->format('H:i');
+                    $newValue = \Carbon\Carbon::parse($newValue)->format('H:i');
+                } catch (\Exception $e) {
+                    // Keep original if parsing fails
+                }
+            }
+
+            if ($oldValue != $newValue) {
+                $changes[] = [
+                    'field' => $label,
+                    'old_value' => $oldValue ?? '-',
+                    'new_value' => $newValue ?? '-',
+                ];
+            }
+        }
+
+        return $changes;
     }
 }
