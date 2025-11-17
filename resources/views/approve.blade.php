@@ -232,19 +232,22 @@
                                 </div>
                             @else
                                 <div class="approval-actions">
-                                    <span class="validated-text">
-                                        <i class="fas fa-circle-check"></i>
-                                        Agenda sudah divalidasi
-                                        @if ($agenda->status === 'approved')
-                                            (Disetujui)
-                                        @elseif ($agenda->status === 'rejected')
-                                            (Ditolak)
-                                        @else
+
+                                    @if ($agenda->status === 'approved')
+                                        <a href="{{ route('agenda.edit', $agenda->id_agenda) }}" class="btn-edit">
+                                            <i class="fas fa-pen"></i> Edit Agenda
+                                        </a>
+                                    @else
+                                        <span class="validated-text">
+                                            <i class="fas fa-circle-check"></i>
+                                            Agenda sudah divalidasi
                                             ({{ ucfirst($agenda->status) }})
-                                        @endif
-                                    </span>
+                                        </span>
+                                    @endif
+
                                 </div>
                             @endif
+
                         </div>
                     </div>
                 @endforeach
@@ -514,7 +517,7 @@
             // Tampilkan toast dari sessionStorage setelah page reload selesai
             const toastMessage = sessionStorage.getItem('toastMessage');
             const toastType = sessionStorage.getItem('toastType');
-            
+
             if (toastMessage && toastType) {
                 // Tunggu sedikit agar DOM benar-benar siap
                 setTimeout(() => {
@@ -843,7 +846,7 @@
                         // Simpan pesan ke sessionStorage untuk ditampilkan setelah reload
                         sessionStorage.setItem('toastMessage', 'Agenda telah disetujui');
                         sessionStorage.setItem('toastType', 'success');
-                        
+
                         // Reload langsung setelah proses selesai
                         location.reload();
                     } else {
