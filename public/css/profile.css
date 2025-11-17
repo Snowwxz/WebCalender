@@ -18,22 +18,17 @@
 }
 
 .back-btn {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    background: #f3f4f6;
-    color: #374151;
+    color: #6E9579 !important;
+    font-size: 1.6rem;
+    transition: color 0.2s ease, transform 0.2s ease;
     text-decoration: none;
-    transition: all 0.2s ease;
-    border: 1px solid #e5e7eb;
 }
 
 .back-btn:hover {
-    background: #e5e7eb;
-    color: #1f2937;
+    color: #4A7C59 !important;
     transform: translateX(-2px);
 }
 

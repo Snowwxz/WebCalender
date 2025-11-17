@@ -67,7 +67,7 @@
                         📥 Paling Baru Diajukan
                     </option>
                     <option value="oldest_submitted" {{ request('sort') == 'oldest_submitted' ? 'selected' : '' }}>
-                        🕰️ Paling Lama Diajukan
+                        🕰 Paling Lama Diajukan
                     </option>
                     <option value="earliest_event" {{ request('sort') == 'earliest_event' ? 'selected' : '' }}>
                         📅 Tanggal Pelaksanaan Terdekat
@@ -575,7 +575,7 @@
                 const reason = rejectReason.value.trim();
 
                 try {
-                    const res = await fetch(`/dashboard/agenda/${currentAgendaId}/reject`, {
+                    const res = await fetch(/dashboard/agenda/${currentAgendaId}/reject, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
@@ -608,7 +608,7 @@
 
                     // 🔹 Update tampilan kartu secara langsung
                     const card = document.querySelector(
-                        `button[onclick="openRejectModal(${currentAgendaId})"]`)?.closest(
+                        button[onclick="openRejectModal(${currentAgendaId})"])?.closest(
                         ".approval-card");
                     if (card) {
                         // ubah badge status jadi Ditolak
@@ -784,7 +784,7 @@
             toastContent.querySelector('#confirmApprove').addEventListener('click', async () => {
                 toast.hideToast();
                 // Cari form yang sesuai dengan agendaId
-                const form = document.querySelector(`.approve-form[data-agenda-id="${agendaId}"]`);
+                const form = document.querySelector(.approve-form[data-agenda-id="${agendaId}"]);
                 if (!form) return;
 
                 // Disable button untuk mencegah double click
@@ -813,7 +813,7 @@
 
                     // Pastikan response benar-benar selesai sebelum lanjut
                     if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                        throw new Error(HTTP error! status: ${response.status});
                     }
 
                     // Parse response JSON langsung - akan throw error jika bukan JSON
@@ -926,4 +926,3 @@
         animation: none !important;
     }
 </style>
- 

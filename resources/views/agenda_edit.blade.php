@@ -586,20 +586,25 @@
                 stopOnFocus: true,
                 escapeMarkup: false,
                 style: {
-                    background: "#FFF6F2",
-                    border: "1px solid #FDD8D3",
+                    background: "#FFF1E6",
+                    border: "1px solid #F7B7B7",
                     borderRadius: "10px",
                     boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
                     padding: "20px 30px",
                     textAlign: "center",
                     color: "#333",
                     fontFamily: "Poppins, sans-serif",
+                    animation: "fadeIn 0.3s ease",
                 },
                 onClick: function() {} // biar nggak nutup waktu diklik
             }).showToast();
 
             // ambil elemen toast yg baru muncul
             const toastEl = document.querySelector(".toastify");
+            if (!toastEl) {
+                console.error('Elemen toast tidak ditemukan');
+                return;
+            }
 
             toastEl.innerHTML = `
                         <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
@@ -640,9 +645,23 @@
         }
 
         // intercept tombol submit bawaan form
-        document.getElementById("agendaForm").addEventListener("submit", function(e) {
-            e.preventDefault(); // cegah kirim langsung
-            showConfirmSubmit(); // munculkan toast konfirmasi
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById("agendaForm");
+            if (form) {
+                form.addEventListener("submit", function(e) {
+                    e.preventDefault(); // cegah kirim langsung
+                    if (typeof showConfirmSubmit === 'function') {
+                        showConfirmSubmit(); // munculkan toast konfirmasi
+                    } else {
+                        console.error('Fungsi showConfirmSubmit tidak tersedia');
+                        // Jika fungsi tidak tersedia, submit form secara normal
+                        this.submit();
+                    }
+                });
+            } else {
+                console.error('Form dengan ID agendaForm tidak ditemukan');
+            }
         });
+    </script>
 
     @endsection
