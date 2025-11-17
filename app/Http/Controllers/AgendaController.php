@@ -191,23 +191,25 @@ class AgendaController extends Controller
 
         $agenda = Agenda::findOrFail($id);
         $agenda->update($validated);
+        
+        // Reload agenda untuk mendapatkan data terbaru
+        $agenda->refresh();
+
+        // *** WRITE LOG ENTRY untuk semua user (admin dan user biasa) ***
+        AgendaLog::create([
+            'agenda_id' => $agenda->id_agenda,
+            'user_id'   => Auth::id(),
+            'action'    => 'updated',
+            'description' => Auth::user()->role === 'admin' ? 'Agenda updated by admin' : 'Agenda updated by user',
+            'old_data' => $oldData,
+            'new_data' => $agenda->toArray(),
+        ]);
 
         // 🔥 Perbedaan redirect berdasarkan role pengguna
         if (Auth::user()->role === 'admin') {
             return redirect()->route('approve')
                 ->with('success', 'Agenda berhasil diperbarui');
         }
-
-        $agenda->save();
-        // *** THEN WRITE LOG ENTRY ***
-        AgendaLog::create([
-            'agenda_id' => $agenda->id_agenda,
-            'user_id'   => Auth::id(),
-            'action'    => 'updated',
-            'description' => 'Agenda updated',
-            'old_data' => $oldData,
-            'new_data' => $agenda->toArray(),
-        ]);
 
         return redirect()
             ->route('agenda.notification')
