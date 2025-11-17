@@ -1336,12 +1336,13 @@
     right: -400px;
     width: 400px;
     height: calc(100% - 72px);
-    background: #fff;
-    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.2);
+    background: #F7FAF8;
+    box-shadow: none;
     overflow-y: auto;
     transition: right 0.3s ease-in-out;
     z-index: 10000;
     padding: 20px;
+    border-left: 1px solid #e9ecef;
 }
 
 #agendaSidebar.active {
@@ -1350,7 +1351,7 @@
 
 /* Sidebar header agar terlihat rapi */
 #agendaSidebar .sidebar-header {
-    background: #f8f9fa;
+    background: linear-gradient(180deg, #82A98D 0%, #6E9579 100%);
     padding: 15px 20px;
     border-bottom: 1px solid #e9ecef;
     display: flex;
@@ -1365,7 +1366,7 @@
     margin: 0;
     font-size: 16px;
     font-weight: 600;
-    color: #333;
+    color: #ffffff;
 }
 
 #agendaSidebar .close-sidebar {
@@ -1385,7 +1386,7 @@
 }
 
 #agendaSidebar .close-sidebar:hover {
-    color: #82A98D;
+    color: #E8F2EB;
     transform: rotate(90deg);
 }
 
@@ -1423,12 +1424,16 @@
 /* Panah di kanan */
 .agenda-item-arrow {
     flex-shrink: 0;
-    color: #6c757d;
+    color: #6E9579;
     display: inline-flex;
     align-items: center;
     margin-left: 10px;
     font-size: 14px;
     height: fit-content;
+}
+
+.agenda-item-arrow:hover {
+    color: #5b7d67;
 }
 
 /* Warna status */
@@ -1624,13 +1629,13 @@
 }
 
 .sidebar-header button.close-sidebar i.fas.fa-times {
-    color: #6E9579;
+    color: #ffffff;
     font-size: 20px;
     transition: color 0.2s ease;
 }
 
 .sidebar-header button.close-sidebar i.fas.fa-times:hover {
-    color: #5b7d67;
+    color: #E8F2EB;
 }
 
 #showAgendaModal i.fas,

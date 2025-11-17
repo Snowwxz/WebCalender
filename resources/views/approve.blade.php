@@ -95,7 +95,7 @@
                         <!-- Card Header -->
                         <div class="card-header">
                             <div class="card-title-section">
-                                <h3 class="card-title">{{ $agenda->agenda_name }}</h3>
+                                <h3 class="card-title" style="white-space: normal; overflow-wrap: anywhere; word-break: break-word;">{{ $agenda->agenda_name }}</h3>
                                 <p class="card-description">{{ $agenda->description ?? '-' }}</p>
                             </div>
                             <div class="status-badge {{ $agenda->status }}">
@@ -575,7 +575,7 @@
                 const reason = rejectReason.value.trim();
 
                 try {
-                    const res = await fetch(/dashboard/agenda/${currentAgendaId}/reject, {
+                    const res = await fetch(`/dashboard/agenda/${currentAgendaId}/reject`, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
@@ -608,7 +608,7 @@
 
                     // 🔹 Update tampilan kartu secara langsung
                     const card = document.querySelector(
-                        button[onclick="openRejectModal(${currentAgendaId})"])?.closest(
+                        `button[onclick="openRejectModal(${currentAgendaId})"]`)?.closest(
                         ".approval-card");
                     if (card) {
                         // ubah badge status jadi Ditolak
@@ -784,7 +784,7 @@
             toastContent.querySelector('#confirmApprove').addEventListener('click', async () => {
                 toast.hideToast();
                 // Cari form yang sesuai dengan agendaId
-                const form = document.querySelector(.approve-form[data-agenda-id="${agendaId}"]);
+                const form = document.querySelector(`.approve-form[data-agenda-id="${agendaId}"]`);
                 if (!form) return;
 
                 // Disable button untuk mencegah double click
@@ -813,7 +813,7 @@
 
                     // Pastikan response benar-benar selesai sebelum lanjut
                     if (!response.ok) {
-                        throw new Error(HTTP error! status: ${response.status});
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
 
                     // Parse response JSON langsung - akan throw error jika bukan JSON
