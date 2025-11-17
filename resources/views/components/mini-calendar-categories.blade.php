@@ -44,7 +44,7 @@
 
     /* No special-case needed for middle tab anymore */
 </style>
-<!-- Mini Calendar -->
+<!-- Mini Agenda -->
 <div class="content-mini-calendar-section">
     <!-- Navigation Tabs -->
     <div class="content-nav-tabs">
@@ -62,31 +62,32 @@
             <a href="/tahun" class="content-nav-tab {{ request()->is('tahun') ? 'active' : '' }}">Tahun</a>
         @endif
     </div>
+
     <div class="content-section-title">
-        <i class="fas fa-calendar"></i>
-        <span>Kalender</span>
+        <i class="fas fa-calendar-week"></i>
+        <span>Agenda Bulanan</span>
     </div>
 
-    <div class="content-mini-calendar">
-        <div class="content-mini-calendar-header">
-            <button class="content-mini-nav-btn" onclick="changeMiniMonth(-1)">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <span id="miniCalendarHeader">Okt 2025</span>
-            <button class="content-mini-nav-btn" onclick="changeMiniMonth(1)">
-                <i class="fas fa-chevron-right"></i>
-            </button>
+    <div class="mini-agenda-card">
+        <div class="mini-agenda-header">
+            <div>
+                <p class="mini-agenda-label">Ringkasan agenda publik</p>
+                <h4 id="miniAgendaMonthLabel">November 2025</h4>
+            </div>
+            <div class="mini-agenda-controls">
+                <button class="content-mini-nav-btn" onclick="changeMiniAgendaMonth(-1)">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="content-mini-nav-btn" onclick="changeMiniAgendaMonth(1)">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
         </div>
-        <div class="content-mini-calendar-weekdays">
-            <div>Sen</div>
-            <div>Sel</div>
-            <div>Rab</div>
-            <div>Kam</div>
-            <div>Jum</div>
-            <div>Sab</div>
-            <div class="weekend">Min</div>
+        <div class="mini-agenda-list" id="miniAgendaList">
+            <div class="mini-agenda-placeholder">
+                Memuat agenda...
+            </div>
         </div>
-        <div class="content-mini-calendar-days" id="miniCalendarDays"></div>
     </div>
 </div>
 
@@ -115,3 +116,309 @@
         @endauth
     </div>
 </div>
+
+@once
+    <style>
+        .mini-agenda-card {
+            background: #ffffff;
+            border: 1px solid #e8edf0;
+            border-radius: 20px;
+            padding: 18px;
+            box-shadow: 0 10px 24px rgba(3, 7, 18, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            min-height: 420px;
+        }
+
+        .mini-agenda-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .mini-agenda-label {
+            font-size: 13px;
+            color: #94a3b8;
+            margin: 0 0 4px;
+        }
+
+        #miniAgendaMonthLabel {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+            color: #243746;
+        }
+
+        .mini-agenda-controls {
+            display: inline-flex;
+            gap: 8px;
+        }
+
+        .mini-agenda-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            overflow-y: auto;
+            max-height: 360px;
+            padding-right: 6px;
+        }
+
+        .mini-agenda-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .mini-agenda-list::-webkit-scrollbar-thumb {
+            background: rgba(134, 170, 148, 0.5);
+            border-radius: 6px;
+        }
+
+        .mini-agenda-item {
+            border: 1px solid #edf2f7;
+            border-radius: 16px;
+            padding: 4px 0;
+            background: #fdfdfd;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .mini-agenda-item.open {
+            border-color: #cfe8d9;
+            box-shadow: 0 8px 18px rgba(56, 142, 89, 0.12);
+        }
+
+        .mini-agenda-toggle {
+            width: 100%;
+            border: none;
+            background: transparent;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .mini-agenda-title {
+            font-weight: 600;
+            color: #1f2a37;
+            font-size: 15px;
+            flex: 1;
+        }
+
+        .mini-agenda-chevron {
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            background: #f4f7f9;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7a8c;
+            transition: transform 0.2s ease;
+        }
+
+        .mini-agenda-item.open .mini-agenda-chevron {
+            transform: rotate(90deg);
+        }
+
+        .mini-agenda-body {
+            display: none;
+            padding: 0 14px 14px;
+            border-top: 1px dashed #dbe3ea;
+        }
+
+        .mini-agenda-item.open .mini-agenda-body {
+            display: block;
+        }
+
+        .mini-agenda-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            color: #64748b;
+            font-size: 13px;
+            margin-top: 12px;
+        }
+
+        .mini-agenda-meta i {
+            color: #86aa94;
+            margin-right: 6px;
+        }
+
+        .mini-agenda-status {
+            font-size: 12px;
+            font-weight: 600;
+            color: #2f3e35;
+            background: #d4f6e4;
+            border-radius: 999px;
+            padding: 4px 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 70px;
+            justify-content: center;
+            margin-top: 12px;
+        }
+
+        .mini-agenda-placeholder {
+            font-size: 14px;
+            color: #94a3b8;
+            text-align: center;
+            padding: 30px 12px;
+        }
+
+        @media (max-height: 800px) {
+            .mini-agenda-card {
+                min-height: 360px;
+            }
+
+            .mini-agenda-list {
+                max-height: 300px;
+            }
+        }
+    </style>
+@endonce
+
+@once
+    <script>
+        (function() {
+            if (window.__miniAgendaInitialized) {
+                return;
+            }
+
+            window.__miniAgendaInitialized = true;
+
+            const monthNames = [
+                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+            ];
+
+            const state = {
+                currentDate: new Date(),
+                cache: {}
+            };
+
+            const ids = {
+                monthLabel: 'miniAgendaMonthLabel',
+                list: 'miniAgendaList'
+            };
+
+            function updateMonthLabel() {
+                const el = document.getElementById(ids.monthLabel);
+                if (!el) return;
+                el.textContent = `${monthNames[state.currentDate.getMonth()]} ${state.currentDate.getFullYear()}`;
+            }
+
+            function attachMiniAgendaAccordion(container) {
+                if (!container) return;
+                const toggles = container.querySelectorAll('.mini-agenda-toggle');
+
+                toggles.forEach(toggle => {
+                    toggle.addEventListener('click', function() {
+                        const item = this.closest('.mini-agenda-item');
+                        if (!item) return;
+
+                        const isOpen = item.classList.contains('open');
+                        container.querySelectorAll('.mini-agenda-item.open').forEach(openItem => {
+                            if (openItem !== item) {
+                                openItem.classList.remove('open');
+                                const btn = openItem.querySelector('.mini-agenda-toggle');
+                                if (btn) {
+                                    btn.setAttribute('aria-expanded', 'false');
+                                }
+                            }
+                        });
+
+                        item.classList.toggle('open', !isOpen);
+                        this.setAttribute('aria-expanded', String(!isOpen));
+                    });
+                });
+            }
+
+            function renderAgendaList(data = []) {
+                const listEl = document.getElementById(ids.list);
+                if (!listEl) {
+                    return;
+                }
+
+                const filtered = data
+                    .filter(item => item.status === 'approved' && Number(item.is_public) === 1)
+                    .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                if (filtered.length === 0) {
+                    listEl.innerHTML = '<div class="mini-agenda-placeholder">Belum ada agenda publik pada bulan ini.</div>';
+                    return;
+                }
+
+                listEl.innerHTML = filtered.map(item => {
+                    const timeText = item.start_time && item.end_time
+                        ? `${item.start_time} - ${item.end_time}`
+                        : (item.start_time ?? '-');
+                    const organizer = item.organizer ?? (item.unit && item.unit.unit_name) ?? '-';
+                    const participants = item.involved_institution ?? '-';
+                    const location = item.location ?? '-';
+
+                    return `
+                        <div class="mini-agenda-item">
+                            <button class="mini-agenda-toggle" type="button" aria-expanded="false">
+                                <span class="mini-agenda-title">${item.agenda_name ?? '-'}</span>
+                                <span class="mini-agenda-chevron"><i class="fas fa-chevron-right"></i></span>
+                            </button>
+                            <div class="mini-agenda-body">
+                                <div class="mini-agenda-meta">
+                                    <div><i class="far fa-clock"></i>${timeText}</div>
+                                    <div><i class="fas fa-map-marker-alt"></i>${location}</div>
+                                    <div><i class="fas fa-user"></i>Penyelenggara: ${organizer}</div>
+                                    <div><i class="fas fa-users"></i>Peserta: ${participants}</div>
+                                </div>
+                                <span class="mini-agenda-status">Publik</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                attachMiniAgendaAccordion(listEl);
+            }
+
+            function fetchAgendaForMonth(year, month) {
+                const key = `${year}-${month}`;
+                const listEl = document.getElementById(ids.list);
+                if (listEl) {
+                    listEl.innerHTML = '<div class="mini-agenda-placeholder">Memuat agenda...</div>';
+                }
+
+                if (state.cache[key]) {
+                    renderAgendaList(state.cache[key]);
+                    return;
+                }
+
+                fetch(`/api/agenda/${year}/${month}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        state.cache[key] = data ?? [];
+                        renderAgendaList(state.cache[key]);
+                    })
+                    .catch(() => {
+                        if (listEl) {
+                            listEl.innerHTML = '<div class="mini-agenda-placeholder">Gagal memuat agenda.</div>';
+                        }
+                    });
+            }
+
+            window.changeMiniAgendaMonth = function(direction) {
+                state.currentDate.setMonth(state.currentDate.getMonth() + direction);
+                const targetYear = state.currentDate.getFullYear();
+                const targetMonth = state.currentDate.getMonth() + 1;
+                updateMonthLabel();
+                fetchAgendaForMonth(targetYear, targetMonth);
+            };
+
+            document.addEventListener('DOMContentLoaded', function() {
+                updateMonthLabel();
+                fetchAgendaForMonth(state.currentDate.getFullYear(), state.currentDate.getMonth() + 1);
+            });
+        })();
+    </script>
+@endonce
