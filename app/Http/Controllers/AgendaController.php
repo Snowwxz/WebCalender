@@ -168,49 +168,35 @@ class AgendaController extends Controller
     /**
      * ✅ Update agenda (baik dari admin maupun user).
      */
-    public function update(Request $request, $id_agenda)
+    public function update(Request $request, $id)
     {
-        $agenda = Agenda::findOrFail($id_agenda);
-
         $validated = $request->validate([
-            'agenda_name'        => 'required|string|max:255',
-            'description'        => 'required|string',
-            'date'               => 'required|date',
-            'start_time'         => 'required|date_format:H:i',
-            'end_time'           => 'required|date_format:H:i|after_or_equal:start_time',
-            'location'           => 'required|string|max:255',
-            'involved_institution' => 'nullable|string|max:500',
-            'status'             => 'nullable|string|in:pending,approved,rejected',
-            'is_public'          => 'required|in:0,1',
-            'notes' => 'nullable|string|max:1000',
-            'id_unit'            => 'required|exists:units,id_unit',
+            'agenda_name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'id_unit' => 'required|exists:units,id_unit',
+            'is_public' => 'required|boolean',
+            'location' => 'nullable|string',
+            'date' => 'required|date',
+            'start_time' => 'required',
+            'end_time' => 'required',
+            'involved_institution' => 'nullable|string',
+            'notes' => 'nullable|string',
         ]);
 
-        $agenda->agenda_name = $validated['agenda_name'];
-        $agenda->description = $validated['description'];
-        $agenda->date = $validated['date'];
-        $agenda->start_time = $validated['start_time'];
-        $agenda->end_time = $validated['end_time'];
-        $agenda->location = $validated['location'];
-        $agenda->involved_institution = $validated['involved_institution'] ?? null;
-        $agenda->is_public = $validated['is_public'];
-        $agenda->notes = $validated['notes'] ?? null;
-        $agenda->id_unit = $validated['id_unit'];
+        $agenda = Agenda::findOrFail($id);
+        $agenda->update($validated);
 
-        // hanya admin yang boleh ubah status
+        // 🔥 Perbedaan redirect berdasarkan role pengguna
         if (Auth::user()->role === 'admin') {
-            if (isset($validated['status'])) {
-                $agenda->status = $validated['status'];
-                $agenda->approved_by = ($validated['status'] === 'approved') ? Auth::id() : null;
-            }
+            return redirect()->route('approve')
+                ->with('success', 'Agenda berhasil diperbarui');
         }
 
-        $agenda->save();
-
-        return redirect()
-            ->route('agenda.notification')
-            ->with('success', 'Agenda berhasil diperbarui.');
+        // Untuk user biasa
+        return redirect()->route('agenda.notification')
+            ->with('success', 'Agenda berhasil diperbarui');
     }
+
 
     public function updateStatus(Request $request, $id_agenda)
     {
@@ -334,8 +320,8 @@ class AgendaController extends Controller
         // Tandai notifikasi user sudah dibuka agar badge hilang
         // Simpan ke database agar tetap tersimpan setelah logout/login
         if ($user && $user instanceof \App\Models\User) {
-        $user->last_seen_notification_at = now();
-        $user->save();
+            $user->last_seen_notification_at = now();
+            $user->save();
         }
 
 
@@ -344,6 +330,68 @@ class AgendaController extends Controller
         }
 
         return view('notification', compact('agenda', 'counts', 'status', 'search'));
+    }
+
+    /**
+     * ✅ API untuk mendapatkan notifikasi terbaru (untuk dropdown header)
+     */
+    public function getNotifications(Request $request)
+    {
+        $user = Auth::user();
+        $userId = $user->id_user;
+
+        // Untuk user biasa: ambil agenda yang statusnya approved/rejected setelah last_seen
+        // Untuk admin: ambil agenda pending yang dibuat setelah last_seen
+        if ($user->role === 'admin') {
+            $lastSeen = $user->last_seen_approve_at;
+            $notifications = Agenda::with(['unit', 'user'])
+                ->where('status', 'pending')
+                ->when($lastSeen, function ($q) use ($lastSeen) {
+                    $q->where('created_at', '>', $lastSeen);
+                })
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get();
+        } else {
+            $lastSeenU = $user->last_seen_notification_at;
+            $notifications = Agenda::with(['unit'])
+                ->where('id_user', $userId)
+                ->whereIn('status', ['approved', 'rejected'])
+                ->when($lastSeenU, function ($q) use ($lastSeenU) {
+                    $q->where('updated_at', '>', $lastSeenU);
+                }, function ($q) {
+                    $q->where('updated_at', '>=', now()->startOfDay());
+                })
+                ->orderBy('updated_at', 'desc')
+                ->limit(10)
+                ->get();
+        }
+
+        // Hitung total notifikasi baru
+        $count = 0;
+        if ($user->role === 'admin') {
+            $lastSeen = $user->last_seen_approve_at;
+            $count = Agenda::where('status', 'pending')
+                ->when($lastSeen, function ($q) use ($lastSeen) {
+                    $q->where('created_at', '>', $lastSeen);
+                })
+                ->count();
+        } else {
+            $lastSeenU = $user->last_seen_notification_at;
+            $count = Agenda::where('id_user', $userId)
+                ->whereIn('status', ['approved', 'rejected'])
+                ->when($lastSeenU, function ($q) use ($lastSeenU) {
+                    $q->where('updated_at', '>', $lastSeenU);
+                }, function ($q) {
+                    $q->where('updated_at', '>=', now()->startOfDay());
+                })
+                ->count();
+        }
+
+        return response()->json([
+            'notifications' => $notifications,
+            'count' => $count
+        ]);
     }
 
     /**

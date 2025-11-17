@@ -75,7 +75,7 @@
                         <div class="input-group">
                             <label><i class="fas fa-building"></i> Pelaksana</label>
                             <input type="text" value="{{ $unitName }}" readonly>
-                            <input type="hidden" name="id_unit" value="{{ Auth::user()->id_unit }}">
+                            <input type="hidden" name="id_unit" value="{{ $agenda->id_unit }}">
                         </div>
 
                         <div class="input-group">
@@ -602,10 +602,10 @@
             const toastEl = document.querySelector(".toastify");
 
             toastEl.innerHTML = `
-                    <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
-                        <span style="font-size:1rem; font-weight:500;">Apakah yakin ingin mengajukan agenda?</span>
-                        <div style="display:flex; gap:12px;">
-                            <button id="confirmSubmit" style="
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+                            <span style="font-size:1rem; font-weight:500;">Apakah yakin ingin mengajukan agenda?</span>
+                            <div style="display:flex; gap:12px;">
+                                <button id="confirmSubmit" style="
                             background:#F7B7B7;
                             border:none;
                             padding:7px 18px;
@@ -615,7 +615,7 @@
                             cursor:pointer;
                             transition:background 0.2s ease;
                         ">Ya, ajukan</button>
-                            <button id="cancelSubmit" style="
+                                <button id="cancelSubmit" style="
                             background:#E5E7EB;
                             border:none;
                             padding:7px 18px;
@@ -625,9 +625,9 @@
                             cursor:pointer;
                             transition:background 0.2s ease;
                         ">Batal</button>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
 
             document.getElementById("confirmSubmit").addEventListener("click", () => {
                 toast.hideToast(); // tutup konfirmasi

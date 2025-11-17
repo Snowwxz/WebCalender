@@ -77,6 +77,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('notification', [AgendaController::class, 'notification'])->name('agenda.notification');
     });
 
+    // ✅ API Notifikasi untuk dropdown header
+    Route::get('/api/notifications', [AgendaController::class, 'getNotifications'])->name('api.notifications');
+
 
     // ✅ Route khusus tiap role
     Route::middleware('role:superadmin,admin,user')->group(function () {
@@ -120,7 +123,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
+
     // Password update route
     Route::put('/password', [\App\Http\Controllers\Auth\PasswordController::class, 'update'])->name('password.update');
 

@@ -69,9 +69,9 @@ class ApproveController extends Controller
         // Tandai semua ajuan sudah "dibuka" oleh admin agar badge notifikasi hilang
         // Simpan ke database agar tetap tersimpan setelah logout/login
         $user = Auth::user();
-        if ($user instanceof \App\Models\User && $user->role === 'admin') {
-        $user->last_seen_approve_at = now();
-        $user->save();
+        if ($user && $user instanceof \App\Models\User && $user->role === 'admin') {
+            $user->last_seen_approve_at = now();
+            $user->save();
         }
 
 
