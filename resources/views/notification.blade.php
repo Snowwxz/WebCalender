@@ -82,7 +82,7 @@
                                 <!-- Card Header -->
                                 <div class="card-header">
                                     <div class="card-title-section">
-                                        <h3 class="card-title">{{ $item->agenda_name }}</h3>
+                                        <h3 class="card-title" style="white-space: normal; overflow-wrap: anywhere; word-break: break-word;">{{ $item->agenda_name }}</h3>
                                         <p class="card-description">{{ $item->description ?? '-' }}</p>
                                     </div>
                                     <div class="status-badge {{ $item->status }}">

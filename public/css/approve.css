@@ -362,6 +362,9 @@
     color: #1f2937;
     margin-bottom: 8px;
     line-height: 1.3;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .card-description {
@@ -509,6 +512,34 @@
 .approval-actions {
     display: flex;
     gap: 12px;
+}
+
+/* Edit Agenda button (approved state) */
+.btn-edit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(180deg, #82A98D 0%, #6E9579 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 6px 18px rgba(110, 149, 121, 0.25);
+}
+
+.btn-edit i {
+    color: inherit;
+    font-size: 14px;
+}
+
+.btn-edit:hover {
+    color: #111111;
+    transform: translateY(-1px);
 }
 
 .approval-header a i.fas.fa-arrow-left {
@@ -924,7 +955,6 @@
     }
 }
 
-/* Spinner for loading state */
 .spinner-border {
     display: inline-block;
     width: 2rem;
