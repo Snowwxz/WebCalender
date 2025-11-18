@@ -38,8 +38,8 @@ class Agenda extends Model
      */
     protected $casts = [
         'date' => 'date',
-        'start_time' => 'datetime:H:i',
-        'end_time' => 'datetime:H:i',
+        'start_time' => 'string',
+        'end_time' => 'string',
     ];
 
     /**
