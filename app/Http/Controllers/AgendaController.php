@@ -163,8 +163,14 @@ class AgendaController extends Controller
             $unitName = $unit ? $unit->unit_name : null;
         }
 
+        // format agar cocok input HTML
+        $agenda->date = \Carbon\Carbon::parse($agenda->date)->format('Y-m-d');
+        $agenda->start_time = \Carbon\Carbon::parse($agenda->start_time)->format('H:i');
+        $agenda->end_time = \Carbon\Carbon::parse($agenda->end_time)->format('H:i');
+
         return view('agenda_edit', compact('agenda', 'units', 'unitName'));
     }
+
 
     /**
      * ✅ Update agenda (baik dari admin maupun user).
@@ -191,7 +197,7 @@ class AgendaController extends Controller
 
         $agenda = Agenda::findOrFail($id);
         $agenda->update($validated);
-        
+
         // Reload agenda untuk mendapatkan data terbaru
         $agenda->refresh();
 
@@ -632,7 +638,7 @@ class AgendaController extends Controller
      */
     public function getAgendaLogs($id_agenda)
     {
-        $agenda = Agenda::with(['logs.user' => function($query) {
+        $agenda = Agenda::with(['logs.user' => function ($query) {
             $query->select('id_user', 'name', 'email');
         }])->findOrFail($id_agenda);
 
@@ -640,7 +646,7 @@ class AgendaController extends Controller
             ->where('action', 'updated')
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function($log) {
+            ->map(function ($log) {
                 return [
                     'id' => $log->id,
                     'action' => $log->action,
