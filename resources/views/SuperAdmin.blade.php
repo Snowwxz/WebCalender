@@ -699,15 +699,14 @@
             window.closeEditUnitModal = function() {
                 document.getElementById('editUnitModal').classList.remove('show');
             };
-
-
-            window.closeEditModal = function() {
-                document.getElementById('editModal').classList.remove('show');
-            };
         });
     </script>
 
     <style>
+        .toastify {
+            z-index: 999999 !important;
+        }
+
         .toastify-popup {
             position: fixed;
             top: 70px;
@@ -766,6 +765,10 @@
         .toastify-btn-group .btn-cancel:hover {
             background: #ededed;
             transform: scale(1.03);
+        }
+
+        .toastify-popup {
+            z-index: 999999 !important;
         }
 
         .toastify-popup-show {
