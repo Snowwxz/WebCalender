@@ -313,6 +313,31 @@ class AgendaController extends Controller
         // Filters
         $status = $request->query('status', 'all');
         $search = $request->query('q');
+        $agendaId = $request->query('agenda_id');
+        $selectedAgenda = null;
+
+        // Jika ada agenda_id, ambil agenda tersebut (bisa agenda publik atau milik user)
+        if ($agendaId) {
+            $selectedAgenda = Agenda::with(['unit', 'user'])
+                ->where('id_agenda', $agendaId)
+                ->where(function ($q) use ($userId) {
+                    // Bisa agenda milik user atau agenda publik yang approved
+                    $q->where('id_user', $userId)
+                        ->orWhere(function ($pubQ) {
+                            $pubQ->where('is_public', 1)
+                                ->where('status', 'approved');
+                        });
+                })
+                ->first();
+
+            // Jika agenda ditemukan dan bukan milik user, set status ke 'all' untuk menampilkan semua
+            if ($selectedAgenda && $selectedAgenda->id_user != $userId) {
+                $status = 'all';
+            } elseif ($selectedAgenda) {
+                // Jika milik user, set status sesuai status agenda
+                $status = $selectedAgenda->status;
+            }
+        }
 
         // Base query for the list
         $query = Agenda::with(['unit'])
@@ -360,7 +385,7 @@ class AgendaController extends Controller
             return response()->json($agenda);
         }
 
-        return view('notification', compact('agenda', 'counts', 'status', 'search'));
+        return view('notification', compact('agenda', 'counts', 'status', 'search', 'agendaId', 'selectedAgenda'));
     }
 
     /**
@@ -423,6 +448,54 @@ class AgendaController extends Controller
             'notifications' => $notifications,
             'count' => $count
         ]);
+    }
+
+    /**
+     * ✅ API untuk mendapatkan agenda per bulan (untuk dashboard - menampilkan publik + privasi)
+     */
+    public function getByMonth($year, $month)
+    {
+        if (!is_numeric($year) || !is_numeric($month) || $month < 1 || $month > 12) {
+            return response()->json(['error' => 'Parameter tahun atau bulan tidak valid.'], 400);
+        }
+
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $userId = $user->id_user;
+        $userUnit = $user->unit;
+        $userUnitName = $userUnit ? $userUnit->unit_name : null;
+
+        $agenda = Agenda::query()
+            ->with(['unit'])
+            ->selectRaw("id_agenda, agenda_name, DATE(date) as date, location, description, start_time, end_time, involved_institution, is_public, status, id_unit, notes")
+            ->whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->where('status', 'approved')
+            ->where(function ($q) use ($userId, $userUnitName) {
+                // Agenda publik
+                $q->where('is_public', 1);
+                
+                // Agenda privasi milik user
+                $q->orWhere(function ($subQ) use ($userId) {
+                    $subQ->where('is_public', 0)
+                        ->where('id_user', $userId);
+                });
+
+                // Agenda privasi yang mengundang instansi user
+                if ($userUnitName) {
+                    $q->orWhere(function ($subQ) use ($userUnitName) {
+                        $subQ->where('is_public', 0)
+                            ->where('involved_institution', 'like', '%' . $userUnitName . '%');
+                    });
+                }
+            })
+            ->orderBy('date', 'asc')
+            ->get();
+
+        return response()->json($agenda);
     }
 
     /**
