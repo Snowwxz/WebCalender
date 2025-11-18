@@ -83,6 +83,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ✅ API Notifikasi untuk dropdown header
     Route::get('/api/notifications', [AgendaController::class, 'getNotifications'])->name('api.notifications');
 
+    // ✅ API Agenda per bulan untuk dashboard (menampilkan publik + privasi)
+    Route::get('/api/dashboard/agenda/{year}/{month}', [AgendaController::class, 'getByMonth'])
+        ->where(['year' => '[0-9]{4}', 'month' => '[0-9]{1,2}']);
+
 
     // ✅ Route khusus tiap role
     Route::middleware('role:superadmin,admin,user')->group(function () {
