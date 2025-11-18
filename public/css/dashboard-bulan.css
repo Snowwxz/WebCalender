@@ -802,7 +802,7 @@
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.6);
-    z-index: 9999;
+    z-index: 11002;
     justify-content: center;
     align-items: center;
     animation: fadeIn 0.3s ease;

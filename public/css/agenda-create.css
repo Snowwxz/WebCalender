@@ -84,7 +84,12 @@
 .agenda-form-card input[type="date"],
 .agenda-form-card input[type="time"],
 .agenda-form-card textarea,
-.agenda-form-card select {
+.agenda-form-card select,
+.form-style-scope input[type="text"],
+.form-style-scope input[type="date"],
+.form-style-scope input[type="time"],
+.form-style-scope textarea,
+.form-style-scope select {
     width: 100%;
     padding: 8px 12px;
     border: 1px solid #d6e0d9;
@@ -98,19 +103,24 @@
 
 .agenda-form-card input:focus,
 .agenda-form-card textarea:focus,
-.agenda-form-card select:focus {
+.agenda-form-card select:focus,
+.form-style-scope input:focus,
+.form-style-scope textarea:focus,
+.form-style-scope select:focus {
     border-color: #6E9579;
     background-color: #fff;
     box-shadow: 0 0 0 3px rgba(110, 149, 121, 0.15);
     outline: none;
 }
 
-.agenda-form-card textarea {
+.agenda-form-card textarea,
+.form-style-scope textarea {
     min-height: 80px;
     resize: vertical;
 }
 
-.agenda-form-card select {
+.agenda-form-card select,
+.form-style-scope select {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -124,12 +134,14 @@
     box-sizing: border-box;
 }
 
-.agenda-form-card select:hover {
+.agenda-form-card select:hover,
+.form-style-scope select:hover {
     border-color: #c7d5cd;
     background-color: #ffffff;
 }
 
-.agenda-form-card select option {
+.agenda-form-card select option,
+.form-style-scope select option {
     color: #2f4737;
 }
 
@@ -180,7 +192,9 @@ label {
 }
 
 .agenda-form-card select,
-.agenda-form-card select option {
+.agenda-form-card select option,
+.form-style-scope select,
+.form-style-scope select option {
     font-family: 'Poppins', sans-serif !important;
 }
 
@@ -527,7 +541,8 @@ label {
     box-shadow: 0 3px 10px rgba(110, 149, 121, 0.15);
 }
 
-.agenda-form-card input[type="text"]:not(.chips-input) {
+.agenda-form-card input[type="text"]:not(.chips-input),
+.form-style-scope input[type="text"]:not(.chips-input) {
     width: 100%;
     padding: 12px 15px;
     border: 1px solid #d6e0d9;
@@ -610,7 +625,8 @@ label {
     background: #fff;
 }
 
-.agenda-form-card input.same-style-as-search {
+.agenda-form-card input.same-style-as-search,
+.form-style-scope input.same-style-as-search {
     background-color: #fff !important;
     border: 1px solid rgba(88, 111, 88, 0.6) !important;
     border-radius: 16px !important;
@@ -621,7 +637,8 @@ label {
     transition: all 0.25s ease !important;
 }
 
-.agenda-form-card input.same-style-as-search:focus {
+.agenda-form-card input.same-style-as-search:focus,
+.form-style-scope input.same-style-as-search:focus {
     border-color: rgba(88, 111, 88, 0.8) !important;
     box-shadow: 0 0 0 2px rgba(88, 111, 88, 0.15) !important;
     background: #fff !important;
@@ -633,6 +650,14 @@ label {
 
 .fullwidth-group {
     grid-column: 1 / -1 !important;
+}
+
+.lokasi-group {
+    margin-bottom: 16px;
+}
+
+.dihadiri-group {
+    margin-top: 14px;
 }
 
 .fullwidth-group textarea {
@@ -666,6 +691,11 @@ label {
 .agenda-form-card input[type="time"],
 .agenda-form-card textarea,
 .agenda-form-card select,
+.form-style-scope input[type="text"],
+.form-style-scope input[type="date"],
+.form-style-scope input[type="time"],
+.form-style-scope textarea,
+.form-style-scope select,
 .chips-multiselect {
     border-radius: 16px !important;
     border: 1px solid #d8e4da;
@@ -677,6 +707,9 @@ label {
 .agenda-form-card input:focus,
 .agenda-form-card textarea:focus,
 .agenda-form-card select:focus,
+.form-style-scope input:focus,
+.form-style-scope textarea:focus,
+.form-style-scope select:focus,
 .chips-multiselect:focus-within {
     border-color: #6E9579;
     background-color: #ffffff;
@@ -686,12 +719,16 @@ label {
 .agenda-form-card input:hover,
 .agenda-form-card textarea:hover,
 .agenda-form-card select:hover,
+.form-style-scope input:hover,
+.form-style-scope textarea:hover,
+.form-style-scope select:hover,
 .chips-multiselect:hover {
     background-color: #ffffff;
     border-color: #c7d5cd;
 }
 
-.agenda-form-card textarea {
+.agenda-form-card textarea,
+.form-style-scope textarea {
     border-radius: 18px !important;
     padding: 14px 16px;
     min-height: 130px;
