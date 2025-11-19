@@ -87,6 +87,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/api/dashboard/agenda/{year}/{month}', [AgendaController::class, 'getByMonth'])
         ->where(['year' => '[0-9]{4}', 'month' => '[0-9]{1,2}']);
 
+    // ✅ API External Agenda
+    Route::get('/api/external/agendas', [AgendaController::class, 'fetchExternalAgendas'])->name('api.external.agendas');
+    Route::get('/api/external/agendas/date', [AgendaController::class, 'getExternalAgendasByDate'])->name('api.external.agendas.date');
+    Route::get('/api/merged/agendas', [AgendaController::class, 'getMergedAgendas'])->name('api.merged.agendas');
+
 
     // ✅ Route khusus tiap role
     Route::middleware('role:superadmin,admin,user')->group(function () {

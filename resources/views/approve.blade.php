@@ -167,7 +167,7 @@
                                             @endif
                                         </span>
                                     </div>
-
+                                    
                                     <div class="detail-item">
                                         <i class="fas fa-map-marker-alt"></i>
                                         <span><strong>Lokasi:</strong> {{ $agenda->location ?? '-' }}</span>
