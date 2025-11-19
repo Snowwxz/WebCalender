@@ -263,7 +263,7 @@
             function getFilteredAgendaForDay(year, month, day) {
                 return agenda.filter(item => {
                     if (!item.date) return false;
-                    
+
                     // Parse date - handle both string and date object
                     let date;
                     if (typeof item.date === 'string') {
@@ -277,7 +277,7 @@
                     } else {
                         date = new Date(item.date);
                     }
-                    
+
                     if (isNaN(date.getTime())) return false;
 
                     const matchYear = date.getFullYear() === Number(year);
@@ -341,10 +341,13 @@
                         agendaContainer.className = "agenda-container";
 
                         const externalAgenda = filteredAgenda.filter(a => a.is_external || a.source === 'external');
-                        const publicAgenda = filteredAgenda.filter(a => a.is_public == 1 && !(a.is_external || a.source === 'external'));
-                        const privateAgenda = filteredAgenda.filter(a => a.is_public == 0 && !(a.is_external || a.source === 'external'));
+                        const publicAgenda = filteredAgenda.filter(a => a.is_public == 1 && !(a.is_external || a.source ===
+                            'external'));
+                        const privateAgenda = filteredAgenda.filter(a => a.is_public == 0 && !(a.is_external || a.source ===
+                            'external'));
 
-                        const hasApproved = filteredAgenda.some(a => a.status === 'approved' || a.is_external || a.source === 'external');
+                        const hasApproved = filteredAgenda.some(a => a.status === 'approved' || a.is_external || a.source ===
+                            'external');
                         const hasPending = filteredAgenda.some(a => a.status === 'pending');
                         const hasRejected = filteredAgenda.some(a => a.status === 'rejected');
 
@@ -355,11 +358,10 @@
                         // Handle external agendas separately
                         if (externalAgenda.length > 0) {
                             const externalBadge = document.createElement("div");
-                            externalBadge.className = "agenda-count-badge";
-                            externalBadge.style.backgroundColor = "#8e44ad"; // Purple for external
-                            externalBadge.style.color = "white";
+                            externalBadge.className = "agenda-count-badge bg-green-500";
                             externalBadge.textContent =
-                                externalAgenda.length > 1 ? `${externalAgenda.length} Eksternal` : externalAgenda[0].agenda_name;
+                                externalAgenda.length > 1 ? `${externalAgenda.length} Agenda` :
+                                externalAgenda[0].agenda_name;
                             externalBadge.addEventListener('click', (e) => {
                                 e.stopPropagation();
                                 showAgendaListSidebar(externalAgenda, `${year}-${month}-${day}`);
@@ -499,7 +501,7 @@
             function openShowAgendaModal(data) {
                 // Check if it's external agenda
                 const isExternal = data.is_external || data.source === 'external';
-                
+
                 // Gunakan fungsi global fillAgendaModal jika tersedia
                 if (typeof window.fillAgendaModal === 'function') {
                     window.fillAgendaModal(data);
@@ -507,10 +509,9 @@
                     // Fallback: isi manual jika fungsi global belum tersedia
                     const nameEl = document.getElementById('showAgendaName');
                     if (nameEl) {
-                        nameEl.innerHTML = (data.agenda_name ?? '-') + 
-                            (isExternal ? ' <span style="background: #8e44ad; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: 8px;">Eksternal</span>' : '');
+                        nameEl.innerHTML = (data.agenda_name ?? '-');
                     }
-                    
+
                     document.getElementById('showAgendaDate').innerText = formatDate(data.date);
 
                     const timeText = (data.start_time && data.end_time) ?
@@ -523,7 +524,8 @@
 
                     // Isi data instansi
                     const involved = data.involved_institution ?? '-';
-                    const unitName = (data.unit && data.unit.unit_name) ? data.unit.unit_name : (isExternal ? 'Sumber Eksternal' : '-');
+                    const unitName = (data.unit && data.unit.unit_name) ? data.unit.unit_name : (isExternal ?
+                        'Sumber Eksternal' : '-');
 
                     const unitEl = document.getElementById('showAgendaUnit');
                     if (unitEl) unitEl.innerText = unitName;
@@ -535,8 +537,9 @@
                     const accessEl = document.getElementById('showAgendaAccess');
                     if (accessEl) {
                         if (isExternal) {
+                            // Anggap eksternal sebagai agenda publik
                             accessEl.innerHTML =
-                                `<span class="badge rounded-pill" style="background-color:#8e44ad; color:white; padding:6px 10px;">Eksternal</span>`;
+                                `<span class="badge rounded-pill" style="background-color:#FFB67E; color:#2F3E35; padding:6px 10px;">Publik</span>`;
                         } else {
                             const isPublic = data.is_public == 1;
                             const bg = isPublic ? '#A8E6A3' : '#FFB67E';
@@ -551,8 +554,8 @@
                 if (notesEl) notesEl.innerText = data.notes ?? (isExternal ? 'Agenda dari sumber eksternal' : '-');
 
 
-            // Tampilkan modal
-            new bootstrap.Modal(document.getElementById('showAgendaModal')).show();
+                // Tampilkan modal
+                new bootstrap.Modal(document.getElementById('showAgendaModal')).show();
             }
         </script>
 
@@ -611,11 +614,11 @@
 
                     const header = document.createElement("div");
                     header.className = "agenda-header";
-                    
+
                     // Check if it's external agenda
-                    const isExternal = item.is_external || item.source === 'external';
-                    const externalBadge = isExternal ? '<span style="background: #8e44ad; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-left: 5px;">Eksternal</span>' : '';
-                    
+                    item.is_public = 1;
+                    const externalBadge = "";
+
                     header.innerHTML = `
                     <span class="agenda-item-title">${item.agenda_name}${externalBadge}</span>
                     <span class="agenda-item-arrow"><i class="fas fa-chevron-right"></i></span>
