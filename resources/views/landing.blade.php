@@ -210,7 +210,17 @@
                     return;
                 }
 
-                agendaList.forEach((item, index) => {
+                // Urutkan agenda berdasarkan jam (start_time)
+                const sortedAgendaList = [...agendaList].sort((a, b) => {
+                    // Ambil start_time, jika tidak ada gunakan end_time, jika tidak ada gunakan '00:00:00'
+                    const timeA = a.start_time || a.end_time || '00:00:00';
+                    const timeB = b.start_time || b.end_time || '00:00:00';
+                    
+                    // Bandingkan waktu
+                    return timeA.localeCompare(timeB);
+                });
+
+                sortedAgendaList.forEach((item, index) => {
                     const itemDiv = document.createElement("div");
                     itemDiv.className = "agenda-item";
 

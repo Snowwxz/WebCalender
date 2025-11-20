@@ -364,7 +364,7 @@
                                 externalAgenda[0].agenda_name;
                             externalBadge.addEventListener('click', (e) => {
                                 e.stopPropagation();
-                                showAgendaListSidebar(externalAgenda, `${year}-${month}-${day}`);
+                                handleAgendaClick(externalAgenda, `${year}-${month}-${day}`);
                             });
                             agendaContainer.appendChild(externalBadge);
                         }
@@ -376,7 +376,7 @@
                                 publicAgenda.length > 1 ? `${publicAgenda.length} Kegiatan` : publicAgenda[0].agenda_name;
                             publicBadge.addEventListener('click', (e) => {
                                 e.stopPropagation();
-                                showAgendaListSidebar(publicAgenda, `${year}-${month}-${day}`);
+                                handleAgendaClick(publicAgenda, `${year}-${month}-${day}`);
                             });
                             agendaContainer.appendChild(publicBadge);
 
@@ -386,7 +386,7 @@
                                 privateAgenda.length > 1 ? `${privateAgenda.length} Kegiatan` : privateAgenda[0].agenda_name;
                             privateBadge.addEventListener('click', (e) => {
                                 e.stopPropagation();
-                                showAgendaListSidebar(privateAgenda, `${year}-${month}-${day}`);
+                                handleAgendaClick(privateAgenda, `${year}-${month}-${day}`);
                             });
                             agendaContainer.appendChild(privateBadge);
                         } else if (hasApproved && (publicAgenda.length > 0 || privateAgenda.length > 0)) {
@@ -398,7 +398,7 @@
                                 agendaToShow.length > 1 ? `${agendaToShow.length} Kegiatan` : agendaToShow[0].agenda_name;
                             badge.addEventListener('click', (e) => {
                                 e.stopPropagation();
-                                showAgendaListSidebar(agendaToShow, `${year}-${month}-${day}`);
+                                handleAgendaClick(agendaToShow, `${year}-${month}-${day}`);
                             });
                             agendaContainer.appendChild(badge);
                         } else if (!hasApproved && (publicAgenda.length > 0 || privateAgenda.length > 0)) {
@@ -409,7 +409,7 @@
                                 agendaToShow.length > 1 ? `${agendaToShow.length} Kegiatan` : agendaToShow[0].agenda_name;
                             badge.addEventListener('click', (e) => {
                                 e.stopPropagation();
-                                showAgendaListSidebar(agendaToShow, `${year}-${month}-${day}`);
+                                handleAgendaClick(agendaToShow, `${year}-${month}-${day}`);
                             });
                             agendaContainer.appendChild(badge);
                         }
@@ -595,6 +595,17 @@
                 return date.toLocaleDateString('id-ID', options);
             }
 
+            // Fungsi helper: jika 1 agenda langsung buka modal, jika lebih dari 1 buka sidebar
+            function handleAgendaClick(agendaList, date) {
+                if (agendaList.length === 1) {
+                    // Jika hanya 1 agenda, langsung buka modal
+                    openShowAgendaModal(agendaList[0]);
+                } else if (agendaList.length > 1) {
+                    // Jika lebih dari 1 agenda, buka sidebar
+                    showAgendaListSidebar(agendaList, date);
+                }
+            }
+
             function showAgendaListSidebar(agendaList, date) {
                 const sidebar = document.getElementById("agendaSidebar");
                 const listContainer = document.getElementById("agendaList");
@@ -608,7 +619,17 @@
                     return;
                 }
 
-                agendaList.forEach((item, index) => {
+                // Urutkan agenda berdasarkan jam (start_time)
+                const sortedAgendaList = [...agendaList].sort((a, b) => {
+                    // Ambil start_time, jika tidak ada gunakan end_time, jika tidak ada gunakan '00:00:00'
+                    const timeA = a.start_time || a.end_time || '00:00:00';
+                    const timeB = b.start_time || b.end_time || '00:00:00';
+                    
+                    // Bandingkan waktu
+                    return timeA.localeCompare(timeB);
+                });
+
+                sortedAgendaList.forEach((item, index) => {
                     const itemDiv = document.createElement("div");
                     itemDiv.className = "agenda-item";
 
