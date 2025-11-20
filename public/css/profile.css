@@ -353,11 +353,12 @@
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    background: #82A98D;
+    background: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    border: 1px solid #e5e7eb;
 }
 
 .avatar-initials {
