@@ -13,9 +13,11 @@
             <!-- Bagian header -->
             <div style="position: relative; text-align: center; margin-bottom: 8px;">
                 <!-- Tombol kembali -->
-                <a href="{{ url('/dashboard/notification') }}" class="back-btn" title="Kembali ke Dashboard">
+                <a href="{{ request('from') === 'approve' ? route('approve') : route('notification') }}" class="back-btn"
+                    title="Kembali">
                     <i class="fas fa-arrow-left"></i>
                 </a>
+
 
                 <!-- Judul di tengah -->
                 <div class="agenda-title" style="display:inline-block; font-weight:600; font-size:1.4rem; color:#333;">
@@ -664,4 +666,4 @@
         });
     </script>
 
-    @endsection
+@endsection

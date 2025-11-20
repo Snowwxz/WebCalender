@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'external_agenda' => [
+        'url' => env('EXTERNAL_AGENDA_API_URL', 'https://backend.samagov.id/api/ppid/agenda'),
+    ],
+
 ];

@@ -83,7 +83,9 @@
                 </button>
             </div>
         </div>
-        <div class="mini-agenda-list" id="miniAgendaList">
+        <div class="mini-agenda-list" id="miniAgendaList" 
+             data-notification-url="{{ Auth::check() ? route('agenda.notification') : '/dashboard/notification' }}"
+             data-is-dashboard="{{ $isDashboard ? '1' : '0' }}">
             <div class="mini-agenda-placeholder">
                 Memuat agenda...
             </div>
@@ -247,19 +249,82 @@
             margin-right: 6px;
         }
 
+        .mini-agenda-actions {
+            margin-top: 12px;
+        }
+
+        .mini-agenda-status-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mini-agenda-status-label {
+            font-size: 13px;
+            color: #94a3b8;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mini-agenda-status-label i {
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
         .mini-agenda-status {
             font-size: 12px;
             font-weight: 600;
-            color: #2f3e35;
-            background: #d4f6e4;
-            border-radius: 999px;
+            border-radius: 6px;
             padding: 4px 10px;
             display: inline-flex;
             align-items: center;
             gap: 6px;
             min-width: 70px;
             justify-content: center;
-            margin-top: 12px;
+            flex-shrink: 0;
+            text-transform: uppercase;
+        }
+
+        .mini-agenda-status.status-public {
+            color: #2f3e35;
+            background: #d4f6e4;
+        }
+
+        .mini-agenda-status.status-private {
+            color: #92400e;
+            background: #fef3c7;
+        }
+
+        .mini-agenda-detail-wrapper {
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .mini-agenda-detail-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: #86aa94;
+            color: #ffffff;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: background 0.2s ease, transform 0.1s ease;
+            white-space: nowrap;
+        }
+
+        .mini-agenda-detail-btn:hover {
+            background: #6d8f7a;
+            transform: translateY(-1px);
+            color: #ffffff;
+        }
+
+        .mini-agenda-detail-btn:active {
+            transform: translateY(0);
         }
 
         .mini-agenda-placeholder {
@@ -342,14 +407,32 @@
                     return;
                 }
 
+                const isDashboard = listEl.dataset.isDashboard === '1';
+                
+                // Filter: di landing hanya publik, di dashboard publik + privasi
                 const filtered = data
-                    .filter(item => item.status === 'approved' && Number(item.is_public) === 1)
+                    .filter(item => {
+                        if (item.status !== 'approved') return false;
+                        if (isDashboard) {
+                            // Dashboard: tampilkan semua (publik + privasi)
+                            return true;
+                        } else {
+                            // Landing: hanya publik
+                            return Number(item.is_public) === 1;
+                        }
+                    })
                     .sort((a, b) => new Date(a.date) - new Date(b.date));
 
                 if (filtered.length === 0) {
-                    listEl.innerHTML = '<div class="mini-agenda-placeholder">Belum ada agenda publik pada bulan ini.</div>';
+                    const message = isDashboard 
+                        ? 'Belum ada agenda pada bulan ini.' 
+                        : 'Belum ada agenda publik pada bulan ini.';
+                    listEl.innerHTML = `<div class="mini-agenda-placeholder">${message}</div>`;
                     return;
                 }
+
+                // Get notification route URL from data attribute or use default
+                const notificationUrl = listEl.dataset.notificationUrl || '/dashboard/notification';
 
                 listEl.innerHTML = filtered.map(item => {
                     const timeText = item.start_time && item.end_time
@@ -372,7 +455,21 @@
                                     <div><i class="fas fa-user"></i>Penyelenggara: ${organizer}</div>
                                     <div><i class="fas fa-users"></i>Peserta: ${participants}</div>
                                 </div>
-                                <span class="mini-agenda-status">Publik</span>
+                                <div class="mini-agenda-actions">
+                                    <div class="mini-agenda-status-wrapper">
+                                        <span class="mini-agenda-status-label">
+                                            <i class="fas fa-eye"></i> Status
+                                        </span>
+                                        <span class="mini-agenda-status ${Number(item.is_public) === 1 ? 'status-public' : 'status-private'}">
+                                            ${Number(item.is_public) === 1 ? 'PUBLIK' : 'PRIVASI'}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="mini-agenda-detail-wrapper">
+                                    <a href="${notificationUrl}?agenda_id=${item.id_agenda}" class="mini-agenda-detail-btn">
+                                        <i class="fas fa-info-circle"></i> Lihat Detail
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -388,16 +485,29 @@
                     listEl.innerHTML = '<div class="mini-agenda-placeholder">Memuat agenda...</div>';
                 }
 
-                if (state.cache[key]) {
-                    renderAgendaList(state.cache[key]);
+                const isDashboard = listEl ? listEl.dataset.isDashboard === '1' : false;
+                const cacheKey = `${key}_${isDashboard ? 'dashboard' : 'landing'}`;
+
+                if (state.cache[cacheKey]) {
+                    renderAgendaList(state.cache[cacheKey]);
                     return;
                 }
 
-                fetch(`/api/agenda/${year}/${month}`)
-                    .then(response => response.json())
+                // Gunakan endpoint berbeda untuk dashboard dan landing
+                const apiUrl = isDashboard 
+                    ? `/api/dashboard/agenda/${year}/${month}`
+                    : `/api/agenda/${year}/${month}`;
+
+                fetch(apiUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
                     .then(data => {
-                        state.cache[key] = data ?? [];
-                        renderAgendaList(state.cache[key]);
+                        state.cache[cacheKey] = data ?? [];
+                        renderAgendaList(state.cache[cacheKey]);
                     })
                     .catch(() => {
                         if (listEl) {

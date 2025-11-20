@@ -95,7 +95,9 @@
                         <!-- Card Header -->
                         <div class="card-header">
                             <div class="card-title-section">
-                                <h3 class="card-title" style="white-space: normal; overflow-wrap: anywhere; word-break: break-word;">{{ $agenda->agenda_name }}</h3>
+                                <h3 class="card-title"
+                                    style="white-space: normal; overflow-wrap: anywhere; word-break: break-word;">
+                                    {{ $agenda->agenda_name }}</h3>
                                 <p class="card-description">{{ $agenda->description ?? '-' }}</p>
                             </div>
                             <div class="status-badge {{ $agenda->status }}">
@@ -165,7 +167,7 @@
                                             @endif
                                         </span>
                                     </div>
-
+                                    
                                     <div class="detail-item">
                                         <i class="fas fa-map-marker-alt"></i>
                                         <span><strong>Lokasi:</strong> {{ $agenda->location ?? '-' }}</span>
@@ -205,7 +207,8 @@
                                     {{ \Carbon\Carbon::parse($agenda->created_at)->locale('id')->diffForHumans() }}
                                 </span>
                                 @if ($agenda->logs_count > 0)
-                                    <span class="update-badge" onclick="showUpdateModal({{ $agenda->id_agenda }})" style="cursor: pointer;">
+                                    <span class="update-badge" onclick="showUpdateModal({{ $agenda->id_agenda }})"
+                                        style="cursor: pointer;">
                                         <i class="fas fa-sync-alt"></i> Has been updated
                                     </span>
                                 @endif
@@ -234,7 +237,8 @@
                                 <div class="approval-actions">
 
                                     @if ($agenda->status === 'approved')
-                                        <a href="{{ route('agenda.edit', $agenda->id_agenda) }}" class="btn-edit">
+                                        <a href="{{ route('agenda.edit', ['id_agenda' => $agenda->id_agenda, 'from' => 'approve']) }}"
+                                            class="btn-edit">
                                             <i class="fas fa-pen"></i> Edit Agenda
                                         </a>
                                     @else
@@ -266,7 +270,8 @@
                     </div>
                     <h3 class="reject-modal-title">Riwayat Update Agenda</h3>
                 </div>
-                <button type="button" id="updateLogModalClose" class="reject-modal-close close-modal" aria-label="Tutup">
+                <button type="button" id="updateLogModalClose" class="reject-modal-close close-modal"
+                    aria-label="Tutup">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -283,7 +288,8 @@
 
             <!-- Footer -->
             <div class="reject-modal-footer">
-                <button type="button" id="updateLogModalCloseBtn" class="reject-btn-confirm" style="background: linear-gradient(135deg, #6E9579 0%, #55745f 100%);">
+                <button type="button" id="updateLogModalCloseBtn" class="reject-btn-confirm"
+                    style="background: linear-gradient(135deg, #6E9579 0%, #55745f 100%);">
                     <i class="fas fa-times"></i>
                     Tutup
                 </button>
@@ -423,25 +429,25 @@
                                 </div>
                             </div>
                             ${log.user ? `
-                                <div style="margin-bottom: 16px; padding: 12px; background: white; border-radius: 8px; border: 1px solid #e5e7eb;">
-                                    <div style="font-size: 13px; color: #6b7280; margin-bottom: 4px;">Diupdate oleh:</div>
-                                    <div style="font-weight: 600; color: #1f2937;">
-                                        <i class="fas fa-user" style="margin-right: 6px; color: #6E9579;"></i>
-                                        ${log.user.name}
-                                    </div>
-                                    <div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">
-                                        ${log.user.email}
-                                    </div>
-                                </div>
-                            ` : ''}
+                                        <div style="margin-bottom: 16px; padding: 12px; background: white; border-radius: 8px; border: 1px solid #e5e7eb;">
+                                            <div style="font-size: 13px; color: #6b7280; margin-bottom: 4px;">Diupdate oleh:</div>
+                                            <div style="font-weight: 600; color: #1f2937;">
+                                                <i class="fas fa-user" style="margin-right: 6px; color: #6E9579;"></i>
+                                                ${log.user.name}
+                                            </div>
+                                            <div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">
+                                                ${log.user.email}
+                                            </div>
+                                        </div>
+                                    ` : ''}
                             ${log.changes && log.changes.length > 0 ? `
-                                <div>
-                                    <div style="font-weight: 600; color: #1f2937; margin-bottom: 12px;">
-                                        <i class="fas fa-edit" style="margin-right: 6px; color: #6E9579;"></i>
-                                        Perubahan Data:
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 12px;">
-                                        ${log.changes.map(change => `
+                                        <div>
+                                            <div style="font-weight: 600; color: #1f2937; margin-bottom: 12px;">
+                                                <i class="fas fa-edit" style="margin-right: 6px; color: #6E9579;"></i>
+                                                Perubahan Data:
+                                            </div>
+                                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                                ${log.changes.map(change => `
                                             <div style="padding: 12px; background: white; border-radius: 8px; border-left: 3px solid #6E9579;">
                                                 <div style="font-weight: 600; color: #374151; margin-bottom: 8px; font-size: 14px;">
                                                     ${change.field}
@@ -462,9 +468,9 @@
                                                 </div>
                                             </div>
                                         `).join('')}
-                                    </div>
-                                </div>
-                            ` : '<div style="color: #6b7280; font-size: 14px;">Tidak ada perubahan data yang tercatat.</div>'}
+                                            </div>
+                                        </div>
+                                    ` : '<div style="color: #6b7280; font-size: 14px;">Tidak ada perubahan data yang tercatat.</div>'}
                         </div>
                     `;
                 });

@@ -67,7 +67,7 @@
                 </div>
 
 
-                @if ($agenda->count() === 0)
+                @if ($agenda->count() === 0 && !$selectedAgenda)
                     <div class="notification-empty">
                         <div class="empty-icon">
                             <i class="fas fa-bell-slash"></i>
@@ -77,8 +77,140 @@
                     </div>
                 @else
                     <div class="notification-list">
+                        @if ($selectedAgenda && !$agenda->contains('id_agenda', $selectedAgenda->id_agenda))
+                            @php
+                                $item = $selectedAgenda;
+                            @endphp
+                            <div class="notification-card selected-agenda" id="selected-agenda-{{ $selectedAgenda->id_agenda }}">
+                                <!-- Card Header -->
+                                <div class="card-header">
+                                    <div class="card-title-section">
+                                        <h3 class="card-title">{{ $item->agenda_name }}</h3>
+                                        <p class="card-description">{{ $item->description ?? '-' }}</p>
+                                    </div>
+                                    <div class="status-badge {{ $item->status }}">
+                                        @switch($item->status)
+                                            @case('pending')
+                                                Menunggu
+                                            @break
+
+                                            @case('approved')
+                                                Disetujui
+                                            @break
+
+                                            @case('rejected')
+                                                Ditolak
+                                            @break
+
+                                            @default
+                                                {{ ucfirst($item->status) }}
+                                        @endswitch
+                                    </div>
+                                </div>
+
+                                <!-- Card Content -->
+                                <div class="card-content">
+                                    <div class="details-grid">
+                                        <div class="details-left">
+                                            <div class="detail-item">
+                                                <i class="fas fa-building"></i>
+                                                <span><strong>Pelaksana:</strong>
+                                                    {{ $item->unit->unit_name ?? '-' }}</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <i class="fas fa-calendar-alt"></i>
+                                                <span><strong>Tanggal:</strong>
+                                                    {{ \Carbon\Carbon::parse($item->date)->locale('id')->translatedFormat('l, d F Y') }}</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <i class="fas fa-eye"></i>
+                                                <span>
+                                                    <strong>Status:</strong>
+                                                    {{ $item->is_public ? 'Publik' : 'Privasi' }}
+                                                </span>
+                                            </div>
+                                            @if (!empty($item->notes))
+                                                <div class="detail-item">
+                                                    <i class="fa-solid fa-file-lines"></i>
+                                                    <span><strong>Catatan:</strong> {{ $item->notes }}</span>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        <div class="details-right">
+                                            <div class="detail-item">
+                                                <i class="fas fa-map-marker-alt"></i>
+                                                <span><strong>Lokasi:</strong> {{ $item->location ?? '-' }}</span>
+                                            </div>
+                                            <div class="detail-item participants">
+                                                <i class="fas fa-users"></i>
+                                                <span><strong>Dihadiri:</strong>
+                                                    {{ $item->involved_institution ?? '-' }}</span>
+                                            </div>
+                                            @if ($item->status === 'rejected' && !empty($item->reason))
+                                                <div class="detail-item">
+                                                    <i class="fas fa-comment-dots"></i>
+                                                    <span><strong>Alasan Ditolak:</strong> {{ $item->reason }}</span>
+                                                </div>
+                                            @endif
+                                            <div class="detail-item">
+                                                <i class="fas fa-clock"></i>
+                                                <span><strong>Waktu Pelaksanaan:</strong>
+                                                    @if ($item->start_time && $item->end_time)
+                                                        {{ \Carbon\Carbon::parse($item->start_time)->format('H:i') }}
+                                                        - {{ \Carbon\Carbon::parse($item->end_time)->format('H:i') }}
+                                                        WITA
+                                                    @elseif($item->start_time)
+                                                        {{ \Carbon\Carbon::parse($item->start_time)->format('H:i') }}
+                                                        WITA
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Card Footer -->
+                                    <div class="card-footer">
+                                        <div class="submission-info">
+                                            <i class="fas fa-user"></i>
+                                            <span>{{ $item->unit->unit_name ?? '-' }}</span>
+                                            <span class="submission-time">
+                                                - Diajukan
+                                                {{ \Carbon\Carbon::parse($item->created_at)->locale('id')->diffForHumans() }}
+                                            </span>
+                                        </div>
+
+                                        <div class="notification-actions">
+                                            @if ($item->id_user == Auth::id())
+                                                @if ($item->status === 'pending' || $item->status === 'rejected')
+                                                    <a href="{{ route('agenda.edit', $item->id_agenda) }}" class="btn-edit">
+                                                        <i class="fas fa-pen"></i> Edit Agenda
+                                                    </a>
+                                                @endif
+
+                                                @if ($item->status !== 'approved')
+                                                    <form action="{{ route('agenda.destroy', $item->id_agenda) }}" method="POST"
+                                                        class="action-form delete-form" style="display:inline;">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn-delete">
+                                                            <i class="fas fa-trash"></i> Hapus
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div> <!-- tutup .card-content -->
+                            </div> <!-- tutup .notification-card -->
+                        @endif
+
                         @foreach ($agenda as $item)
-                            <div class="notification-card">
+                            <div class="notification-card {{ $agendaId && $item->id_agenda == $agendaId ? 'selected-agenda' : '' }}" 
+                                 id="agenda-{{ $item->id_agenda }}"
+                                 @if($agendaId && $item->id_agenda == $agendaId) data-selected="true" @endif>
                                 <!-- Card Header -->
                                 <div class="card-header">
                                     <div class="card-title-section">
@@ -261,6 +393,23 @@
                         profile.classList.remove('active');
                     }
                 });
+
+                // Scroll ke agenda yang dipilih jika ada agenda_id
+                @if($agendaId)
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const selectedCard = document.querySelector('[data-selected="true"]') || 
+                                           document.getElementById('selected-agenda-{{ $agendaId }}') ||
+                                           document.getElementById('agenda-{{ $agendaId }}');
+                        if (selectedCard) {
+                            setTimeout(() => {
+                                selectedCard.scrollIntoView({ 
+                                    behavior: 'smooth', 
+                                    block: 'center' 
+                                });
+                            }, 300);
+                        }
+                    });
+                @endif
             </script>
 
             <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>

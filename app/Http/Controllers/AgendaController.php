@@ -6,6 +6,7 @@ use App\Models\Agenda;
 use App\Models\Unit;
 use App\Models\User;
 use App\Models\AgendaLog;
+use App\Services\ExternalAgendaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -14,7 +15,7 @@ use Carbon\Carbon;
 class AgendaController extends Controller
 {
     /**
-     * ✅ Tampilkan daftar agenda di dashboard.
+     * ✅ Tampilkan daftar agenda di dashboard (termasuk agenda eksternal).
      */
     public function index(Request $request)
     {
@@ -48,12 +49,76 @@ class AgendaController extends Controller
             });
         }
 
-        $agenda = $query->get();
+        $localAgendas = $query->get()->toArray();
+
+        // Get external agendas for the current month
+        $externalService = new ExternalAgendaService();
+        $externalAgendas = $externalService->getAgendasByMonth($year, $month);
+
+        $mergedAgendas = $localAgendas;
+
+        // Add external agendas if available
+        if ($externalAgendas) {
+            $transformedExternal = array_map(function ($agenda) use ($externalService) {
+                $transformed = $externalService->transformToLocalFormat($agenda);
+                // Mark as external and add id_agenda for compatibility
+                $transformed['id_agenda'] = 'ext_' . ($agenda['id'] ?? uniqid());
+                $transformed['is_external'] = true;
+                $transformed['source'] = 'external';
+                // Ensure date is in correct format (Y-m-d string)
+                if (isset($transformed['date'])) {
+                    try {
+                        // If it's already a string in Y-m-d format, use it
+                        if (is_string($transformed['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $transformed['date'])) {
+                            // Already in correct format
+                        } else {
+                            // Try to parse and format
+                            $transformed['date'] = Carbon::parse($transformed['date'])->format('Y-m-d');
+                        }
+                    } catch (\Exception $e) {
+                        // If parsing fails, try strtotime as fallback
+                        $parsed = strtotime($transformed['date']);
+                        if ($parsed !== false) {
+                            $transformed['date'] = date('Y-m-d', $parsed);
+                        }
+                    }
+                }
+                // Keep unit from service if available, otherwise set to null
+                // Unit is already set in transformToLocalFormat if found
+                if (!isset($transformed['unit'])) {
+                    $transformed['unit'] = null;
+                }
+                // Add empty relations for compatibility with local agendas
+                $transformed['user'] = null;
+                $transformed['approver'] = null;
+                // Convert Carbon dates to strings for JSON encoding
+                if (isset($transformed['created_at']) && is_object($transformed['created_at'])) {
+                    $transformed['created_at'] = $transformed['created_at']->toDateTimeString();
+                }
+                if (isset($transformed['updated_at']) && is_object($transformed['updated_at'])) {
+                    $transformed['updated_at'] = $transformed['updated_at']->toDateTimeString();
+                }
+                return $transformed;
+            }, $externalAgendas);
+
+            $mergedAgendas = array_merge($localAgendas, $transformedExternal);
+        }
+
+        // Convert back to collection for view compatibility
+        // Ensure all dates are properly formatted
+        $mergedAgendas = array_map(function ($item) {
+            if (isset($item['date']) && is_object($item['date'])) {
+                $item['date'] = $item['date']->format('Y-m-d');
+            }
+            return $item;
+        }, $mergedAgendas);
+        
+        $agenda = collect($mergedAgendas);
         $units = Unit::orderBy('unit_name', 'asc')->get();
 
         // 🔹 Response JSON (misal untuk AJAX)
         if ($request->wantsJson() || $request->isJson()) {
-            return response()->json($agenda);
+            return response()->json($mergedAgendas);
         }
 
         return view('dashboard_bulan', compact('agenda', 'year', 'month', 'units'));
@@ -163,8 +228,14 @@ class AgendaController extends Controller
             $unitName = $unit ? $unit->unit_name : null;
         }
 
+        // format agar cocok input HTML
+        $agenda->date = \Carbon\Carbon::parse($agenda->date)->format('Y-m-d');
+        $agenda->start_time = \Carbon\Carbon::parse($agenda->start_time)->format('H:i');
+        $agenda->end_time = \Carbon\Carbon::parse($agenda->end_time)->format('H:i');
+
         return view('agenda_edit', compact('agenda', 'units', 'unitName'));
     }
+
 
     /**
      * ✅ Update agenda (baik dari admin maupun user).
@@ -191,7 +262,7 @@ class AgendaController extends Controller
 
         $agenda = Agenda::findOrFail($id);
         $agenda->update($validated);
-        
+
         // Reload agenda untuk mendapatkan data terbaru
         $agenda->refresh();
 
@@ -313,6 +384,31 @@ class AgendaController extends Controller
         // Filters
         $status = $request->query('status', 'all');
         $search = $request->query('q');
+        $agendaId = $request->query('agenda_id');
+        $selectedAgenda = null;
+
+        // Jika ada agenda_id, ambil agenda tersebut (bisa agenda publik atau milik user)
+        if ($agendaId) {
+            $selectedAgenda = Agenda::with(['unit', 'user'])
+                ->where('id_agenda', $agendaId)
+                ->where(function ($q) use ($userId) {
+                    // Bisa agenda milik user atau agenda publik yang approved
+                    $q->where('id_user', $userId)
+                        ->orWhere(function ($pubQ) {
+                            $pubQ->where('is_public', 1)
+                                ->where('status', 'approved');
+                        });
+                })
+                ->first();
+
+            // Jika agenda ditemukan dan bukan milik user, set status ke 'all' untuk menampilkan semua
+            if ($selectedAgenda && $selectedAgenda->id_user != $userId) {
+                $status = 'all';
+            } elseif ($selectedAgenda) {
+                // Jika milik user, set status sesuai status agenda
+                $status = $selectedAgenda->status;
+            }
+        }
 
         // Base query for the list
         $query = Agenda::with(['unit'])
@@ -360,7 +456,7 @@ class AgendaController extends Controller
             return response()->json($agenda);
         }
 
-        return view('notification', compact('agenda', 'counts', 'status', 'search'));
+        return view('notification', compact('agenda', 'counts', 'status', 'search', 'agendaId', 'selectedAgenda'));
     }
 
     /**
@@ -426,8 +522,97 @@ class AgendaController extends Controller
     }
 
     /**
+     * ✅ API untuk mendapatkan agenda per bulan (untuk dashboard - menampilkan publik + privasi + eksternal)
+     */
+    public function getByMonth($year, $month)
+    {
+        if (!is_numeric($year) || !is_numeric($month) || $month < 1 || $month > 12) {
+            return response()->json(['error' => 'Parameter tahun atau bulan tidak valid.'], 400);
+        }
+
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $userId = $user->id_user;
+        $userUnit = $user->unit;
+        $userUnitName = $userUnit ? $userUnit->unit_name : null;
+
+        // Get local agendas
+        $localAgendas = Agenda::query()
+            ->with(['unit'])
+            ->selectRaw("id_agenda, agenda_name, DATE(date) as date, location, description, start_time, end_time, involved_institution, is_public, status, id_unit, notes")
+            ->whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->where('status', 'approved')
+            ->where(function ($q) use ($userId, $userUnitName) {
+                // Agenda publik
+                $q->where('is_public', 1);
+                
+                // Agenda privasi milik user
+                $q->orWhere(function ($subQ) use ($userId) {
+                    $subQ->where('is_public', 0)
+                        ->where('id_user', $userId);
+                });
+
+                // Agenda privasi yang mengundang instansi user
+                if ($userUnitName) {
+                    $q->orWhere(function ($subQ) use ($userUnitName) {
+                        $subQ->where('is_public', 0)
+                            ->where('involved_institution', 'like', '%' . $userUnitName . '%');
+                    });
+                }
+            })
+            ->orderBy('date', 'asc')
+            ->get()
+            ->toArray();
+
+        // Get external agendas
+        $externalService = new ExternalAgendaService();
+        $externalAgendas = $externalService->getAgendasByMonth($year, $month);
+
+        $mergedAgendas = $localAgendas;
+
+        // Add external agendas if available
+        if ($externalAgendas) {
+            $transformedExternal = array_map(function ($agenda) use ($externalService) {
+                $transformed = $externalService->transformToLocalFormat($agenda);
+                // Mark as external and add id_agenda for compatibility
+                $transformed['id_agenda'] = 'ext_' . ($agenda['id'] ?? uniqid());
+                $transformed['is_external'] = true;
+                $transformed['source'] = 'external';
+                // Ensure date is in correct format
+                if (isset($transformed['date'])) {
+                    $transformed['date'] = date('Y-m-d', strtotime($transformed['date']));
+                }
+                return $transformed;
+            }, $externalAgendas);
+
+            $mergedAgendas = array_merge($localAgendas, $transformedExternal);
+        }
+
+        // Sort by date and time
+        usort($mergedAgendas, function ($a, $b) {
+            $dateA = $a['date'] ?? '';
+            $dateB = $b['date'] ?? '';
+            
+            if ($dateA !== $dateB) {
+                return strcmp($dateA, $dateB);
+            }
+            
+            $timeA = $a['start_time'] ?? $a['end_time'] ?? '';
+            $timeB = $b['start_time'] ?? $b['end_time'] ?? '';
+            
+            return strcmp($timeA, $timeB);
+        });
+
+        return response()->json($mergedAgendas);
+    }
+
+    /**
      * ✅ Ambil daftar agenda berdasarkan tanggal (untuk klik kalender).
-     * Digunakan di dashboard user (AJAX).
+     * Digunakan di dashboard user (AJAX) - termasuk agenda eksternal.
      */
     public function getAgendaByDate(Request $request)
     {
@@ -445,7 +630,8 @@ class AgendaController extends Controller
         $userUnit = $user->unit;
         $userUnitName = $userUnit ? $userUnit->unit_name : null;
 
-        $agenda = Agenda::with(['unit', 'user', 'approver'])
+        // Get local agendas
+        $localAgendas = Agenda::with(['unit', 'user', 'approver'])
             ->whereDate('date', $date)
             ->where(function ($q) use ($userId, $userUnitName) {
                 $q->where('is_public', 1) // publik
@@ -461,10 +647,42 @@ class AgendaController extends Controller
             })
             ->where('status', 'approved')
             ->orderBy('start_time', 'asc')
-            ->get();
+            ->get()
+            ->toArray();
+
+        // Get external agendas
+        $externalService = new ExternalAgendaService();
+        $externalAgendas = $externalService->getAgendasByDate($date);
+
+        $mergedAgendas = $localAgendas;
+
+        // Add external agendas if available
+        if ($externalAgendas) {
+            $transformedExternal = array_map(function ($agenda) use ($externalService) {
+                $transformed = $externalService->transformToLocalFormat($agenda);
+                // Mark as external and add id_agenda for compatibility
+                $transformed['id_agenda'] = 'ext_' . ($agenda['id'] ?? uniqid());
+                $transformed['is_external'] = true;
+                $transformed['source'] = 'external';
+                // Ensure date is in correct format
+                if (isset($transformed['date'])) {
+                    $transformed['date'] = date('Y-m-d', strtotime($transformed['date']));
+                }
+                return $transformed;
+            }, $externalAgendas);
+
+            $mergedAgendas = array_merge($localAgendas, $transformedExternal);
+        }
+
+        // Sort by time
+        usort($mergedAgendas, function ($a, $b) {
+            $timeA = $a['start_time'] ?? $a['end_time'] ?? '';
+            $timeB = $b['start_time'] ?? $b['end_time'] ?? '';
+            return strcmp($timeA, $timeB);
+        });
 
         // Kalau kosong, tetap kasih response clean biar frontend gak error
-        if ($agenda->isEmpty()) {
+        if (empty($mergedAgendas)) {
             return response()->json([
                 'success' => true,
                 'message' => 'Tidak ada agenda di tanggal ini.',
@@ -475,7 +693,7 @@ class AgendaController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Agenda berhasil diambil.',
-            'data' => $agenda
+            'data' => $mergedAgendas
         ]);
     }
 
@@ -491,7 +709,8 @@ class AgendaController extends Controller
         $userUnit = $user->unit;
         $userUnitName = $userUnit ? $userUnit->unit_name : null;
 
-        $agenda = Agenda::whereDate('date', $date)
+        // Get local agendas
+        $localAgendas = Agenda::whereDate('date', $date)
             ->where('status', 'approved')
             ->where(function ($q) use ($userId, $userUnitName) {
                 $q->where('is_public', 1)
@@ -506,17 +725,47 @@ class AgendaController extends Controller
                 }
             })
             ->orderBy('start_time', 'asc')
-            ->get(['id_agenda as id', 'agenda_name as title', 'start_time', 'end_time', 'location', 'is_public']);
+            ->get(['id_agenda as id', 'agenda_name as title', 'start_time', 'end_time', 'location', 'is_public'])
+            ->toArray();
 
-        // Tambahkan warna otomatis buat bedain publik/privat
-        $agenda->transform(function ($item) {
-            $item->color = $item->is_public ? '#3a7bd5' : '#f39c12';
+        // Get external agendas
+        $externalService = new ExternalAgendaService();
+        $externalAgendas = $externalService->getAgendasByDate($date);
+
+        $mergedAgendas = $localAgendas;
+
+        // Add external agendas if available
+        if ($externalAgendas) {
+            $transformedExternal = array_map(function ($agenda) use ($externalService) {
+                $transformed = $externalService->transformToLocalFormat($agenda);
+                return [
+                    'id' => 'ext_' . ($agenda['id'] ?? uniqid()),
+                    'title' => $transformed['agenda_name'],
+                    'start_time' => $transformed['start_time'],
+                    'end_time' => $transformed['end_time'],
+                    'location' => $transformed['location'],
+                    'is_public' => 1, // External agendas are always public
+                    'is_external' => true,
+                    'source' => 'external'
+                ];
+            }, $externalAgendas);
+
+            $mergedAgendas = array_merge($localAgendas, $transformedExternal);
+        }
+
+        // Tambahkan warna otomatis buat bedain publik/privat/eksternal
+        $mergedAgendas = array_map(function ($item) {
+            if (isset($item['is_external']) && $item['is_external']) {
+                $item['color'] = '#8e44ad'; // Purple for external
+            } else {
+                $item['color'] = ($item['is_public'] ?? 1) ? '#3a7bd5' : '#f39c12';
+            }
             return $item;
-        });
+        }, $mergedAgendas);
 
         return response()->json([
             'success' => true,
-            'data' => $agenda,
+            'data' => $mergedAgendas,
         ]);
     }
 
@@ -632,7 +881,7 @@ class AgendaController extends Controller
      */
     public function getAgendaLogs($id_agenda)
     {
-        $agenda = Agenda::with(['logs.user' => function($query) {
+        $agenda = Agenda::with(['logs.user' => function ($query) {
             $query->select('id_user', 'name', 'email');
         }])->findOrFail($id_agenda);
 
@@ -640,7 +889,7 @@ class AgendaController extends Controller
             ->where('action', 'updated')
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function($log) {
+            ->map(function ($log) {
                 return [
                     'id' => $log->id,
                     'action' => $log->action,
@@ -725,5 +974,225 @@ class AgendaController extends Controller
         }
 
         return $changes;
+    }
+
+    /**
+     * ✅ Fetch agendas from external API
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function fetchExternalAgendas(Request $request)
+    {
+        try {
+            $externalService = new ExternalAgendaService();
+            
+            $year = $request->query('year');
+            $month = $request->query('month');
+            $date = $request->query('date');
+
+            if ($date) {
+                $agendas = $externalService->getAgendasByDate($date);
+            } elseif ($year && $month) {
+                $agendas = $externalService->getAgendasByMonth($year, $month);
+            } else {
+                $agendas = $externalService->fetchAgendas();
+            }
+
+            if ($agendas === null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal mengambil data dari API eksternal',
+                    'data' => []
+                ], 500);
+            }
+
+            // Transform to local format
+            $transformed = array_map(function ($agenda) use ($externalService) {
+                return $externalService->transformToLocalFormat($agenda);
+            }, $agendas);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data agenda eksternal berhasil diambil',
+                'data' => $transformed,
+                'count' => count($transformed)
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching external agendas', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengambil data: ' . $e->getMessage(),
+                'data' => []
+            ], 500);
+        }
+    }
+
+    /**
+     * ✅ Get merged agendas (local + external)
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getMergedAgendas(Request $request)
+    {
+        try {
+            $year = $request->query('year', date('Y'));
+            $month = $request->query('month', date('m'));
+            $date = $request->query('date');
+
+            $user = Auth::user();
+            $userId = $user->id_user;
+
+            // Get local agendas
+            $query = Agenda::with(['user', 'approver', 'unit'])
+                ->where('status', 'approved')
+                ->orderBy('date', 'desc');
+
+            if ($date) {
+                $query->whereDate('date', $date);
+            } else {
+                $query->whereYear('date', $year)
+                    ->whereMonth('date', $month);
+            }
+
+            // Apply user permissions
+            if ($user->role !== 'superadmin') {
+                $userUnit = $user->unit;
+                $userUnitName = $userUnit ? $userUnit->unit_name : null;
+
+                $query->where(function ($q) use ($userId, $userUnitName) {
+                    $q->where('is_public', 1)
+                        ->orWhere('id_user', $userId);
+
+                    if ($userUnitName) {
+                        $q->orWhere(function ($subQ) use ($userUnitName) {
+                            $subQ->where('is_public', 0)
+                                ->where('involved_institution', 'like', '%' . $userUnitName . '%');
+                        });
+                    }
+                });
+            }
+
+            $localAgendas = $query->get()->toArray();
+
+            // Get external agendas
+            $externalService = new ExternalAgendaService();
+            $externalAgendas = null;
+
+            if ($date) {
+                $externalAgendas = $externalService->getAgendasByDate($date);
+            } else {
+                $externalAgendas = $externalService->getAgendasByMonth($year, $month);
+            }
+
+            $mergedAgendas = $localAgendas;
+
+            // Add external agendas if available
+            if ($externalAgendas) {
+                $transformedExternal = array_map(function ($agenda) use ($externalService) {
+                    $transformed = $externalService->transformToLocalFormat($agenda);
+                    // Mark as external
+                    $transformed['is_external'] = true;
+                    $transformed['source'] = 'external';
+                    return $transformed;
+                }, $externalAgendas);
+
+                $mergedAgendas = array_merge($localAgendas, $transformedExternal);
+            }
+
+            // Sort by date and time
+            usort($mergedAgendas, function ($a, $b) {
+                $dateA = $a['date'] ?? '';
+                $dateB = $b['date'] ?? '';
+                
+                if ($dateA !== $dateB) {
+                    return strcmp($dateA, $dateB);
+                }
+                
+                $timeA = $a['start_time'] ?? $a['end_time'] ?? '';
+                $timeB = $b['start_time'] ?? $b['end_time'] ?? '';
+                
+                return strcmp($timeA, $timeB);
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $mergedAgendas,
+                'count' => count($mergedAgendas),
+                'local_count' => count($localAgendas),
+                'external_count' => $externalAgendas ? count($externalAgendas) : 0
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error getting merged agendas', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                'data' => []
+            ], 500);
+        }
+    }
+
+    /**
+     * ✅ Get external agendas by date (for dashboard)
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getExternalAgendasByDate(Request $request)
+    {
+        $date = $request->input('date');
+        
+        if (!$date) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tanggal tidak diberikan.'
+            ], 400);
+        }
+
+        try {
+            $externalService = new ExternalAgendaService();
+            $agendas = $externalService->getAgendasByDate($date);
+
+            if ($agendas === null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal mengambil data dari API eksternal',
+                    'data' => []
+                ], 500);
+            }
+
+            // Transform to local format
+            $transformed = array_map(function ($agenda) use ($externalService) {
+                $item = $externalService->transformToLocalFormat($agenda);
+                $item['is_external'] = true;
+                $item['source'] = 'external';
+                return $item;
+            }, $agendas);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Agenda eksternal berhasil diambil.',
+                'data' => $transformed
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching external agendas by date', [
+                'message' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                'data' => []
+            ], 500);
+        }
     }
 }
