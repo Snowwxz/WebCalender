@@ -91,8 +91,10 @@
 
                 return agendaData.filter(a => {
                     // Ambil hanya bagian tanggal, buang jam dan zona
-                    const agendaDateStr = a.date.split('T')[0];
-                    return agendaDateStr === dateStr && a.status === 'approved' && a.is_public == 1;
+                    const agendaDateStr = a.date ? a.date.split('T')[0] : '';
+                    // Semua agenda diperlakukan sama - cek is_public
+                    const isPublic = Number(a.is_public) === 1;
+                    return agendaDateStr === dateStr && a.status === 'approved' && isPublic;
                 });
             }
 
@@ -155,7 +157,7 @@
 
                         badge.addEventListener('click', (e) => {
                             e.stopPropagation();
-                            showAgendaListSidebar(filteredAgenda, `${year}-${month}-${day}`);
+                            handleAgendaClick(filteredAgenda, `${year}-${month}-${day}`);
                         });
 
                         agendaContainer.appendChild(badge);
@@ -195,6 +197,17 @@
                     year: 'numeric'
                 };
                 return date.toLocaleDateString('id-ID', options);
+            }
+
+            // Fungsi helper: jika 1 agenda langsung buka modal, jika lebih dari 1 buka sidebar
+            function handleAgendaClick(agendaList, date) {
+                if (agendaList.length === 1) {
+                    // Jika hanya 1 agenda, langsung buka modal
+                    openShowAgendaModal(agendaList[0]);
+                } else if (agendaList.length > 1) {
+                    // Jika lebih dari 1 agenda, buka sidebar
+                    showAgendaListSidebar(agendaList, date);
+                }
             }
 
             function showAgendaListSidebar(agendaList, date) {
@@ -243,19 +256,21 @@
             }
 
             function openShowAgendaModal(data) {
+                // Semua agenda diperlakukan sama - tidak ada pembedaan eksternal/lokal
+
                 document.getElementById('showAgendaName').innerText = data.agenda_name ?? '-';
                 document.getElementById('showAgendaDate').innerText = formatDate(data.date);
 
                 const timeText = (data.start_time && data.end_time) ?
                     `${data.start_time} - ${data.end_time}` :
-                    (data.start_time ?? '-');
+                    (data.end_time ? data.end_time : (data.start_time ?? '-'));
                 document.getElementById('showAgendaTime').innerText = timeText;
 
                 document.getElementById('showAgendaLocation').innerText = data.location ?? '-';
                 document.getElementById('showAgendaDesc').innerText = data.description ?? '-';
 
                 const involved = data.involved_institution ?? '-';
-                const unitName = data.unit && data.unit.unit_name ? data.unit.unit_name : '-';
+                const unitName = (data.unit && data.unit.unit_name) ? data.unit.unit_name : '-';
 
                 const unitEl = document.getElementById('showAgendaUnit');
                 if (unitEl) unitEl.innerText = unitName;

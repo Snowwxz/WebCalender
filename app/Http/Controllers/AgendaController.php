@@ -15,6 +15,77 @@ use Carbon\Carbon;
 class AgendaController extends Controller
 {
     /**
+     * Helper method untuk transform dan format agenda eksternal agar sama seperti agenda lokal
+     * 
+     * @param array $externalAgenda
+     * @param ExternalAgendaService $externalService
+     * @return array
+     */
+    protected function transformExternalAgenda($externalAgenda, $externalService)
+    {
+        $transformed = $externalService->transformToLocalFormat($externalAgenda);
+        
+        // Set id_agenda untuk kompatibilitas (gunakan format yang mirip dengan local)
+        $transformed['id_agenda'] = 'ext_' . ($externalAgenda['id'] ?? uniqid());
+        
+        // JANGAN set is_external atau source - biarkan seperti agenda biasa
+        // $transformed['is_external'] = true; // DIHAPUS
+        // $transformed['source'] = 'external'; // DIHAPUS
+        
+        // Ensure date is in correct format (Y-m-d string)
+        if (isset($transformed['date'])) {
+            try {
+                if (is_string($transformed['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $transformed['date'])) {
+                    // Already in correct format
+                } else {
+                    $transformed['date'] = Carbon::parse($transformed['date'])->format('Y-m-d');
+                }
+            } catch (\Exception $e) {
+                $parsed = strtotime($transformed['date']);
+                if ($parsed !== false) {
+                    $transformed['date'] = date('Y-m-d', $parsed);
+                }
+            }
+        }
+        
+        // Ensure unit structure is consistent (sama seperti agenda lokal)
+        if (!isset($transformed['unit'])) {
+            $transformed['unit'] = null;
+        } elseif (is_array($transformed['unit'])) {
+            // Pastikan struktur unit sama dengan agenda lokal
+            // Unit sudah di-set di transformToLocalFormat, pastikan formatnya konsisten
+        }
+        
+        // Add empty relations for compatibility with local agendas
+        if (!isset($transformed['user'])) {
+            $transformed['user'] = null;
+        }
+        if (!isset($transformed['approver'])) {
+            $transformed['approver'] = null;
+        }
+        
+        // Convert Carbon dates to strings for JSON encoding
+        if (isset($transformed['created_at']) && is_object($transformed['created_at'])) {
+            $transformed['created_at'] = $transformed['created_at']->toDateTimeString();
+        }
+        if (isset($transformed['updated_at']) && is_object($transformed['updated_at'])) {
+            $transformed['updated_at'] = $transformed['updated_at']->toDateTimeString();
+        }
+        
+        // Ensure status is set (sama seperti agenda lokal yang approved)
+        if (!isset($transformed['status'])) {
+            $transformed['status'] = 'approved';
+        }
+        
+        // Ensure is_public is set (agenda eksternal selalu publik, sama seperti agenda lokal publik)
+        if (!isset($transformed['is_public'])) {
+            $transformed['is_public'] = 1;
+        }
+        
+        return $transformed;
+    }
+
+    /**
      * ✅ Tampilkan daftar agenda di dashboard (termasuk agenda eksternal).
      */
     public function index(Request $request)
@@ -58,60 +129,43 @@ class AgendaController extends Controller
         $mergedAgendas = $localAgendas;
 
         // Add external agendas if available
-        if ($externalAgendas) {
+        if (!empty($externalAgendas) && is_array($externalAgendas) && count($externalAgendas) > 0) {
             $transformedExternal = array_map(function ($agenda) use ($externalService) {
-                $transformed = $externalService->transformToLocalFormat($agenda);
-                // Mark as external and add id_agenda for compatibility
-                $transformed['id_agenda'] = 'ext_' . ($agenda['id'] ?? uniqid());
-                $transformed['is_external'] = true;
-                $transformed['source'] = 'external';
-                // Ensure date is in correct format (Y-m-d string)
-                if (isset($transformed['date'])) {
-                    try {
-                        // If it's already a string in Y-m-d format, use it
-                        if (is_string($transformed['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $transformed['date'])) {
-                            // Already in correct format
-                        } else {
-                            // Try to parse and format
-                            $transformed['date'] = Carbon::parse($transformed['date'])->format('Y-m-d');
-                        }
-                    } catch (\Exception $e) {
-                        // If parsing fails, try strtotime as fallback
-                        $parsed = strtotime($transformed['date']);
-                        if ($parsed !== false) {
-                            $transformed['date'] = date('Y-m-d', $parsed);
-                        }
-                    }
-                }
-                // Keep unit from service if available, otherwise set to null
-                // Unit is already set in transformToLocalFormat if found
-                if (!isset($transformed['unit'])) {
-                    $transformed['unit'] = null;
-                }
-                // Add empty relations for compatibility with local agendas
-                $transformed['user'] = null;
-                $transformed['approver'] = null;
-                // Convert Carbon dates to strings for JSON encoding
-                if (isset($transformed['created_at']) && is_object($transformed['created_at'])) {
-                    $transformed['created_at'] = $transformed['created_at']->toDateTimeString();
-                }
-                if (isset($transformed['updated_at']) && is_object($transformed['updated_at'])) {
-                    $transformed['updated_at'] = $transformed['updated_at']->toDateTimeString();
-                }
-                return $transformed;
+                return $this->transformExternalAgenda($agenda, $externalService);
             }, $externalAgendas);
 
             $mergedAgendas = array_merge($localAgendas, $transformedExternal);
         }
 
-        // Convert back to collection for view compatibility
         // Ensure all dates are properly formatted
         $mergedAgendas = array_map(function ($item) {
             if (isset($item['date']) && is_object($item['date'])) {
                 $item['date'] = $item['date']->format('Y-m-d');
             }
+            // Ensure all required fields are present
+            if (!isset($item['status'])) {
+                $item['status'] = 'approved';
+            }
+            // Hapus flag eksternal jika ada - semua agenda diperlakukan sama
+            unset($item['is_external']);
+            unset($item['source']);
             return $item;
         }, $mergedAgendas);
+        
+        // Sort by date and time for consistency
+        usort($mergedAgendas, function ($a, $b) {
+            $dateA = $a['date'] ?? '';
+            $dateB = $b['date'] ?? '';
+            
+            if ($dateA !== $dateB) {
+                return strcmp($dateA, $dateB);
+            }
+            
+            $timeA = $a['start_time'] ?? $a['end_time'] ?? '';
+            $timeB = $b['start_time'] ?? $b['end_time'] ?? '';
+            
+            return strcmp($timeA, $timeB);
+        });
         
         $agenda = collect($mergedAgendas);
         $units = Unit::orderBy('unit_name', 'asc')->get();
@@ -575,18 +629,9 @@ class AgendaController extends Controller
         $mergedAgendas = $localAgendas;
 
         // Add external agendas if available
-        if ($externalAgendas) {
+        if (!empty($externalAgendas) && is_array($externalAgendas) && count($externalAgendas) > 0) {
             $transformedExternal = array_map(function ($agenda) use ($externalService) {
-                $transformed = $externalService->transformToLocalFormat($agenda);
-                // Mark as external and add id_agenda for compatibility
-                $transformed['id_agenda'] = 'ext_' . ($agenda['id'] ?? uniqid());
-                $transformed['is_external'] = true;
-                $transformed['source'] = 'external';
-                // Ensure date is in correct format
-                if (isset($transformed['date'])) {
-                    $transformed['date'] = date('Y-m-d', strtotime($transformed['date']));
-                }
-                return $transformed;
+                return $this->transformExternalAgenda($agenda, $externalService);
             }, $externalAgendas);
 
             $mergedAgendas = array_merge($localAgendas, $transformedExternal);
@@ -657,18 +702,9 @@ class AgendaController extends Controller
         $mergedAgendas = $localAgendas;
 
         // Add external agendas if available
-        if ($externalAgendas) {
+        if (!empty($externalAgendas) && is_array($externalAgendas) && count($externalAgendas) > 0) {
             $transformedExternal = array_map(function ($agenda) use ($externalService) {
-                $transformed = $externalService->transformToLocalFormat($agenda);
-                // Mark as external and add id_agenda for compatibility
-                $transformed['id_agenda'] = 'ext_' . ($agenda['id'] ?? uniqid());
-                $transformed['is_external'] = true;
-                $transformed['source'] = 'external';
-                // Ensure date is in correct format
-                if (isset($transformed['date'])) {
-                    $transformed['date'] = date('Y-m-d', strtotime($transformed['date']));
-                }
-                return $transformed;
+                return $this->transformExternalAgenda($agenda, $externalService);
             }, $externalAgendas);
 
             $mergedAgendas = array_merge($localAgendas, $transformedExternal);
@@ -734,19 +770,23 @@ class AgendaController extends Controller
 
         $mergedAgendas = $localAgendas;
 
-        // Add external agendas if available
-        if ($externalAgendas) {
+        // Add external agendas if available (diperlakukan sama seperti agenda lokal)
+        if (!empty($externalAgendas) && is_array($externalAgendas) && count($externalAgendas) > 0) {
             $transformedExternal = array_map(function ($agenda) use ($externalService) {
-                $transformed = $externalService->transformToLocalFormat($agenda);
+                $transformed = $this->transformExternalAgenda($agenda, $externalService);
+                // Format untuk getAgendaHari (sama seperti agenda lokal)
                 return [
-                    'id' => 'ext_' . ($agenda['id'] ?? uniqid()),
+                    'id' => $transformed['id_agenda'],
                     'title' => $transformed['agenda_name'],
                     'start_time' => $transformed['start_time'],
                     'end_time' => $transformed['end_time'],
                     'location' => $transformed['location'],
-                    'is_public' => 1, // External agendas are always public
-                    'is_external' => true,
-                    'source' => 'external'
+                    'is_public' => $transformed['is_public'] ?? 1,
+                    'agenda_name' => $transformed['agenda_name'],
+                    'date' => $transformed['date'],
+                    'description' => $transformed['description'] ?? '',
+                    'status' => $transformed['status'] ?? 'approved'
+                    // Tidak ada is_external atau source - sama seperti agenda lokal
                 ];
             }, $externalAgendas);
 
@@ -1093,13 +1133,9 @@ class AgendaController extends Controller
             $mergedAgendas = $localAgendas;
 
             // Add external agendas if available
-            if ($externalAgendas) {
+            if ($externalAgendas && count($externalAgendas) > 0) {
                 $transformedExternal = array_map(function ($agenda) use ($externalService) {
-                    $transformed = $externalService->transformToLocalFormat($agenda);
-                    // Mark as external
-                    $transformed['is_external'] = true;
-                    $transformed['source'] = 'external';
-                    return $transformed;
+                    return $this->transformExternalAgenda($agenda, $externalService);
                 }, $externalAgendas);
 
                 $mergedAgendas = array_merge($localAgendas, $transformedExternal);

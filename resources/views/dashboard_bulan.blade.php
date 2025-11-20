@@ -284,11 +284,7 @@
                     const matchMonth = date.getMonth() + 1 === Number(month);
                     const matchDay = date.getDate() === Number(day);
 
-                    // Agenda eksternal selalu ditampilkan (dianggap publik)
-                    if (item.is_external || item.source === 'external') {
-                        return matchYear && matchMonth && matchDay && showPublic;
-                    }
-
+                    // Semua agenda diperlakukan sama (tidak ada pembedaan eksternal/lokal)
                     const isPublic = item.is_public == 1;
                     const matchCategory = (isPublic && showPublic) || (!isPublic && showPrivate);
 
@@ -340,14 +336,11 @@
                         const agendaContainer = document.createElement("div");
                         agendaContainer.className = "agenda-container";
 
-                        const externalAgenda = filteredAgenda.filter(a => a.is_external || a.source === 'external');
-                        const publicAgenda = filteredAgenda.filter(a => a.is_public == 1 && !(a.is_external || a.source ===
-                            'external'));
-                        const privateAgenda = filteredAgenda.filter(a => a.is_public == 0 && !(a.is_external || a.source ===
-                            'external'));
+                        // Semua agenda diperlakukan sama - tidak ada pembedaan eksternal/lokal
+                        const publicAgenda = filteredAgenda.filter(a => a.is_public == 1);
+                        const privateAgenda = filteredAgenda.filter(a => a.is_public == 0);
 
-                        const hasApproved = filteredAgenda.some(a => a.status === 'approved' || a.is_external || a.source ===
-                            'external');
+                        const hasApproved = filteredAgenda.some(a => a.status === 'approved');
                         const hasPending = filteredAgenda.some(a => a.status === 'pending');
                         const hasRejected = filteredAgenda.some(a => a.status === 'rejected');
 
@@ -355,20 +348,7 @@
                         if (hasRejected) badgeColor = "bg-red-500";
                         else if (hasPending) badgeColor = "bg-yellow-500";
 
-                        // Handle external agendas separately
-                        if (externalAgenda.length > 0) {
-                            const externalBadge = document.createElement("div");
-                            externalBadge.className = "agenda-count-badge bg-green-500";
-                            externalBadge.textContent =
-                                externalAgenda.length > 1 ? `${externalAgenda.length} Agenda` :
-                                externalAgenda[0].agenda_name;
-                            externalBadge.addEventListener('click', (e) => {
-                                e.stopPropagation();
-                                handleAgendaClick(externalAgenda, `${year}-${month}-${day}`);
-                            });
-                            agendaContainer.appendChild(externalBadge);
-                        }
-
+                        // Semua agenda diperlakukan sama (tidak ada pembedaan eksternal/lokal)
                         if (hasApproved && publicAgenda.length > 0 && privateAgenda.length > 0) {
                             const publicBadge = document.createElement("div");
                             publicBadge.className = "agenda-count-badge bg-green-500";
@@ -499,8 +479,7 @@
         <script>
             // === 🔹 MODAL DETAIL AGENDA ===
             function openShowAgendaModal(data) {
-                // Check if it's external agenda
-                const isExternal = data.is_external || data.source === 'external';
+                // Semua agenda diperlakukan sama - tidak ada pembedaan eksternal/lokal
 
                 // Gunakan fungsi global fillAgendaModal jika tersedia
                 if (typeof window.fillAgendaModal === 'function') {
@@ -524,8 +503,7 @@
 
                     // Isi data instansi
                     const involved = data.involved_institution ?? '-';
-                    const unitName = (data.unit && data.unit.unit_name) ? data.unit.unit_name : (isExternal ?
-                        'Sumber Eksternal' : '-');
+                    const unitName = (data.unit && data.unit.unit_name) ? data.unit.unit_name : '-';
 
                     const unitEl = document.getElementById('showAgendaUnit');
                     if (unitEl) unitEl.innerText = unitName;
@@ -533,25 +511,19 @@
                     const involvedEl = document.getElementById('showAgendaInvolved');
                     if (involvedEl) involvedEl.innerText = involved;
 
-                    // Isi status akses (publik/privasi/eksternal)
+                    // Isi status akses (publik/privasi)
                     const accessEl = document.getElementById('showAgendaAccess');
                     if (accessEl) {
-                        if (isExternal) {
-                            // Anggap eksternal sebagai agenda publik
-                            accessEl.innerHTML =
-                                `<span class="badge rounded-pill" style="background-color:#FFB67E; color:#2F3E35; padding:6px 10px;">Publik</span>`;
-                        } else {
-                            const isPublic = data.is_public == 1;
-                            const bg = isPublic ? '#A8E6A3' : '#FFB67E';
-                            const text = isPublic ? 'Publik' : 'Privasi';
-                            accessEl.innerHTML =
-                                `<span class="badge rounded-pill" style="background-color:${bg}; color:#2F3E35; padding:6px 10px;">${text}</span>`;
-                        }
+                        const isPublic = data.is_public == 1;
+                        const bg = isPublic ? '#A8E6A3' : '#FFB67E';
+                        const text = isPublic ? 'Publik' : 'Privasi';
+                        accessEl.innerHTML =
+                            `<span class="badge rounded-pill" style="background-color:${bg}; color:#2F3E35; padding:6px 10px;">${text}</span>`;
                     }
                 }
 
                 const notesEl = document.getElementById('showAgendaNotes');
-                if (notesEl) notesEl.innerText = data.notes ?? (isExternal ? 'Agenda dari sumber eksternal' : '-');
+                if (notesEl) notesEl.innerText = data.notes ?? '-';
 
 
                 // Tampilkan modal
