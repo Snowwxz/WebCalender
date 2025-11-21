@@ -66,23 +66,7 @@
             <div class="user-profile-section">
                 <div class="user-profile" onclick="toggleDropdown()">
                     <div class="user-avatar">
-                        @if ($user->profile_photo_path)
-                            <img src="{{ $user->profile_photo_path }}" alt="Profile" class="profile-image">
-                        @else
-                            @php
-                                $initials = '';
-                                $nameParts = explode(' ', $user->name);
-                                if (count($nameParts) > 0) {
-                                    $initials = strtoupper(substr($nameParts[0], 0, 1));
-                                    if (count($nameParts) > 1) {
-                                        $initials .= strtoupper(substr($nameParts[count($nameParts) - 1], 0, 1));
-                                    }
-                                } else {
-                                    $initials = strtoupper(substr($user->name, 0, 1));
-                                }
-                            @endphp
-                            <div class="profile-initials">{{ $initials }}</div>
-                        @endif
+                        <img src="{{ asset('images/logo.png') }}" alt="Logo Pemkot Samarinda" class="profile-image">
                     </div>
                     <div class="user-info">
                         <div class="username">{{ $user->name }}</div>

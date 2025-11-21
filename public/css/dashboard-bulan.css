@@ -1339,10 +1339,12 @@
     background: #F7FAF8;
     box-shadow: none;
     overflow-y: auto;
-    transition: right 0.3s ease-in-out;
+    transition: right 0.3s ease-in-out, opacity 0.3s ease, transform 0.3s ease;
     z-index: 10000;
-    padding: 20px;
+    padding: 0;
     border-left: 1px solid #e9ecef;
+    display: flex;
+    flex-direction: column;
 }
 
 #agendaSidebar.active {
@@ -1351,15 +1353,18 @@
 
 /* Sidebar header agar terlihat rapi */
 #agendaSidebar .sidebar-header {
-    background: linear-gradient(180deg, #82A98D 0%, #6E9579 100%);
+    background-color: #82A98D;
+    background-image: linear-gradient(180deg, #82A98D 0%, #6E9579 100%);
     padding: 15px 20px;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid #5b7d67;
     display: flex;
     justify-content: space-between;
     align-items: center;
     position: sticky;
     top: 0;
-    z-index: 1;
+    z-index: 10;
+    flex-shrink: 0;
+    opacity: 1;
 }
 
 #agendaSidebar .sidebar-header h3 {
@@ -1370,10 +1375,10 @@
 }
 
 #agendaSidebar .close-sidebar {
-    background: none;
+    background: rgba(255, 255, 255, 0.2);
     border: none;
     font-size: 20px;
-    color: #6c757d;
+    color: #ffffff;
     cursor: pointer;
     padding: 5px;
     border-radius: 50%;
@@ -1386,17 +1391,32 @@
 }
 
 #agendaSidebar .close-sidebar:hover {
-    color: #E8F2EB;
+    background: rgba(255, 255, 255, 0.3);
+    color: #ffffff;
     transform: rotate(90deg);
 }
 
 #agendaSidebar .agenda-list {
     padding: 20px;
+    flex: 1;
+    overflow-y: auto;
+    background: #F7FAF8;
 }
 
-.agenda-item {
-    border-bottom: 1px solid #e5e7eb;
-    padding: 10px 0;
+#agendaSidebar .agenda-item {
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: #ffffff !important;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+    border: 1px solid #E5E7EB;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+#agendaSidebar .agenda-item:hover {
+    background: #F7F8FA !important;
+    border-color: #D1D5DB;
 }
 
 .agenda-header {
@@ -1607,14 +1627,11 @@
     }
 }
 
-#agendaSidebar {
-    transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
 #agendaSidebar.hidden {
     opacity: 0;
     pointer-events: none;
     transform: translateX(40px);
+    right: -400px !important;
 }
 
 #showAgendaDesc {

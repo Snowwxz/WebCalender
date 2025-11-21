@@ -259,16 +259,32 @@
                 }
             }
 
-            // 🔹 Ambil agenda berdasarkan hari + filter kategori
+            // 🔹 Ambil agenda berdasarkan hari + filter kategori (termasuk agenda eksternal)
             function getFilteredAgendaForDay(year, month, day) {
                 return agenda.filter(item => {
-                    const date = new Date(item.date);
-                    if (isNaN(date)) return false;
+                    if (!item.date) return false;
+
+                    // Parse date - handle both string and date object
+                    let date;
+                    if (typeof item.date === 'string') {
+                        // If it's in Y-m-d format, parse it correctly
+                        if (item.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                            const [y, m, d] = item.date.split('-').map(Number);
+                            date = new Date(y, m - 1, d);
+                        } else {
+                            date = new Date(item.date);
+                        }
+                    } else {
+                        date = new Date(item.date);
+                    }
+
+                    if (isNaN(date.getTime())) return false;
 
                     const matchYear = date.getFullYear() === Number(year);
                     const matchMonth = date.getMonth() + 1 === Number(month);
                     const matchDay = date.getDate() === Number(day);
 
+                    // Semua agenda diperlakukan sama (tidak ada pembedaan eksternal/lokal)
                     const isPublic = item.is_public == 1;
                     const matchCategory = (isPublic && showPublic) || (!isPublic && showPrivate);
 
@@ -320,6 +336,7 @@
                         const agendaContainer = document.createElement("div");
                         agendaContainer.className = "agenda-container";
 
+                        // Semua agenda diperlakukan sama - tidak ada pembedaan eksternal/lokal
                         const publicAgenda = filteredAgenda.filter(a => a.is_public == 1);
                         const privateAgenda = filteredAgenda.filter(a => a.is_public == 0);
 
@@ -331,6 +348,7 @@
                         if (hasRejected) badgeColor = "bg-red-500";
                         else if (hasPending) badgeColor = "bg-yellow-500";
 
+                        // Semua agenda diperlakukan sama (tidak ada pembedaan eksternal/lokal)
                         if (hasApproved && publicAgenda.length > 0 && privateAgenda.length > 0) {
                             const publicBadge = document.createElement("div");
                             publicBadge.className = "agenda-count-badge bg-green-500";
@@ -338,7 +356,7 @@
                                 publicAgenda.length > 1 ? `${publicAgenda.length} Kegiatan` : publicAgenda[0].agenda_name;
                             publicBadge.addEventListener('click', (e) => {
                                 e.stopPropagation();
-                                showAgendaListSidebar(publicAgenda, `${year}-${month}-${day}`);
+                                handleAgendaClick(publicAgenda, `${year}-${month}-${day}`);
                             });
                             agendaContainer.appendChild(publicBadge);
 
@@ -348,28 +366,30 @@
                                 privateAgenda.length > 1 ? `${privateAgenda.length} Kegiatan` : privateAgenda[0].agenda_name;
                             privateBadge.addEventListener('click', (e) => {
                                 e.stopPropagation();
-                                showAgendaListSidebar(privateAgenda, `${year}-${month}-${day}`);
+                                handleAgendaClick(privateAgenda, `${year}-${month}-${day}`);
                             });
                             agendaContainer.appendChild(privateBadge);
-                        } else if (hasApproved && filteredAgenda.length > 0) {
+                        } else if (hasApproved && (publicAgenda.length > 0 || privateAgenda.length > 0)) {
                             const badge = document.createElement("div");
-                            const isPublic = filteredAgenda.some(a => a.is_public == 1);
+                            const isPublic = publicAgenda.length > 0;
                             badge.className = `agenda-count-badge ${isPublic ? "bg-green-500" : "bg-orange-500"}`;
+                            const agendaToShow = publicAgenda.length > 0 ? publicAgenda : privateAgenda;
                             badge.textContent =
-                                filteredAgenda.length > 1 ? `${filteredAgenda.length} Kegiatan` : filteredAgenda[0].agenda_name;
+                                agendaToShow.length > 1 ? `${agendaToShow.length} Kegiatan` : agendaToShow[0].agenda_name;
                             badge.addEventListener('click', (e) => {
                                 e.stopPropagation();
-                                showAgendaListSidebar(filteredAgenda, `${year}-${month}-${day}`);
+                                handleAgendaClick(agendaToShow, `${year}-${month}-${day}`);
                             });
                             agendaContainer.appendChild(badge);
-                        } else if (!hasApproved && filteredAgenda.length > 0) {
+                        } else if (!hasApproved && (publicAgenda.length > 0 || privateAgenda.length > 0)) {
                             const badge = document.createElement("div");
                             badge.className = `agenda-count-badge ${badgeColor}`;
+                            const agendaToShow = publicAgenda.length > 0 ? publicAgenda : privateAgenda;
                             badge.textContent =
-                                filteredAgenda.length > 1 ? `${filteredAgenda.length} Kegiatan` : filteredAgenda[0].agenda_name;
+                                agendaToShow.length > 1 ? `${agendaToShow.length} Kegiatan` : agendaToShow[0].agenda_name;
                             badge.addEventListener('click', (e) => {
                                 e.stopPropagation();
-                                showAgendaListSidebar(filteredAgenda, `${year}-${month}-${day}`);
+                                handleAgendaClick(agendaToShow, `${year}-${month}-${day}`);
                             });
                             agendaContainer.appendChild(badge);
                         }
@@ -459,17 +479,23 @@
         <script>
             // === 🔹 MODAL DETAIL AGENDA ===
             function openShowAgendaModal(data) {
+                // Semua agenda diperlakukan sama - tidak ada pembedaan eksternal/lokal
+
                 // Gunakan fungsi global fillAgendaModal jika tersedia
                 if (typeof window.fillAgendaModal === 'function') {
                     window.fillAgendaModal(data);
                 } else {
                     // Fallback: isi manual jika fungsi global belum tersedia
-                    document.getElementById('showAgendaName').innerText = data.agenda_name ?? '-';
+                    const nameEl = document.getElementById('showAgendaName');
+                    if (nameEl) {
+                        nameEl.innerHTML = (data.agenda_name ?? '-');
+                    }
+
                     document.getElementById('showAgendaDate').innerText = formatDate(data.date);
 
                     const timeText = (data.start_time && data.end_time) ?
                         `${data.start_time} - ${data.end_time}` :
-                        (data.start_time ?? '-');
+                        (data.end_time ? data.end_time : (data.start_time ?? '-'));
                     document.getElementById('showAgendaTime').innerText = timeText;
 
                     document.getElementById('showAgendaLocation').innerText = data.location ?? '-';
@@ -477,7 +503,7 @@
 
                     // Isi data instansi
                     const involved = data.involved_institution ?? '-';
-                    const unitName = data.unit && data.unit.unit_name ? data.unit.unit_name : '-';
+                    const unitName = (data.unit && data.unit.unit_name) ? data.unit.unit_name : '-';
 
                     const unitEl = document.getElementById('showAgendaUnit');
                     if (unitEl) unitEl.innerText = unitName;
@@ -500,8 +526,8 @@
                 if (notesEl) notesEl.innerText = data.notes ?? '-';
 
 
-            // Tampilkan modal
-            new bootstrap.Modal(document.getElementById('showAgendaModal')).show();
+                // Tampilkan modal
+                new bootstrap.Modal(document.getElementById('showAgendaModal')).show();
             }
         </script>
 
@@ -541,6 +567,17 @@
                 return date.toLocaleDateString('id-ID', options);
             }
 
+            // Fungsi helper: jika 1 agenda langsung buka modal, jika lebih dari 1 buka sidebar
+            function handleAgendaClick(agendaList, date) {
+                if (agendaList.length === 1) {
+                    // Jika hanya 1 agenda, langsung buka modal
+                    openShowAgendaModal(agendaList[0]);
+                } else if (agendaList.length > 1) {
+                    // Jika lebih dari 1 agenda, buka sidebar
+                    showAgendaListSidebar(agendaList, date);
+                }
+            }
+
             function showAgendaListSidebar(agendaList, date) {
                 const sidebar = document.getElementById("agendaSidebar");
                 const listContainer = document.getElementById("agendaList");
@@ -554,14 +591,29 @@
                     return;
                 }
 
-                agendaList.forEach((item, index) => {
+                // Urutkan agenda berdasarkan jam (start_time)
+                const sortedAgendaList = [...agendaList].sort((a, b) => {
+                    // Ambil start_time, jika tidak ada gunakan end_time, jika tidak ada gunakan '00:00:00'
+                    const timeA = a.start_time || a.end_time || '00:00:00';
+                    const timeB = b.start_time || b.end_time || '00:00:00';
+                    
+                    // Bandingkan waktu
+                    return timeA.localeCompare(timeB);
+                });
+
+                sortedAgendaList.forEach((item, index) => {
                     const itemDiv = document.createElement("div");
                     itemDiv.className = "agenda-item";
 
                     const header = document.createElement("div");
                     header.className = "agenda-header";
+
+                    // Check if it's external agenda
+                    item.is_public = 1;
+                    const externalBadge = "";
+
                     header.innerHTML = `
-                    <span class="agenda-item-title">${item.agenda_name}</span>
+                    <span class="agenda-item-title">${item.agenda_name}${externalBadge}</span>
                     <span class="agenda-item-arrow"><i class="fas fa-chevron-right"></i></span>
                 `;
 
