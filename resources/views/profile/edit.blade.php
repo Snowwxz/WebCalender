@@ -38,19 +38,7 @@
             <div class="profile-header-card">
                 <div class="profile-avatar-section">
                     <div class="profile-avatar-large">
-                        @php
-                            $initials = '';
-                            $nameParts = explode(' ', $user->name);
-                            if (count($nameParts) > 0) {
-                                $initials = strtoupper(substr($nameParts[0], 0, 1));
-                                if (count($nameParts) > 1) {
-                                    $initials .= strtoupper(substr($nameParts[count($nameParts) - 1], 0, 1));
-                                }
-                            } else {
-                                $initials = strtoupper(substr($user->name, 0, 1));
-                            }
-                        @endphp
-                        <span class="avatar-initials">{{ $initials }}</span>
+                        <img src="{{ asset('images/logo.png') }}" alt="Logo Pemkot Samarinda" style="width: 85%; height: 85%; object-fit: contain; border-radius: 0; padding: 4px; box-sizing: border-box;">
                     </div>
                 </div>
                 <div class="profile-info-section">

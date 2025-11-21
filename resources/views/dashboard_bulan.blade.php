@@ -2,6 +2,8 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/dashboard-bulan.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/create_agenda_modal.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/agenda-create.css') }}">
 @endpush
 
 @section('content')
@@ -68,28 +70,26 @@
                 <div class="modal-body">
                     <form id="agendaForm" action="{{ route('agenda.store') }}" method="POST"
                         onsubmit="return handleFormSubmit(event)">
+                        @csrf
                         <div class="form-grid">
+                            <!-- Full Width Fields -->
+                            <div class="input-group fullwidth-group">
+                                <label><i class="fas fa-file-alt"></i> Nama Agenda</label>
+                                <input type="text" name="agenda_name" id="agenda_name"
+                                    placeholder="Masukkan nama agenda" required>
+                            </div>
+
+                            <div class="input-group fullwidth-group">
+                                <label><i class="fas fa-align-left"></i> Deskripsi Agenda</label>
+                                <textarea name="description" id="description" placeholder="Masukkan deskripsi agenda" required></textarea>
+                            </div>
+
                             <!-- Kolom kiri -->
                             <div class="form-column">
                                 <div class="input-group">
-                                    <label><i class="fas fa-file-alt"></i> Nama Agenda</label>
-                                    <input type="text" name="agenda_name" id="agenda_name"
-                                        placeholder="Masukkan nama agenda" required>
-                                </div>
-
-                                <div class="input-group">
-                                    <label><i class="fas fa-align-left"></i> Deskripsi Agenda</label>
-                                    <textarea name="description" id="description" placeholder="Masukkan deskripsi agenda" required></textarea>
-                                </div>
-
-                                <div class="input-group">
-                                    <label><i class="fas fa-building"></i> Nama Instansi (Pengaju)</label>
-                                    <select name="id_unit" id="id_unit" required>
-                                        <option value="">-- Pilih Instansi Pengaju --</option>
-                                        @foreach ($units as $unit)
-                                            <option value="{{ $unit->id_unit }}">{{ $unit->unit_name }}</option>
-                                        @endforeach
-                                    </select>
+                                    <label><i class="fas fa-building"></i> Pelaksana</label>
+                                    <input type="text" value="{{ Auth::user()->unit->unit_name ?? '-' }}" readonly>
+                                    <input type="hidden" name="id_unit" value="{{ Auth::user()->id_unit }}">
                                 </div>
 
                                 <div class="input-group">
@@ -98,6 +98,11 @@
                                         <option value="1">Publik</option>
                                         <option value="0">Privasi</option>
                                     </select>
+                                </div>
+
+                                <div class="input-group lokasi-group">
+                                    <label for="lokasi"><i class="fas fa-map-marker-alt"></i> Lokasi</label>
+                                    <input type="text" id="location" name="location" placeholder="Masukkan lokasi kegiatan">
                                 </div>
                             </div>
 
@@ -110,24 +115,70 @@
 
                                 <div class="input-group">
                                     <label><i class="fas fa-clock"></i> Waktu Mulai</label>
-                                    <input type="time" name="start_time" id="start_time">
+                                    <input type="time" name="start_time" id="start_time" required>
                                 </div>
 
                                 <div class="input-group">
                                     <label><i class="fas fa-clock"></i> Waktu Selesai</label>
-                                    <input type="time" name="end_time" id="end_time">
+                                    <input type="time" name="end_time" id="end_time" required>
+                                </div>
+                            </div>
+
+                            <!-- Dihadiri - Full Width -->
+                            <div class="input-group fullwidth-group">
+                                <label><i class="fas fa-people-group"></i> Dihadiri</label>
+
+                                <div class="chips-multiselect" id="involvedInstansi">
+                                    <div class="chips-container">
+                                        <div class="chips-selected"></div>
+                                        <input type="text" class="chips-input" placeholder="-- Pilih Instansi yang Hadir --"
+                                            readonly style="cursor: pointer;">
+                                    </div>
+                                    <span class="chips-arrow"><i class="fas fa-chevron-down"></i></span>
+
+                                    <div class="chips-dropdown">
+                                        <div class="chips-search">
+                                            <input type="text" class="chips-search-input" placeholder="Cari instansi..." />
+                                        </div>
+                                        <div class="chips-add-new-input-container" style="display: none; padding: 10px 12px; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">
+                                            <input type="text" class="chips-add-new-input" placeholder="Ketik nama instansi baru..." style="width: 100%; padding: 8px 12px; border: 1px solid #6b8f71; border-radius: 6px; font-size: 14px; outline: none;" />
+                                            <div style="display: flex; gap: 8px; margin-top: 8px;">
+                                                <button type="button" class="chips-add-confirm-btn" style="flex: 1; padding: 6px 12px; background: #6b8f71; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;">Tambahkan</button>
+                                                <button type="button" class="chips-add-cancel-btn" style="flex: 1; padding: 6px 12px; background: #e5e7eb; color: #374151; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;">Batal</button>
+                                            </div>
+                                        </div>
+
+                                        <ul>
+                                            <li class="select-all-option" data-action="select-all">
+                                                <span class="check-icon"></span>
+                                                <span class="item-text">Pilih Semua</span>
+                                                <i class="fas fa-check checkmark-icon"></i>
+                                            </li>
+                                            @foreach ($units as $unit)
+                                                @if ($unit->id_unit !== Auth::user()->id_unit && strtolower($unit->unit_name) !== 'protokol')
+                                                    <li data-value="{{ $unit->unit_name }}" class="dropdown-item">
+                                                        <span class="check-icon"></span>
+                                                        <span class="item-text">{{ $unit->unit_name }}</span>
+                                                        <i class="fas fa-check checkmark-icon"></i>
+                                                    </li>
+                                                @endif
+                                            @endforeach
+                                            <li class="add-new-instansi-option" data-action="add-new" style="padding: 10px 12px; cursor: pointer; border-top: 1px solid #e5e7eb; color: #6b8f71; font-weight: 500; display: flex; align-items: center; list-style: none;">
+                                                <i class="fas fa-plus-circle" style="margin-right: 8px;"></i>
+                                                <span>Lainnya...</span>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
 
-                                <div class="input-group">
-                                    <label><i class="fas fa-location-dot"></i> Lokasi</label>
-                                    <input type="text" name="location" id="location"
-                                        placeholder="Masukkan lokasi kegiatan">
-                                </div>
+                                <input type="hidden" name="involved_institution" id="involvedInstitutionField"
+                                    value="">
+                            </div>
 
-                                <div class="input-group">
-                                    <label><i class="fas fa-people-group"></i> Instansi yang Ikut Serta</label>
-                                    <textarea name="involved_institution" id="involved_institution" placeholder="Masukkan instansi yang akan ikut serta"></textarea>
-                                </div>
+                            <!-- Catatan - Full Width -->
+                            <div class="input-group fullwidth-group">
+                                <label><i class="fa-solid fa-file-lines" style="color:#6b8f71;"></i> Catatan</label>
+                                <textarea name="notes" id="notes" placeholder="Masukkan catatan tambahan (opsional)" rows="3"></textarea>
                             </div>
                         </div>
 
@@ -264,6 +315,9 @@
                 return agenda.filter(item => {
                     if (!item.date) return false;
 
+                    // Hanya tampilkan agenda yang sudah di-approve
+                    if (item.status !== 'approved') return false;
+
                     // Parse date - handle both string and date object
                     let date;
                     if (typeof item.date === 'string') {
@@ -284,11 +338,7 @@
                     const matchMonth = date.getMonth() + 1 === Number(month);
                     const matchDay = date.getDate() === Number(day);
 
-                    // Agenda eksternal selalu ditampilkan (dianggap publik)
-                    if (item.is_external || item.source === 'external') {
-                        return matchYear && matchMonth && matchDay && showPublic;
-                    }
-
+                    // Semua agenda diperlakukan sama (tidak ada pembedaan eksternal/lokal)
                     const isPublic = item.is_public == 1;
                     const matchCategory = (isPublic && showPublic) || (!isPublic && showPrivate);
 
@@ -340,43 +390,19 @@
                         const agendaContainer = document.createElement("div");
                         agendaContainer.className = "agenda-container";
 
-                        const externalAgenda = filteredAgenda.filter(a => a.is_external || a.source === 'external');
-                        const publicAgenda = filteredAgenda.filter(a => a.is_public == 1 && !(a.is_external || a.source ===
-                            'external'));
-                        const privateAgenda = filteredAgenda.filter(a => a.is_public == 0 && !(a.is_external || a.source ===
-                            'external'));
+                        // Semua agenda diperlakukan sama - tidak ada pembedaan eksternal/lokal
+                        const publicAgenda = filteredAgenda.filter(a => a.is_public == 1);
+                        const privateAgenda = filteredAgenda.filter(a => a.is_public == 0);
 
-                        const hasApproved = filteredAgenda.some(a => a.status === 'approved' || a.is_external || a.source ===
-                            'external');
-                        const hasPending = filteredAgenda.some(a => a.status === 'pending');
-                        const hasRejected = filteredAgenda.some(a => a.status === 'rejected');
-
-                        let badgeColor = "bg-gray-400";
-                        if (hasRejected) badgeColor = "bg-red-500";
-                        else if (hasPending) badgeColor = "bg-yellow-500";
-
-                        // Handle external agendas separately
-                        if (externalAgenda.length > 0) {
-                            const externalBadge = document.createElement("div");
-                            externalBadge.className = "agenda-count-badge bg-green-500";
-                            externalBadge.textContent =
-                                externalAgenda.length > 1 ? `${externalAgenda.length} Agenda` :
-                                externalAgenda[0].agenda_name;
-                            externalBadge.addEventListener('click', (e) => {
-                                e.stopPropagation();
-                                showAgendaListSidebar(externalAgenda, `${year}-${month}-${day}`);
-                            });
-                            agendaContainer.appendChild(externalBadge);
-                        }
-
-                        if (hasApproved && publicAgenda.length > 0 && privateAgenda.length > 0) {
+                        // Semua agenda yang ditampilkan sudah approved, jadi langsung tampilkan
+                        if (publicAgenda.length > 0 && privateAgenda.length > 0) {
                             const publicBadge = document.createElement("div");
                             publicBadge.className = "agenda-count-badge bg-green-500";
                             publicBadge.textContent =
                                 publicAgenda.length > 1 ? `${publicAgenda.length} Kegiatan` : publicAgenda[0].agenda_name;
                             publicBadge.addEventListener('click', (e) => {
                                 e.stopPropagation();
-                                showAgendaListSidebar(publicAgenda, `${year}-${month}-${day}`);
+                                handleAgendaClick(publicAgenda, `${year}-${month}-${day}`);
                             });
                             agendaContainer.appendChild(publicBadge);
 
@@ -386,10 +412,10 @@
                                 privateAgenda.length > 1 ? `${privateAgenda.length} Kegiatan` : privateAgenda[0].agenda_name;
                             privateBadge.addEventListener('click', (e) => {
                                 e.stopPropagation();
-                                showAgendaListSidebar(privateAgenda, `${year}-${month}-${day}`);
+                                handleAgendaClick(privateAgenda, `${year}-${month}-${day}`);
                             });
                             agendaContainer.appendChild(privateBadge);
-                        } else if (hasApproved && (publicAgenda.length > 0 || privateAgenda.length > 0)) {
+                        } else if (publicAgenda.length > 0 || privateAgenda.length > 0) {
                             const badge = document.createElement("div");
                             const isPublic = publicAgenda.length > 0;
                             badge.className = `agenda-count-badge ${isPublic ? "bg-green-500" : "bg-orange-500"}`;
@@ -398,18 +424,7 @@
                                 agendaToShow.length > 1 ? `${agendaToShow.length} Kegiatan` : agendaToShow[0].agenda_name;
                             badge.addEventListener('click', (e) => {
                                 e.stopPropagation();
-                                showAgendaListSidebar(agendaToShow, `${year}-${month}-${day}`);
-                            });
-                            agendaContainer.appendChild(badge);
-                        } else if (!hasApproved && (publicAgenda.length > 0 || privateAgenda.length > 0)) {
-                            const badge = document.createElement("div");
-                            badge.className = `agenda-count-badge ${badgeColor}`;
-                            const agendaToShow = publicAgenda.length > 0 ? publicAgenda : privateAgenda;
-                            badge.textContent =
-                                agendaToShow.length > 1 ? `${agendaToShow.length} Kegiatan` : agendaToShow[0].agenda_name;
-                            badge.addEventListener('click', (e) => {
-                                e.stopPropagation();
-                                showAgendaListSidebar(agendaToShow, `${year}-${month}-${day}`);
+                                handleAgendaClick(agendaToShow, `${year}-${month}-${day}`);
                             });
                             agendaContainer.appendChild(badge);
                         }
@@ -420,6 +435,13 @@
                     dayNumber.addEventListener('click', (e) => {
                         e.stopPropagation();
                         window.location.href = `/dashboard/hari?tanggal=${year}-${month}-${day}`;
+                    });
+
+                    // Double click untuk buka modal tambah agenda
+                    dayElement.addEventListener('dblclick', (e) => {
+                        e.stopPropagation();
+                        const selectedDate = `${year}-${month}-${day}`;
+                        openModal(selectedDate);
                     });
 
                     calendarDays.appendChild(dayElement);
@@ -497,10 +519,359 @@
         </script>
 
         <script>
+            // Chips Multiselect untuk Involved Institution
+            (() => {
+                const root = document.getElementById('involvedInstansi');
+                if (!root) return;
+
+                const dropdown = root.querySelector('.chips-dropdown');
+                const arrow = root.querySelector('.chips-arrow');
+                const searchInput = root.querySelector('.chips-search-input');
+                const mainInput = root.querySelector('.chips-input');
+                const selectedWrap = root.querySelector('.chips-selected');
+                const hiddenField = document.getElementById('involvedInstitutionField');
+                const allListItems = Array.from(dropdown.querySelectorAll('li.dropdown-item'));
+                const listItems = allListItems.filter(li => !li.classList.contains('add-new-instansi-option'));
+                const selectAllOption = dropdown.querySelector('.select-all-option');
+                const container = root.querySelector('.chips-container');
+                const addNewInputContainer = dropdown.querySelector('.chips-add-new-input-container');
+                const addNewInput = dropdown.querySelector('.chips-add-new-input');
+                const addConfirmBtn = dropdown.querySelector('.chips-add-confirm-btn');
+                const addCancelBtn = dropdown.querySelector('.chips-add-cancel-btn');
+
+                let selectedValues = [];
+
+                function showAddNewInput(initialValue = '') {
+                    if (addNewInputContainer) {
+                        addNewInputContainer.style.display = 'block';
+                        if (addNewInput) {
+                            addNewInput.value = initialValue;
+                            setTimeout(() => addNewInput.focus(), 100);
+                        }
+                    }
+                }
+
+                function hideAddNewInput() {
+                    if (addNewInputContainer) {
+                        addNewInputContainer.style.display = 'none';
+                        if (addNewInput) {
+                            addNewInput.value = '';
+                        }
+                        const addNewInstansiOption = dropdown.querySelector('.add-new-instansi-option');
+                        if (addNewInstansiOption) {
+                            addNewInstansiOption.style.display = 'flex';
+                        }
+                    }
+                }
+
+                function toggleDropdown() {
+                    const isOpen = dropdown.classList.toggle('open');
+                    root.classList.toggle('open', isOpen);
+                    if (isOpen) {
+                        searchInput.value = '';
+                        filterList('');
+                        hideAddNewInput();
+                        const addNewInstansiOption = dropdown.querySelector('.add-new-instansi-option');
+                        if (addNewInstansiOption) {
+                            addNewInstansiOption.style.display = 'flex';
+                        }
+                        searchInput.focus();
+                        listItems.forEach(li => {
+                            li.style.display = 'flex';
+                            const value = li.getAttribute('data-value');
+                            updateItemState(value);
+                        });
+                        selectAllOption.style.display = 'flex';
+                        updateSelectAllState();
+                    } else {
+                        hideAddNewInput();
+                    }
+                }
+
+                function closeDropdown() {
+                    dropdown.classList.remove('open');
+                    root.classList.remove('open');
+                    hideAddNewInput();
+                    searchInput.value = '';
+                    const addNewInstansiOption = dropdown.querySelector('.add-new-instansi-option');
+                    if (addNewInstansiOption) {
+                        addNewInstansiOption.style.display = 'flex';
+                    }
+                }
+
+                function toggleItem(value) {
+                    const index = selectedValues.indexOf(value);
+                    if (index > -1) {
+                        selectedValues.splice(index, 1);
+                        removeChip(value);
+                    } else {
+                        selectedValues.push(value);
+                        addChip(value);
+                    }
+                    updateItemState(value);
+                    updateSelectAllState();
+                    syncHidden();
+                }
+
+                function addChip(value) {
+                    const existingChip = selectedWrap.querySelector(`.chip[data-value="${value}"]`);
+                    if (existingChip) return;
+
+                    const chip = document.createElement('span');
+                    chip.className = 'chip';
+                    chip.setAttribute('data-value', value);
+                    chip.textContent = value;
+
+                    const btn = document.createElement('button');
+                    btn.className = 'chip-remove';
+                    btn.innerHTML = '&times;';
+                    btn.onclick = (e) => {
+                        e.stopPropagation();
+                        toggleItem(value);
+                    };
+
+                    chip.appendChild(btn);
+                    selectedWrap.appendChild(chip);
+                }
+
+                function removeChip(value) {
+                    const chip = selectedWrap.querySelector(`.chip[data-value="${value}"]`);
+                    if (chip) {
+                        chip.remove();
+                    }
+                }
+
+                function updateItemState(value) {
+                    const item = listItems.find(li => li.getAttribute('data-value') === value);
+                    if (item) {
+                        const isSelected = selectedValues.includes(value);
+                        item.classList.toggle('selected', isSelected);
+                        const checkmark = item.querySelector('.checkmark-icon');
+                        if (checkmark) {
+                            checkmark.style.display = isSelected ? 'inline-block' : 'none';
+                        }
+                        const checkIcon = item.querySelector('.check-icon');
+                        if (checkIcon) {
+                            checkIcon.classList.toggle('checked', isSelected);
+                        }
+                    }
+                }
+
+                function updateSelectAllState() {
+                    const allSelected = listItems.length > 0 && listItems.length === selectedValues.length;
+                    selectAllOption.classList.toggle('selected', allSelected);
+                    const selectAllCheckmark = selectAllOption.querySelector('.checkmark-icon');
+                    if (selectAllCheckmark) {
+                        selectAllCheckmark.style.display = allSelected ? 'inline-block' : 'none';
+                    }
+                    const selectAllCheckIcon = selectAllOption.querySelector('.check-icon');
+                    if (selectAllCheckIcon) {
+                        selectAllCheckIcon.classList.toggle('checked', allSelected);
+                    }
+                }
+
+                function selectAll() {
+                    const allValues = listItems.map(li => li.getAttribute('data-value'));
+                    const allSelected = listItems.length === selectedValues.length;
+
+                    if (allSelected) {
+                        selectedValues = [];
+                        listItems.forEach(li => {
+                            const value = li.getAttribute('data-value');
+                            removeChip(value);
+                            updateItemState(value);
+                        });
+                    } else {
+                        selectedValues = [...allValues];
+                        listItems.forEach(li => {
+                            const value = li.getAttribute('data-value');
+                            addChip(value);
+                            updateItemState(value);
+                        });
+                    }
+                    updateSelectAllState();
+                    syncHidden();
+                }
+
+                function syncHidden() {
+                    hiddenField.value = selectedValues.join(', ');
+                    mainInput.style.display = selectedValues.length ? 'none' : 'inline';
+                    if (selectedValues.length === 0) {
+                        root.classList.add('empty');
+                    } else {
+                        root.classList.remove('empty');
+                    }
+                }
+
+                function addNewItem(name) {
+                    const cleanName = name.trim();
+                    if (!cleanName) {
+                        alert('Nama instansi tidak boleh kosong!');
+                        if (addNewInput) addNewInput.focus();
+                        return;
+                    }
+
+                    const existsInList = listItems.some(li => li.getAttribute('data-value').toLowerCase() === cleanName.toLowerCase());
+                    const existsInSelected = selectedValues.some(val => val.toLowerCase() === cleanName.toLowerCase());
+
+                    if (existsInList || existsInSelected) {
+                        alert('Instansi sudah ada!');
+                        if (addNewInput) {
+                            addNewInput.value = '';
+                            addNewInput.focus();
+                        }
+                        return;
+                    }
+
+                    selectedValues.push(cleanName);
+                    addChip(cleanName);
+                    updateSelectAllState();
+                    syncHidden();
+                    hideAddNewInput();
+                    filterList('');
+
+                    if (typeof Toastify !== 'undefined') {
+                        Toastify({
+                            text: `Instansi "${cleanName}" berhasil ditambahkan!`,
+                            duration: 2500,
+                            gravity: "top",
+                            position: "center",
+                            style: {
+                                background: "#d1fae5",
+                                color: "#065f46",
+                                borderRadius: "8px",
+                                fontSize: "0.9rem"
+                            }
+                        }).showToast();
+                    }
+                }
+
+                function filterList(term) {
+                    const lower = term.toLowerCase().trim();
+                    const addNewInstansiOption = dropdown.querySelector('.add-new-instansi-option');
+
+                    listItems.forEach(li => {
+                        const text = li.querySelector('.item-text').textContent.toLowerCase();
+                        const match = !lower || text.includes(lower);
+                        li.style.display = match ? 'flex' : 'none';
+                    });
+
+                    if (!lower || listItems.some(li => {
+                        const text = li.querySelector('.item-text').textContent.toLowerCase();
+                        return text.includes(lower);
+                    })) {
+                        selectAllOption.style.display = 'flex';
+                    } else {
+                        selectAllOption.style.display = 'none';
+                    }
+
+                    if (addNewInstansiOption) {
+                        if (addNewInputContainer && addNewInputContainer.style.display === 'none') {
+                            addNewInstansiOption.style.display = 'flex';
+                        } else {
+                            addNewInstansiOption.style.display = 'none';
+                        }
+                    }
+                }
+
+                // Event listeners
+                searchInput.addEventListener('input', e => filterList(e.target.value));
+
+                const addNewInstansiOption = dropdown.querySelector('.add-new-instansi-option');
+                if (addNewInstansiOption) {
+                    addNewInstansiOption.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        showAddNewInput('');
+                        addNewInstansiOption.style.display = 'none';
+                        selectAllOption.style.display = 'none';
+                    });
+                }
+
+                if (addNewInput) {
+                    addNewInput.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (addConfirmBtn) addConfirmBtn.click();
+                        } else if (e.key === 'Escape') {
+                            e.preventDefault();
+                            hideAddNewInput();
+                            selectAllOption.style.display = 'flex';
+                            searchInput.focus();
+                        }
+                    });
+                }
+
+                if (addConfirmBtn) {
+                    addConfirmBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (addNewInput && addNewInput.value.trim()) {
+                            addNewItem(addNewInput.value.trim());
+                            selectAllOption.style.display = 'flex';
+                        }
+                    });
+                }
+
+                if (addCancelBtn) {
+                    addCancelBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        hideAddNewInput();
+                        selectAllOption.style.display = 'flex';
+                        searchInput.focus();
+                    });
+                }
+
+                arrow.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleDropdown();
+                });
+
+                container.addEventListener('click', (e) => {
+                    if (e.target !== searchInput && !e.target.closest('.chips-selected')) {
+                        toggleDropdown();
+                    }
+                });
+
+                selectAllOption.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectAll();
+                });
+
+                listItems.forEach(li => {
+                    li.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const value = li.getAttribute('data-value');
+                        toggleItem(value);
+                    });
+                });
+
+                document.addEventListener('click', e => {
+                    if (!root.contains(e.target)) closeDropdown();
+                });
+
+                function initializeValues() {
+                    const oldValue = hiddenField.value;
+                    if (oldValue && oldValue.trim() !== '') {
+                        const restoredValues = oldValue.split(',').map(v => v.trim()).filter(Boolean);
+                        restoredValues.forEach(value => {
+                            if (!selectedValues.includes(value)) {
+                                selectedValues.push(value);
+                                addChip(value);
+                            }
+                            updateItemState(value);
+                        });
+                        updateSelectAllState();
+                    }
+                    syncHidden();
+                }
+
+                initializeValues();
+            })();
+        </script>
+
+        <script>
             // === 🔹 MODAL DETAIL AGENDA ===
             function openShowAgendaModal(data) {
-                // Check if it's external agenda
-                const isExternal = data.is_external || data.source === 'external';
+                // Semua agenda diperlakukan sama - tidak ada pembedaan eksternal/lokal
 
                 // Gunakan fungsi global fillAgendaModal jika tersedia
                 if (typeof window.fillAgendaModal === 'function') {
@@ -524,8 +895,7 @@
 
                     // Isi data instansi
                     const involved = data.involved_institution ?? '-';
-                    const unitName = (data.unit && data.unit.unit_name) ? data.unit.unit_name : (isExternal ?
-                        'Sumber Eksternal' : '-');
+                    const unitName = (data.unit && data.unit.unit_name) ? data.unit.unit_name : '-';
 
                     const unitEl = document.getElementById('showAgendaUnit');
                     if (unitEl) unitEl.innerText = unitName;
@@ -533,25 +903,19 @@
                     const involvedEl = document.getElementById('showAgendaInvolved');
                     if (involvedEl) involvedEl.innerText = involved;
 
-                    // Isi status akses (publik/privasi/eksternal)
+                    // Isi status akses (publik/privasi)
                     const accessEl = document.getElementById('showAgendaAccess');
                     if (accessEl) {
-                        if (isExternal) {
-                            // Anggap eksternal sebagai agenda publik
-                            accessEl.innerHTML =
-                                `<span class="badge rounded-pill" style="background-color:#FFB67E; color:#2F3E35; padding:6px 10px;">Publik</span>`;
-                        } else {
-                            const isPublic = data.is_public == 1;
-                            const bg = isPublic ? '#A8E6A3' : '#FFB67E';
-                            const text = isPublic ? 'Publik' : 'Privasi';
-                            accessEl.innerHTML =
-                                `<span class="badge rounded-pill" style="background-color:${bg}; color:#2F3E35; padding:6px 10px;">${text}</span>`;
-                        }
+                        const isPublic = data.is_public == 1;
+                        const bg = isPublic ? '#A8E6A3' : '#FFB67E';
+                        const text = isPublic ? 'Publik' : 'Privasi';
+                        accessEl.innerHTML =
+                            `<span class="badge rounded-pill" style="background-color:${bg}; color:#2F3E35; padding:6px 10px;">${text}</span>`;
                     }
                 }
 
                 const notesEl = document.getElementById('showAgendaNotes');
-                if (notesEl) notesEl.innerText = data.notes ?? (isExternal ? 'Agenda dari sumber eksternal' : '-');
+                if (notesEl) notesEl.innerText = data.notes ?? '-';
 
 
                 // Tampilkan modal
@@ -595,6 +959,17 @@
                 return date.toLocaleDateString('id-ID', options);
             }
 
+            // Fungsi helper: jika 1 agenda langsung buka modal, jika lebih dari 1 buka sidebar
+            function handleAgendaClick(agendaList, date) {
+                if (agendaList.length === 1) {
+                    // Jika hanya 1 agenda, langsung buka modal
+                    openShowAgendaModal(agendaList[0]);
+                } else if (agendaList.length > 1) {
+                    // Jika lebih dari 1 agenda, buka sidebar
+                    showAgendaListSidebar(agendaList, date);
+                }
+            }
+
             function showAgendaListSidebar(agendaList, date) {
                 const sidebar = document.getElementById("agendaSidebar");
                 const listContainer = document.getElementById("agendaList");
@@ -608,7 +983,17 @@
                     return;
                 }
 
-                agendaList.forEach((item, index) => {
+                // Urutkan agenda berdasarkan jam (start_time)
+                const sortedAgendaList = [...agendaList].sort((a, b) => {
+                    // Ambil start_time, jika tidak ada gunakan end_time, jika tidak ada gunakan '00:00:00'
+                    const timeA = a.start_time || a.end_time || '00:00:00';
+                    const timeB = b.start_time || b.end_time || '00:00:00';
+                    
+                    // Bandingkan waktu
+                    return timeA.localeCompare(timeB);
+                });
+
+                sortedAgendaList.forEach((item, index) => {
                     const itemDiv = document.createElement("div");
                     itemDiv.className = "agenda-item";
 

@@ -535,33 +535,40 @@
             }
             const rejectModal = document.getElementById("rejectModal");
             const rejectModalClose = document.getElementById("rejectModalClose");
-            const rejectModalCancel = document.getElementById("rejectModalCancel");
             const rejectModalConfirm = document.getElementById("rejectModalConfirm");
             const rejectReason = document.getElementById("rejectReason");
             const sidebar = document.querySelector('.sidebar');
             let currentAgendaId = null;
 
+            // Pastikan semua elemen ada
+            if (!rejectModal || !rejectModalClose || !rejectModalConfirm || !rejectReason) {
+                console.error('Reject modal elements not found');
+            }
+
             // 🔹 Fungsi untuk buka modal
             window.openRejectModal = (agendaId) => {
                 currentAgendaId = agendaId;
-                rejectReason.value = "";
-                rejectModal.classList.add('show');
-                rejectModal.style.display = 'flex'; // <-- pastikan kelihatan
-                rejectModal.style.opacity = '1'; // tampil instan tanpa fade
+                if (rejectReason) rejectReason.value = "";
+                if (rejectModal) {
+                    rejectModal.classList.add('show');
+                    rejectModal.style.display = 'flex';
+                    rejectModal.style.opacity = '1';
+                }
                 if (sidebar) sidebar.classList.add('dimmed');
             };
 
-            // 🔹 Tutup modal (tombol close & batal)
-            [rejectModalClose, rejectModalCancel].forEach(btn => {
-                if (!btn) return;
-                btn.addEventListener("click", () => {
-                    rejectModal.classList.remove('show');
-                    rejectModal.style.display = 'none'; // <-- sembunyikan
-                    rejectModal.style.opacity = ''; // reset inline style
+            // 🔹 Tutup modal (tombol close)
+            if (rejectModalClose) {
+                rejectModalClose.addEventListener("click", () => {
+                    if (rejectModal) {
+                        rejectModal.classList.remove('show');
+                        rejectModal.style.display = 'none';
+                        rejectModal.style.opacity = '';
+                    }
                     if (sidebar) sidebar.classList.remove('dimmed');
                     currentAgendaId = null;
                 });
-            });
+            }
 
             // (opsional) klik di luar kontainer untuk menutup
             rejectModal.addEventListener('click', (e) => {
@@ -579,82 +586,77 @@
                 if (!currentAgendaId) return;
 
                 const reason = rejectReason.value.trim();
+                const agendaId = currentAgendaId;
+
+                // Disable button untuk mencegah double click
+                rejectModalConfirm.disabled = true;
+                const originalText = rejectModalConfirm.innerHTML;
+                rejectModalConfirm.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
 
                 try {
-                    const res = await fetch(`/dashboard/agenda/${currentAgendaId}/reject`, {
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]');
+                    if (!csrfToken) {
+                        Swal.fire("Error", "CSRF token tidak ditemukan.", "error");
+                        rejectModalConfirm.disabled = false;
+                        rejectModalConfirm.innerHTML = originalText;
+                        return;
+                    }
+
+                    const res = await fetch(`/dashboard/agenda/${agendaId}/reject`, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
-                            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')
-                                .content
+                            "Accept": "application/json",
+                            "X-CSRF-TOKEN": csrfToken.content
                         },
                         body: JSON.stringify({
-                            reason
+                            reason: reason
                         })
                     });
 
-                    const data = await res.json();
+                    let data;
+                    try {
+                        data = await res.json();
+                    } catch (jsonError) {
+                        const text = await res.text();
+                        console.error('Response is not JSON:', text.substring(0, 200));
+                        Swal.fire("Error", "Server mengembalikan response yang tidak valid.", "error");
+                        rejectModalConfirm.disabled = false;
+                        rejectModalConfirm.innerHTML = originalText;
+                        return;
+                    }
+
                     if (!res.ok || !data.success) {
                         Swal.fire("Gagal", data.message || "Gagal menolak agenda.", "error");
+                        rejectModalConfirm.disabled = false;
+                        rejectModalConfirm.innerHTML = originalText;
                         return;
                     }
 
                     // 🔹 Tutup modal & tampilkan notifikasi
                     rejectModal.classList.remove('show');
-                    rejectModal.style.display = "none"; // backup
+                    rejectModal.style.display = "none";
                     rejectModal.style.opacity = '';
                     if (sidebar) sidebar.classList.remove('dimmed');
+                    
+                    // Tampilkan notifikasi sukses
                     Swal.fire({
                         icon: "success",
                         title: "Agenda Ditolak",
                         text: data.message || "Agenda telah berhasil ditolak.",
                         timer: 1500,
                         showConfirmButton: false
+                    }).then(() => {
+                        // Reload halaman setelah notifikasi ditutup
+                        location.reload();
                     });
-
-                    // 🔹 Update tampilan kartu secara langsung
-                    const card = document.querySelector(
-                        `button[onclick="openRejectModal(${currentAgendaId})"]`)?.closest(
-                        ".approval-card");
-                    if (card) {
-                        // ubah badge status jadi Ditolak
-                        const badge = card.querySelector(".status-badge");
-                        if (badge) {
-                            badge.className = "status-badge rejected";
-                            badge.textContent = "Ditolak";
-                        }
-
-                        // tambahkan alasan di bawah jika ada
-                        if (reason) {
-                            let reasonItem = card.querySelector(".detail-item .fa-comment-dots");
-                            if (!reasonItem) {
-                                const detailsGrid = card.querySelector(".details-grid");
-                                const reasonDiv = document.createElement("div");
-                                reasonDiv.className = "detail-item";
-                                reasonDiv.innerHTML = `
-                            <i class="fas fa-comment-dots"></i>
-                            <span><strong>Alasan Ditolak:</strong> ${reason}</span>
-                        `;
-                                detailsGrid.appendChild(reasonDiv);
-                            }
-                        }
-
-                        // ubah tombol jadi teks “Agenda sudah divalidasi (Ditolak)”
-                        const footer = card.querySelector(".card-footer .approval-actions");
-                        if (footer) {
-                            footer.innerHTML = `
-                        <span class="validated-text">
-                            <i class="fas fa-circle-check"></i>
-                            Agenda sudah divalidasi (Ditolak)
-                        </span>
-                    `;
-                        }
-                    }
 
                     currentAgendaId = null;
                 } catch (error) {
-                    console.error(error);
-                    Swal.fire("Error", "Terjadi kesalahan koneksi ke server.", "error");
+                    console.error('Error rejecting agenda:', error);
+                    Swal.fire("Error", "Terjadi kesalahan koneksi ke server: " + error.message, "error");
+                    rejectModalConfirm.disabled = false;
+                    rejectModalConfirm.innerHTML = originalText;
                 }
             });
         });
