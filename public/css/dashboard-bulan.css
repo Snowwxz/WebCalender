@@ -357,41 +357,60 @@
 
 .calendar-header {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     gap: 20px;
+    padding: 10px 0;
 }
 
 .month-navigation {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
+    padding: 0;
 }
 
 .nav-btn {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 6px;
-    width: 36px;
-    height: 36px;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.3s ease;
-    color: #6c757d;
+    transition: all 0.2s ease;
+    color: #4b5563;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    flex-shrink: 0;
 }
 
 .nav-btn:hover {
-    background: #e9ecef;
-    color: #333;
+    background: #f3f4f6;
+    border-color: #9ca3af;
+    color: #1f2937;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.nav-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.nav-btn i {
+    font-size: 14px;
+    line-height: 1;
 }
 
 .month-year {
     font-size: 24px;
     font-weight: 600;
-    color: #333;
+    color: #1f2937;
     margin: 0;
+    padding: 0 8px;
+    line-height: 1.2;
 }
 
 .calendar-grid {
