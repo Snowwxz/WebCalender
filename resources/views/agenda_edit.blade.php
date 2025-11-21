@@ -116,8 +116,8 @@
                     </div>
 
                     <!-- Dihadiri - Full Width -->
-                    <div class="input-group fullwidth-group dihadiri-group">
-                        <label><i class="fas fa-users"></i> Dihadiri</label>
+                    <div class="input-group fullwidth-group">
+                        <label><i class="fas fa-people-group"></i> Dihadiri</label>
 
                         <div class="chips-multiselect" id="involvedInstansi">
                             <div class="chips-container">

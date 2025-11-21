@@ -910,11 +910,14 @@
         transition: none !important;
     }
 
+    /* Dim sidebar when modal is open */
     .sidebar.dimmed {
         filter: brightness(0.5);
         pointer-events: none;
+        /* prevent interactions behind modal */
     }
 
+    /* Force reject modal overlay to appear instantly (no fade) */
     #rejectModal,
     .reject-modal-overlay,
     .reject-modal-overlay.show,

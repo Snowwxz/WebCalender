@@ -2,7 +2,6 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/dashboard-bulan.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/agenda-create.css') }}">
 @endpush
 
 @section('content')
@@ -61,35 +60,38 @@
                         <i class="fas fa-calendar-plus"></i>
                         <span>Buat Agenda Baru</span>
                     </div>
-                    <button class="modal-close" onclick="closeModal()" style="color: #6E9579;">
+                    <button class="modal-close" onclick="closeModal()" style="color: #dc3545;">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
 
-                <div class="modal-body form-style-scope">
+                <div class="modal-body">
                     <form id="agendaForm" action="{{ route('agenda.store') }}" method="POST"
                         onsubmit="return handleFormSubmit(event)">
-                        @csrf
-                        <!-- Full width: Nama & Deskripsi -->
-                        <div class="input-group">
-                            <label><i class="fas fa-file-alt"></i> Nama Agenda</label>
-                            <input type="text" name="agenda_name" id="agenda_name"
-                                placeholder="Masukkan nama agenda" required>
-                        </div>
-
-                        <div class="input-group">
-                            <label><i class="fas fa-align-left"></i> Deskripsi Agenda</label>
-                            <textarea name="description" id="description" placeholder="Masukkan deskripsi agenda" required></textarea>
-                        </div>
-
-                        <!-- Grid dua kolom -->
                         <div class="form-grid">
-                            <!-- Kiri: Pelaksana, Kategori, Lokasi -->
+                            <!-- Kolom kiri -->
                             <div class="form-column">
                                 <div class="input-group">
-                                    <label><i class="fas fa-building"></i> Pelaksana</label>
-                                    <input type="text" value="{{ Auth::user()->unit->unit_name ?? '-' }}" readonly>
+                                    <label><i class="fas fa-file-alt"></i> Nama Agenda</label>
+                                    <input type="text" name="agenda_name" id="agenda_name"
+                                        placeholder="Masukkan nama agenda" required>
                                 </div>
+
+                                <div class="input-group">
+                                    <label><i class="fas fa-align-left"></i> Deskripsi Agenda</label>
+                                    <textarea name="description" id="description" placeholder="Masukkan deskripsi agenda" required></textarea>
+                                </div>
+
+                                <div class="input-group">
+                                    <label><i class="fas fa-building"></i> Nama Instansi (Pengaju)</label>
+                                    <select name="id_unit" id="id_unit" required>
+                                        <option value="">-- Pilih Instansi Pengaju --</option>
+                                        @foreach ($units as $unit)
+                                            <option value="{{ $unit->id_unit }}">{{ $unit->unit_name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
                                 <div class="input-group">
                                     <label><i class="fas fa-eye"></i> Kategori Agenda</label>
                                     <select name="is_public" id="is_public">
@@ -97,79 +99,36 @@
                                         <option value="0">Privasi</option>
                                     </select>
                                 </div>
-                                <div class="input-group lokasi-group">
-                                    <label><i class="fas fa-location-dot"></i> Lokasi</label>
-                                    <input type="text" name="location" id="location"
-                                        placeholder="Masukkan lokasi kegiatan">
-                                </div>
                             </div>
 
-                            <!-- Kanan: Tanggal, Waktu Mulai, Waktu Selesai -->
+                            <!-- Kolom kanan -->
                             <div class="form-column">
                                 <div class="input-group">
                                     <label><i class="fas fa-calendar-day"></i> Tanggal</label>
                                     <input type="date" name="date" id="date" required>
                                 </div>
+
                                 <div class="input-group">
                                     <label><i class="fas fa-clock"></i> Waktu Mulai</label>
                                     <input type="time" name="start_time" id="start_time">
                                 </div>
+
                                 <div class="input-group">
                                     <label><i class="fas fa-clock"></i> Waktu Selesai</label>
                                     <input type="time" name="end_time" id="end_time">
                                 </div>
-                            </div>
-                        </div>
 
-                        <!-- Full width: Dihadiri -->
-                        <div class="input-group fullwidth-group dihadiri-group">
-                            <label><i class="fas fa-users"></i> Dihadiri</label>
-                            <div class="chips-multiselect" id="involvedInstansi">
-                                <div class="chips-container">
-                                    <div class="chips-selected"></div>
-                                    <input type="text" class="chips-input" placeholder="-- Pilih Instansi yang Hadir --" readonly style="cursor: pointer;">
+                                <div class="input-group">
+                                    <label><i class="fas fa-location-dot"></i> Lokasi</label>
+                                    <input type="text" name="location" id="location"
+                                        placeholder="Masukkan lokasi kegiatan">
                                 </div>
-                                <span class="chips-arrow"><i class="fas fa-chevron-down"></i></span>
-                                <div class="chips-dropdown">
-                                    <div class="chips-search">
-                                        <input type="text" class="chips-search-input" placeholder="Cari instansi..." />
-                                    </div>
-                                    <div class="chips-add-new-input-container" style="display: none; padding: 10px 12px; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">
-                                        <input type="text" class="chips-add-new-input same-style-as-search" placeholder="Ketik nama instansi baru..." />
-                                        <div style="display: flex; gap: 8px; margin-top: 8px;">
-                                            <button type="button" class="chips-add-confirm-btn saveInstansiBtn" style="flex: 1;">Tambahkan</button>
-                                            <button type="button" class="chips-add-cancel-btn" style="flex: 1; padding: 8px 14px; border-radius: 8px; background: #e5e7eb; color: #374151; border: none; font-weight: 600;">Batal</button>
-                                        </div>
-                                    </div>
-                                    <ul>
-                                        <li class="select-all-option" data-action="select-all">
-                                            <span class="check-icon"></span>
-                                            <span class="item-text">Pilih Semua</span>
-                                            <i class="fas fa-check checkmark-icon"></i>
-                                        </li>
-                                        @foreach ($units as $unit)
-                                            @if ($unit->id_unit !== Auth::user()->id_unit)
-                                                <li data-value="{{ $unit->unit_name }}" class="dropdown-item">
-                                                    <span class="check-icon"></span>
-                                                    <span class="item-text">{{ $unit->unit_name }}</span>
-                                                    <i class="fas fa-check checkmark-icon"></i>
-                                                </li>
-                                            @endif
-                                        @endforeach
-                                        <li class="add-new-instansi-option" data-action="add-new" style="padding: 10px 12px; cursor: pointer; color: #6b8f71; font-weight: 500; display: flex; align-items: center; list-style: none;">
-                                            <i class="fas fa-plus-circle" style="margin-right: 8px;"></i>
-                                            <span>Lainnya...</span>
-                                        </li>
-                                    </ul>
+
+                                <div class="input-group">
+                                    <label><i class="fas fa-people-group"></i> Instansi yang Ikut Serta</label>
+                                    <textarea name="involved_institution" id="involved_institution" placeholder="Masukkan instansi yang akan ikut serta"></textarea>
                                 </div>
                             </div>
-                            <input type="hidden" name="involved_institution" id="involvedInstitutionField" value="{{ old('involved_institution') }}">
-                        </div>
-
-                        <!-- Full width: Catatan -->
-                        <div class="input-group">
-                            <label><i class="fas fa-sticky-note"></i> Catatan</label>
-                            <textarea name="notes" id="notes" placeholder="Masukkan catatan tambahan (opsional)"></textarea>
                         </div>
 
                         <div class="form-submit">
@@ -418,14 +377,9 @@
                         dayElement.appendChild(agendaContainer);
                     }
 
-                    dayElement.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        openModal(`${year}-${month}-${day}`);
-                    });
-
                     dayNumber.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        openModal(`${year}-${month}-${day}`);
+                        window.location.href = `/dashboard/hari?tanggal=${year}-${month}-${day}`;
                     });
 
                     calendarDays.appendChild(dayElement);
@@ -500,222 +454,6 @@
             function getel(id) {
                 return document.getElementById(id);
             }
-        </script>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const root = document.getElementById('involvedInstansi');
-                if (!root) return;
-                const dropdown = root.querySelector('.chips-dropdown');
-                const arrow = root.querySelector('.chips-arrow');
-                const searchInput = root.querySelector('.chips-search-input');
-                const mainInput = root.querySelector('.chips-input');
-                const selectedWrap = root.querySelector('.chips-selected');
-                const hiddenField = document.getElementById('involvedInstitutionField');
-                const listItems = Array.from(dropdown.querySelectorAll('li.dropdown-item'));
-                const selectAllOption = dropdown.querySelector('.select-all-option');
-                const addNewOption = dropdown.querySelector('.add-new-instansi-option');
-                const selectedValues = [];
-
-                function syncHidden() {
-                    hiddenField.value = selectedValues.join(', ');
-                    root.classList.toggle('empty', selectedValues.length === 0);
-                }
-
-                function addChip(value) {
-                    if (selectedWrap.querySelector(`.chip[data-value="${value}"]`)) return;
-                    const chip = document.createElement('span');
-                    chip.className = 'chip';
-                    chip.setAttribute('data-value', value);
-                    chip.innerHTML = `${value} <button type="button" class="chip-remove">&times;</button>`;
-                    chip.querySelector('.chip-remove').addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const idx = selectedValues.indexOf(value);
-                        if (idx > -1) selectedValues.splice(idx, 1);
-                        chip.remove();
-                        updateItemState(value);
-                        updateSelectAllState();
-                        syncHidden();
-                    });
-                    selectedWrap.appendChild(chip);
-                }
-
-                function removeChip(value) {
-                    const chip = selectedWrap.querySelector(`.chip[data-value="${value}"]`);
-                    if (chip) chip.remove();
-                }
-
-                function updateItemState(value) {
-                    const li = listItems.find(li => li.getAttribute('data-value') === value);
-                    if (!li) return;
-                    const checked = selectedValues.includes(value);
-                    li.classList.toggle('selected', checked);
-                    const ci = li.querySelector('.check-icon');
-                    if (ci) ci.classList.toggle('checked', checked);
-                }
-
-                function updateSelectAllState() {
-                    if (!selectAllOption) return;
-                    const allSelected = listItems.length > 0 && listItems.every(li => selectedValues.includes(li.getAttribute('data-value')));
-                    selectAllOption.classList.toggle('selected', allSelected);
-                    const ci = selectAllOption.querySelector('.check-icon');
-                    if (ci) ci.classList.toggle('checked', allSelected);
-                }
-
-                function filterList(q) {
-                    const lower = (q || '').toLowerCase();
-                    listItems.forEach(li => {
-                        const text = li.querySelector('.item-text').textContent.toLowerCase();
-                        li.style.display = (!lower || text.includes(lower)) ? 'flex' : 'none';
-                    });
-                    if (selectAllOption) selectAllOption.style.display = (!lower || listItems.some(li => li.style.display !== 'none')) ? 'flex' : 'none';
-                }
-
-                function openDropdown() {
-                    dropdown.classList.add('open');
-                    root.classList.add('open');
-                    hideAddNewInput();
-                    searchInput.value = '';
-                    filterList('');
-                    searchInput.focus();
-                    listItems.forEach(li => {
-                        li.style.display = 'flex';
-                        updateItemState(li.getAttribute('data-value'));
-                    });
-                    updateSelectAllState();
-                }
-
-                function closeDropdown() {
-                    dropdown.classList.remove('open');
-                    root.classList.remove('open');
-                    hideAddNewInput();
-                    searchInput.value = '';
-                }
-
-                function toggleDropdown() { dropdown.classList.contains('open') ? closeDropdown() : openDropdown(); }
-
-                arrow.addEventListener('click', (e) => { e.stopPropagation(); toggleDropdown(); });
-                mainInput.addEventListener('click', (e) => { e.stopPropagation(); toggleDropdown(); });
-                document.addEventListener('click', () => closeDropdown());
-                dropdown.addEventListener('click', (e) => e.stopPropagation());
-                searchInput.addEventListener('input', e => filterList(e.target.value));
-
-                listItems.forEach(li => {
-                    li.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const value = li.getAttribute('data-value');
-                        const idx = selectedValues.indexOf(value);
-                        if (idx > -1) { selectedValues.splice(idx, 1); removeChip(value); }
-                        else { selectedValues.push(value); addChip(value); }
-                        updateItemState(value);
-                        updateSelectAllState();
-                        syncHidden();
-                    });
-                });
-
-                if (selectAllOption) {
-                    selectAllOption.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const visibleItems = listItems.filter(li => li.style.display !== 'none');
-                        const allVisibleSelected = visibleItems.every(li => selectedValues.includes(li.getAttribute('data-value')));
-                        if (allVisibleSelected) {
-                            visibleItems.forEach(li => {
-                                const v = li.getAttribute('data-value');
-                                const idx = selectedValues.indexOf(v);
-                                if (idx > -1) selectedValues.splice(idx, 1);
-                                removeChip(v);
-                                updateItemState(v);
-                            });
-                        } else {
-                            visibleItems.forEach(li => {
-                                const v = li.getAttribute('data-value');
-                                if (!selectedValues.includes(v)) { selectedValues.push(v); addChip(v); updateItemState(v); }
-                            });
-                        }
-                        updateSelectAllState();
-                        syncHidden();
-                    });
-                }
-
-                const addNewInputContainer = dropdown.querySelector('.chips-add-new-input-container');
-                const addNewInput = dropdown.querySelector('.chips-add-new-input');
-                const addConfirmBtn = dropdown.querySelector('.chips-add-confirm-btn');
-                const addCancelBtn = dropdown.querySelector('.chips-add-cancel-btn');
-
-                function showAddNewInput(initialValue = '') {
-                    if (!addNewInputContainer) return;
-                    addNewInputContainer.style.display = 'block';
-                    if (addNewInput) {
-                        addNewInput.value = initialValue;
-                        setTimeout(() => addNewInput.focus(), 100);
-                    }
-                    if (selectAllOption) selectAllOption.style.display = 'none';
-                    if (addNewOption) addNewOption.style.display = 'none';
-                }
-
-                function hideAddNewInput() {
-                    if (!addNewInputContainer) return;
-                    addNewInputContainer.style.display = 'none';
-                    if (addNewInput) addNewInput.value = '';
-                    if (selectAllOption) selectAllOption.style.display = 'flex';
-                    if (addNewOption) addNewOption.style.display = 'flex';
-                }
-
-                function addNewItem(name) {
-                    const v = (name || '').trim();
-                    if (!v) return;
-                    const existsInList = listItems.some(li => li.getAttribute('data-value').toLowerCase() === v.toLowerCase());
-                    const existsInSelected = selectedValues.some(val => val.toLowerCase() === v.toLowerCase());
-                    if (existsInList || existsInSelected) { hideAddNewInput(); return; }
-                    selectedValues.push(v);
-                    addChip(v);
-                    updateSelectAllState();
-                    syncHidden();
-                    hideAddNewInput();
-                }
-
-                if (addNewOption) {
-                    addNewOption.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        showAddNewInput('');
-                    });
-                }
-
-                if (addConfirmBtn) {
-                    addConfirmBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        if (addNewInput && addNewInput.value.trim()) addNewItem(addNewInput.value.trim());
-                    });
-                }
-
-                if (addCancelBtn) {
-                    addCancelBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        hideAddNewInput();
-                        searchInput.focus();
-                    });
-                }
-
-                if (addNewInput) {
-                    addNewInput.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            if (addNewInput.value.trim()) addNewItem(addNewInput.value.trim());
-                        }
-                    });
-                }
-
-                const oldValue = hiddenField.value || '';
-                if (oldValue) {
-                    oldValue.split(',').map(v => v.trim()).filter(Boolean).forEach(v => {
-                        if (!selectedValues.includes(v)) { selectedValues.push(v); addChip(v); updateItemState(v); }
-                    });
-                    updateSelectAllState();
-                    syncHidden();
-                } else {
-                    root.classList.add('empty');
-                }
-            });
         </script>
 
         <script>
