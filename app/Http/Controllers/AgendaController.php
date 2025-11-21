@@ -96,7 +96,7 @@ class AgendaController extends Controller
         $user = Auth::user(); // ambil user login
         $userId = $user->id_user;
 
-        // 🔹 Base query
+        // 🔹 Base query - hanya tampilkan agenda yang sudah di-approve
         $query = Agenda::with(['user', 'approver', 'unit'])
             ->where('status', 'approved')
             ->orderBy('date', 'desc');
@@ -234,9 +234,22 @@ class AgendaController extends Controller
 
             // ⚙ Jika request datang via AJAX / fetch
             if ($request->wantsJson() || $request->ajax()) {
+                // Load relasi untuk response
+                $agenda->load('unit', 'user');
+                
+                // Format agenda untuk response
+                $agendaData = $agenda->toArray();
+                $agendaData['date'] = $agenda->date->format('Y-m-d');
+                if ($agenda->start_time) {
+                    $agendaData['start_time'] = \Carbon\Carbon::parse($agenda->start_time)->format('H:i:s');
+                }
+                if ($agenda->end_time) {
+                    $agendaData['end_time'] = \Carbon\Carbon::parse($agenda->end_time)->format('H:i:s');
+                }
+                
                 return response()->json([
                     'success' => true,
-                    'agenda' => $agenda,
+                    'agenda' => $agendaData,
                     'message' => 'Agenda berhasil ditambahkan (pending approval).',
                 ]);
             }
@@ -382,26 +395,55 @@ class AgendaController extends Controller
 
     public function reject(Request $request, $id_agenda)
     {
-        $agenda = Agenda::findOrFail($id_agenda);
+        try {
+            $agenda = Agenda::findOrFail($id_agenda);
 
-        $request->validate([
-            'reason' => 'nullable|string|max:500',
-        ]);
+            $request->validate([
+                'reason' => 'nullable|string|max:500',
+            ]);
 
-        if (Auth::user()->role !== 'admin') {
-            return response()->json(['success' => false, 'message' => 'Tidak memiliki izin menolak agenda.'], 403);
+            if (Auth::user()->role !== 'admin') {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Tidak memiliki izin menolak agenda.'
+                ], 403);
+            }
+
+            // Capture old data untuk log
+            $oldData = $agenda->toArray();
+
+            $agenda->status = 'rejected';
+            $agenda->reason = $request->reason ?? null; // simpan alasan admin
+            $agenda->approved_by = Auth::id();
+            $agenda->save();
+
+            // Log perubahan status
+            AgendaLog::create([
+                'agenda_id' => $agenda->id_agenda,
+                'user_id'   => Auth::id(),
+                'action'    => 'status_changed',
+                'description' => 'Agenda ditolak oleh admin' . ($request->reason ? ' dengan alasan: ' . $request->reason : ''),
+                'old_data' => $oldData,
+                'new_data' => $agenda->toArray(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Agenda berhasil ditolak.',
+                'agenda' => $agenda->load('unit', 'user')
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal: ' . implode(', ', $e->errors()['reason'] ?? ['Alasan tidak valid'])
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Error rejecting agenda: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menolak agenda: ' . $e->getMessage()
+            ], 500);
         }
-
-        $agenda->status = 'rejected';
-        $agenda->reason = $request->reason; // simpan alasan admin
-        $agenda->approved_by = Auth::id();
-        $agenda->save();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Agenda berhasil ditolak.',
-            'agenda' => $agenda
-        ]);
     }
 
 

@@ -91,6 +91,11 @@
     border-radius: 8px;
 }
 
+/* Full width group */
+#createAgendaModal .fullwidth-group {
+    grid-column: 1 / -1;
+}
+
 /* Responsive biar aman di layar kecil */
 @media (max-width: 768px) {
     #createAgendaModal .form-grid {

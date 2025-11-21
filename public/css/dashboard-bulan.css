@@ -28,7 +28,6 @@
     background: white;
     flex: 1;
     min-width: 0;
-    max-width: calc(100% - 300px);
 }
 
 /* Calendar Sidebar Content (old class - keep for backward compatibility) */
@@ -358,12 +357,9 @@
 
 .calendar-header {
     display: flex;
-    justify-content: flex-start;
-    /* rata kiri */
+    justify-content: center;
     align-items: center;
     gap: 20px;
-    /* beri jarak jika ada elemen lain di header */
-    margin-bottom: 30px;
 }
 
 .month-navigation {
@@ -444,6 +440,7 @@
     background: white;
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
     overflow: hidden;
     cursor: pointer;
     transition: background-color 0.2s ease;
@@ -479,12 +476,16 @@
     justify-content: center;
     width: 28px;
     height: 28px;
+    min-width: 28px;
+    max-width: 28px;
     font-size: 14px;
     font-weight: 600;
     color: #333;
     border-radius: 50%;
     cursor: pointer;
     transition: color 0.25s ease, transform 0.25s ease;
+    flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 .day-number::before {
@@ -534,11 +535,15 @@
     border-radius: 50%;
     width: 24px;
     height: 24px;
+    min-width: 24px;
+    max-width: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.25s ease;
     font-weight: 700;
+    flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 /* Hari Sabtu tidak dianggap weekend (warna hitam) */
@@ -553,11 +558,15 @@
     border-radius: 50%;
     width: 24px;
     height: 24px;
+    min-width: 24px;
+    max-width: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.25s ease;
     font-weight: 700;
+    flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 .calendar-day.other-month .day-number {
@@ -598,10 +607,14 @@
     border-radius: 50%;
     width: 28px;
     height: 28px;
+    min-width: 28px;
+    max-width: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.25s ease;
+    flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 .day-number.today:hover {
@@ -626,10 +639,14 @@
     border-radius: 50%;
     width: 24px;
     height: 24px;
+    min-width: 24px;
+    max-width: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 6px;
+    flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 .calendar-day:hover .day-number {
@@ -638,10 +655,14 @@
     border-radius: 50%;
     width: 24px;
     height: 24px;
+    min-width: 24px;
+    max-width: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
+    flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 .agenda-item {
@@ -749,8 +770,8 @@
     transform: translateX(1px);
 }
 
-/* Container untuk agenda items */
-.agenda-container {
+/* Container untuk agenda items di calendar-day */
+.calendar-day .agenda-container {
     flex: 1;
     overflow: hidden;
     display: flex;
@@ -758,6 +779,12 @@
     gap: 2px;
     max-height: calc(100% - 25px);
     width: 100%;
+    margin-top: 4px;
+    align-self: stretch;
+    padding: 0 !important;
+    background: transparent !important;
+    min-height: auto !important;
+    justify-content: flex-start !important;
 }
 
 /* Batasi jumlah agenda yang ditampilkan */
