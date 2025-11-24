@@ -13,7 +13,8 @@
             <!-- Bagian header -->
             <div style="position: relative; text-align: center; margin-bottom: 8px;">
                 <!-- Tombol kembali -->
-                <a href="{{ request('from') === 'approve' ? route('approve') : route('agenda.notification') }}" class="back-btn"                    title="Kembali">
+  <a href="{{ request('from') === 'approve' ? route('approve') : route('agenda.notification') }}" class="back-btn"
+                    title="Kembali">
                     <i class="fas fa-arrow-left"></i>
                 </a>
 
@@ -28,7 +29,7 @@
                 Perbarui data agenda kegiatan instansi Anda
             </p>
 
-            <form action="{{ route('agenda.update', $agenda->id_agenda) }}" method="POST" id="agendaForm">
+            <for`m action="{{ route('agenda.update', $agenda->id_agenda) }}" method="POST" id="agendaForm">
                 @csrf
                 @method('PUT')
 
@@ -184,7 +185,7 @@
                 <div class="form-submit">
                     <button type="submit" class="btn-primary">Simpan Perubahan</button>
                 </div>
-            </form>
+            </for>
         </div>
     </div>
 

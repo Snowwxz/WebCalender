@@ -472,9 +472,15 @@
             function openModal(selectedDate = null) {
                 const modal = document.getElementById('createAgendaModal');
                 const dateInput = document.getElementById('date');
+                const agendaSidebar = document.getElementById('agendaSidebar');
 
                 if (selectedDate && dateInput) {
                     dateInput.value = selectedDate;
+                }
+
+                // Sembunyikan sidebar saat modal terbuka
+                if (agendaSidebar) {
+                    agendaSidebar.classList.add('hidden');
                 }
 
                 modal.style.display = 'flex';
@@ -483,8 +489,15 @@
 
             function closeModal() {
                 const modal = document.getElementById('createAgendaModal');
+                const agendaSidebar = document.getElementById('agendaSidebar');
+
                 modal.style.display = 'none';
                 document.body.style.overflow = 'auto';
+
+                // Tampilkan kembali sidebar jika sebelumnya aktif
+                if (agendaSidebar && agendaSidebar.classList.contains('active')) {
+                    agendaSidebar.classList.remove('hidden');
+                }
 
                 // Reset form
                 document.getElementById('agendaForm').reset();

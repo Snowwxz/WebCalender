@@ -848,7 +848,7 @@
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.6);
-    z-index: 9999;
+    z-index: 10001;
     justify-content: center;
     align-items: center;
     animation: fadeIn 0.3s ease;
@@ -864,6 +864,7 @@
     box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
     animation: slideIn 0.3s ease;
     position: relative;
+    z-index: 10002;
 }
 
 .modal-header {
