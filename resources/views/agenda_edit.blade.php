@@ -13,8 +13,7 @@
             <!-- Bagian header -->
             <div style="position: relative; text-align: center; margin-bottom: 8px;">
                 <!-- Tombol kembali -->
-                <a href="{{ request('from') === 'approve' ? route('approve') : route('notification') }}" class="back-btn"
-                    title="Kembali">
+                <a href="{{ request('from') === 'approve' ? route('approve') : route('agenda.notification') }}" class="back-btn"                    title="Kembali">
                     <i class="fas fa-arrow-left"></i>
                 </a>
 
