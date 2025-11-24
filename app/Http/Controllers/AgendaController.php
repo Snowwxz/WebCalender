@@ -480,6 +480,8 @@ class AgendaController extends Controller
         // Filters
         $status = $request->query('status', 'all');
         $search = $request->query('q');
+        $year = $request->query('year');
+        $month = $request->query('month');
         $agendaId = $request->query('agenda_id');
         $selectedAgenda = null;
 
@@ -513,6 +515,16 @@ class AgendaController extends Controller
 
         if (in_array($status, ['pending', 'approved', 'rejected'])) {
             $query->where('status', $status);
+        }
+
+        // Filter berdasarkan tahun
+        if (!empty($year) && is_numeric($year)) {
+            $query->whereYear('date', $year);
+        }
+
+        // Filter berdasarkan bulan
+        if (!empty($month) && is_numeric($month) && $month >= 1 && $month <= 12) {
+            $query->whereMonth('date', $month);
         }
 
         if (!empty($search)) {
@@ -552,7 +564,7 @@ class AgendaController extends Controller
             return response()->json($agenda);
         }
 
-        return view('notification', compact('agenda', 'counts', 'status', 'search', 'agendaId', 'selectedAgenda'));
+        return view('notification', compact('agenda', 'counts', 'status', 'search', 'year', 'month', 'agendaId', 'selectedAgenda'));
     }
 
     /**

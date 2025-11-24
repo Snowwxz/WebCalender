@@ -29,20 +29,34 @@
                     $allCount = $counts['all'] ?? 0;
                 @endphp
 
+                @php
+                    $currentYear = request('year', '');
+                    $currentMonth = request('month', '');
+                    $currentSearch = request('q', '');
+                    
+                    $buildQuery = function($status) use ($currentYear, $currentMonth, $currentSearch) {
+                        $params = ['status' => $status];
+                        if ($currentYear) $params['year'] = $currentYear;
+                        if ($currentMonth) $params['month'] = $currentMonth;
+                        if ($currentSearch) $params['q'] = $currentSearch;
+                        return '?' . http_build_query($params);
+                    };
+                @endphp
+
                 <div class="status-tabs-wrap">
                     <div class="status-tabs">
-                        <a href="?status=all" class="status-tab {{ request('status', 'all') === 'all' ? 'active' : '' }}">
+                        <a href="{{ $buildQuery('all') }}" class="status-tab {{ request('status', 'all') === 'all' ? 'active' : '' }}">
                             Semua <span class="badge">{{ $allCount }}</span>
                         </a>
-                        <a href="?status=pending"
+                        <a href="{{ $buildQuery('pending') }}"
                             class="status-tab {{ request('status', 'all') === 'pending' ? 'active' : '' }}">
                             Menunggu <span class="badge">{{ $pendingCount }}</span>
                         </a>
-                        <a href="?status=approved"
+                        <a href="{{ $buildQuery('approved') }}"
                             class="status-tab {{ request('status', 'all') === 'approved' ? 'active' : '' }}">
                             Disetujui <span class="badge">{{ $approvedCount }}</span>
                         </a>
-                        <a href="?status=rejected"
+                        <a href="{{ $buildQuery('rejected') }}"
                             class="status-tab {{ request('status', 'all') === 'rejected' ? 'active' : '' }}">
                             Ditolak <span class="badge">{{ $rejectedCount }}</span>
                         </a>
@@ -53,15 +67,64 @@
                     // Filtering now happens in controller; keep $status and $q from controller
                 @endphp
 
-                <div class="search-bar">
-                    <form method="GET" action="{{ route('agenda.notification') }}">
+                <div class="filter-section">
+                    <form method="GET" action="{{ route('agenda.notification') }}" class="filter-form">
                         <input type="hidden" name="status" value="{{ request('status', 'all') }}">
-                        <div class="search-input-wrap">
-                            <input type="text" name="q" placeholder="Cari agenda, instansi, atau deskripsi..."
-                                value="{{ request('q') }}">
-                            <button type="submit">
-                                <i class="fas fa-search"></i>
-                            </button>
+                        
+                        <!-- Filter Tahun dan Bulan -->
+                        <div class="filter-date-group">
+                            <div class="filter-item">
+                                <label for="filter_year">
+                                    <i class="fas fa-calendar-alt"></i> Tahun
+                                </label>
+                                <select name="year" id="filter_year" class="filter-select">
+                                    <option value="">Semua Tahun</option>
+                                    @php
+                                        $currentYear = date('Y');
+                                        $startYear = $currentYear - 5; // 5 tahun ke belakang
+                                        $endYear = $currentYear + 2; // 2 tahun ke depan
+                                        $selectedYear = request('year', '');
+                                    @endphp
+                                    @for ($y = $endYear; $y >= $startYear; $y--)
+                                        <option value="{{ $y }}" {{ $selectedYear == $y ? 'selected' : '' }}>
+                                            {{ $y }}
+                                        </option>
+                                    @endfor
+                                </select>
+                            </div>
+                            
+                            <div class="filter-item">
+                                <label for="filter_month">
+                                    <i class="fas fa-calendar"></i> Bulan
+                                </label>
+                                <select name="month" id="filter_month" class="filter-select">
+                                    <option value="">Semua Bulan</option>
+                                    @php
+                                        $months = [
+                                            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                                            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                                            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+                                        ];
+                                        $selectedMonth = request('month', '');
+                                    @endphp
+                                    @foreach ($months as $num => $name)
+                                        <option value="{{ $num }}" {{ $selectedMonth == $num ? 'selected' : '' }}>
+                                            {{ $name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Search Bar -->
+                        <div class="search-bar">
+                            <div class="search-input-wrap">
+                                <input type="text" name="q" placeholder="Cari agenda, instansi, atau deskripsi..."
+                                    value="{{ request('q') }}">
+                                <button type="submit" class="search-btn">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -568,6 +631,23 @@
                             window.location.href = url.toString();
                         }
                     });
+
+                    // Auto-submit form saat filter tahun atau bulan berubah
+                    const yearSelect = document.getElementById('filter_year');
+                    const monthSelect = document.getElementById('filter_month');
+                    const filterForm = document.querySelector('.filter-form');
+
+                    if (yearSelect && filterForm) {
+                        yearSelect.addEventListener('change', function() {
+                            filterForm.submit();
+                        });
+                    }
+
+                    if (monthSelect && filterForm) {
+                        monthSelect.addEventListener('change', function() {
+                            filterForm.submit();
+                        });
+                    }
                 });
             </script>
         @endsection
