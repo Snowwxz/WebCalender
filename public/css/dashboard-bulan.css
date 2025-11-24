@@ -845,10 +845,15 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     background: rgba(0, 0, 0, 0.6);
+
     z-index: 10001;
+    z-index: 12001;
+
+    z-index: 12001;
+
     justify-content: center;
     align-items: center;
     animation: fadeIn 0.3s ease;
@@ -895,7 +900,7 @@
     background: none;
     border: none;
     font-size: 1.6rem;
-    color: #6c757d;
+    color: #6E9579;
     cursor: pointer;
     padding: 8px;
     border-radius: 50%;
@@ -908,8 +913,8 @@
 }
 
 .modal-close:hover {
-    background: #e9ecef;
-    color: #333;
+    background: #e9f3ec;
+    color: #5b7d67;
     transform: rotate(90deg);
 }
 
@@ -922,11 +927,12 @@
 .modal-body .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 30px 50px;
+    row-gap: 6px;
+    column-gap: 14px;
 }
 
 .modal-body .input-group {
-    margin-bottom: 25px;
+    margin-bottom: 0;
 }
 
 .modal-body .input-group:last-child {
@@ -938,7 +944,7 @@
     align-items: center;
     font-weight: 600;
     color: #2f4737;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
     font-size: 0.95rem;
 }
 
@@ -946,6 +952,16 @@
     margin-right: 10px;
     color: #6E9579;
     font-size: 1rem;
+}
+
+.modal-body .input-group label .label-icon-dihadiri {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='%236E9579'%3E%3Ccircle cx='12' cy='7' r='2.2'/%3E%3Ccircle cx='6.8' cy='9.2' r='2'/%3E%3Ccircle cx='17.2' cy='9.2' r='2'/%3E%3Cpath d='M8 18v-1.5c0-2.4 2-4.3 4-4.3s4 1.9 4 4.3V18H8z'/%3E%3Cpath d='M2.5 18v-1.3c0-2.2 1.8-4 4-4 1.1 0 2 .4 2.7 1.1-.9.8-1.5 2-1.5 3.2V18H2.5z'/%3E%3Cpath d='M21.5 18v-1.3c0-2.2-1.8-4-4-4-1.1 0-2 .4-2.7 1.1.9.8 1.5 2 1.5 3.2V18h5.2z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: 20px 20px;
 }
 
 .modal-body input[type="text"],
@@ -998,9 +1014,9 @@
 .modal-body .form-submit {
     display: flex;
     justify-content: center;
-    gap: 15px;
-    margin-top: 30px;
-    padding-top: 25px;
+    gap: 10px;
+    margin-top: 18px;
+    padding-top: 16px;
     border-top: 2px solid #e9ecef;
 }
 
@@ -1066,6 +1082,56 @@
         opacity: 1;
         transform: translateY(0) scale(1);
     }
+}
+
+/* Select wrapper: samakan tampilan Kategori dengan input lain */
+.modal-body .select-wrapper {
+    position: relative;
+    width: 100%;
+    border: 2px solid #d6e0d9;
+    border-radius: 12px;
+    background-color: #f8faf9;
+    height: 44px;
+    display: flex;
+    align-items: center;
+}
+
+.modal-body .select-wrapper:hover {
+    border-color: #c7d5cd;
+    background-color: #ffffff;
+}
+
+.modal-body .select-wrapper:focus-within {
+    border-color: #6E9579;
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(110, 149, 121, 0.15);
+}
+
+.modal-body .select-wrapper select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    border: none;
+    background: transparent;
+    width: 100%;
+    padding: 10px 50px 10px 15px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #111827;
+}
+
+.modal-body .select-wrapper::after {
+    content: "";
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5.83337 7.5L10 11.6667L14.1667 7.5' stroke='%236E9579' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: 20px 20px;
+    pointer-events: none;
 }
 
 .btn-close-custom {
@@ -1163,7 +1229,8 @@
 
     .modal-body .form-grid {
         grid-template-columns: 1fr;
-        gap: 20px;
+        row-gap: 6px;
+        column-gap: 10px;
     }
 
     .modal-body .form-submit {
@@ -1278,7 +1345,7 @@
     }
 
     .modal-body .input-group {
-        margin-bottom: 15px;
+        margin-bottom: 0;
     }
 
     .modal-body .input-group label {
@@ -1790,7 +1857,6 @@
     color: #82A98D;
     transform: rotate(90deg);
 }
-
 .modal-header .close-modal {
     margin-left: auto;
     padding: 4px 8px;
