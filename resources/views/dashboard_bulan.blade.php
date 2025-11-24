@@ -62,7 +62,7 @@
                         <i class="fas fa-calendar-plus"></i>
                         <span>Buat Agenda Baru</span>
                     </div>
-                    <button class="modal-close" onclick="closeModal()" style="color: #dc3545;">
+                    <button class="modal-close" onclick="closeModal()">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -126,7 +126,7 @@
 
                             <!-- Dihadiri - Full Width -->
                             <div class="input-group fullwidth-group">
-                                <label><i class="fas fa-people-group"></i> Dihadiri</label>
+                                <label><span class="label-icon-dihadiri"></span> Dihadiri</label>
 
                                 <div class="chips-multiselect" id="involvedInstansi">
                                     <div class="chips-container">
