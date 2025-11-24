@@ -13,7 +13,7 @@
             <!-- Bagian header -->
             <div style="position: relative; text-align: center; margin-bottom: 8px;">
                 <!-- Tombol kembali -->
-  <a href="{{ request('from') === 'approve' ? route('approve') : route('agenda.notification') }}" class="back-btn"
+                <a href="{{ request('from') === 'approve' ? route('approve') : route('agenda.notification') }}" class="back-btn"
                     title="Kembali">
                     <i class="fas fa-arrow-left"></i>
                 </a>
@@ -185,7 +185,7 @@
                 <div class="form-submit">
                     <button type="submit" class="btn-primary">Simpan Perubahan</button>
                 </div>
-            </for>
+                </for>
         </div>
     </div>
 
