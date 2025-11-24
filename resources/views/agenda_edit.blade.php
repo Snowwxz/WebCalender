@@ -29,7 +29,7 @@
                 Perbarui data agenda kegiatan instansi Anda
             </p>
 
-            <form action="{{ route('agenda.update', $agenda->id_agenda) }}" method="POST" id="agendaForm">
+            <for`m action="{{ route('agenda.update', $agenda->id_agenda) }}" method="POST" id="agendaForm">
                 @csrf
                 @method('PUT')
 
@@ -185,7 +185,7 @@
                 <div class="form-submit">
                     <button type="submit" class="btn-primary">Simpan Perubahan</button>
                 </div>
-            </form>
+            </for>
         </div>
     </div>
 
