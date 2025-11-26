@@ -71,7 +71,7 @@
     <div class="mini-agenda-card">
         <div class="mini-agenda-header">
             <div>
-                <p class="mini-agenda-label">Ringkasan agenda publik</p>
+                <p class="mini-agenda-label">Ringkasan Agenda</p>
                 <h4 id="miniAgendaMonthLabel">November 2025</h4>
             </div>
             <div class="mini-agenda-controls">
@@ -83,7 +83,7 @@
                 </button>
             </div>
         </div>
-        <div class="mini-agenda-list" id="miniAgendaList" 
+        <div class="mini-agenda-list" id="miniAgendaList"
              data-notification-url="{{ Auth::check() ? route('agenda.notification') : '/dashboard/notification' }}"
              data-is-dashboard="{{ $isDashboard ? '1' : '0' }}">
             <div class="mini-agenda-placeholder">
@@ -408,7 +408,7 @@
                 }
 
                 const isDashboard = listEl.dataset.isDashboard === '1';
-                
+
                 // Filter: di landing hanya publik, di dashboard publik + privasi
                 const filtered = data
                     .filter(item => {
@@ -424,8 +424,8 @@
                     .sort((a, b) => new Date(a.date) - new Date(b.date));
 
                 if (filtered.length === 0) {
-                    const message = isDashboard 
-                        ? 'Belum ada agenda pada bulan ini.' 
+                    const message = isDashboard
+                        ? 'Belum ada agenda pada bulan ini.'
                         : 'Belum ada agenda publik pada bulan ini.';
                     listEl.innerHTML = `<div class="mini-agenda-placeholder">${message}</div>`;
                     return;
@@ -494,7 +494,7 @@
                 }
 
                 // Gunakan endpoint berbeda untuk dashboard dan landing
-                const apiUrl = isDashboard 
+                const apiUrl = isDashboard
                     ? `/api/dashboard/agenda/${year}/${month}`
                     : `/api/agenda/${year}/${month}`;
 
