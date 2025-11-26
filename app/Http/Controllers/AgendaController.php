@@ -800,7 +800,8 @@ class AgendaController extends Controller
         $userUnitName = $userUnit ? $userUnit->unit_name : null;
 
         // Get local agendas
-        $localAgendas = Agenda::whereDate('date', $date)
+        $localAgendas = Agenda::with('unit')
+            ->whereDate('date', $date)
             ->where('status', 'approved')
             ->where(function ($q) use ($userId, $userUnitName) {
                 $q->where('is_public', 1)
@@ -815,7 +816,26 @@ class AgendaController extends Controller
                 }
             })
             ->orderBy('start_time', 'asc')
-            ->get(['id_agenda as id', 'agenda_name as title', 'start_time', 'end_time', 'location', 'is_public'])
+            ->get()
+            ->map(function ($agenda) {
+                return [
+                    'id_agenda' => $agenda->id_agenda,
+                    'id' => $agenda->id_agenda,
+                    'title' => $agenda->agenda_name,
+                    'agenda_name' => $agenda->agenda_name,
+                    'start_time' => $agenda->start_time,
+                    'end_time' => $agenda->end_time,
+                    'location' => $agenda->location,
+                    'is_public' => $agenda->is_public,
+                    'description' => $agenda->description,
+                    'date' => $agenda->date ? $agenda->date->format('Y-m-d') : null,
+                    'involved_institution' => $agenda->involved_institution,
+                    'notes' => $agenda->notes,
+                    'unit' => $agenda->unit ? [
+                        'unit_name' => $agenda->unit->unit_name
+                    ] : null
+                ];
+            })
             ->toArray();
 
         // Get external agendas
@@ -830,6 +850,7 @@ class AgendaController extends Controller
                 $transformed = $this->transformExternalAgenda($agenda, $externalService);
                 // Format untuk getAgendaHari (sama seperti agenda lokal)
                 return [
+                    'id_agenda' => $transformed['id_agenda'],
                     'id' => $transformed['id_agenda'],
                     'title' => $transformed['agenda_name'],
                     'start_time' => $transformed['start_time'],
@@ -839,7 +860,9 @@ class AgendaController extends Controller
                     'agenda_name' => $transformed['agenda_name'],
                     'date' => $transformed['date'],
                     'description' => $transformed['description'] ?? '',
-                    'status' => $transformed['status'] ?? 'approved'
+                    'status' => $transformed['status'] ?? 'approved',
+                    'involved_institution' => $transformed['involved_institution'] ?? '',
+                    'notes' => $transformed['notes'] ?? ''
                     // Tidak ada is_external atau source - sama seperti agenda lokal
                 ];
             }, $externalAgendas);

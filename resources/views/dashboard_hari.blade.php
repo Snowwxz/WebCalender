@@ -5,6 +5,7 @@
     @endpush
 
     @section('content')
+        @include('show_agenda_modal_dashboard')
         <div class="calendar-page">
             <div class="calendar-content-wrapper">
                 <!-- Mini Calendar di Kiri -->
@@ -99,34 +100,203 @@
                     const json = await res.json();
                     const items = Array.isArray(json) ? json : (Array.isArray(json.data) ? json.data : []);
 
-                    items.forEach(event => {
-                        const eventEl = document.createElement('div');
-                        eventEl.classList.add('event-item');
-                        eventEl.style.backgroundColor = event.color || '#3a7bd5';
-
-                        // Normalize times: if missing, default to all-day block at 08:00-09:00
+                    // Parse dan siapkan data event
+                    const events = items.map(event => {
                         const startTimeStr = event.start_time && /^\d{2}:\d{2}/.test(event.start_time) ? event.start_time : '08:00:00';
                         const endTimeStr = event.end_time && /^\d{2}:\d{2}/.test(event.end_time) ? event.end_time : '09:00:00';
 
                         const start = new Date(`1970-01-01T${startTimeStr}`);
                         const end = new Date(`1970-01-01T${endTimeStr}`);
                         let duration = (end - start) / (1000 * 60);
-                        if (!isFinite(duration) || duration <= 0) duration = 30; // minimum 30 minutes
+                        if (!isFinite(duration) || duration <= 0) duration = 30;
 
                         const pxPerMinute = 1;
                         const top = start.getHours() * 60 * pxPerMinute + start.getMinutes() * pxPerMinute;
                         const height = Math.max(duration * pxPerMinute, 24);
+                        const bottom = top + height;
 
-                        eventEl.style.top = `${top}px`;
-                        eventEl.style.height = `${height}px`;
+                        return {
+                            ...event,
+                            startTime: start,
+                            endTime: end,
+                            startMinutes: start.getHours() * 60 + start.getMinutes(),
+                            endMinutes: end.getHours() * 60 + end.getMinutes(),
+                            top,
+                            height,
+                            bottom,
+                            startTimeStr,
+                            endTimeStr
+                        };
+                    });
+
+                    // Sort events by start time
+                    events.sort((a, b) => a.startMinutes - b.startMinutes);
+
+                    // Fungsi untuk cek apakah dua event overlap
+                    function eventsOverlap(e1, e2) {
+                        return e1.startMinutes < e2.endMinutes && e1.endMinutes > e2.startMinutes;
+                    }
+
+                    // Pass 1: Assign kolom untuk setiap event
+                    const eventLayouts = [];
+                    events.forEach(event => {
+                        // Cari semua event yang sudah di-assign dan overlap dengan event ini
+                        const overlappingLayouts = eventLayouts.filter(layout => 
+                            eventsOverlap(layout.event, event)
+                        );
+
+                        // Cari kolom yang sudah digunakan oleh event yang overlap
+                        const usedColumns = new Set(overlappingLayouts.map(l => l.column));
+
+                        // Assign kolom pertama yang tersedia
+                        let assignedColumn = 0;
+                        while (usedColumns.has(assignedColumn)) {
+                            assignedColumn++;
+                        }
+
+                        eventLayouts.push({
+                            event,
+                            column: assignedColumn,
+                            totalColumns: 1 // akan di-update di pass 2
+                        });
+                    });
+
+                    // Pass 2: Hitung totalColumns untuk setiap grup overlap
+                    events.forEach((event, index) => {
+                        const overlappingEvents = events.filter(e => 
+                            e !== event && eventsOverlap(e, event)
+                        );
+                        
+                        if (overlappingEvents.length > 0) {
+                            // Semua event dalam grup overlap ini
+                            const allInGroup = [event, ...overlappingEvents];
+                            
+                            // Cari kolom maksimum yang digunakan oleh grup ini
+                            const maxCol = Math.max(...allInGroup.map(oe => {
+                                const idx = events.indexOf(oe);
+                                return idx >= 0 ? eventLayouts[idx].column : 0;
+                            })) + 1;
+                            
+                            // Update totalColumns untuk semua event dalam grup
+                            allInGroup.forEach(oe => {
+                                const idx = events.indexOf(oe);
+                                if (idx >= 0) {
+                                    eventLayouts[idx].totalColumns = maxCol;
+                                }
+                            });
+                        }
+                    });
+
+                    // Render events dengan layout yang sudah dihitung
+                    eventLayouts.forEach(layout => {
+                        const { event, column, totalColumns } = layout;
+                        const eventEl = document.createElement('div');
+                        eventEl.classList.add('event-item');
+                        eventEl.style.backgroundColor = event.color || '#3a7bd5';
+
+                        // Hitung lebar dan posisi kiri berdasarkan kolom dengan gap yang lebih jelas
+                        const gapPercent = 1.5; // gap 1.5% antar kolom untuk jarak yang lebih jelas
+                        const usableWidth = 100 - (totalColumns - 1) * gapPercent;
+                        const columnWidth = usableWidth / totalColumns;
+                        const leftPercent = column * (columnWidth + gapPercent);
+                        const widthPercent = columnWidth;
+
+                        // Tambahkan gap vertikal 4px antar event yang berdekatan
+                        const verticalGap = 4;
+                        // Tambahkan offset kecil di top dan kurangi height untuk memberikan gap
+                        eventEl.style.top = `${event.top + (verticalGap / 2)}px`;
+                        eventEl.style.height = `${Math.max(event.height - verticalGap, 20)}px`;
+                        eventEl.style.left = `${leftPercent}%`;
+                        eventEl.style.width = `${widthPercent}%`;
+                        
+                        // Simpan ID agenda dan data lengkap untuk modal
+                        eventEl.dataset.agendaId = event.id_agenda || event.id || null;
+                        eventEl.dataset.agendaData = JSON.stringify(event);
+                        
+                        // Hanya tampilkan nama agenda
                         eventEl.innerHTML = `
-                    <strong>${event.title || event.agenda_name || 'Agenda'}</strong><br>
-                    <small>${(event.start_time || startTimeStr).slice(0,5)} - ${(event.end_time || endTimeStr).slice(0,5)}</small>
+                    <div class="event-title">${event.title || event.agenda_name || 'Agenda'}</div>
                 `;
+
+                        // Tambahkan event listener untuk click
+                        eventEl.addEventListener('click', function() {
+                            const agendaId = eventEl.dataset.agendaId;
+                            const agendaData = JSON.parse(eventEl.dataset.agendaData || '{}');
+                            
+                            // Jika ada ID, ambil detail dari server
+                            if (agendaId && !agendaData.is_external) {
+                                fetch(`/dashboard/agenda/${agendaId}`)
+                                    .then(res => res.json())
+                                    .then(data => {
+                                        openShowAgendaModal(data);
+                                    })
+                                    .catch(err => {
+                                        console.error('Error:', err);
+                                        // Fallback: gunakan data yang sudah ada
+                                        openShowAgendaModal(agendaData);
+                                    });
+                            } else {
+                                // Untuk external agenda atau agenda tanpa ID, gunakan data yang sudah ada
+                                openShowAgendaModal(agendaData);
+                            }
+                        });
 
                         dayColumn.appendChild(eventEl);
                     });
                 }
+
+                // Fungsi untuk membuka modal detail agenda (menggunakan fungsi yang sudah ada)
+                function openShowAgendaModal(data) {
+                    // Format tanggal
+                    function formatDate(dateString) {
+                        if (!dateString) return "-";
+                        const date = new Date(dateString);
+                        const options = {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric',
+                            weekday: 'long'
+                        };
+                        return date.toLocaleDateString('id-ID', options);
+                    }
+
+                    // Isi data ke modal
+                    document.getElementById('showAgendaName').innerText = data.agenda_name || data.title || '-';
+                    document.getElementById('showAgendaDesc').innerText = data.description || data.desc || '-';
+                    document.getElementById('showAgendaDate').innerText = formatDate(data.date);
+
+                    const timeText = (data.start_time && data.end_time) ?
+                        `${data.start_time.slice(0, 5)} - ${data.end_time.slice(0, 5)}` :
+                        (data.end_time ? data.end_time.slice(0, 5) : (data.start_time ? data.start_time.slice(0, 5) : '-'));
+                    document.getElementById('showAgendaTime').innerText = timeText;
+
+                    document.getElementById('showAgendaLocation').innerText = data.location || '-';
+
+                    // Isi data instansi
+                    const involved = data.involved_institution || '-';
+                    const unitName = (data.unit && data.unit.unit_name) ? data.unit.unit_name : '-';
+
+                    const unitEl = document.getElementById('showAgendaUnit');
+                    if (unitEl) unitEl.innerText = unitName;
+
+                    const involvedEl = document.getElementById('showAgendaInvolved');
+                    if (involvedEl) involvedEl.innerText = involved;
+
+                    // Isi status akses (publik/privasi)
+                    const accessEl = document.getElementById('showAgendaAccess');
+                    if (accessEl) {
+                        const isPublic = data.is_public == 1 || data.is_public === true;
+                        accessEl.innerText = isPublic ? 'Publik' : 'Privasi';
+                    }
+
+                    const notesEl = document.getElementById('showAgendaNotes');
+                    if (notesEl) notesEl.innerText = data.notes || '-';
+
+                    // Tampilkan modal
+                    const modal = new bootstrap.Modal(document.getElementById('showAgendaModal'));
+                    modal.show();
+                }
+
 
                 // 🟢 Pastikan render setelah semua siap
                 updateDayDisplay();
