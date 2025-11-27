@@ -4,6 +4,7 @@
     <link rel="stylesheet" href="{{ asset('css/agenda-create.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 @endpush
 
 @section('content')
@@ -29,7 +30,7 @@
                 Perbarui data agenda kegiatan instansi Anda
             </p>
 
-            <for`m action="{{ route('agenda.update', $agenda->id_agenda) }}" method="POST" id="agendaForm">
+            <form action="{{ route('agenda.update', $agenda->id_agenda) }}" method="POST" id="agendaForm">
                 @csrf
                 @method('PUT')
 
@@ -47,13 +48,17 @@
 
                 @if (session('success'))
                     <script>
-                        showSuccessToast("{{ session('success') }}");
+                        document.addEventListener('DOMContentLoaded', function() {
+                            showSuccessToast("{{ session('success') }}");
+                        });
                     </script>
                 @endif
 
                 @if (session('error'))
                     <script>
-                        showErrorToast("{{ session('error') }}");
+                        document.addEventListener('DOMContentLoaded', function() {
+                            showErrorToast("{{ session('error') }}");
+                        });
                     </script>
                 @endif
 
@@ -185,7 +190,7 @@
                 <div class="form-submit">
                     <button type="submit" class="btn-primary">Simpan Perubahan</button>
                 </div>
-                </for>
+            </form>
         </div>
     </div>
 
@@ -578,6 +583,42 @@
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
     <script>
+        // Fungsi Toastify Success
+        function showSuccessToast(message) {
+            const popup = document.createElement('div');
+            popup.className = 'toastify-popup toastify-success';
+            popup.innerHTML = `
+                <i class="bi bi-check-circle-fill" style="color:#5FA776; font-size:16px;"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(popup);
+
+            popup.classList.add('toastify-popup-show');
+            setTimeout(() => {
+                popup.classList.remove('toastify-popup-show');
+                popup.classList.add('toastify-popup-hide');
+                setTimeout(() => popup.remove(), 300);
+            }, 2500);
+        }
+
+        // Fungsi Toastify Error
+        function showErrorToast(message) {
+            const popup = document.createElement('div');
+            popup.className = 'toastify-popup toastify-error';
+            popup.innerHTML = `
+                <i class="bi bi-x-circle-fill" style="color:#EF4444; font-size:16px;"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(popup);
+
+            popup.classList.add('toastify-popup-show');
+            setTimeout(() => {
+                popup.classList.remove('toastify-popup-show');
+                popup.classList.add('toastify-popup-hide');
+                setTimeout(() => popup.remove(), 300);
+            }, 3000);
+        }
+
         function showConfirmSubmit() {
             const toast = Toastify({
                 text: "",
@@ -665,5 +706,90 @@
             }
         });
     </script>
+
+    <style>
+        .toastify-success {
+            position: fixed;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #E9F4EC;
+            color: #234B2C;
+            border: 1px solid #A6C8A3;
+            border-radius: 6px;
+            padding: 8px 18px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            z-index: 9999;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            width: auto;
+            max-width: 300px;
+            min-height: unset;
+        }
+
+        .toastify-error {
+            position: fixed;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #FEE2E2;
+            color: #991B1B;
+            border: 1px solid #FCA5A5;
+            border-radius: 6px;
+            padding: 8px 18px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            z-index: 9999;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            width: auto;
+            max-width: 300px;
+            min-height: unset;
+        }
+
+        .toastify-popup-show {
+            animation: toastIn 0.35s ease forwards;
+        }
+
+        .toastify-popup-hide {
+            animation: toastOut 0.25s ease forwards;
+        }
+
+        @keyframes toastIn {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -30px) scale(0.95);
+            }
+
+            80% {
+                opacity: 1;
+                transform: translate(-50%, 8px) scale(1.03);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translate(-50%, 0) scale(1);
+            }
+        }
+
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+                transform: translate(-50%, 0) scale(1);
+            }
+
+            to {
+                opacity: 0;
+                transform: translate(-50%, -10px) scale(0.95);
+            }
+        }
+    </style>
 
 @endsection
