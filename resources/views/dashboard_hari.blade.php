@@ -5,7 +5,7 @@
     @endpush
 
     @section('content')
-        @include('show_agenda_modal_dashboard')
+        @include('tambah_agenda_modal_hari')
         <div class="calendar-page">
             <div class="calendar-content-wrapper">
                 <!-- Mini Calendar di Kiri -->
@@ -15,33 +15,33 @@
 
                 <!-- Main Content Hari -->
                 <div class="day-view-main">
-                <!-- Day Header -->
-                <div class="calendar-header">
-                    <div class="month-navigation">
-                        <button class="nav-btn" onclick="changeDay(-1)">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <h2 class="month-year" id="currentDay">Hari ini</h2>
-                        <button class="nav-btn" onclick="changeDay(1)">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Time Grid -->
-                <div class="day-grid">
-                    <div class="time-column">
-                        @for ($i = 0; $i < 24; $i++)
-                            <div class="time-slot">{{ str_pad($i, 2, '0', STR_PAD_LEFT) }}:00</div>
-                        @endfor
+                    <!-- Day Header -->
+                    <div class="calendar-header">
+                        <div class="month-navigation">
+                            <button class="nav-btn" onclick="changeDay(-1)">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <h2 class="month-year" id="currentDay">Hari ini</h2>
+                            <button class="nav-btn" onclick="changeDay(1)">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="day-column">
-                        @for ($i = 0; $i < 24; $i++)
-                            <div class="hour-slot" data-hour="{{ $i }}"></div>
-                        @endfor
+                    <!-- Time Grid -->
+                    <div class="day-grid">
+                        <div class="time-column">
+                            @for ($i = 0; $i < 24; $i++)
+                                <div class="time-slot">{{ str_pad($i, 2, '0', STR_PAD_LEFT) }}:00</div>
+                            @endfor
+                        </div>
+
+                        <div class="day-column">
+                            @for ($i = 0; $i < 24; $i++)
+                                <div class="hour-slot" data-hour="{{ $i }}"></div>
+                            @endfor
+                        </div>
                     </div>
-                </div>
                 </div>
             </div>
         </div>
@@ -85,6 +85,44 @@
                     window.history.pushState({}, '', newUrl);
                 }
 
+                // === Klik slot jam untuk buka modal create agenda ===
+                document.querySelectorAll('.hour-slot').forEach(slot => {
+                    slot.addEventListener('click', function(event) {
+
+                        // Ambil jam dari data-hour
+                        const hour = this.dataset.hour;
+
+                        // Format jam ke "HH:00"
+                        const formattedHour = String(hour).padStart(2, '0') + ":00";
+
+                        // Format tanggal sesuai currentDate
+                        const year = currentDate.getFullYear();
+                        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+                        const day = String(currentDate.getDate()).padStart(2, '0');
+                        const fullDate = `${year}-${month}-${day}`;
+
+                        // Isi field otomatis
+                        document.getElementById('date').value = fullDate;
+                        document.getElementById('start_time').value = formattedHour;
+
+                        // Kosongkan end time supaya user isi sendiri
+                        document.getElementById('end_time').value = "";
+
+                        // Buka modal
+                        openCreateModal();
+                    });
+                });
+
+                // Fungsi buka modal tambah agenda
+                function openCreateModal() {
+                    document.getElementById('createAgendaModalHari').style.display = 'flex';
+                }
+
+                // Fungsi tutup modal (biar konsisten)
+                function closeModal() {
+                    document.getElementById('createAgendaModalHari').style.display = 'none';
+                }
+
                 // 🔥 Ambil dan render event dari server
                 async function renderDayEvents() {
                     const dayColumn = document.querySelector('.day-column');
@@ -102,8 +140,10 @@
 
                     // Parse dan siapkan data event
                     const events = items.map(event => {
-                        const startTimeStr = event.start_time && /^\d{2}:\d{2}/.test(event.start_time) ? event.start_time : '08:00:00';
-                        const endTimeStr = event.end_time && /^\d{2}:\d{2}/.test(event.end_time) ? event.end_time : '09:00:00';
+                        const startTimeStr = event.start_time && /^\d{2}:\d{2}/.test(event.start_time) ?
+                            event.start_time : '08:00:00';
+                        const endTimeStr = event.end_time && /^\d{2}:\d{2}/.test(event.end_time) ? event
+                            .end_time : '09:00:00';
 
                         const start = new Date(`1970-01-01T${startTimeStr}`);
                         const end = new Date(`1970-01-01T${endTimeStr}`);
@@ -141,7 +181,7 @@
                     const eventLayouts = [];
                     events.forEach(event => {
                         // Cari semua event yang sudah di-assign dan overlap dengan event ini
-                        const overlappingLayouts = eventLayouts.filter(layout => 
+                        const overlappingLayouts = eventLayouts.filter(layout =>
                             eventsOverlap(layout.event, event)
                         );
 
@@ -163,20 +203,20 @@
 
                     // Pass 2: Hitung totalColumns untuk setiap grup overlap
                     events.forEach((event, index) => {
-                        const overlappingEvents = events.filter(e => 
+                        const overlappingEvents = events.filter(e =>
                             e !== event && eventsOverlap(e, event)
                         );
-                        
+
                         if (overlappingEvents.length > 0) {
                             // Semua event dalam grup overlap ini
                             const allInGroup = [event, ...overlappingEvents];
-                            
+
                             // Cari kolom maksimum yang digunakan oleh grup ini
                             const maxCol = Math.max(...allInGroup.map(oe => {
                                 const idx = events.indexOf(oe);
                                 return idx >= 0 ? eventLayouts[idx].column : 0;
                             })) + 1;
-                            
+
                             // Update totalColumns untuk semua event dalam grup
                             allInGroup.forEach(oe => {
                                 const idx = events.indexOf(oe);
@@ -189,7 +229,11 @@
 
                     // Render events dengan layout yang sudah dihitung
                     eventLayouts.forEach(layout => {
-                        const { event, column, totalColumns } = layout;
+                        const {
+                            event,
+                            column,
+                            totalColumns
+                        } = layout;
                         const eventEl = document.createElement('div');
                         eventEl.classList.add('event-item');
                         eventEl.style.backgroundColor = event.color || '#3a7bd5';
@@ -208,11 +252,11 @@
                         eventEl.style.height = `${Math.max(event.height - verticalGap, 20)}px`;
                         eventEl.style.left = `${leftPercent}%`;
                         eventEl.style.width = `${widthPercent}%`;
-                        
+
                         // Simpan ID agenda dan data lengkap untuk modal
                         eventEl.dataset.agendaId = event.id_agenda || event.id || null;
                         eventEl.dataset.agendaData = JSON.stringify(event);
-                        
+
                         // Hanya tampilkan nama agenda
                         eventEl.innerHTML = `
                     <div class="event-title">${event.title || event.agenda_name || 'Agenda'}</div>
@@ -222,7 +266,7 @@
                         eventEl.addEventListener('click', function() {
                             const agendaId = eventEl.dataset.agendaId;
                             const agendaData = JSON.parse(eventEl.dataset.agendaData || '{}');
-                            
+
                             // Jika ada ID, ambil detail dari server
                             if (agendaId && !agendaData.is_external) {
                                 fetch(`/dashboard/agenda/${agendaId}`)
@@ -267,7 +311,8 @@
 
                     const timeText = (data.start_time && data.end_time) ?
                         `${data.start_time.slice(0, 5)} - ${data.end_time.slice(0, 5)}` :
-                        (data.end_time ? data.end_time.slice(0, 5) : (data.start_time ? data.start_time.slice(0, 5) : '-'));
+                        (data.end_time ? data.end_time.slice(0, 5) : (data.start_time ? data.start_time.slice(0, 5) :
+                            '-'));
                     document.getElementById('showAgendaTime').innerText = timeText;
 
                     document.getElementById('showAgendaLocation').innerText = data.location || '-';
@@ -302,5 +347,61 @@
                 updateDayDisplay();
                 renderDayEvents();
             });
+
+            // ==== FUNGSI BUKA & TUTUP MODAL ====
+            function openModal() {
+                const modal = document.getElementById('createAgendaModalHari');
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeModal() {
+                const modal = document.getElementById('createAgendaModalHari');
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+
+            // Tutup modal jika klik area luar kontainer
+            document.addEventListener('click', function(e) {
+                const modal = document.getElementById('createAgendaModalHari');
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+
+            // ==== FUNGSI AGAR KLIK JAM OTOMATIS TAMPILKAN MODAL ====
+            document.addEventListener('click', function(e) {
+                // Pastikan elemen jam punya class "hour-slot"
+                if (e.target.classList.contains('hour-slot')) {
+
+                    const selectedDate = e.target.getAttribute('data-date');
+                    const selectedTime = e.target.getAttribute('data-time');
+
+                    // Isi input tanggal
+                    if (selectedDate) {
+                        document.querySelector('input[name="date"]').value = selectedDate;
+                    }
+
+                    // Isi input waktu mulai
+                    if (selectedTime) {
+                        document.querySelector('input[name="start_time"]').value = selectedTime;
+
+                        // Waktu selesai otomatis +1 jam
+                        let [h, m] = selectedTime.split(':');
+                        h = parseInt(h) + 1;
+                        if (h < 10) h = '0' + h;
+                        document.querySelector('input[name="end_time"]').value = `${h}:${m}`;
+                    }
+
+                    // Buka modal
+                    openModal();
+                }
+            });
+
+            // ==== AGAR FORM TIDAK SUBMIT GANDA ====
+            function handleFormSubmit(event) {
+                event.target.querySelector('button[type="submit"]').disabled = true;
+                return true;
+            }
         </script>
     @endsection
