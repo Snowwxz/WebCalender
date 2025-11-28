@@ -2,6 +2,7 @@
 
     @push('styles')
         <link rel="stylesheet" href="{{ asset('css/dashboard-hari.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/create_agenda_modal.css') }}">
     @endpush
 
     @section('content')
@@ -45,6 +46,9 @@
                 </div>
             </div>
         </div>
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -357,8 +361,15 @@
 
             function closeModal() {
                 const modal = document.getElementById('createAgendaModalHari');
+                const form = document.getElementById('createAgendaFormHari');
+                
                 modal.style.display = 'none';
                 document.body.style.overflow = 'auto';
+                
+                // Reset form
+                if (form) {
+                    form.reset();
+                }
             }
 
             // Tutup modal jika klik area luar kontainer
@@ -398,10 +409,72 @@
                 }
             });
 
-            // ==== AGAR FORM TIDAK SUBMIT GANDA ====
-            function handleFormSubmit(event) {
-                event.target.querySelector('button[type="submit"]').disabled = true;
-                return true;
+            // ==== HANDLE FORM SUBMIT ====
+            function handleFormSubmit(e) {
+                e.preventDefault();
+                
+                const form = e.target;
+                const formData = new FormData(form);
+                const submitBtn = form.querySelector('button[type="submit"]');
+                
+                // Disable button to prevent double submission
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+
+                fetch(form.action, {
+                        method: "POST",
+                        headers: {
+                            "Accept": "application/json",
+                            "X-CSRF-TOKEN": document.querySelector('input[name="_token"]').value
+                        },
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            closeModal();
+                            // Reset form
+                            form.reset();
+                            // Reload events
+                            renderDayEvents();
+                            
+                            Toastify({
+                                text: "Agenda berhasil ditambahkan!",
+                                duration: 3000,
+                                gravity: "top",
+                                position: "right",
+                                backgroundColor: "#4caf50",
+                                stopOnFocus: true
+                            }).showToast();
+                        } else {
+                            Toastify({
+                                text: data.message || "Gagal menambahkan agenda!",
+                                duration: 3000,
+                                gravity: "top",
+                                position: "right",
+                                backgroundColor: "#f44336",
+                                stopOnFocus: true
+                            }).showToast();
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        Toastify({
+                            text: "Terjadi kesalahan pada server.",
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            backgroundColor: "#f44336",
+                            stopOnFocus: true
+                        }).showToast();
+                    })
+                    .finally(() => {
+                        // Re-enable button
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Ajukan Agenda';
+                    });
+                
+                return false;
             }
         </script>
     @endsection
