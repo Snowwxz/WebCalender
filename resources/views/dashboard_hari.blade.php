@@ -236,7 +236,8 @@
                         } = layout;
                         const eventEl = document.createElement('div');
                         eventEl.classList.add('event-item');
-                        eventEl.style.backgroundColor = event.color || '#3a7bd5';
+                        const isPublic = event.is_public == 1 || event.is_public === true;
+                        eventEl.classList.add(isPublic ? 'green' : 'orange');
 
                         // Hitung lebar dan posisi kiri berdasarkan kolom dengan gap yang lebih jelas
                         const gapPercent = 1.5; // gap 1.5% antar kolom untuk jarak yang lebih jelas
@@ -257,10 +258,12 @@
                         eventEl.dataset.agendaId = event.id_agenda || event.id || null;
                         eventEl.dataset.agendaData = JSON.stringify(event);
 
-                        // Hanya tampilkan nama agenda
                         eventEl.innerHTML = `
-                    <div class="event-title">${event.title || event.agenda_name || 'Agenda'}</div>
-                `;
+                            <div class="event-content">
+                                <div class="event-title">${event.title || event.agenda_name || 'Agenda'}</div>
+                                <div class="event-time">${event.startTimeStr.slice(0, 5)} - ${event.endTimeStr.slice(0, 5)}</div>
+                            </div>
+                        `;
 
                         // Tambahkan event listener untuk click
                         eventEl.addEventListener('click', function() {

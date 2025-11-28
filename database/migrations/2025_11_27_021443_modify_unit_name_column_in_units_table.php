@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('units', function (Blueprint $table) {
-            $table->unsignedBigInteger('id_unit', true); 
-            $table->text('unit_name');
-            $table->text('address')->nullable();
-            $table->timestamps();
+        Schema::table('units', function (Blueprint $table) {
+            // Ubah kolom unit_name dari VARCHAR menjadi TEXT
+            $table->text('unit_name')->change();
         });
     }
 
@@ -24,6 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('units');
+        Schema::table('units', function (Blueprint $table) {
+            // Kembalikan ke VARCHAR jika rollback
+            $table->string('unit_name', 255)->change();
+        });
     }
 };

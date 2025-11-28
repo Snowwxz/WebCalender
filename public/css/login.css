@@ -74,7 +74,6 @@ body {
     color: #000000;
 }
 
-
 .form-control:focus {
     border-color: #82A98D !important;
     box-shadow: 0 0 0 0.2rem rgba(130, 169, 141, 0.25) !important;
