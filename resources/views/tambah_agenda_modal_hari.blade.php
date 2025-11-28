@@ -64,7 +64,7 @@
 
                     <div class="input-group">
                         <label><i class="fas fa-clock"></i> Waktu Selesai</label>
-                        <input type="time" name="end_time" id="end_time" required>
+                        <input type="time" name="end_time" id="end_time">
                     </div>
                 </div>
 

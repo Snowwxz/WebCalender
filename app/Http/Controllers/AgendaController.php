@@ -243,7 +243,7 @@ class AgendaController extends Controller
                 if ($agenda->start_time) {
                     $agendaData['start_time'] = \Carbon\Carbon::parse($agenda->start_time)->format('H:i:s');
                 }
-                if ($agenda->end_time) {
+                if (!empty($agenda->end_time)) {
                     $agendaData['end_time'] = \Carbon\Carbon::parse($agenda->end_time)->format('H:i:s');
                 }
 
@@ -298,7 +298,9 @@ class AgendaController extends Controller
         // format agar cocok input HTML
         $agenda->date = \Carbon\Carbon::parse($agenda->date)->format('Y-m-d');
         $agenda->start_time = \Carbon\Carbon::parse($agenda->start_time)->format('H:i');
-        $agenda->end_time = \Carbon\Carbon::parse($agenda->end_time)->format('H:i');
+        if (!empty($agenda->end_time) && preg_match('/^\d{2}:\d{2}/', $agenda->end_time)) {
+            $agendaData['end_time'] = \Carbon\Carbon::parse($agenda->end_time)->format('H:i:s');
+        }
 
         return view('agenda_edit', compact('agenda', 'units', 'unitName'));
     }
@@ -322,18 +324,17 @@ class AgendaController extends Controller
             'location' => 'nullable|string',
             'date' => 'required|date',
             'start_time' => 'required',
-            'end_time' => 'required',
             'involved_institution' => 'nullable|string',
             'notes' => 'nullable|string',
         ]);
 
         $agenda = Agenda::findOrFail($id);
-        
+
         // Jika agenda ditolak dan user biasa yang edit, ubah status kembali ke pending
         $isUserEditingRejected = Auth::user()->role !== 'admin' && $agenda->status === 'rejected';
-        
+
         $agenda->update($validated);
-        
+
         // Jika user biasa edit agenda yang ditolak, ubah status ke pending
         if ($isUserEditingRejected) {
             $agenda->status = 'pending';

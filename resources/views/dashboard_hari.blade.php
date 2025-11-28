@@ -128,7 +128,7 @@
                 }
 
                 // 🔥 Ambil dan render event dari server
-                async function renderDayEvents() {
+                window.renderDayEvents = async function() {
                     const dayColumn = document.querySelector('.day-column');
                     if (!dayColumn) return;
 
@@ -155,7 +155,8 @@
                         if (!isFinite(duration) || duration <= 0) duration = 30;
 
                         const pxPerMinute = 1;
-                        const top = start.getHours() * 60 * pxPerMinute + start.getMinutes() * pxPerMinute;
+                        const top = start.getHours() * 60 * pxPerMinute + start.getMinutes() *
+                            pxPerMinute;
                         const height = Math.max(duration * pxPerMinute, 24);
                         const bottom = top + height;
 
@@ -270,7 +271,8 @@
                             const groupStart = Math.min(...groupEvents.map(e => e.startMinutes));
                             const groupEnd = Math.max(...groupEvents.map(e => e.endMinutes));
                             const groupTop = groupStart * 1; // 1px per menit
-                            const groupHeight = Math.max((groupEnd - groupStart) * 1, 30); // minimal 30px
+                            const groupHeight = Math.max((groupEnd - groupStart) * 1,
+                            30); // minimal 30px
 
                             eventGroups.push({
                                 events: groupEvents,
@@ -304,10 +306,12 @@
                         if (group.isGroup && group.events.length > 1) {
                             // Render sebagai grup (badge dengan jumlah kegiatan)
                             const layout = group.layouts[0];
-                            const isPublic = group.events.some(e => e.is_public == 1 || e.is_public === true);
+                            const isPublic = group.events.some(e => e.is_public == 1 || e.is_public ===
+                                true);
 
                             // Gunakan warna berdasarkan kategori mayoritas
-                            const publicCount = group.events.filter(e => e.is_public == 1 || e.is_public === true).length;
+                            const publicCount = group.events.filter(e => e.is_public == 1 || e
+                                .is_public === true).length;
                             const privateCount = group.events.length - publicCount;
                             const usePublicColor = publicCount >= privateCount;
 
@@ -331,8 +335,10 @@
                             const startMin = group.startMinutes % 60;
                             const endHour = Math.floor(group.endMinutes / 60);
                             const endMin = group.endMinutes % 60;
-                            const startTimeStr = `${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`;
-                            const endTimeStr = `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`;
+                            const startTimeStr =
+                                `${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`;
+                            const endTimeStr =
+                                `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`;
 
                             eventEl.innerHTML = `
                                 <div class="event-content">
@@ -378,7 +384,8 @@
                             // Tambahkan event listener untuk click
                             eventEl.addEventListener('click', function() {
                                 const agendaId = eventEl.dataset.agendaId;
-                                const agendaData = JSON.parse(eventEl.dataset.agendaData || '{}');
+                                const agendaData = JSON.parse(eventEl.dataset.agendaData ||
+                                    '{}');
 
                                 // Jika ada ID, ambil detail dari server
                                 if (agendaId && !agendaData.is_external) {
@@ -492,7 +499,8 @@
                     sortedAgendaList.forEach((item, index) => {
                         const timeText = (item.start_time && item.end_time) ?
                             `${item.start_time.slice(0, 5)} - ${item.end_time.slice(0, 5)}` :
-                            (item.end_time ? item.end_time.slice(0, 5) : (item.start_time ? item.start_time.slice(0, 5) : '-'));
+                            (item.end_time ? item.end_time.slice(0, 5) : (item.start_time ? item.start_time
+                                .slice(0, 5) : '-'));
 
                         const isPublic = item.is_public == 1 || item.is_public === true;
                         const badgeColor = isPublic ? '#A8E6A3' : '#FFB67E';
@@ -543,7 +551,8 @@
                             const agendaData = sortedAgendaList[index];
 
                             // Tutup modal grup
-                            const modal = bootstrap.Modal.getInstance(document.getElementById('agendaGroupModal'));
+                            const modal = bootstrap.Modal.getInstance(document.getElementById(
+                                'agendaGroupModal'));
                             if (modal) modal.hide();
 
                             // Buka modal detail agenda
@@ -972,7 +981,8 @@
                         return;
                     }
 
-                    const existsInList = listItems.some(li => li.getAttribute('data-value').toLowerCase() === cleanName.toLowerCase());
+                    const existsInList = listItems.some(li => li.getAttribute('data-value').toLowerCase() === cleanName
+                        .toLowerCase());
                     const existsInSelected = selectedValues.some(val => val.toLowerCase() === cleanName.toLowerCase());
 
                     if (existsInList || existsInSelected) {
@@ -1018,9 +1028,9 @@
                     });
 
                     if (!lower || listItems.some(li => {
-                        const text = li.querySelector('.item-text').textContent.toLowerCase();
-                        return text.includes(lower);
-                    })) {
+                            const text = li.querySelector('.item-text').textContent.toLowerCase();
+                            return text.includes(lower);
+                        })) {
                         selectAllOption.style.display = 'flex';
                     } else {
                         selectAllOption.style.display = 'none';
