@@ -15,6 +15,25 @@
     z-index: 11001 !important;
 }
 
+.close-modal {
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    color: #6b7280;
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.3s ease;
+}
+
+.close-modal:hover {
+    color: #82A98D;
+    transform: rotate(90deg);
+}
+
+.modal-header .close-modal {
+    margin-left: auto;
+    padding: 4px 8px;
+}
+
 .calendar-content-wrapper {
     display: flex;
     gap: 20px;
@@ -195,11 +214,25 @@
 }
 
 .event-item.orange {
-    background: #ff9800;
+    background-color: #FFB67E;
+    color: #3b2e1a;
 }
 
 .event-item.green {
-    background: #4caf50;
+    background-color: #A8E6A3;
+    color: #234522;
+}
+
+.event-item.event-group {
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.event-item.event-group:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .event-title {
@@ -212,6 +245,26 @@
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     width: 100%;
+}
+
+.event-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    width: 100%;
+}
+
+.event-content .event-title {
+    width: auto;
+    -webkit-line-clamp: 1;
+}
+
+.event-time {
+    font-size: 11px;
+    color: #000000;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 /* Day View Header - using consistent calendar header styles */
@@ -549,16 +602,31 @@
 .modal-body .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    row-gap: 6px;
-    column-gap: 14px;
+    row-gap: 20px;
+    column-gap: 30px;
+    align-items: start;
 }
 
 .modal-body .input-group {
     margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }
 
 .modal-body .input-group:last-child {
     margin-bottom: 0;
+}
+
+.modal-body .form-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: stretch;
+}
+
+.modal-body .fullwidth-group {
+    grid-column: 1 / -1;
 }
 
 .modal-body .input-group label {

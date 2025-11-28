@@ -1,24 +1,31 @@
 /* Struktur utama modal */
-#createAgendaModal .form-grid {
+#createAgendaModal .form-grid,
+#createAgendaModalHari .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 40px; /* jarak antar kolom kiri-kanan */
+    gap: 30px; /* jarak antar kolom kiri-kanan */
+    align-items: start;
 }
 
 /* Setiap kolom form */
-#createAgendaModal .form-column {
+#createAgendaModal .form-column,
+#createAgendaModalHari .form-column {
     display: flex;
     flex-direction: column;
     gap: 20px; /* jarak antar input di satu kolom */
+    align-items: stretch;
 }
 
 /* Setiap input group */
-#createAgendaModal .input-group {
+#createAgendaModal .input-group,
+#createAgendaModalHari .input-group {
     display: flex;
     flex-direction: column;
+    width: 100%;
 }
 
-#createAgendaModal .input-group label {
+#createAgendaModal .input-group label,
+#createAgendaModalHari .input-group label {
     font-weight: 600;
     color: #2f5233;
     margin-bottom: 6px;
@@ -30,24 +37,51 @@
 
 /* Input dan textarea */
 #createAgendaModal input,
-#createAgendaModal textarea {
+#createAgendaModal textarea,
+#createAgendaModalHari input,
+#createAgendaModalHari textarea {
     border: 1px solid #d6e0d9;
     border-radius: 10px;
     padding: 10px 12px;
     font-size: 14px;
     background-color: #f9faf9;
     transition: all 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 #createAgendaModal input:focus,
-#createAgendaModal textarea:focus {
+#createAgendaModal textarea:focus,
+#createAgendaModalHari input:focus,
+#createAgendaModalHari textarea:focus {
+    outline: none;
+    border-color: #4c7a57;
+    box-shadow: 0 0 4px rgba(76, 122, 87, 0.3);
+}
+
+/* Select styling */
+#createAgendaModal select,
+#createAgendaModalHari select {
+    border: 1px solid #d6e0d9;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 14px;
+    background-color: #f9faf9;
+    transition: all 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#createAgendaModal select:focus,
+#createAgendaModalHari select:focus {
     outline: none;
     border-color: #4c7a57;
     box-shadow: 0 0 4px rgba(76, 122, 87, 0.3);
 }
 
 /* Tombol submit */
-#createAgendaModal .btn-primary {
+#createAgendaModal .btn-primary,
+#createAgendaModalHari .btn-primary {
     background-color: #4c7a57;
     color: white;
     border: none;
@@ -60,12 +94,14 @@
     width: 100%;
 }
 
-#createAgendaModal .btn-primary:hover {
+#createAgendaModal .btn-primary:hover,
+#createAgendaModalHari .btn-primary:hover {
     background-color: #3f674b;
 }
 
 /* Header styling */
-#createAgendaModal .agenda-title {
+#createAgendaModal .agenda-title,
+#createAgendaModalHari .agenda-title {
     font-size: 22px;
     font-weight: 700;
     color: #35543d;
@@ -75,30 +111,373 @@
     justify-content: center;
 }
 
-#createAgendaModal .agenda-subtitle {
+#createAgendaModal .agenda-subtitle,
+#createAgendaModalHari .agenda-subtitle {
     font-size: 15px;
     color: #6b7c6e;
     margin-top: 4px;
 }
 
 /* Scrollbar dalam modal */
-#createAgendaModal::-webkit-scrollbar {
+#createAgendaModal::-webkit-scrollbar,
+#createAgendaModalHari::-webkit-scrollbar {
     width: 8px;
 }
 
-#createAgendaModal::-webkit-scrollbar-thumb {
+#createAgendaModal::-webkit-scrollbar-thumb,
+#createAgendaModalHari::-webkit-scrollbar-thumb {
     background-color: #cfd8d2;
     border-radius: 8px;
 }
 
 /* Full width group */
-#createAgendaModal .fullwidth-group {
+#createAgendaModal .fullwidth-group,
+#createAgendaModalHari .fullwidth-group {
     grid-column: 1 / -1;
+}
+
+/* Form submit container */
+#createAgendaModal .form-submit,
+#createAgendaModalHari .form-submit {
+    grid-column: 1 / -1;
+    margin-top: 10px;
+}
+
+/* Chips Multiselect Styles */
+.chips-multiselect {
+    position: relative;
+    width: 100%;
+    border: 2px solid #d6e0d9;
+    border-radius: 12px;
+    background: #f8faf9;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px 8px;
+    padding: 7px 36px 7px 12px;
+    transition: all 0.25s ease;
+    min-height: 44px;
+    box-sizing: border-box;
+}
+
+.chips-multiselect:focus-within,
+.chips-multiselect.open {
+    border-color: #6E9579;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(110, 149, 121, 0.15);
+}
+
+.chips-container {
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    align-items: center !important;
+    gap: 6px 8px;
+    background: transparent;
+    border: none;
+    padding: 0 !important;
+    min-height: 24px;
+}
+
+.chips-selected {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 8px;
+    align-items: center;
+}
+
+.chips-arrow {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.9rem;
+    color: #6E9579;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: transform 0.25s ease;
+    z-index: 1;
+}
+
+.chips-multiselect.open .chips-arrow {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.chip {
+    background: #eaf7f0;
+    border: 1px solid #cde6d3;
+    color: #2f4737;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    padding: 5px 10px;
+    margin: 2px 0;
+    line-height: 1.5;
+    transition: all 0.2s ease;
+}
+
+.chip-remove {
+    background: transparent;
+    border: none;
+    color: #2f4737;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 4px;
+    line-height: 1;
+}
+
+.chip-remove:hover {
+    color: #6E9579;
+    transform: scale(1.2);
+}
+
+.chips-input {
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    flex: 1;
+    min-width: 100px;
+    font-size: 0.95rem;
+    color: #2f4737;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+
+.chips-input[style*="display: none"] {
+    width: 0;
+    height: 0;
+    padding: 0;
+    margin: 0;
+}
+
+.chips-multiselect.empty .chips-input {
+    color: #7b8c81;
+}
+
+.chips-dropdown {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 2px solid #d6e0d9;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    display: none;
+    z-index: 10003;
+    overflow: hidden;
+}
+
+.chips-dropdown.open {
+    display: block;
+    animation: fadeIn 0.2s ease;
+}
+
+.chips-search {
+    padding: 12px 14px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f8fafc;
+}
+
+.chips-search-input {
+    width: 100%;
+    border: 1px solid #d1d5db !important;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+    background: #fff !important;
+    font-size: 0.9rem !important;
+    color: #374151 !important;
+    transition: all 0.2s ease !important;
+    box-sizing: border-box;
+}
+
+.chips-search-input:focus {
+    border-color: #6E9579 !important;
+    box-shadow: 0 0 0 3px rgba(110, 149, 121, 0.15) !important;
+    outline: none !important;
+}
+
+.chips-dropdown ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.chips-dropdown li {
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.chips-dropdown li:last-child {
+    border-bottom: none;
+}
+
+.chips-dropdown li:hover {
+    background: #f3f7f4;
+    color: #2f4737;
+}
+
+.chips-dropdown li.select-all-option {
+    font-weight: 600;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.chips-dropdown li.select-all-option:hover {
+    background: #eef2f5;
+}
+
+.chips-dropdown li.select-all-option.selected {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.chips-dropdown li.dropdown-item {
+    font-weight: 400;
+}
+
+.chips-dropdown li.dropdown-item.selected {
+    background: #f0f7f2;
+    color: #2f4737;
+}
+
+.chips-dropdown li.dropdown-item.selected:hover {
+    background: #e8efe9;
+}
+
+.check-icon {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #cbd5e0;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    background: #fff;
+}
+
+.check-icon.checked {
+    background: #6E9579;
+    border-color: #6E9579;
+}
+
+.check-icon.checked::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: #fff;
+    border-radius: 50%;
+    display: block;
+}
+
+.item-text {
+    flex: 1;
+    font-size: 0.9rem;
+}
+
+.checkmark-icon {
+    color: #6E9579;
+    font-size: 0.85rem;
+    margin-left: auto;
+    display: none;
+    flex-shrink: 0;
+}
+
+.chips-dropdown li.selected .checkmark-icon {
+    display: inline-block;
+}
+
+.chips-add-new-input-container {
+    padding: 10px 12px;
+    border-top: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.chips-add-new-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #6b8f71;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.chips-add-confirm-btn,
+.chips-add-cancel-btn {
+    flex: 1;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.chips-add-confirm-btn {
+    background: #6b8f71;
+    color: white;
+}
+
+.chips-add-confirm-btn:hover {
+    background: #5a7a5f;
+}
+
+.chips-add-cancel-btn {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.chips-add-cancel-btn:hover {
+    background: #d1d5db;
+}
+
+.add-new-instansi-option {
+    padding: 10px 12px;
+    cursor: pointer;
+    border-top: 1px solid #e5e7eb;
+    color: #6b8f71;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    list-style: none;
+}
+
+.add-new-instansi-option:hover {
+    background: #f3f7f4;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Responsive biar aman di layar kecil */
 @media (max-width: 768px) {
-    #createAgendaModal .form-grid {
+    #createAgendaModal .form-grid,
+    #createAgendaModalHari .form-grid {
         grid-template-columns: 1fr;
         gap: 25px;
     }
