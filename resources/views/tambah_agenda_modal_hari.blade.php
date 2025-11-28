@@ -1,8 +1,18 @@
 <div class="modal-overlay" id="createAgendaModalHari" style="display: none;">
-    <div class="modal-content">
-        <h2 class="modal-title">Tambah Agenda</h2>
+    <div class="modal-container">
+        <div class="modal-header">
+            <div class="modal-title">
+                <i class="fas fa-calendar-plus"></i>
+                <span>Buat Agenda Baru</span>
+            </div>
+            <button class="modal-close" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
 
-        <form id="createAgendaFormHari" action="{{ route('agenda.store') }}" method="POST">
+        <div class="modal-body">
+            <form id="createAgendaFormHari" action="{{ route('agenda.store') }}" method="POST"
+                onsubmit="return handleFormSubmit(event)">
             @csrf
 
             <div class="form-grid">
@@ -116,11 +126,12 @@
                 </div>
             </div>
 
-            <div class="form-submit">
-                <button type="submit" class="btn-primary">
-                    <i class="fas fa-paper-plane"></i> Ajukan Agenda
-                </button>
-            </div>
-        </form>
+                <div class="form-submit">
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-paper-plane"></i> Ajukan Agenda
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
