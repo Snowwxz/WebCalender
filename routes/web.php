@@ -6,6 +6,7 @@ use App\Http\Controllers\LandingController;
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\ApproveController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AgendaSyncController;
 use App\Http\Controllers\UnitController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -26,6 +27,9 @@ Route::get('/hari', function (Request $request) {
 });
 
 Route::get('/tahun', fn() => view('landing_tahun'))->name('landing.tahun');
+
+// this is api from the institute
+Route::get('/sync-agenda', [AgendaSyncController::class, 'sync']);
 
 Route::get('/bulan', function (Request $request) {
     $bulanIndex = $request->query('bulan', null);

@@ -288,10 +288,10 @@ class AgendaController extends Controller
         $agenda = Agenda::findOrFail($id_agenda);
         $units = Unit::orderBy('unit_name', 'asc')->get();
 
-        $user = Auth::user();
+        // Ambil unit dari user yang membuat agenda (bukan user yang sedang login)
         $unitName = null;
-        if ($user && $user->id_unit) {
-            $unit = Unit::find($user->id_unit);
+        if ($agenda->id_unit) {
+            $unit = Unit::find($agenda->id_unit);
             $unitName = $unit ? $unit->unit_name : null;
         }
 
@@ -328,7 +328,18 @@ class AgendaController extends Controller
         ]);
 
         $agenda = Agenda::findOrFail($id);
+        
+        // Jika agenda ditolak dan user biasa yang edit, ubah status kembali ke pending
+        $isUserEditingRejected = Auth::user()->role !== 'admin' && $agenda->status === 'rejected';
+        
         $agenda->update($validated);
+        
+        // Jika user biasa edit agenda yang ditolak, ubah status ke pending
+        if ($isUserEditingRejected) {
+            $agenda->status = 'pending';
+            $agenda->approved_by = null; // Reset approved_by karena status kembali pending
+            $agenda->save();
+        }
 
         // Reload agenda untuk mendapatkan data terbaru
         $agenda->refresh();
