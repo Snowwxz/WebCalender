@@ -11,8 +11,8 @@
                 </h5>
 
                 <!-- Tombol Close -->
-                <button type="button" class="close-modal" data-bs-dismiss="modal" aria-label="Close">
-                    <i class="fas fa-times"></i>
+                <button type="button" class="close-modal" data-bs-dismiss="modal" aria-label="Tutup">
+                    <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 

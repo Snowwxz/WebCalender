@@ -68,7 +68,7 @@
         </div>
 
         <div class="right-section">
-            <img src="{{ asset('images/calendar (2).png') }}" alt="Calendar Illustration">
+            <img src="{{ asset('images/calendar.png') }}" alt="Calendar Illustration">
         </div>
     </div>
 

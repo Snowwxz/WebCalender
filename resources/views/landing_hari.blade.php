@@ -5,6 +5,7 @@
 @endpush
 
 @section('content')
+    @include('show_agenda_modal_landing')
     <div class="calendar-page">
         <div class="calendar-content-wrapper">
             <!-- Mini Calendar di Kiri -->
@@ -141,7 +142,7 @@
                 items.forEach(event => {
                     const eventEl = document.createElement('div');
                     eventEl.classList.add('event-item');
-                    eventEl.style.backgroundColor = '#3a7bd5';
+                    eventEl.classList.add('green');
 
                     const startTimeStr = event.start_time && /^\d{2}:\d{2}/.test(event.start_time) ? event.start_time : '08:00:00';
                     const endTimeStr = event.end_time && /^\d{2}:\d{2}/.test(event.end_time) ? event.end_time : '09:00:00';
@@ -158,10 +159,25 @@
                     eventEl.style.top = `${top}px`;
                     eventEl.style.height = `${height}px`;
                     eventEl.innerHTML = `
-                        <strong>${event.agenda_name || 'Agenda'}</strong><br>
-                        <small>${startTimeStr.slice(0,5)} - ${endTimeStr.slice(0,5)}</small>
+                        <div class="event-content">
+                            <div class="event-title">${event.agenda_name || 'Agenda'}</div>
+                            <div class="event-time">${startTimeStr.slice(0,5)} - ${endTimeStr.slice(0,5)}</div>
+                        </div>
                     `;
-
+                    eventEl.addEventListener('click', function() {
+                        openShowAgendaModal({
+                            agenda_name: event.agenda_name,
+                            description: event.description,
+                            date: `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`,
+                            start_time: startTimeStr,
+                            end_time: endTimeStr,
+                            location: event.location,
+                            unit: event.unit,
+                            involved_institution: event.involved_institution,
+                            is_public: event.is_public,
+                            notes: event.notes
+                        });
+                    });
                     dayColumn.appendChild(eventEl);
                 });
             } catch (e) {
@@ -183,5 +199,44 @@
             updateDayDisplay();
             renderDayEvents();
         });
+
+        function openShowAgendaModal(data) {
+            function formatDate(dateString) {
+                if (!dateString) return "-";
+                const date = new Date(dateString);
+                const options = { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' };
+                return date.toLocaleDateString('id-ID', options);
+            }
+
+            document.getElementById('showAgendaName').innerText = data.agenda_name || 'Agenda';
+            document.getElementById('showAgendaDesc').innerText = data.description || '-';
+            document.getElementById('showAgendaDate').innerText = formatDate(data.date);
+
+            const timeText = (data.start_time && data.end_time)
+                ? `${data.start_time.slice(0,5)} - ${data.end_time.slice(0,5)}`
+                : (data.end_time ? data.end_time.slice(0,5) : (data.start_time ? data.start_time.slice(0,5) : '-'));
+            document.getElementById('showAgendaTime').innerText = timeText;
+
+            document.getElementById('showAgendaLocation').innerText = data.location || '-';
+
+            const unitName = (data.unit && data.unit.unit_name) ? data.unit.unit_name : '-';
+            const unitEl = document.getElementById('showAgendaUnit');
+            if (unitEl) unitEl.innerText = unitName;
+
+            const involvedEl = document.getElementById('showAgendaInvolved');
+            if (involvedEl) involvedEl.innerText = data.involved_institution || '-';
+
+            const accessEl = document.getElementById('showAgendaAccess');
+            if (accessEl) {
+                const isPublic = data.is_public == 1 || data.is_public === true;
+                accessEl.innerText = isPublic ? 'Publik' : 'Privasi';
+            }
+
+            const notesEl = document.getElementById('showAgendaNotes');
+            if (notesEl) notesEl.innerText = data.notes || '-';
+
+            const modal = new bootstrap.Modal(document.getElementById('showAgendaModal'));
+            modal.show();
+        }
     </script>
 @endsection

@@ -141,7 +141,7 @@
                     const eventLayouts = [];
                     events.forEach(event => {
                         // Cari semua event yang sudah di-assign dan overlap dengan event ini
-                        const overlappingLayouts = eventLayouts.filter(layout => 
+                        const overlappingLayouts = eventLayouts.filter(layout =>
                             eventsOverlap(layout.event, event)
                         );
 
@@ -163,20 +163,20 @@
 
                     // Pass 2: Hitung totalColumns untuk setiap grup overlap
                     events.forEach((event, index) => {
-                        const overlappingEvents = events.filter(e => 
+                        const overlappingEvents = events.filter(e =>
                             e !== event && eventsOverlap(e, event)
                         );
-                        
+
                         if (overlappingEvents.length > 0) {
                             // Semua event dalam grup overlap ini
                             const allInGroup = [event, ...overlappingEvents];
-                            
+
                             // Cari kolom maksimum yang digunakan oleh grup ini
                             const maxCol = Math.max(...allInGroup.map(oe => {
                                 const idx = events.indexOf(oe);
                                 return idx >= 0 ? eventLayouts[idx].column : 0;
                             })) + 1;
-                            
+
                             // Update totalColumns untuk semua event dalam grup
                             allInGroup.forEach(oe => {
                                 const idx = events.indexOf(oe);
@@ -192,7 +192,8 @@
                         const { event, column, totalColumns } = layout;
                         const eventEl = document.createElement('div');
                         eventEl.classList.add('event-item');
-                        eventEl.style.backgroundColor = event.color || '#3a7bd5';
+                        const isPublic = event.is_public == 1 || event.is_public === true;
+                        eventEl.classList.add(isPublic ? 'green' : 'orange');
 
                         // Hitung lebar dan posisi kiri berdasarkan kolom dengan gap yang lebih jelas
                         const gapPercent = 1.5; // gap 1.5% antar kolom untuk jarak yang lebih jelas
@@ -208,21 +209,23 @@
                         eventEl.style.height = `${Math.max(event.height - verticalGap, 20)}px`;
                         eventEl.style.left = `${leftPercent}%`;
                         eventEl.style.width = `${widthPercent}%`;
-                        
+
                         // Simpan ID agenda dan data lengkap untuk modal
                         eventEl.dataset.agendaId = event.id_agenda || event.id || null;
                         eventEl.dataset.agendaData = JSON.stringify(event);
-                        
-                        // Hanya tampilkan nama agenda
+
                         eventEl.innerHTML = `
-                    <div class="event-title">${event.title || event.agenda_name || 'Agenda'}</div>
-                `;
+                            <div class="event-content">
+                                <div class="event-title">${event.title || event.agenda_name || 'Agenda'}</div>
+                                <div class="event-time">${event.startTimeStr.slice(0, 5)} - ${event.endTimeStr.slice(0, 5)}</div>
+                            </div>
+                        `;
 
                         // Tambahkan event listener untuk click
                         eventEl.addEventListener('click', function() {
                             const agendaId = eventEl.dataset.agendaId;
                             const agendaData = JSON.parse(eventEl.dataset.agendaData || '{}');
-                            
+
                             // Jika ada ID, ambil detail dari server
                             if (agendaId && !agendaData.is_external) {
                                 fetch(`/dashboard/agenda/${agendaId}`)
