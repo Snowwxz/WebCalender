@@ -1489,23 +1489,23 @@
 }
 
 #agendaSidebar .close-sidebar {
-    background: rgba(255, 255, 255, 0.2);
+    background: transparent;
     border: none;
-    font-size: 20px;
+    font-size: 22px;
     color: #ffffff;
     cursor: pointer;
-    padding: 5px;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    display: flex;
+    padding: 4px 8px;
+    border-radius: 0;
+    width: auto;
+    height: auto;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    transition: color 0.2s ease, transform 0.3s ease;
 }
 
 #agendaSidebar .close-sidebar:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: transparent;
     color: #ffffff;
     transform: rotate(90deg);
 }
@@ -1840,8 +1840,8 @@
 
 .circle-close-btn:hover,
 .circle-close-btn:active {
-    background-color: #EEF2EF;
-    transform: scale(1.05);
+    background-color: transparent;
+    transform: none;
 }
 
 .close-modal {

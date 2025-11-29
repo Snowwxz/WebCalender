@@ -147,9 +147,9 @@
     function toggleNotificationDropdown() {
         const dropdown = document.getElementById('notificationDropdown');
         const isOpen = dropdown.classList.contains('show');
-        
+
         dropdown.classList.toggle('show');
-        
+
         // Jika dropdown dibuka, load notifikasi
         if (!isOpen) {
             loadNotifications();
@@ -166,21 +166,21 @@
                 if (data.notifications && data.notifications.length > 0) {
                     let html = '';
                     data.notifications.forEach(notif => {
-                        const statusText = notif.status === 'approved' ? 'Disetujui' : 
+                        const statusText = notif.status === 'approved' ? 'Disetujui' :
                                          notif.status === 'rejected' ? 'Ditolak' : 'Menunggu';
-                        const statusClass = notif.status === 'approved' ? 'approved' : 
+                        const statusClass = notif.status === 'approved' ? 'approved' :
                                           notif.status === 'rejected' ? 'rejected' : 'pending';
-                        const icon = notif.status === 'approved' ? 'fa-check-circle' : 
+                        const icon = notif.status === 'approved' ? 'fa-check-circle' :
                                    notif.status === 'rejected' ? 'fa-times-circle' : 'fa-clock';
                         const date = new Date(notif.updated_at || notif.created_at);
-                        const dateStr = date.toLocaleDateString('id-ID', { 
-                            day: 'numeric', 
-                            month: 'short', 
+                        const dateStr = date.toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'short',
                             year: 'numeric',
                             hour: '2-digit',
                             minute: '2-digit'
                         });
-                        
+
                         html += `
                             <div class="notification-item ${statusClass}" onclick="window.location.href='${notificationRoute}'">
                                 <div class="notification-icon">

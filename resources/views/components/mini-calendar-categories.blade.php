@@ -5,18 +5,20 @@
 <style>
     /* Segmented tabs style to match the provided design */
     .content-nav-tabs {
-        display: flex; /* block-level so auto margins work */
+        display: flex;
         align-items: center;
-        justify-content: flex-start;
+        justify-content: center;
         gap: 10px;
         background: #ffffff;
-        padding: 6px 8px; /* more compact */
+        padding: 6px 8px;
         border-radius: 20px;
         box-shadow: 0 6px 14px rgba(2, 6, 23, 0.06);
         border: 1px solid #e9eef3;
-        width: fit-content; /* intrinsic width */
-        margin: 0 auto 10px; /* center horizontally */
-        transform: translateX(-8px); /* slight visual nudge to the left */
+        width: fit-content;
+        margin: 0 auto 10px;
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
     }
 
     .content-nav-tab {
@@ -531,4 +533,3 @@
         })();
     </script>
 @endonce
-

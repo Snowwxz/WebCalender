@@ -12,12 +12,17 @@
 }
 
 .profile-header .header-left {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 16px;
 }
 
 .back-btn {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -34,6 +39,8 @@
 
 .header-title {
     flex: 1;
+    margin: 0 auto;
+    text-align: center;
 }
 
 .page-title {
@@ -757,5 +764,4 @@
         margin: 20px;
     }
 }
-
 
