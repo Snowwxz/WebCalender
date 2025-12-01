@@ -16,7 +16,7 @@ class AgendaController extends Controller
 {
     /**
      * Helper method untuk transform dan format agenda eksternal agar sama seperti agenda lokal
-     * 
+     *
      * @param array $externalAgenda
      * @param ExternalAgendaService $externalService
      * @return array
@@ -24,14 +24,14 @@ class AgendaController extends Controller
     protected function transformExternalAgenda($externalAgenda, $externalService)
     {
         $transformed = $externalService->transformToLocalFormat($externalAgenda);
-        
+
         // Set id_agenda untuk kompatibilitas (gunakan format yang mirip dengan local)
         $transformed['id_agenda'] = 'ext_' . ($externalAgenda['id'] ?? uniqid());
-        
+
         // JANGAN set is_external atau source - biarkan seperti agenda biasa
         // $transformed['is_external'] = true; // DIHAPUS
         // $transformed['source'] = 'external'; // DIHAPUS
-        
+
         // Ensure date is in correct format (Y-m-d string)
         if (isset($transformed['date'])) {
             try {
@@ -47,7 +47,7 @@ class AgendaController extends Controller
                 }
             }
         }
-        
+
         // Ensure unit structure is consistent (sama seperti agenda lokal)
         if (!isset($transformed['unit'])) {
             $transformed['unit'] = null;
@@ -55,7 +55,7 @@ class AgendaController extends Controller
             // Pastikan struktur unit sama dengan agenda lokal
             // Unit sudah di-set di transformToLocalFormat, pastikan formatnya konsisten
         }
-        
+
         // Add empty relations for compatibility with local agendas
         if (!isset($transformed['user'])) {
             $transformed['user'] = null;
@@ -63,7 +63,7 @@ class AgendaController extends Controller
         if (!isset($transformed['approver'])) {
             $transformed['approver'] = null;
         }
-        
+
         // Convert Carbon dates to strings for JSON encoding
         if (isset($transformed['created_at']) && is_object($transformed['created_at'])) {
             $transformed['created_at'] = $transformed['created_at']->toDateTimeString();
@@ -71,17 +71,17 @@ class AgendaController extends Controller
         if (isset($transformed['updated_at']) && is_object($transformed['updated_at'])) {
             $transformed['updated_at'] = $transformed['updated_at']->toDateTimeString();
         }
-        
+
         // Ensure status is set (sama seperti agenda lokal yang approved)
         if (!isset($transformed['status'])) {
             $transformed['status'] = 'approved';
         }
-        
+
         // Ensure is_public is set (agenda eksternal selalu publik, sama seperti agenda lokal publik)
         if (!isset($transformed['is_public'])) {
             $transformed['is_public'] = 1;
         }
-        
+
         return $transformed;
     }
 
@@ -151,22 +151,22 @@ class AgendaController extends Controller
             unset($item['source']);
             return $item;
         }, $mergedAgendas);
-        
+
         // Sort by date and time for consistency
         usort($mergedAgendas, function ($a, $b) {
             $dateA = $a['date'] ?? '';
             $dateB = $b['date'] ?? '';
-            
+
             if ($dateA !== $dateB) {
                 return strcmp($dateA, $dateB);
             }
-            
+
             $timeA = $a['start_time'] ?? $a['end_time'] ?? '';
             $timeB = $b['start_time'] ?? $b['end_time'] ?? '';
-            
+
             return strcmp($timeA, $timeB);
         });
-        
+
         $agenda = collect($mergedAgendas);
         $units = Unit::orderBy('unit_name', 'asc')->get();
 
@@ -236,17 +236,17 @@ class AgendaController extends Controller
             if ($request->wantsJson() || $request->ajax()) {
                 // Load relasi untuk response
                 $agenda->load('unit', 'user');
-                
+
                 // Format agenda untuk response
                 $agendaData = $agenda->toArray();
                 $agendaData['date'] = $agenda->date->format('Y-m-d');
                 if ($agenda->start_time) {
                     $agendaData['start_time'] = \Carbon\Carbon::parse($agenda->start_time)->format('H:i:s');
                 }
-                if ($agenda->end_time) {
+                if (!empty($agenda->end_time)) {
                     $agendaData['end_time'] = \Carbon\Carbon::parse($agenda->end_time)->format('H:i:s');
                 }
-                
+
                 return response()->json([
                     'success' => true,
                     'agenda' => $agendaData,
@@ -298,7 +298,9 @@ class AgendaController extends Controller
         // format agar cocok input HTML
         $agenda->date = \Carbon\Carbon::parse($agenda->date)->format('Y-m-d');
         $agenda->start_time = \Carbon\Carbon::parse($agenda->start_time)->format('H:i');
-        $agenda->end_time = \Carbon\Carbon::parse($agenda->end_time)->format('H:i');
+        if (!empty($agenda->end_time) && preg_match('/^\d{2}:\d{2}/', $agenda->end_time)) {
+            $agendaData['end_time'] = \Carbon\Carbon::parse($agenda->end_time)->format('H:i:s');
+        }
 
         return view('agenda_edit', compact('agenda', 'units', 'unitName'));
     }
@@ -322,18 +324,17 @@ class AgendaController extends Controller
             'location' => 'nullable|string',
             'date' => 'required|date',
             'start_time' => 'required',
-            'end_time' => 'required',
             'involved_institution' => 'nullable|string',
             'notes' => 'nullable|string',
         ]);
 
         $agenda = Agenda::findOrFail($id);
-        
+
         // Jika agenda ditolak dan user biasa yang edit, ubah status kembali ke pending
         $isUserEditingRejected = Auth::user()->role !== 'admin' && $agenda->status === 'rejected';
-        
+
         $agenda->update($validated);
-        
+
         // Jika user biasa edit agenda yang ditolak, ubah status ke pending
         if ($isUserEditingRejected) {
             $agenda->status = 'pending';
@@ -415,7 +416,7 @@ class AgendaController extends Controller
 
             if (Auth::user()->role !== 'admin') {
                 return response()->json([
-                    'success' => false, 
+                    'success' => false,
                     'message' => 'Tidak memiliki izin menolak agenda.'
                 ], 403);
             }
@@ -668,7 +669,7 @@ class AgendaController extends Controller
             ->where(function ($q) use ($userId, $userUnitName) {
                 // Agenda publik
                 $q->where('is_public', 1);
-                
+
                 // Agenda privasi milik user
                 $q->orWhere(function ($subQ) use ($userId) {
                     $subQ->where('is_public', 0)
@@ -706,14 +707,14 @@ class AgendaController extends Controller
         usort($mergedAgendas, function ($a, $b) {
             $dateA = $a['date'] ?? '';
             $dateB = $b['date'] ?? '';
-            
+
             if ($dateA !== $dateB) {
                 return strcmp($dateA, $dateB);
             }
-            
+
             $timeA = $a['start_time'] ?? $a['end_time'] ?? '';
             $timeB = $b['start_time'] ?? $b['end_time'] ?? '';
-            
+
             return strcmp($timeA, $timeB);
         });
 
@@ -1106,7 +1107,7 @@ class AgendaController extends Controller
 
     /**
      * ✅ Fetch agendas from external API
-     * 
+     *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -1114,7 +1115,7 @@ class AgendaController extends Controller
     {
         try {
             $externalService = new ExternalAgendaService();
-            
+
             $year = $request->query('year');
             $month = $request->query('month');
             $date = $request->query('date');
@@ -1162,7 +1163,7 @@ class AgendaController extends Controller
 
     /**
      * ✅ Get merged agendas (local + external)
-     * 
+     *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -1233,14 +1234,14 @@ class AgendaController extends Controller
             usort($mergedAgendas, function ($a, $b) {
                 $dateA = $a['date'] ?? '';
                 $dateB = $b['date'] ?? '';
-                
+
                 if ($dateA !== $dateB) {
                     return strcmp($dateA, $dateB);
                 }
-                
+
                 $timeA = $a['start_time'] ?? $a['end_time'] ?? '';
                 $timeB = $b['start_time'] ?? $b['end_time'] ?? '';
-                
+
                 return strcmp($timeA, $timeB);
             });
 
@@ -1267,14 +1268,14 @@ class AgendaController extends Controller
 
     /**
      * ✅ Get external agendas by date (for dashboard)
-     * 
+     *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function getExternalAgendasByDate(Request $request)
     {
         $date = $request->input('date');
-        
+
         if (!$date) {
             return response()->json([
                 'success' => false,

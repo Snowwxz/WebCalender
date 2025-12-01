@@ -94,10 +94,6 @@
                         <i class="fas fa-user"></i>
                         <span>Profile</span>
                     </div>
-                    <div class="dropdown-item" onclick="window.location.href='{{ route('profile.edit') }}'">
-                        <i class="fas fa-cog"></i>
-                        <span>Settings</span>
-                    </div>
                     <div class="dropdown-divider"></div>
                     <form method="POST" action="{{ route('logout') }}" class="dropdown-form">
                         @csrf
