@@ -7,6 +7,7 @@
 
     @section('content')
         @include('tambah_agenda_modal_hari')
+        @include('show_agenda_modal_dashboard')
         <div class="calendar-page">
             <div class="calendar-content-wrapper">
                 <!-- Mini Calendar di Kiri -->
@@ -43,6 +44,16 @@
                             @endfor
                         </div>
                     </div>
+                </div>
+                <div id="agendaSidebar" class="agenda-sidebar">
+                    <div class="sidebar-header">
+                        <h3 id="agendaSidebarDate">Agenda Hari Ini</h3>
+                        <button class="close-sidebar"
+                            onclick="document.getElementById('agendaSidebar').classList.remove('active')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div id="agendaList" class="agenda-list"></div>
                 </div>
             </div>
         </div>
@@ -87,6 +98,11 @@
                     const d = String(currentDate.getDate()).padStart(2, '0');
                     const newUrl = `${window.location.pathname}?tanggal=${y}-${m}-${d}`;
                     window.history.pushState({}, '', newUrl);
+
+                    // Update ringkasan agenda di sidebar
+                    if (typeof window.updateMiniAgendaForDate === 'function') {
+                        window.updateMiniAgendaForDate(currentDate);
+                    }
                 }
 
                 // === Klik slot jam untuk buka modal create agenda ===
@@ -177,9 +193,14 @@
                     // Sort events by start time
                     events.sort((a, b) => a.startMinutes - b.startMinutes);
 
-                    // Fungsi untuk cek apakah dua event overlap
+                    // Fungsi untuk cek apakah dua event overlap atau menyentuh
+                    // Event dianggap overlap jika mereka saling menyentuh di waktu yang sama
                     function eventsOverlap(e1, e2) {
-                        return e1.startMinutes < e2.endMinutes && e1.endMinutes > e2.startMinutes;
+                        // Event overlap jika: 
+                        // - e1 dimulai sebelum e2 berakhir DAN
+                        // - e1 berakhir setelah e2 dimulai
+                        // Menggunakan >= untuk menangani kasus event yang berakhir tepat saat event lain dimulai
+                        return e1.startMinutes < e2.endMinutes && e1.endMinutes >= e2.startMinutes;
                     }
 
                     // Pass 1: Assign kolom untuk setiap event
@@ -303,7 +324,66 @@
 
                     // Render event groups
                     eventGroups.forEach(group => {
-                        if (group.isGroup && group.events.length > 1) {
+                        // Jika hanya 1 agenda, selalu render sebagai individual dan langsung buka modal saat klik
+                        if (group.events.length === 1) {
+                            // Render individual event
+                            const event = group.events[0];
+                            const layout = group.layouts[0];
+                            const eventEl = document.createElement('div');
+                            eventEl.classList.add('event-item');
+                            const isPublic = event.is_public == 1 || event.is_public === true;
+                            eventEl.classList.add(isPublic ? 'green' : 'orange');
+
+                            // Hitung lebar dan posisi kiri
+                            const verticalGap = 4;
+                            eventEl.style.top = `${event.top + (verticalGap / 2)}px`;
+                            eventEl.style.height = `${Math.max(event.height - verticalGap, 20)}px`;
+                            eventEl.style.left = '0%';
+                            eventEl.style.width = '100%';
+
+                            // Simpan ID agenda dan data lengkap untuk modal
+                            eventEl.dataset.agendaId = event.id_agenda || event.id || null;
+                            eventEl.dataset.agendaData = JSON.stringify(event);
+
+                            eventEl.innerHTML = `
+                                <div class="event-content">
+                                    <div class="event-title">${event.title || event.agenda_name || 'Agenda'}</div>
+                                    <div class="event-time">${event.startTimeStr.slice(0, 5)} - ${event.endTimeStr.slice(0, 5)}</div>
+                                </div>
+                            `;
+
+                            // Tambahkan event listener untuk click - langsung buka modal
+                            eventEl.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                const agendaId = eventEl.dataset.agendaId;
+                                let agendaData;
+                                try {
+                                    agendaData = JSON.parse(eventEl.dataset.agendaData || '{}');
+                                } catch (err) {
+                                    console.error('Error parsing agenda data:', err);
+                                    agendaData = event; // fallback ke event object langsung
+                                }
+
+                                // Jika ada ID, ambil detail dari server
+                                if (agendaId && !agendaData.is_external) {
+                                    fetch(`/dashboard/agenda/${agendaId}`)
+                                        .then(res => res.json())
+                                        .then(data => {
+                                            openShowAgendaModal(data);
+                                        })
+                                        .catch(err => {
+                                            console.error('Error:', err);
+                                            // Fallback: gunakan data yang sudah ada
+                                            openShowAgendaModal(agendaData);
+                                        });
+                                } else {
+                                    // Untuk external agenda atau agenda tanpa ID, gunakan data yang sudah ada
+                                    openShowAgendaModal(agendaData);
+                                }
+                            });
+
+                            dayColumn.appendChild(eventEl);
+                        } else if (group.isGroup && group.events.length > 1) {
                             // Render sebagai grup (badge dengan jumlah kegiatan)
                             const layout = group.layouts[0];
                             const isPublic = group.events.some(e => e.is_public == 1 || e.is_public ===
@@ -348,14 +428,20 @@
                             `;
 
                             // Event listener untuk click - tampilkan semua agenda dalam grup
-                            eventEl.addEventListener('click', function() {
-                                // Buka sidebar atau modal dengan semua agenda dalam grup
-                                showAgendaGroupModal(group.events);
+                            eventEl.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                // Format tanggal untuk sidebar
+                                const year = currentDate.getFullYear();
+                                const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+                                const day = String(currentDate.getDate()).padStart(2, '0');
+                                const dateString = `${year}-${month}-${day}`;
+                                // Buka sidebar dengan semua agenda dalam grup
+                                showAgendaListSidebar(group.events, dateString);
                             });
 
                             dayColumn.appendChild(eventEl);
                         } else {
-                            // Render individual event
+                            // Fallback: render individual event (untuk kasus edge case)
                             const event = group.events[0];
                             const layout = group.layouts[0];
                             const eventEl = document.createElement('div');
@@ -381,11 +467,17 @@
                                 </div>
                             `;
 
-                            // Tambahkan event listener untuk click
-                            eventEl.addEventListener('click', function() {
+                            // Tambahkan event listener untuk click - langsung buka modal
+                            eventEl.addEventListener('click', function(e) {
+                                e.stopPropagation();
                                 const agendaId = eventEl.dataset.agendaId;
-                                const agendaData = JSON.parse(eventEl.dataset.agendaData ||
-                                    '{}');
+                                let agendaData;
+                                try {
+                                    agendaData = JSON.parse(eventEl.dataset.agendaData || '{}');
+                                } catch (err) {
+                                    console.error('Error parsing agenda data:', err);
+                                    agendaData = event; // fallback ke event object langsung
+                                }
 
                                 // Jika ada ID, ambil detail dari server
                                 if (agendaId && !agendaData.is_external) {
@@ -412,170 +504,136 @@
 
                 // Fungsi untuk membuka modal detail agenda (menggunakan fungsi yang sudah ada)
                 function openShowAgendaModal(data) {
-                    // Format tanggal
-                    function formatDate(dateString) {
-                        if (!dateString) return "-";
-                        const date = new Date(dateString);
-                        const options = {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                            weekday: 'long'
-                        };
-                        return date.toLocaleDateString('id-ID', options);
+                    // Semua agenda diperlakukan sama - tidak ada pembedaan eksternal/lokal
+
+                    // Gunakan fungsi global fillAgendaModal jika tersedia
+                    if (typeof window.fillAgendaModal === 'function') {
+                        window.fillAgendaModal(data);
+                    } else {
+                        // Fallback: isi manual jika fungsi global belum tersedia
+                        // Format tanggal
+                        function formatDate(dateString) {
+                            if (!dateString) return "-";
+                            const date = new Date(dateString);
+                            const options = {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric'
+                            };
+                            return date.toLocaleDateString('id-ID', options);
+                        }
+
+                        const nameEl = document.getElementById('showAgendaName');
+                        if (nameEl) {
+                            nameEl.innerHTML = (data.agenda_name ?? '-');
+                        }
+
+                        const dateEl = document.getElementById('showAgendaDate');
+                        if (dateEl) dateEl.innerText = formatDate(data.date);
+
+                        const timeText = (data.start_time && data.end_time) ?
+                            `${data.start_time.slice(0, 5)} - ${data.end_time.slice(0, 5)}` :
+                            (data.end_time ? data.end_time.slice(0, 5) : (data.start_time ? data.start_time.slice(0, 5) : '-'));
+                        const timeEl = document.getElementById('showAgendaTime');
+                        if (timeEl) timeEl.innerText = timeText;
+
+                        const locationEl = document.getElementById('showAgendaLocation');
+                        if (locationEl) locationEl.innerText = data.location ?? '-';
+
+                        const descEl = document.getElementById('showAgendaDesc');
+                        if (descEl) descEl.innerText = data.description ?? '-';
+
+                        // Isi data instansi
+                        const involved = data.involved_institution ?? '-';
+                        const unitName = (data.unit && data.unit.unit_name) ? data.unit.unit_name : '-';
+
+                        const unitEl = document.getElementById('showAgendaUnit');
+                        if (unitEl) unitEl.innerText = unitName;
+
+                        const involvedEl = document.getElementById('showAgendaInvolved');
+                        if (involvedEl) involvedEl.innerText = involved;
+
+                        // Isi status akses (publik/privasi)
+                        const accessEl = document.getElementById('showAgendaAccess');
+                        if (accessEl) {
+                            const isPublic = data.is_public == 1;
+                            const bg = isPublic ? '#A8E6A3' : '#FFB67E';
+                            const text = isPublic ? 'Publik' : 'Privasi';
+                            accessEl.innerHTML =
+                                `<span class="badge rounded-pill" style="background-color:${bg}; color:#2F3E35; padding:6px 10px;">${text}</span>`;
+                        }
+
+                        const notesEl = document.getElementById('showAgendaNotes');
+                        if (notesEl) notesEl.innerText = data.notes ?? '-';
                     }
-
-                    // Isi data ke modal
-                    document.getElementById('showAgendaName').innerText = data.agenda_name || data.title || '-';
-                    document.getElementById('showAgendaDesc').innerText = data.description || data.desc || '-';
-                    document.getElementById('showAgendaDate').innerText = formatDate(data.date);
-
-                    const timeText = (data.start_time && data.end_time) ?
-                        `${data.start_time.slice(0, 5)} - ${data.end_time.slice(0, 5)}` :
-                        (data.end_time ? data.end_time.slice(0, 5) : (data.start_time ? data.start_time.slice(0, 5) :
-                            '-'));
-                    document.getElementById('showAgendaTime').innerText = timeText;
-
-                    document.getElementById('showAgendaLocation').innerText = data.location || '-';
-
-                    // Isi data instansi
-                    const involved = data.involved_institution || '-';
-                    const unitName = (data.unit && data.unit.unit_name) ? data.unit.unit_name : '-';
-
-                    const unitEl = document.getElementById('showAgendaUnit');
-                    if (unitEl) unitEl.innerText = unitName;
-
-                    const involvedEl = document.getElementById('showAgendaInvolved');
-                    if (involvedEl) involvedEl.innerText = involved;
-
-                    // Isi status akses (publik/privasi)
-                    const accessEl = document.getElementById('showAgendaAccess');
-                    if (accessEl) {
-                        const isPublic = data.is_public == 1 || data.is_public === true;
-                        accessEl.innerText = isPublic ? 'Publik' : 'Privasi';
-                    }
-
-                    const notesEl = document.getElementById('showAgendaNotes');
-                    if (notesEl) notesEl.innerText = data.notes || '-';
 
                     // Tampilkan modal
-                    const modal = new bootstrap.Modal(document.getElementById('showAgendaModal'));
-                    modal.show();
+                    new bootstrap.Modal(document.getElementById('showAgendaModal')).show();
                 }
 
-                // Fungsi untuk menampilkan daftar agenda dalam grup
-                function showAgendaGroupModal(agendaList) {
-                    // Urutkan agenda berdasarkan waktu
-                    const sortedAgendaList = [...agendaList].sort((a, b) => {
-                        const timeA = a.start_time || a.end_time || '00:00:00';
-                        const timeB = b.start_time || b.end_time || '00:00:00';
-                        return timeA.localeCompare(timeB);
-                    });
+                // Fungsi untuk menampilkan daftar agenda dalam sidebar (seperti di dashboard_bulan)
+                function showAgendaListSidebar(agendaList, date) {
+                    const sidebar = document.getElementById("agendaSidebar");
+                    const listContainer = document.getElementById("agendaList");
+                    const title = document.getElementById("agendaSidebarDate");
 
-                    // Jika hanya 1 agenda, langsung buka modal detail
-                    if (sortedAgendaList.length === 1) {
-                        openShowAgendaModal(sortedAgendaList[0]);
+                    title.textContent = `Agenda ${date}`;
+                    listContainer.innerHTML = "";
+
+                    if (agendaList.length === 0) {
+                        listContainer.innerHTML = "<p>Tidak ada agenda untuk hari ini.</p>";
                         return;
                     }
 
-                    // Buat modal untuk menampilkan daftar agenda
-                    let modalHTML = `
-                        <div class="modal fade" id="agendaGroupModal" tabindex="-1" aria-labelledby="agendaGroupLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered modal-lg">
-                                <div class="modal-content border-0 shadow-sm rounded-4 overflow-hidden">
-                                    <div class="modal-header" style="background-color: #F6F8F7; border: none;">
-                                        <h5 class="modal-title fw-semibold d-flex align-items-center gap-2" style="color: #4A7C59;">
-                                            <i class="fas fa-calendar-alt" style="color: #4A7C59;"></i>
-                                            <span>${sortedAgendaList.length} Kegiatan</span>
-                                        </h5>
-                                        <button type="button" class="close-modal" data-bs-dismiss="modal" aria-label="Tutup">
-                                            <i class="fa-solid fa-xmark"></i>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body px-4 pt-3 pb-4">
-                                        <div class="list-group">
-                    `;
+                    // Urutkan agenda berdasarkan jam (start_time)
+                    const sortedAgendaList = [...agendaList].sort((a, b) => {
+                        // Ambil start_time, jika tidak ada gunakan end_time, jika tidak ada gunakan '00:00:00'
+                        const timeA = a.start_time || a.end_time || '00:00:00';
+                        const timeB = b.start_time || b.end_time || '00:00:00';
+                        
+                        // Bandingkan waktu
+                        return timeA.localeCompare(timeB);
+                    });
 
                     sortedAgendaList.forEach((item, index) => {
-                        const timeText = (item.start_time && item.end_time) ?
-                            `${item.start_time.slice(0, 5)} - ${item.end_time.slice(0, 5)}` :
-                            (item.end_time ? item.end_time.slice(0, 5) : (item.start_time ? item.start_time
-                                .slice(0, 5) : '-'));
+                        const itemDiv = document.createElement("div");
+                        itemDiv.className = "agenda-item";
 
-                        const isPublic = item.is_public == 1 || item.is_public === true;
-                        const badgeColor = isPublic ? '#A8E6A3' : '#FFB67E';
-                        const badgeText = isPublic ? 'Publik' : 'Privasi';
+                        const header = document.createElement("div");
+                        header.className = "agenda-header";
 
-                        modalHTML += `
-                            <div class="list-group-item list-group-item-action agenda-list-item" style="cursor: pointer; border: 1px solid #e9ecef; border-radius: 8px; margin-bottom: 10px; padding: 15px;" data-agenda-index="${index}">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-2 fw-semibold" style="color: #2f4737;">${item.agenda_name || item.title || 'Agenda'}</h6>
-                                        <div class="d-flex align-items-center gap-3 mb-2">
-                                            <small class="text-muted">
-                                                <i class="fas fa-clock me-1"></i>${timeText}
-                                            </small>
-                                            <span class="badge rounded-pill" style="background-color: ${badgeColor}; color: #2F3E35; padding: 4px 10px; font-size: 0.75rem;">
-                                                ${badgeText}
-                                            </span>
-                                        </div>
-                                        ${item.location ? `<small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>${item.location}</small>` : ''}
-                                    </div>
-                                    <i class="fas fa-chevron-right text-muted"></i>
-                                </div>
-                            </div>
+                        // Semua agenda diperlakukan sama - tidak ada pembedaan eksternal/lokal
+                        const externalBadge = "";
+
+                        header.innerHTML = `
+                            <span class="agenda-item-title">${item.agenda_name || item.title || 'Agenda'}${externalBadge}</span>
+                            <span class="agenda-item-arrow"><i class="fas fa-chevron-right"></i></span>
                         `;
-                    });
 
-                    modalHTML += `
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                        itemDiv.appendChild(header);
 
-                    // Hapus modal lama jika ada
-                    const oldModal = document.getElementById('agendaGroupModal');
-                    if (oldModal) {
-                        oldModal.remove();
-                    }
-
-                    // Tambahkan modal ke body
-                    document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-                    // Tambahkan event listener untuk setiap item
-                    document.querySelectorAll('.agenda-list-item').forEach(item => {
-                        item.addEventListener('click', function() {
-                            const index = parseInt(this.getAttribute('data-agenda-index'));
-                            const agendaData = sortedAgendaList[index];
-
-                            // Tutup modal grup
-                            const modal = bootstrap.Modal.getInstance(document.getElementById(
-                                'agendaGroupModal'));
-                            if (modal) modal.hide();
-
-                            // Buka modal detail agenda
-                            setTimeout(() => {
-                                openShowAgendaModal(agendaData);
-                            }, 300);
+                        itemDiv.addEventListener("click", () => {
+                            openShowAgendaModal(item);
                         });
+
+                        listContainer.appendChild(itemDiv);
                     });
 
-                    // Tampilkan modal
-                    const modal = new bootstrap.Modal(document.getElementById('agendaGroupModal'));
-                    modal.show();
-
-                    // Hapus modal dari DOM setelah ditutup
-                    document.getElementById('agendaGroupModal').addEventListener('hidden.bs.modal', function() {
-                        this.remove();
-                    });
+                    sidebar.classList.add("active");
                 }
 
 
                 // 🟢 Pastikan render setelah semua siap
                 updateDayDisplay();
                 renderDayEvents();
+
+                // Update ringkasan agenda di sidebar saat pertama kali load
+                if (typeof window.updateMiniAgendaForDate === 'function') {
+                    // Tunggu sedikit agar komponen mini calendar sudah ter-load
+                    setTimeout(() => {
+                        window.updateMiniAgendaForDate(currentDate);
+                    }, 100);
+                }
             });
 
             // ==== FUNGSI BUKA & TUTUP MODAL ====
@@ -1137,5 +1195,25 @@
 
                 initializeValues();
             })();
+        </script>
+
+        <script>
+            // ✅ INI DITARO DI LUAR
+            const showAgendaModalEl = document.getElementById('showAgendaModal');
+            if (showAgendaModalEl) {
+                showAgendaModalEl.addEventListener('show.bs.modal', function() {
+                    const agendaSidebar = document.getElementById('agendaSidebar');
+                    if (agendaSidebar) {
+                        agendaSidebar.classList.add('hidden');
+                    }
+                });
+
+                showAgendaModalEl.addEventListener('hidden.bs.modal', function() {
+                    const agendaSidebar = document.getElementById('agendaSidebar');
+                    if (agendaSidebar && agendaSidebar.classList.contains('active')) {
+                        agendaSidebar.classList.remove('hidden');
+                    }
+                });
+            }
         </script>
     @endsection

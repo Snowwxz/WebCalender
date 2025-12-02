@@ -361,9 +361,13 @@
                 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
             ];
 
+            // Deteksi apakah di halaman hari
+            const isDayView = window.location.pathname.includes('/hari') || window.location.pathname.includes('/dashboard/hari');
+            
             const state = {
                 currentDate: new Date(),
-                cache: {}
+                cache: {},
+                isDayMode: isDayView
             };
 
             const ids = {
@@ -374,7 +378,17 @@
             function updateMonthLabel() {
                 const el = document.getElementById(ids.monthLabel);
                 if (!el) return;
-                el.textContent = `${monthNames[state.currentDate.getMonth()]} ${state.currentDate.getFullYear()}`;
+                
+                if (state.isDayMode) {
+                    // Format tanggal untuk mode hari: "2 Desember 2025"
+                    const day = state.currentDate.getDate();
+                    const month = monthNames[state.currentDate.getMonth()];
+                    const year = state.currentDate.getFullYear();
+                    el.textContent = `${day} ${month} ${year}`;
+                } else {
+                    // Format bulan untuk mode bulan: "Desember 2025"
+                    el.textContent = `${monthNames[state.currentDate.getMonth()]} ${state.currentDate.getFullYear()}`;
+                }
             }
 
             function attachMiniAgendaAccordion(container) {
@@ -426,9 +440,16 @@
                     .sort((a, b) => new Date(a.date) - new Date(b.date));
 
                 if (filtered.length === 0) {
-                    const message = isDashboard
-                        ? 'Belum ada agenda pada bulan ini.'
-                        : 'Belum ada agenda publik pada bulan ini.';
+                    let message;
+                    if (state.isDayMode) {
+                        message = isDashboard
+                            ? 'Belum ada agenda pada hari ini.'
+                            : 'Belum ada agenda publik pada hari ini.';
+                    } else {
+                        message = isDashboard
+                            ? 'Belum ada agenda pada bulan ini.'
+                            : 'Belum ada agenda publik pada bulan ini.';
+                    }
                     listEl.innerHTML = `<div class="mini-agenda-placeholder">${message}</div>`;
                     return;
                 }
@@ -518,17 +539,110 @@
                     });
             }
 
+            function fetchAgendaForDay(year, month, day) {
+                const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const listEl = document.getElementById(ids.list);
+                if (listEl) {
+                    listEl.innerHTML = '<div class="mini-agenda-placeholder">Memuat agenda...</div>';
+                }
+
+                const isDashboard = listEl ? listEl.dataset.isDashboard === '1' : false;
+                const cacheKey = `day_${dateStr}_${isDashboard ? 'dashboard' : 'landing'}`;
+
+                if (state.cache[cacheKey]) {
+                    renderAgendaList(state.cache[cacheKey]);
+                    return;
+                }
+
+                // Gunakan endpoint untuk fetch agenda per hari
+                const apiUrl = isDashboard
+                    ? `/dashboard/hari/data?tanggal=${dateStr}`
+                    : `/api/agenda/date/${dateStr}`;
+
+                fetch(apiUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Handle response format (bisa array langsung atau {data: [...]})
+                        const agendaData = Array.isArray(data) ? data : (data.data || []);
+                        state.cache[cacheKey] = agendaData;
+                        renderAgendaList(state.cache[cacheKey]);
+                    })
+                    .catch(() => {
+                        if (listEl) {
+                            listEl.innerHTML = '<div class="mini-agenda-placeholder">Gagal memuat agenda.</div>';
+                        }
+                    });
+            }
+
             window.changeMiniAgendaMonth = function(direction) {
-                state.currentDate.setMonth(state.currentDate.getMonth() + direction);
-                const targetYear = state.currentDate.getFullYear();
-                const targetMonth = state.currentDate.getMonth() + 1;
+                if (state.isDayMode) {
+                    // Mode hari: ubah hari
+                    state.currentDate.setDate(state.currentDate.getDate() + direction);
+                    const targetYear = state.currentDate.getFullYear();
+                    const targetMonth = state.currentDate.getMonth() + 1;
+                    const targetDay = state.currentDate.getDate();
+                    updateMonthLabel();
+                    fetchAgendaForDay(targetYear, targetMonth, targetDay);
+                } else {
+                    // Mode bulan: ubah bulan
+                    state.currentDate.setMonth(state.currentDate.getMonth() + direction);
+                    const targetYear = state.currentDate.getFullYear();
+                    const targetMonth = state.currentDate.getMonth() + 1;
+                    updateMonthLabel();
+                    fetchAgendaForMonth(targetYear, targetMonth);
+                }
+            };
+
+            // Fungsi global untuk update ringkasan agenda dari luar (dipanggil dari dashboard_hari.blade.php)
+            window.updateMiniAgendaForDate = function(date) {
+                if (!state.isDayMode) return;
+                
+                // Parse date (bisa Date object atau string YYYY-MM-DD)
+                if (typeof date === 'string') {
+                    const [y, m, d] = date.split('-').map(Number);
+                    state.currentDate = new Date(y, m - 1, d);
+                } else if (date instanceof Date) {
+                    state.currentDate = new Date(date);
+                } else {
+                    return;
+                }
+                
                 updateMonthLabel();
-                fetchAgendaForMonth(targetYear, targetMonth);
+                const year = state.currentDate.getFullYear();
+                const month = state.currentDate.getMonth() + 1;
+                const day = state.currentDate.getDate();
+                fetchAgendaForDay(year, month, day);
             };
 
             document.addEventListener('DOMContentLoaded', function() {
                 updateMonthLabel();
-                fetchAgendaForMonth(state.currentDate.getFullYear(), state.currentDate.getMonth() + 1);
+                
+                if (state.isDayMode) {
+                    // Mode hari: ambil tanggal dari URL atau gunakan hari ini
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const tanggalParam = urlParams.get('tanggal');
+                    
+                    if (tanggalParam) {
+                        const [y, m, d] = tanggalParam.split('-').map(Number);
+                        state.currentDate = new Date(y, m - 1, d);
+                        updateMonthLabel();
+                        fetchAgendaForDay(y, m, d);
+                    } else {
+                        const now = new Date();
+                        const year = now.getFullYear();
+                        const month = now.getMonth() + 1;
+                        const day = now.getDate();
+                        fetchAgendaForDay(year, month, day);
+                    }
+                } else {
+                    // Mode bulan: fetch agenda untuk bulan ini
+                    fetchAgendaForMonth(state.currentDate.getFullYear(), state.currentDate.getMonth() + 1);
+                }
             });
         })();
     </script>
