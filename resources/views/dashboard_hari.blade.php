@@ -52,6 +52,35 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
+                function showSuccessToast(message){
+                    const node=document.createElement('div');
+                    node.innerHTML=`
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span style="display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:#82A98D; color:#ffffff; font-size:12px;">
+                                <i class="fas fa-check"></i>
+                            </span>
+                            <span style="font-family:'Poppins',sans-serif; font-weight:600; font-size:15px; color:#234B2C;">
+                                ${message}
+                            </span>
+                        </div>`;
+                    Toastify({
+                        node,
+                        duration:2500,
+                        gravity:"top",
+                        position:"center",
+                        offset:{x:0,y:12},
+                        style:{
+                            background:'#E9F4EC',
+                            border:'1px solid #A6C8A3',
+                            borderRadius:'8px',
+                            padding:'10px 16px',
+                            boxShadow:'0 6px 14px rgba(0,0,0,0.08)',
+                            display:'flex',
+                            justifyContent:'center',
+                            alignItems:'center'
+                        }
+                    }).showToast();
+                }
                 const params = new URLSearchParams(window.location.search);
                 const tanggalParam = params.get('tanggal');
 
@@ -742,14 +771,7 @@
                             // Reload events
                             renderDayEvents();
 
-                            Toastify({
-                                text: data.message || "Agenda berhasil ditambahkan!",
-                                duration: 3000,
-                                gravity: "top",
-                                position: "right",
-                                backgroundColor: "#4caf50",
-                                stopOnFocus: true
-                            }).showToast();
+                            showSuccessToast(data.message || "Agenda berhasil ditambahkan!");
                         } else {
                             Toastify({
                                 text: data.message || "Gagal menambahkan agenda!",
