@@ -363,7 +363,7 @@
 
             // Deteksi apakah di halaman hari
             const isDayView = window.location.pathname.includes('/hari') || window.location.pathname.includes('/dashboard/hari');
-            
+
             const state = {
                 currentDate: new Date(),
                 cache: {},
@@ -378,7 +378,7 @@
             function updateMonthLabel() {
                 const el = document.getElementById(ids.monthLabel);
                 if (!el) return;
-                
+
                 if (state.isDayMode) {
                     // Format tanggal untuk mode hari: "2 Desember 2025"
                     const day = state.currentDate.getDate();
@@ -489,9 +489,6 @@
                                     </div>
                                 </div>
                                 <div class="mini-agenda-detail-wrapper">
-                                    <a href="${notificationUrl}?agenda_id=${item.id_agenda}" class="mini-agenda-detail-btn">
-                                        <i class="fas fa-info-circle"></i> Lihat Detail
-                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -601,7 +598,7 @@
             // Fungsi global untuk update ringkasan agenda dari luar (dipanggil dari dashboard_hari.blade.php)
             window.updateMiniAgendaForDate = function(date) {
                 if (!state.isDayMode) return;
-                
+
                 // Parse date (bisa Date object atau string YYYY-MM-DD)
                 if (typeof date === 'string') {
                     const [y, m, d] = date.split('-').map(Number);
@@ -611,7 +608,7 @@
                 } else {
                     return;
                 }
-                
+
                 updateMonthLabel();
                 const year = state.currentDate.getFullYear();
                 const month = state.currentDate.getMonth() + 1;
@@ -621,12 +618,12 @@
 
             document.addEventListener('DOMContentLoaded', function() {
                 updateMonthLabel();
-                
+
                 if (state.isDayMode) {
                     // Mode hari: ambil tanggal dari URL atau gunakan hari ini
                     const urlParams = new URLSearchParams(window.location.search);
                     const tanggalParam = urlParams.get('tanggal');
-                    
+
                     if (tanggalParam) {
                         const [y, m, d] = tanggalParam.split('-').map(Number);
                         state.currentDate = new Date(y, m - 1, d);
