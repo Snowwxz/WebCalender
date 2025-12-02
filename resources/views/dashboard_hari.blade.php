@@ -201,7 +201,7 @@
 
                         const startTimeStr = normalizeTime(event.start_time) || '08:00:00';
                         let endTimeStr = normalizeTime(event.end_time);
-                        
+
                         // Jika end_time kosong, hitung dari start_time + 1 jam (default durasi)
                         if (!endTimeStr) {
                             const start = new Date(`1970-01-01T${startTimeStr}`);
@@ -214,7 +214,7 @@
 
                         const start = new Date(`1970-01-01T${startTimeStr}`);
                         const end = new Date(`1970-01-01T${endTimeStr}`);
-                        
+
                         // Pastikan end_time tidak lebih kecil dari start_time
                         if (end < start) {
                             // Jika end_time lebih kecil, set ke start_time + 1 jam
@@ -225,7 +225,7 @@
                             endTimeStr = `${hours}:${minutes}:00`;
                             end.setTime(correctedEnd.getTime());
                         }
-                        
+
                         let duration = (end - start) / (1000 * 60);
                         if (!isFinite(duration) || duration <= 0) duration = 60; // Default 1 jam jika tidak valid
 
@@ -276,7 +276,7 @@
                     // Fungsi untuk cek apakah dua event overlap atau menyentuh
                     // Event dianggap overlap jika mereka saling menyentuh di waktu yang sama
                     function eventsOverlap(e1, e2) {
-                        // Event overlap jika: 
+                        // Event overlap jika:
                         // - e1 dimulai sebelum e2 berakhir DAN
                         // - e1 berakhir setelah e2 dimulai
                         // Menggunakan >= untuk menangani kasus event yang berakhir tepat saat event lain dimulai
@@ -417,7 +417,7 @@
                             // Hitung lebar dan posisi kiri
                             const verticalGap = 4;
                             eventEl.style.top = `${event.top + (verticalGap / 2)}px`;
-                            eventEl.style.height = `${Math.max(event.height - verticalGap, 20)}px`;
+                            eventEl.style.height = 'auto';
                             eventEl.style.left = '0%';
                             eventEl.style.width = '100%';
 
@@ -483,7 +483,7 @@
                             // Hitung posisi dan ukuran
                             const verticalGap = 4;
                             eventEl.style.top = `${group.top + (verticalGap / 2)}px`;
-                            eventEl.style.height = `${Math.max(group.height - verticalGap, 30)}px`;
+                            eventEl.style.height = 'auto';
                             eventEl.style.left = '0%';
                             eventEl.style.width = '100%';
 
@@ -499,10 +499,10 @@
                                 `${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`;
                             const endTimeStr =
                                 `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`;
-                            
+
                             // Pastikan end_time valid (tidak lebih kecil dari start_time)
-                            const timeDisplay = (group.endMinutes > group.startMinutes) 
-                                ? `${startTimeStr} - ${endTimeStr}` 
+                            const timeDisplay = (group.endMinutes > group.startMinutes)
+                                ? `${startTimeStr} - ${endTimeStr}`
                                 : startTimeStr;
 
                             eventEl.innerHTML = `
@@ -537,7 +537,7 @@
                             // Hitung lebar dan posisi kiri
                             const verticalGap = 4;
                             eventEl.style.top = `${event.top + (verticalGap / 2)}px`;
-                            eventEl.style.height = `${Math.max(event.height - verticalGap, 20)}px`;
+                            eventEl.style.height = 'auto';
                             eventEl.style.left = '0%';
                             eventEl.style.width = '100%';
 
@@ -675,7 +675,7 @@
                         // Ambil start_time, jika tidak ada gunakan end_time, jika tidak ada gunakan '00:00:00'
                         const timeA = a.start_time || a.end_time || '00:00:00';
                         const timeB = b.start_time || b.end_time || '00:00:00';
-                        
+
                         // Bandingkan waktu
                         return timeA.localeCompare(timeB);
                     });

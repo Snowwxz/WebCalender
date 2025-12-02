@@ -175,7 +175,7 @@
 
                     const startTimeStr = normalizeTime(event.start_time) || '08:00:00';
                     let endTimeStr = normalizeTime(event.end_time);
-                    
+
                     // Jika end_time kosong, hitung dari start_time + 1 jam (default durasi)
                     if (!endTimeStr) {
                         const start = new Date(`1970-01-01T${startTimeStr}`);
@@ -188,7 +188,7 @@
 
                     const start = new Date(`1970-01-01T${startTimeStr}`);
                     const end = new Date(`1970-01-01T${endTimeStr}`);
-                    
+
                     // Pastikan end_time tidak lebih kecil dari start_time
                     if (end < start) {
                         // Jika end_time lebih kecil, set ke start_time + 1 jam
@@ -199,7 +199,7 @@
                         endTimeStr = `${hours}:${minutes}:00`;
                         end.setTime(correctedEnd.getTime());
                     }
-                    
+
                     let duration = (end - start) / (1000 * 60);
                     if (!isFinite(duration) || duration <= 0) duration = 60; // Default 1 jam jika tidak valid
 
@@ -365,7 +365,7 @@
 
                         const verticalGap = 4;
                         eventEl.style.top = `${event.top + (verticalGap / 2)}px`;
-                        eventEl.style.height = `${Math.max(event.height - verticalGap, 20)}px`;
+                        eventEl.style.height = 'auto';
                         eventEl.style.left = '0%';
                         eventEl.style.width = '100%';
 
@@ -413,7 +413,7 @@
 
                         const verticalGap = 4;
                         eventEl.style.top = `${group.top + (verticalGap / 2)}px`;
-                        eventEl.style.height = `${Math.max(group.height - verticalGap, 30)}px`;
+                        eventEl.style.height = 'auto';
                         eventEl.style.left = '0%';
                         eventEl.style.width = '100%';
 
@@ -427,10 +427,10 @@
                             `${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`;
                         const endTimeStr =
                             `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`;
-                        
+
                         // Pastikan end_time valid (tidak lebih kecil dari start_time)
-                        const timeDisplay = (group.endMinutes > group.startMinutes) 
-                            ? `${startTimeStr} - ${endTimeStr}` 
+                        const timeDisplay = (group.endMinutes > group.startMinutes)
+                            ? `${startTimeStr} - ${endTimeStr}`
                             : startTimeStr;
 
                         eventEl.innerHTML = `
@@ -457,7 +457,7 @@
 
                         const verticalGap = 4;
                         eventEl.style.top = `${event.top + (verticalGap / 2)}px`;
-                        eventEl.style.height = `${Math.max(event.height - verticalGap, 20)}px`;
+                        eventEl.style.height = 'auto';
                         eventEl.style.left = '0%';
                         eventEl.style.width = '100%';
 
@@ -577,7 +577,7 @@
             currentDate = parseLocalDate(t);
             updateDayDisplay();
             renderDayEvents();
-            
+
             // Update ringkasan agenda
             if (typeof window.updateMiniAgendaForDate === 'function') {
                 window.updateMiniAgendaForDate(currentDate);
