@@ -163,15 +163,45 @@
 
                 // Parse dan siapkan data event
                 const events = items.map(event => {
-                    const startTimeStr = event.start_time && /^\d{2}:\d{2}/.test(event.start_time) ?
-                        event.start_time : '08:00:00';
-                    const endTimeStr = event.end_time && /^\d{2}:\d{2}/.test(event.end_time) ? event
-                        .end_time : '09:00:00';
+                    // Normalize waktu: pastikan format HH:mm:ss
+                    const normalizeTime = (timeStr) => {
+                        if (!timeStr) return null;
+                        // Jika sudah format HH:mm:ss, return langsung
+                        if (/^\d{2}:\d{2}:\d{2}/.test(timeStr)) return timeStr;
+                        // Jika format HH:mm, tambahkan :00
+                        if (/^\d{2}:\d{2}$/.test(timeStr)) return timeStr + ':00';
+                        return timeStr;
+                    };
+
+                    const startTimeStr = normalizeTime(event.start_time) || '08:00:00';
+                    let endTimeStr = normalizeTime(event.end_time);
+                    
+                    // Jika end_time kosong, hitung dari start_time + 1 jam (default durasi)
+                    if (!endTimeStr) {
+                        const start = new Date(`1970-01-01T${startTimeStr}`);
+                        const defaultEnd = new Date(start);
+                        defaultEnd.setHours(defaultEnd.getHours() + 1); // Tambah 1 jam
+                        const hours = String(defaultEnd.getHours()).padStart(2, '0');
+                        const minutes = String(defaultEnd.getMinutes()).padStart(2, '0');
+                        endTimeStr = `${hours}:${minutes}:00`;
+                    }
 
                     const start = new Date(`1970-01-01T${startTimeStr}`);
                     const end = new Date(`1970-01-01T${endTimeStr}`);
+                    
+                    // Pastikan end_time tidak lebih kecil dari start_time
+                    if (end < start) {
+                        // Jika end_time lebih kecil, set ke start_time + 1 jam
+                        const correctedEnd = new Date(start);
+                        correctedEnd.setHours(correctedEnd.getHours() + 1);
+                        const hours = String(correctedEnd.getHours()).padStart(2, '0');
+                        const minutes = String(correctedEnd.getMinutes()).padStart(2, '0');
+                        endTimeStr = `${hours}:${minutes}:00`;
+                        end.setTime(correctedEnd.getTime());
+                    }
+                    
                     let duration = (end - start) / (1000 * 60);
-                    if (!isFinite(duration) || duration <= 0) duration = 30;
+                    if (!isFinite(duration) || duration <= 0) duration = 60; // Default 1 jam jika tidak valid
 
                     const pxPerMinute = 1;
                     const top = start.getHours() * 60 * pxPerMinute + start.getMinutes() *
@@ -195,6 +225,27 @@
 
                 // Sort events by start time
                 events.sort((a, b) => a.startMinutes - b.startMinutes);
+
+                // Fungsi helper untuk format waktu tampilan
+                function formatTimeDisplay(startStr, endStr, originalEndTime) {
+                    if (!startStr) return '-';
+                    const start = startStr.slice(0, 5);
+                    // Jika original end_time tidak ada atau kosong, tampilkan hanya start_time
+                    if (!originalEndTime || !endStr) {
+                        return start;
+                    }
+                    // Pastikan end_time valid (tidak lebih kecil dari start_time)
+                    try {
+                        const startDate = new Date(`1970-01-01T${startStr}`);
+                        const endDate = new Date(`1970-01-01T${endStr}`);
+                        if (endDate <= startDate) {
+                            return start; // Tampilkan hanya start_time jika end_time tidak valid
+                        }
+                        return `${start} - ${endStr.slice(0, 5)}`;
+                    } catch (e) {
+                        return start; // Jika parsing error, tampilkan hanya start_time
+                    }
+                }
 
                 // Fungsi untuk cek apakah dua event overlap atau menyentuh
                 function eventsOverlap(e1, e2) {
@@ -320,12 +371,12 @@
 
                         eventEl.dataset.agendaData = JSON.stringify(event);
 
-                        eventEl.innerHTML = `
-                            <div class="event-content">
-                                <div class="event-title">${event.agenda_name || 'Agenda'}</div>
-                                <div class="event-time">${event.startTimeStr.slice(0, 5)} - ${event.endTimeStr.slice(0, 5)}</div>
-                            </div>
-                        `;
+                    eventEl.innerHTML = `
+                        <div class="event-content">
+                            <div class="event-title">${event.agenda_name || 'Agenda'}</div>
+                                <div class="event-time">${formatTimeDisplay(event.startTimeStr, event.endTimeStr, event.end_time)}</div>
+                        </div>
+                    `;
 
                         eventEl.addEventListener('click', function(e) {
                             e.stopPropagation();
@@ -337,7 +388,7 @@
                                 agendaData = event;
                             }
 
-                            openShowAgendaModal({
+                        openShowAgendaModal({
                                 agenda_name: agendaData.agenda_name,
                                 description: agendaData.description,
                                 date: dateString,
@@ -376,11 +427,16 @@
                             `${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`;
                         const endTimeStr =
                             `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`;
+                        
+                        // Pastikan end_time valid (tidak lebih kecil dari start_time)
+                        const timeDisplay = (group.endMinutes > group.startMinutes) 
+                            ? `${startTimeStr} - ${endTimeStr}` 
+                            : startTimeStr;
 
                         eventEl.innerHTML = `
                             <div class="event-content">
                                 <div class="event-title">${group.events.length} Kegiatan</div>
-                                <div class="event-time">${startTimeStr} - ${endTimeStr}</div>
+                                <div class="event-time">${timeDisplay}</div>
                             </div>
                         `;
 
@@ -410,7 +466,7 @@
                         eventEl.innerHTML = `
                             <div class="event-content">
                                 <div class="event-title">${event.agenda_name || 'Agenda'}</div>
-                                <div class="event-time">${event.startTimeStr.slice(0, 5)} - ${event.endTimeStr.slice(0, 5)}</div>
+                                <div class="event-time">${formatTimeDisplay(event.startTimeStr, event.endTimeStr, event.end_time)}</div>
                             </div>
                         `;
 
