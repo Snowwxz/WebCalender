@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Unit;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 
 class ExternalAgendaService
@@ -17,38 +18,44 @@ class ExternalAgendaService
     }
 
     /**
-     * Fetch agenda data from external API
+     * Fetch agenda data from external API with caching
      * 
      * @param array $params Optional query parameters
+     * @param int $cacheMinutes Cache duration in minutes (default: 5)
      * @return array|null
      */
-    public function fetchAgendas(array $params = [])
+    public function fetchAgendas(array $params = [], int $cacheMinutes = 5)
     {
-        try {
-            $response = Http::timeout(10)->get($this->apiUrl, $params);
+        // Create cache key based on params
+        $cacheKey = 'external_agendas_' . md5(json_encode($params));
+        
+        return Cache::remember($cacheKey, now()->addMinutes($cacheMinutes), function () use ($params) {
+            try {
+                $response = Http::timeout(10)->get($this->apiUrl, $params);
 
-            if ($response->successful()) {
-                $data = $response->json();
-                
-                if (isset($data['success']) && $data['success'] && isset($data['data'])) {
-                    return $data['data'];
+                if ($response->successful()) {
+                    $data = $response->json();
+                    
+                    if (isset($data['success']) && $data['success'] && isset($data['data'])) {
+                        return $data['data'];
+                    }
                 }
+
+                Log::warning('External API response failed', [
+                    'status' => $response->status(),
+                    'body' => $response->body()
+                ]);
+
+                return null;
+            } catch (\Exception $e) {
+                Log::error('Error fetching external agenda API', [
+                    'message' => $e->getMessage(),
+                    'url' => $this->apiUrl
+                ]);
+
+                return null;
             }
-
-            Log::warning('External API response failed', [
-                'status' => $response->status(),
-                'body' => $response->body()
-            ]);
-
-            return null;
-        } catch (\Exception $e) {
-            Log::error('Error fetching external agenda API', [
-                'message' => $e->getMessage(),
-                'url' => $this->apiUrl
-            ]);
-
-            return null;
-        }
+        });
     }
 
     /**
@@ -350,42 +357,47 @@ class ExternalAgendaService
     }
 
     /**
-     * Get agendas for a specific date
+     * Get agendas for a specific date with caching
      * 
      * @param string $date Format: Y-m-d
      * @return array|null
      */
     public function getAgendasByDate($date)
     {
-        $agendas = $this->fetchAgendas();
+        // Cache filtered results per date for faster access
+        $cacheKey = 'external_agendas_date_' . $date;
         
-        if (!$agendas) {
-            return null;
-        }
-
-        // Filter by exact date - ensure proper date parsing
-        $filtered = array_filter($agendas, function ($agenda) use ($date) {
-            $agendaDate = $agenda['waktu_awal'] ?? null;
+        return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($date) {
+            $agendas = $this->fetchAgendas([], 10); // Use longer cache for base data
             
-            if (!$agendaDate) {
-                return false;
+            if (!$agendas) {
+                return null;
             }
 
-            try {
-                // Parse and normalize to Y-m-d format
-                $agendaDateParsed = Carbon::parse($agendaDate)->format('Y-m-d');
-                return $agendaDateParsed === $date;
-            } catch (\Exception $e) {
-                Log::warning('Failed to parse agenda date for date filter', [
-                    'date' => $agendaDate,
-                    'target_date' => $date,
-                    'agenda_id' => $agenda['id'] ?? null
-                ]);
-                return false;
-            }
+            // Filter by exact date - ensure proper date parsing
+            $filtered = array_filter($agendas, function ($agenda) use ($date) {
+                $agendaDate = $agenda['waktu_awal'] ?? null;
+                
+                if (!$agendaDate) {
+                    return false;
+                }
+
+                try {
+                    // Parse and normalize to Y-m-d format
+                    $agendaDateParsed = Carbon::parse($agendaDate)->format('Y-m-d');
+                    return $agendaDateParsed === $date;
+                } catch (\Exception $e) {
+                    Log::warning('Failed to parse agenda date for date filter', [
+                        'date' => $agendaDate,
+                        'target_date' => $date,
+                        'agenda_id' => $agenda['id'] ?? null
+                    ]);
+                    return false;
+                }
+            });
+
+            return array_values($filtered);
         });
-
-        return array_values($filtered);
     }
 }
 

@@ -811,8 +811,21 @@ class AgendaController extends Controller
         $userUnit = $user->unit;
         $userUnitName = $userUnit ? $userUnit->unit_name : null;
 
-        // Get local agendas
-        $localAgendas = Agenda::with('unit')
+        // Optimize: Only select needed fields to reduce memory and query time
+        $localAgendas = Agenda::with(['unit:id_unit,unit_name'])
+            ->select([
+                'id_agenda',
+                'agenda_name',
+                'start_time',
+                'end_time',
+                'location',
+                'is_public',
+                'description',
+                'date',
+                'involved_institution',
+                'notes',
+                'id_unit'
+            ])
             ->whereDate('date', $date)
             ->where('status', 'approved')
             ->where(function ($q) use ($userId, $userUnitName) {
@@ -845,12 +858,13 @@ class AgendaController extends Controller
                     'notes' => $agenda->notes,
                     'unit' => $agenda->unit ? [
                         'unit_name' => $agenda->unit->unit_name
-                    ] : null
+                    ] : null,
+                    'color' => ($agenda->is_public ?? 1) ? '#3a7bd5' : '#f39c12'
                 ];
             })
             ->toArray();
 
-        // Get external agendas
+        // Get external agendas with caching
         $externalService = new ExternalAgendaService();
         $externalAgendas = $externalService->getAgendasByDate($date);
 
@@ -874,23 +888,13 @@ class AgendaController extends Controller
                     'description' => $transformed['description'] ?? '',
                     'status' => $transformed['status'] ?? 'approved',
                     'involved_institution' => $transformed['involved_institution'] ?? '',
-                    'notes' => $transformed['notes'] ?? ''
-                    // Tidak ada is_external atau source - sama seperti agenda lokal
+                    'notes' => $transformed['notes'] ?? '',
+                    'color' => '#3a7bd5' // External agendas are public
                 ];
             }, $externalAgendas);
 
             $mergedAgendas = array_merge($localAgendas, $transformedExternal);
         }
-
-        // Tambahkan warna otomatis buat bedain publik/privat/eksternal
-        $mergedAgendas = array_map(function ($item) {
-            if (isset($item['is_external']) && $item['is_external']) {
-                $item['color'] = '#8e44ad'; // Purple for external
-            } else {
-                $item['color'] = ($item['is_public'] ?? 1) ? '#3a7bd5' : '#f39c12';
-            }
-            return $item;
-        }, $mergedAgendas);
 
         return response()->json([
             'success' => true,
