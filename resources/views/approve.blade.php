@@ -89,172 +89,136 @@
                 <p>Pengajuan agenda yang sudah dibuat akan muncul di sini untuk ditinjau.</p>
             </div>
         @else
-            <div class="approval-list">
-                @foreach ($agendas as $agenda)
-                    <div class="approval-card">
-                        <!-- Card Header -->
-                        <div class="card-header">
-                            <div class="card-title-section">
-                                <h3 class="card-title"
-                                    style="white-space: normal; overflow-wrap: anywhere; word-break: break-word;">
-                                    {{ $agenda->agenda_name }}</h3>
-                                <p class="card-description">{{ $agenda->description ?? '-' }}</p>
-                            </div>
-                            <div class="status-badge {{ $agenda->status }}">
-                                @switch($agenda->status)
-                                    @case('pending')
-                                        Menunggu
-                                    @break
-
-                                    @case('approved')
-                                        Disetujui
-                                    @break
-
-                                    @case('rejected')
-                                        Ditolak
-                                    @break
-
-                                    @default
-                                        {{ ucfirst($agenda->status) }}
-                                @endswitch
-                            </div>
-                        </div>
-                        <!-- Card Content -->
-                        <div class="card-content">
-                            <div class="details-grid">
-                                <div class="details-left">
-                                    <div class="detail-item">
-                                        <i class="fas fa-building"></i>
-                                        <span><strong>Pelaksana:</strong>
-                                            {{ $agenda->unit->unit_name ?? '-' }}
-                                        </span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <i class="fas fa-calendar-alt"></i>
-                                        <span><strong>Tanggal:</strong>
-                                            {{ \Carbon\Carbon::parse($agenda->date)->locale('id')->translatedFormat('l, d F Y') }}</span>
-                                    </div>
-
-                                    <!-- ✅ Status dimasukkan ke dalam details-left biar sejajar -->
-                                    <div class="detail-item">
-                                        <i class="fas fa-eye"></i>
-                                        <span>
-                                            <strong>Status:</strong>
-                                            {{ $agenda->is_public ? 'Publik' : 'Privasi' }}
-                                        </span>
-                                    </div>
-                                    @if (!empty($agenda->notes))
-                                        <div class="detail-item">
-                                            <i class="fa-solid fa-file-lines"></i>
-                                            <span><strong>Catatan:</strong> {{ $agenda->notes }}</span>
+            <div class="table-container">
+                <table class="approval-table">
+                    <thead>
+                        <tr>
+                            <th>Nama Agenda</th>
+                            <th>Pelaksana</th>
+                            <th>Tanggal</th>
+                            <th>Waktu</th>
+                            <th>Lokasi</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($agendas as $agenda)
+                            <tr>
+                                <td class="agenda-name-cell">
+                                    <div class="agenda-name-wrapper">
+                                        <div class="agenda-title">{{ $agenda->agenda_name }}</div>
+                                        @if ($agenda->description)
+                                            <div class="agenda-description">{{ Str::limit($agenda->description, 60) }}</div>
+                                        @endif
+                                        <div class="submission-info-row">
+                                            <i class="fas fa-clock"></i>
+                                            <span>Diajukan {{ \Carbon\Carbon::parse($agenda->created_at)->locale('id')->diffForHumans() }}</span>
+                                            @if ($agenda->logs_count > 0)
+                                                <span class="update-badge" onclick="showUpdateModal({{ $agenda->id_agenda }})"
+                                                    style="cursor: pointer;">
+                                                    <i class="fas fa-sync-alt"></i> Updated
+                                                </span>
+                                            @endif
                                         </div>
-                                    @endif
-                                </div>
-
-                                <div class="details-right">
-                                    <div class="detail-item">
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="table-cell-content">
+                                        <i class="fas fa-building"></i>
+                                        <span>{{ $agenda->unit->unit_name ?? '-' }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="table-cell-content">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <span>{{ \Carbon\Carbon::parse($agenda->date)->locale('id')->translatedFormat('d M Y') }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="table-cell-content">
                                         <i class="fas fa-clock"></i>
-                                        <span><strong>Waktu Pelaksanaan:</strong>
+                                        <span>
                                             @if ($agenda->start_time && $agenda->end_time)
-                                                {{ \Carbon\Carbon::parse($agenda->start_time)->format('H:i') }}
-                                                - {{ \Carbon\Carbon::parse($agenda->end_time)->format('H:i') }}
-                                                WITA
+                                                {{ \Carbon\Carbon::parse($agenda->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($agenda->end_time)->format('H:i') }}
                                             @elseif($agenda->start_time)
                                                 {{ \Carbon\Carbon::parse($agenda->start_time)->format('H:i') }}
-                                                WITA
                                             @else
                                                 -
                                             @endif
                                         </span>
                                     </div>
-                                    
-                                    <div class="detail-item">
+                                </td>
+                                <td>
+                                    <div class="table-cell-content">
                                         <i class="fas fa-map-marker-alt"></i>
-                                        <span><strong>Lokasi:</strong> {{ $agenda->location ?? '-' }}</span>
+                                        <span>{{ Str::limit($agenda->location ?? '-', 30) }}</span>
                                     </div>
+                                </td>
+                                <td>
+                                    <div class="status-cell">
+                                        <span class="status-badge {{ $agenda->status }}">
+                                            @switch($agenda->status)
+                                                @case('pending')
+                                                    Menunggu
+                                                @break
 
-                                    <div class="detail-item participants">
-                                        <i class="fas fa-people-group"></i>
-                                        <span><strong>Dihadiri:</strong>
-                                            {{ $agenda->involved_institution ?? '-' }}</span>
-                                    </div>
+                                                @case('approved')
+                                                    Disetujui
+                                                @break
 
-                                    @if ($agenda->status === 'rejected' && !empty($agenda->reason))
-                                        <div class="detail-item">
-                                            <i class="fas fa-comment-dots"></i>
-                                            <span><strong>Alasan Ditolak:</strong> {{ $agenda->reason }}</span>
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
+                                                @case('rejected')
+                                                    Ditolak
+                                                @break
 
-
-                        <!-- Card Footer -->
-                        <div class="card-footer">
-                            <div class="submission-info">
-                                <i class="fas fa-user"></i>
-                                <span class="submission-unit">
-                                    {{ $agenda->unit->unit_name ?? ($agenda->units ?? '') }}
-                                </span>
-
-                                @if ($agenda->unit || $agenda->units)
-                                    <span class="separator">&nbsp;–&nbsp;</span>
-                                @endif
-
-                                <span class="submission-time">
-                                    Diajukan
-                                    {{ \Carbon\Carbon::parse($agenda->created_at)->locale('id')->diffForHumans() }}
-                                </span>
-                                @if ($agenda->logs_count > 0)
-                                    <span class="update-badge" onclick="showUpdateModal({{ $agenda->id_agenda }})"
-                                        style="cursor: pointer;">
-                                        <i class="fas fa-sync-alt"></i> Has been updated
-                                    </span>
-                                @endif
-                            </div>
-
-
-
-                            @if ($agenda->status === 'pending')
-                                <div class="approval-actions">
-                                    <button type="button" class="btn-reject"
-                                        onclick="openRejectModal({{ $agenda->id_agenda }})">
-                                        <i class="fas fa-times"></i> Tolak
-                                    </button>
-                                    <form action="{{ route('agenda.updateStatus', $agenda->id_agenda) }}" method="POST"
-                                        class="action-form approve-form" data-agenda-id="{{ $agenda->id_agenda }}">
-                                        @csrf
-                                        @method('PUT')
-                                        <input type="hidden" name="status" value="approved">
-                                        <button type="button" class="btn-approve"
-                                            onclick="showApproveConfirm({{ $agenda->id_agenda }})">
-                                            <i class="fas fa-check"></i> Setujui
-                                        </button>
-                                    </form>
-                                </div>
-                            @else
-                                <div class="approval-actions">
-
-                                    @if ($agenda->status === 'approved')
-                                        <a href="{{ route('agenda.edit', ['id_agenda' => $agenda->id_agenda, 'from' => 'approve']) }}"
-                                            class="btn-edit">
-                                            <i class="fas fa-pen"></i> Edit Agenda
-                                        </a>
-                                    @else
-                                        <span class="validated-text">
-                                            <i class="fas fa-circle-check"></i>
-                                            Agenda sudah divalidasi
-                                            ({{ ucfirst($agenda->status) }})
+                                                @default
+                                                    {{ ucfirst($agenda->status) }}
+                                            @endswitch
                                         </span>
-                                    @endif
-
-                                </div>
-                            @endif
-
-                        </div>
-                    </div>
-                @endforeach
+                                        <div class="visibility-badge {{ $agenda->is_public ? 'public' : 'private' }}">
+                                            <i class="fas fa-{{ $agenda->is_public ? 'eye' : 'eye-slash' }}"></i>
+                                            {{ $agenda->is_public ? 'Publik' : 'Privasi' }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="action-cell">
+                                        @if ($agenda->status === 'pending')
+                                            <div class="approval-actions">
+                                                <button type="button" class="btn-reject"
+                                                    onclick="openRejectModal({{ $agenda->id_agenda }})">
+                                                    <i class="fas fa-times"></i> Tolak
+                                                </button>
+                                                <form action="{{ route('agenda.updateStatus', $agenda->id_agenda) }}" method="POST"
+                                                    class="action-form approve-form" data-agenda-id="{{ $agenda->id_agenda }}">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <input type="hidden" name="status" value="approved">
+                                                    <button type="button" class="btn-approve"
+                                                        onclick="showApproveConfirm({{ $agenda->id_agenda }})">
+                                                        <i class="fas fa-check"></i> Setujui
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        @else
+                                            @if ($agenda->status === 'approved')
+                                                <a href="{{ route('agenda.edit', ['id_agenda' => $agenda->id_agenda, 'from' => 'approve']) }}"
+                                                    class="btn-edit">
+                                                    <i class="fas fa-pen"></i> Edit
+                                                </a>
+                                            @else
+                                                <span class="validated-text">
+                                                    <i class="fas fa-circle-check"></i>
+                                                    {{ ucfirst($agenda->status) }}
+                                                </span>
+                                            @endif
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         @endif
     </div>
