@@ -167,7 +167,7 @@
                                             @endif
                                         </span>
                                     </div>
-
+                                    
                                     <div class="detail-item">
                                         <i class="fas fa-map-marker-alt"></i>
                                         <span><strong>Lokasi:</strong> {{ $agenda->location ?? '-' }}</span>
@@ -338,16 +338,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
-    @if (session('success'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                setTimeout(function(){
-                    showToast("{{ session('success') }}", 'success');
-                }, 300);
-            });
-        </script>
-    @endif
-
     <script>
         // ======== UPDATE LOG MODAL ========
         const updateLogModal = document.getElementById("updateLogModal");
@@ -503,20 +493,10 @@
             const toastNode = document.createElement('div');
             toastNode.innerHTML = `
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <span style="
-                        display:inline-flex;
-                        align-items:center;
-                        justify-content:center;
-                        width:22px; height:22px; border-radius:50%;
-                        background:${isSuccess ? '#82A98D' : '#F7B7B7'}; color:${isSuccess ? '#ffffff' : '#7A1C1C'};
-                        font-size:12px;">
+                    <span style="display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:${isSuccess ? '#82A98D' : '#F7B7B7'}; color:${isSuccess ? '#ffffff' : '#7A1C1C'}; font-size:12px;">
                         <i class="fas ${isSuccess ? 'fa-check' : 'fa-times'}"></i>
                     </span>
-                    <span style="
-                        font-family:'Poppins',sans-serif;
-                        font-weight:600;
-                        font-size:15px;
-                        color:${isSuccess ? '#234B2C' : '#7A1C1C'};">
+                    <span style="font-family:'Poppins',sans-serif; font-weight:600; font-size:15px; color:${isSuccess ? '#234B2C' : '#7A1C1C'};">
                         ${message}
                     </span>
                 </div>
@@ -618,7 +598,7 @@
                 try {
                     const csrfToken = document.querySelector('meta[name="csrf-token"]');
                     if (!csrfToken) {
-                        showToast("CSRF token tidak ditemukan.", "error");
+                        Swal.fire("Error", "CSRF token tidak ditemukan.", "error");
                         rejectModalConfirm.disabled = false;
                         rejectModalConfirm.innerHTML = originalText;
                         return;
@@ -642,14 +622,14 @@
                     } catch (jsonError) {
                         const text = await res.text();
                         console.error('Response is not JSON:', text.substring(0, 200));
-                        showToast("Server mengembalikan response yang tidak valid.", "error");
+                        Swal.fire("Error", "Server mengembalikan response yang tidak valid.", "error");
                         rejectModalConfirm.disabled = false;
                         rejectModalConfirm.innerHTML = originalText;
                         return;
                     }
 
                     if (!res.ok || !data.success) {
-                        showToast(data.message || "Gagal menolak agenda.", "error");
+                        Swal.fire("Gagal", data.message || "Gagal menolak agenda.", "error");
                         rejectModalConfirm.disabled = false;
                         rejectModalConfirm.innerHTML = originalText;
                         return;
@@ -660,15 +640,15 @@
                     rejectModal.style.display = "none";
                     rejectModal.style.opacity = '';
                     if (sidebar) sidebar.classList.remove('dimmed');
-
-                    // Tampilkan notifikasi sukses (Toastify) dan reload setelah jeda
-                    showToast(data.message || "Agenda telah berhasil ditolak.", "success");
+                    
+                    // Tampilkan notifikasi sukses (Toastify) bergaya hijau
+                    showToast(data.message || "Agenda telah berhasil ditolak.", 'success');
                     setTimeout(() => { location.reload(); }, 1500);
 
                     currentAgendaId = null;
                 } catch (error) {
                     console.error('Error rejecting agenda:', error);
-                    showToast("Terjadi kesalahan koneksi ke server: " + error.message, "error");
+                    Swal.fire("Error", "Terjadi kesalahan koneksi ke server: " + error.message, "error");
                     rejectModalConfirm.disabled = false;
                     rejectModalConfirm.innerHTML = originalText;
                 }
@@ -681,7 +661,7 @@
         <p>Agenda telah disetujui</p>
     </div>
 
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // ========== HANDLE SUBMIT ==========
         const actionForms = document.querySelectorAll('.action-form');
