@@ -250,7 +250,7 @@ class AgendaController extends Controller
                 return response()->json([
                     'success' => true,
                     'agenda' => $agendaData,
-                    'message' => 'Agenda berhasil ditambahkan (pending approval).',
+                    'message' => 'Agenda berhasil ditambahkan .',
                 ]);
             }
 
