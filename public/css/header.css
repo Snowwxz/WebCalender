@@ -74,7 +74,7 @@
 
 .logo-text {
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 500;
     color: #333;
 }
 
@@ -206,38 +206,34 @@
 }
 
 .login-btn {
-    background-color: #82A98D;
+    background-color: #6E9579;
     color: #ffffff;
     border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-size: 16px;
-    font-weight: 500;
+    padding: 10px 22px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    transition: all 0.3s ease;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 8px rgba(110, 149, 121, 0.25);
 }
-
 .login-btn:hover {
-    background-color: #9BBC9F;
+    background-color: #5B7D67;
     color: #000000;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(110, 149, 121, 0.3);
 }
-
 .login-btn:active {
-    background-color: #6E9579;
-    color: #000000;
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(110, 149, 121, 0.25);
 }
 
 .login-btn i {
     font-size: 14px;
-    color: inherit;
-    transition: color 0.3s ease, transform 0.2s ease;
-}
-
-.login-btn:hover i {
-    transform: translateX(3px);
 }
 
 .user-profile-section {

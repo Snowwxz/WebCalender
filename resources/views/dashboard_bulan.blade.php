@@ -44,9 +44,9 @@
                 <div id="agendaSidebar" class="agenda-sidebar">
                     <div class="sidebar-header">
                         <h3 id="agendaSidebarDate">Agenda Hari Ini</h3>
-                        <button class="close-sidebar"
+                        <button class="close-sidebar" aria-label="Tutup"
                             onclick="document.getElementById('agendaSidebar').classList.remove('active')">
-                            <i class="fas fa-times"></i>
+                            <i class="fa-solid fa-xmark"></i>
                         </button>
                     </div>
                     <div id="agendaList" class="agenda-list"></div>
@@ -1001,7 +1001,7 @@
                     // Ambil start_time, jika tidak ada gunakan end_time, jika tidak ada gunakan '00:00:00'
                     const timeA = a.start_time || a.end_time || '00:00:00';
                     const timeB = b.start_time || b.end_time || '00:00:00';
-                    
+
                     // Bandingkan waktu
                     return timeA.localeCompare(timeB);
                 });
