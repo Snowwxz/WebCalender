@@ -111,10 +111,9 @@ class AgendaController extends Controller
                     ->orWhere('id_user', $userId);
 
                 // Tambahkan kondisi untuk agenda privat yang mengundang instansi user
-                if ($userUnitName) {
-                    $q->orWhere(function ($subQ) use ($userUnitName) {
-                        $subQ->where('is_public', 0)
-                            ->where('involved_institution', 'like', '%' . $userUnitName . '%');
+                if ($userUnitId) {
+                    $q->orWhereHas('invitations.group.unit', function ($sub) use ($userUnitId) {
+                        $sub->where('id_unit', $userUnitId);
                     });
                 }
             });

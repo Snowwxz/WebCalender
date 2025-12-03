@@ -68,4 +68,9 @@ class Agenda extends Model
     {
         return $this->hasMany(AgendaLog::class, 'agenda_id');
     }
+
+    public function invitations()
+    {
+        return $this->hasMany(Invitation::class, 'id_agenda', 'id_agenda');
+    }
 }
