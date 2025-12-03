@@ -500,6 +500,18 @@ class AgendaController extends Controller
         // Reload agenda untuk mendapatkan data terbaru
         $agenda->refresh();
 
+        // Clear cache untuk landing page jika agenda publik dan status approved
+        if ($agenda->is_public == 1 && $agenda->status == 'approved') {
+            $date = \Carbon\Carbon::parse($agenda->date);
+            $year = $date->year;
+            $month = $date->month;
+            $dateStr = $date->format('Y-m-d');
+            
+            \Illuminate\Support\Facades\Cache::forget("agenda_month_{$year}_{$month}");
+            \Illuminate\Support\Facades\Cache::forget("agenda_date_{$dateStr}");
+            \Illuminate\Support\Facades\Cache::forget("agenda_year_{$year}");
+        }
+
         // *** WRITE LOG ENTRY untuk semua user (admin dan user biasa) ***
         AgendaLog::create([
             'agenda_id' => $agenda->id_agenda,
@@ -543,6 +555,18 @@ class AgendaController extends Controller
         $agenda->approved_by = ($request->status === 'approved') ? Auth::id() : null;
         $agenda->save();
 
+        // Clear cache untuk landing page jika agenda publik
+        if ($agenda->is_public == 1) {
+            $date = \Carbon\Carbon::parse($agenda->date);
+            $year = $date->year;
+            $month = $date->month;
+            $dateStr = $date->format('Y-m-d');
+            
+            \Illuminate\Support\Facades\Cache::forget("agenda_month_{$year}_{$month}");
+            \Illuminate\Support\Facades\Cache::forget("agenda_date_{$dateStr}");
+            \Illuminate\Support\Facades\Cache::forget("agenda_year_{$year}");
+        }
+
         // log it
         AgendaLog::create([
             'agenda_id' => $agenda->id_agenda,
@@ -578,6 +602,18 @@ class AgendaController extends Controller
 
             // Capture old data untuk log
             $oldData = $agenda->toArray();
+
+            // Clear cache untuk landing page jika agenda publik (karena akan di-reject)
+            if ($agenda->is_public == 1) {
+                $date = \Carbon\Carbon::parse($agenda->date);
+                $year = $date->year;
+                $month = $date->month;
+                $dateStr = $date->format('Y-m-d');
+                
+                \Illuminate\Support\Facades\Cache::forget("agenda_month_{$year}_{$month}");
+                \Illuminate\Support\Facades\Cache::forget("agenda_date_{$dateStr}");
+                \Illuminate\Support\Facades\Cache::forget("agenda_year_{$year}");
+            }
 
             $agenda->status = 'rejected';
             $agenda->reason = $request->reason ?? null; // simpan alasan admin
