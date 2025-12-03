@@ -195,22 +195,22 @@
 
 .event-item {
     position: absolute;
-    /* left dan width akan di-set via JavaScript dengan percentage */
     background-color: #3a7bd5;
     color: white;
     font-size: 12px;
     font-weight: 500;
     cursor: pointer;
     z-index: 1;
-    min-height: 24px; /* Ensure zero-duration events are visible */
+    min-height: 24px;
     padding: 6px 10px;
     border-radius: 4px;
     box-sizing: border-box;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin-right: 4px; /* tambahan spacing untuk event yang side-by-side */
+    margin-right: 4px;
     display: flex;
-    align-items: flex-start; /* text berada di atas */
+    align-items: flex-start;
+    width: 100%;
 }
 
 .event-item.orange {
@@ -256,7 +256,7 @@
 }
 
 .event-content .event-title {
-    width: auto;
+    flex: 1;
     -webkit-line-clamp: 1;
 }
 
@@ -265,6 +265,8 @@
     color: #000000;
     flex-shrink: 0;
     white-space: nowrap;
+    margin-left: auto;
+    text-align: right;
 }
 
 /* Day View Header - using consistent calendar header styles */
