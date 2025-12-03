@@ -462,7 +462,28 @@
                         ? `${item.start_time} - ${item.end_time}`
                         : (item.start_time ?? '-');
                     const organizer = item.organizer ?? (item.unit && item.unit.unit_name) ?? '-';
-                    const participants = item.involved_institution ?? '-';
+                    
+                    // Format participants dari invitations
+                    let participants = '-';
+                    if (item.invitations && item.invitations.length > 0) {
+                        const parts = [];
+                        item.invitations.forEach((inv, index) => {
+                            if (inv.units && inv.units.length > 0) {
+                                const unitNames = inv.units.join(', ');
+                                if (item.invitations.length > 1) {
+                                    parts.push(`Sesi ${index + 1}= ${unitNames}`);
+                                } else {
+                                    parts.push(unitNames);
+                                }
+                            }
+                        });
+                        if (parts.length > 0) {
+                            participants = parts.join('<br>');
+                        }
+                    } else if (item.involved_institution) {
+                        participants = item.involved_institution;
+                    }
+                    
                     const location = item.location ?? '-';
 
                     return `
@@ -476,7 +497,7 @@
                                     <div><i class="far fa-clock"></i>${timeText}</div>
                                     <div><i class="fas fa-map-marker-alt"></i>${location}</div>
                                     <div><i class="fas fa-user"></i>Penyelenggara: ${organizer}</div>
-                                    <div><i class="fas fa-users"></i>Peserta: ${participants}</div>
+                                    <div><i class="fas fa-users"></i>Peserta: <span style="white-space: pre-line;">${participants}</span></div>
                                 </div>
                                 <div class="mini-agenda-actions">
                                     <div class="mini-agenda-status-wrapper">

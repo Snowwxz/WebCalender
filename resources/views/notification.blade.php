@@ -208,7 +208,32 @@
                                             <div class="detail-item participants">
                                                 <i class="fas fa-users"></i>
                                                 <span><strong>Dihadiri:</strong>
-                                                    {{ $item->involved_institution ?? '-' }}</span>
+                                                    @php
+                                                        $involvedText = '-';
+                                                        if ($item->invitations && $item->invitations->count() > 0) {
+                                                            $parts = [];
+                                                            foreach ($item->invitations as $index => $invitation) {
+                                                                $unitNames = $invitation->groupUnits->map(function($groupUnit) {
+                                                                    return $groupUnit->unit ? $groupUnit->unit->unit_name : null;
+                                                                })->filter()->values()->toArray();
+                                                                
+                                                                if (!empty($unitNames)) {
+                                                                    if ($item->invitations->count() > 1) {
+                                                                        $parts[] = 'Sesi ' . ($index + 1) . '= ' . implode(', ', $unitNames);
+                                                                    } else {
+                                                                        $parts[] = implode(', ', $unitNames);
+                                                                    }
+                                                                }
+                                                            }
+                                                            if (!empty($parts)) {
+                                                                $involvedText = implode('<br>', $parts);
+                                                            }
+                                                        } elseif ($item->involved_institution) {
+                                                            $involvedText = $item->involved_institution;
+                                                        }
+                                                    @endphp
+                                                    {!! $involvedText !!}
+                                                </span>
                                             </div>
                                             @if ($item->status === 'rejected' && !empty($item->reason))
                                                 <div class="detail-item">
@@ -337,7 +362,32 @@
                                             <div class="detail-item participants">
                                                 <i class="fas fa-users"></i>
                                                 <span><strong>Dihadiri:</strong>
-                                                    {{ $item->involved_institution ?? '-' }}</span>
+                                                    @php
+                                                        $involvedText = '-';
+                                                        if ($item->invitations && $item->invitations->count() > 0) {
+                                                            $parts = [];
+                                                            foreach ($item->invitations as $index => $invitation) {
+                                                                $unitNames = $invitation->groupUnits->map(function($groupUnit) {
+                                                                    return $groupUnit->unit ? $groupUnit->unit->unit_name : null;
+                                                                })->filter()->values()->toArray();
+                                                                
+                                                                if (!empty($unitNames)) {
+                                                                    if ($item->invitations->count() > 1) {
+                                                                        $parts[] = 'Sesi ' . ($index + 1) . '= ' . implode(', ', $unitNames);
+                                                                    } else {
+                                                                        $parts[] = implode(', ', $unitNames);
+                                                                    }
+                                                                }
+                                                            }
+                                                            if (!empty($parts)) {
+                                                                $involvedText = implode('<br>', $parts);
+                                                            }
+                                                        } elseif ($item->involved_institution) {
+                                                            $involvedText = $item->involved_institution;
+                                                        }
+                                                    @endphp
+                                                    {!! $involvedText !!}
+                                                </span>
                                             </div>
                                             @if ($item->status === 'rejected' && !empty($item->reason))
                                                 <div class="detail-item">
