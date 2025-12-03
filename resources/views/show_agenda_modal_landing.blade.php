@@ -26,12 +26,9 @@
                             <i class="fas fa-align-left" style="color: #82A98D;"></i>
                             Deskripsi Agenda
                         </label>
-                        <button type="button" class="btn btn-sm copy-agenda-btn" id="copyAgendaBtn"
-                            title="Salin Agenda"
-                            style="border: none; color: #82A98D; background: none; padding: 4px 8px; transition: all 0.3s ease; outline: none; box-shadow: none;"
-                            onmouseover="this.style.color='black'; this.style.backgroundColor='rgba(130, 169, 141, 0.1)';"
-                            onmouseout="this.style.color='#82A98D'; this.style.backgroundColor='';">
-                            <i class="fas fa-copy"></i> Salin
+                        <button type="button" class="copy-agenda-btn" id="copyAgendaBtn" title="Salin Agenda">
+                            <i class="fas fa-copy"></i>
+                            Salin
                         </button>
                     </div>
                     <div class="border rounded-3 p-3 bg-light fw-semibold" id="showAgendaDesc"
@@ -132,20 +129,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 notes: get('showAgendaNotes')
             };
 
-            const textToCopy =
-`AGENDA: ${agendaData.name}
+            function normalizeAttendees(raw) {
+                const txt = String(raw || '').trim();
+                if (!txt || txt === '-') return '-';
+                if (/\d+\.\s/.test(txt)) {
+                    const firstIndex = txt.search(/\d+\.\s/);
+                    const header = txt.slice(0, firstIndex).trim();
+                    const items = txt.slice(firstIndex).split(/\d+\.\s/).map(s => s.trim()).filter(Boolean);
+                    return (header ? header + "\r\n" : '') + items.map(s => `• ${s}`).join('\r\n');
+                }
+                const parts = txt.split(/,\s+|\n+/).map(s => s.trim()).filter(Boolean);
+                if (parts.length <= 1) return txt;
+                return parts.map(s => `• ${s}`).join('\r\n');
+            }
 
-Deskripsi: ${agendaData.desc}
+            const statusPlain = /publik/i.test(agendaData.access) ? 'Publik' : (/privasi/i.test(agendaData.access) ? 'Privasi' : agendaData.access);
+            const headerPlain = `*AGENDA ${agendaData.date.toUpperCase()}*\r\n\r\n`;
+            const bodyPlain =
+`*AGENDA:* ${agendaData.name}\r\n\r\n`+
+`*Deskripsi:*\r\n${agendaData.desc}\r\n\r\n`+
+`*Tanggal:* ${agendaData.date}\r\n`+
+`*Waktu:* ${agendaData.time}\r\n`+
+`*Lokasi:* ${agendaData.location}\r\n\r\n`+
+`*Pelaksana:* ${agendaData.unit}\r\n`+
+`*Dihadiri:*\r\n${normalizeAttendees(agendaData.involved)}\r\n\r\n`+
+`*Status:* ${statusPlain}\r\n`+
+`*Catatan:* ${agendaData.notes}`;
 
-Tanggal: ${agendaData.date}
-Waktu: ${agendaData.time}
-Lokasi: ${agendaData.location}
-
-Pelaksana: ${agendaData.unit}
-Dihadiri: ${agendaData.involved}
-Status: ${agendaData.access}
-
-Catatan: ${agendaData.notes}`;
+            const textToCopy = headerPlain + bodyPlain;
 
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(textToCopy).then(showSuccessFeedback).catch(() => fallbackCopy(textToCopy));

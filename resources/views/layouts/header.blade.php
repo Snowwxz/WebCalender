@@ -320,6 +320,7 @@
                     x: 0,
                     y: 20
                 },
+                zIndex: 13000,
                 style: {
                     background: "#FFF1E6",
                     border: "1px solid #F7B7B7",
@@ -387,7 +388,7 @@
         font-weight: 500;
         font-family: 'Poppins', sans-serif;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-        z-index: 9999;
+        z-index: 13000;
         display: inline-flex;
         align-items: center;
         gap: 8px;

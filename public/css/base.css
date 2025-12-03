@@ -460,3 +460,38 @@ body {
     background-color: #f3f6f4 !important;
     color: #6E9579 !important;
 }
+
+/* Pastikan Toastify selalu di atas sidebar/modals */
+.toastify {
+    z-index: 13000 !important;
+}
+
+#showAgendaModal .copy-agenda-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #6E9579 0%, #7FA88F 100%);
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#showAgendaModal .copy-agenda-btn:hover {
+    background: linear-gradient(135deg, #5b7d67 0%, #719c86 100%);
+}
+
+#showAgendaModal .copy-agenda-btn i {
+    color: #ffffff !important;
+    font-size: 16px;
+    opacity: 1 !important;
+    mix-blend-mode: normal;
+}
+
+#showAgendaModal .copy-agenda-btn .fa-copy,
+#showAgendaModal .copy-agenda-btn .fa-check {
+    color: #ffffff !important;
+}

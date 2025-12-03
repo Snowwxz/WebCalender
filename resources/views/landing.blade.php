@@ -42,10 +42,16 @@
                 <div id="agendaSidebar" class="agenda-sidebar">
                     <div class="sidebar-header">
                         <h3 id="agendaSidebarDate">Agenda Hari Ini</h3>
-                        <button class="close-sidebar"
-                            onclick="document.getElementById('agendaSidebar').classList.remove('active')">
-                            <i class="fas fa-times"></i>
-                        </button>
+                        <div class="sidebar-actions">
+                            <button class="copy-sidebar" id="copySidebarAgendaBtn" aria-label="Salin agenda hari ini" title="Salin agenda hari ini">
+                                <i class="fas fa-copy"></i>
+                                <span class="label">Salin</span>
+                            </button>
+                            <button class="close-sidebar"
+                                onclick="document.getElementById('agendaSidebar').classList.remove('active')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
                     </div>
                     <div id="agendaList" class="agenda-list"></div>
                 </div>
@@ -228,31 +234,185 @@
                     // Ambil start_time, jika tidak ada gunakan end_time, jika tidak ada gunakan '00:00:00'
                     const timeA = a.start_time || a.end_time || '00:00:00';
                     const timeB = b.start_time || b.end_time || '00:00:00';
-                    
+
                     // Bandingkan waktu
                     return timeA.localeCompare(timeB);
                 });
 
-                sortedAgendaList.forEach((item, index) => {
+                const copyBtn = document.getElementById('copySidebarAgendaBtn');
+                if (copyBtn) {
+                    copyBtn.onclick = () => {
+                        const tanggal = formatDate(date);
+                        function normalizeAttendees(raw) {
+                            const txt = (raw || '').trim();
+                            if (!txt || txt === '-') return { plain: '-' };
+                            if (/\d+\.\s/.test(txt)) {
+                                const firstIndex = txt.search(/\d+\.\s/);
+                                const header = txt.slice(0, firstIndex).trim();
+                                const items = txt.slice(firstIndex).split(/\d+\.\s/).map(s => s.trim()).filter(Boolean);
+                                const plain = (header ? header + '\r\n' : '') + items.map(s => `• ${s}`).join('\r\n');
+                                return { plain };
+                            }
+                            const parts = txt.split(/,\s+|\n+/).map(s => s.trim()).filter(Boolean);
+                            if (parts.length <= 1) return { plain: txt };
+                            return { plain: parts.map(s => `• ${s}`).join('\r\n') };
+                        }
+
+                        const entries = sortedAgendaList.map((item, idx) => {
+                            const name = item.agenda_name || item.title || '-';
+                            const desc = item.description || '-';
+                            const start = item.start_time || '';
+                            const end = item.end_time || '';
+                            const waktu = (start && end) ? `${start} - ${end}` : (start || end || '-');
+                            const lokasi = item.location || '-';
+                            const pelaksana = (item.unit && item.unit.unit_name) ? item.unit.unit_name : (item.unit_name || '-');
+                            const dihadiriRaw = item.involved_institution || '-';
+                            const dihadiriNorm = normalizeAttendees(dihadiriRaw);
+                            const status = (item.is_public == 1 || item.is_public === true) ? 'Publik' : 'Privasi';
+                            const catatan = item.notes || '-';
+                            const nomor = idx + 1;
+
+                            const plain =
+`*AGENDA ${nomor}:* ${name}\r\n\r\n`+
+`*Deskripsi:*\r\n${desc}\r\n\r\n`+
+`*Tanggal:* ${tanggal}\r\n`+
+`*Waktu:* ${waktu}\r\n`+
+`*Lokasi:* ${lokasi}\r\n\r\n`+
+`*Pelaksana:* ${pelaksana}\r\n`+
+`*Dihadiri:*\r\n${dihadiriNorm.plain}\r\n\r\n`+
+`*Status:* ${status}\r\n`+
+`*Catatan:* ${catatan}`;
+
+                            return { plain };
+                        });
+
+                        const headerText = `Agenda ${tanggal}`;
+                        const headerPlain = `*${headerText.toUpperCase()}*\r\n\r\n`;
+                        const plainText = headerPlain + entries.map(e => e.plain).join(`\r\n\r\n`);
+
+                        const doTextareaFallback = () => {
+                            const ta = document.createElement('textarea');
+                            ta.value = plainText;
+                            ta.style.position = 'fixed';
+                            ta.style.left = '-9999px';
+                            document.body.appendChild(ta);
+                            ta.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(ta);
+                            showCopiedToast();
+                        };
+
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            navigator.clipboard.writeText(plainText).then(showCopiedToast).catch(doTextareaFallback);
+                        } else {
+                            doTextareaFallback();
+                        }
+
+                        function showCopiedToast() {
+                            const msg = `Agenda ${tanggal} berhasil disalin`;
+                            if (typeof showSuccessToast === 'function') showSuccessToast(msg);
+                            else alert(msg);
+                        }
+                    };
+                }
+
+                const esc = s => String(s || '').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+                const toggleRow = document.createElement('div');
+                toggleRow.className = 'list-toggle';
+                toggleRow.innerHTML = `<span class="view-indicator is-open">Tampilkan</span>`;
+                listContainer.appendChild(toggleRow);
+
+                sortedAgendaList.forEach((data) => {
                     const itemDiv = document.createElement("div");
                     itemDiv.className = "agenda-item";
 
                     const header = document.createElement("div");
                     header.className = "agenda-header";
                     header.innerHTML = `
-                    <span class="agenda-item-title">${item.agenda_name}</span>
-                    <span class="agenda-item-arrow"><i class="fas fa-chevron-right"></i></span>
-                `;
+                        <div class="agenda-item-title">${esc(data.agenda_name)}</div>
+                        <button class="agenda-item-arrow" aria-label="Tampilkan/Sembunyikan">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    `;
+
+                    const timeText = (data.start_time && data.end_time)
+                        ? `${String(data.start_time).slice(0,5)} - ${String(data.end_time).slice(0,5)}`
+                        : (data.end_time ? String(data.end_time).slice(0,5) : (data.start_time ? String(data.start_time).slice(0,5) : '-'));
+                    const tanggalText = formatDate(data.date || date);
+
+                    const unitName = (data.unit && data.unit.unit_name) ? data.unit.unit_name : (data.unit_name || '-');
+                    const desc = (data.description || '-');
+                    const involved = (data.involved_institution || '-');
+                    const notes = (data.notes || '-');
+                    const location = (data.location || '-');
+                    const statusText = (data.is_public == 1 || data.is_public === true) ? 'Publik' : 'Privasi';
+                    const statusClass = (data.is_public == 1 || data.is_public === true) ? 'public' : 'private';
+
+                    const details = document.createElement("div");
+                    details.className = "agenda-details";
+                    details.innerHTML = `
+                        <div class="agenda-detail-line"><i class="fas fa-align-left"></i><span>Deskripsi: ${esc(desc)}</span></div>
+                        <div class="agenda-detail-line"><i class="fas fa-calendar"></i><span>Tanggal: ${esc(tanggalText)}</span></div>
+                        <div class="agenda-detail-line"><i class="fas fa-clock"></i><span>Waktu: ${esc(timeText)}</span></div>
+                        <div class="agenda-detail-line"><i class="fas fa-map-marker-alt"></i><span>Lokasi: ${esc(location)}</span></div>
+                        <div class="agenda-detail-line"><i class="fas fa-building"></i><span>Pelaksana: ${esc(unitName)}</span></div>
+                        <div class="agenda-detail-line"><i class="fas fa-users"></i><span>Dihadiri: ${esc(involved)}</span></div>
+                        <div class="agenda-detail-line"><i class="fas fa-eye"></i><span>Status: <span class="status-pill ${statusClass}">${esc(statusText)}</span></span></div>
+                        <div class="agenda-detail-line"><i class="fas fa-sticky-note"></i><span>Catatan: ${esc(notes)}</span></div>
+                    `;
 
                     itemDiv.appendChild(header);
-                    itemDiv.addEventListener("click", () => {
-                        openShowAgendaModal(item);
+                    itemDiv.appendChild(details);
+
+                    header.querySelector('.agenda-item-title').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openShowAgendaModal(data);
+                    });
+
+                    header.querySelector('.agenda-item-arrow').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        details.classList.toggle('hidden');
+                        const icon = e.currentTarget.querySelector('i');
+                        icon.className = details.classList.contains('hidden') ? 'fas fa-chevron-right' : 'fas fa-chevron-down';
+                    });
+
+                    itemDiv.addEventListener('click', (e) => {
+                        if (e.target.closest('.agenda-item-arrow')) return;
+                        openShowAgendaModal(data);
                     });
 
                     listContainer.appendChild(itemDiv);
                 });
 
                 sidebar.classList.add("active");
+
+                const viewIndicator = listContainer.querySelector('.view-indicator');
+                if (viewIndicator) {
+                    let isOpen = true;
+                    const setLabel = () => {
+                        viewIndicator.textContent = 'Tampilkan';
+                        if (isOpen) {
+                            viewIndicator.classList.add('is-open');
+                            viewIndicator.classList.remove('is-closed');
+                            viewIndicator.setAttribute('aria-label', 'Sembunyikan ringkasan');
+                            viewIndicator.setAttribute('title', 'Sembunyikan ringkasan');
+                        } else {
+                            viewIndicator.classList.add('is-closed');
+                            viewIndicator.classList.remove('is-open');
+                            viewIndicator.setAttribute('aria-label', 'Tampilkan ringkasan');
+                            viewIndicator.setAttribute('title', 'Tampilkan ringkasan');
+                        }
+                    };
+                    setLabel();
+                    viewIndicator.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const allDetails = document.querySelectorAll('#agendaSidebar .agenda-details');
+                        isOpen = !isOpen;
+                        allDetails.forEach(d => d.classList.toggle('hidden', !isOpen));
+                        setLabel();
+                    });
+                }
             }
 
             function openShowAgendaModal(data) {
@@ -289,7 +449,7 @@
 
                 const notesEl = document.getElementById('showAgendaNotes');
                 if (notesEl) notesEl.innerText = data.notes ?? '-';
-                
+
                 new bootstrap.Modal(document.getElementById('showAgendaModal')).show();
             }
 
@@ -319,4 +479,3 @@
             });
         </script>
     @endsection
-

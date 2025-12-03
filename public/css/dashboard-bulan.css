@@ -1447,8 +1447,8 @@
 #agendaSidebar {
     position: fixed;
     top: 72px;
-    right: -400px;
-    width: 400px;
+    right: -640px;
+    width: 640px;
     height: calc(100% - 72px);
     background: #F7FAF8;
     box-shadow: none;
@@ -1486,6 +1486,81 @@
     font-size: 16px;
     font-weight: 600;
     color: #ffffff;
+    flex: 1;
+    min-width: 0;
+}
+
+#agendaSidebar .sidebar-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+/* Indikator tampilan dengan ikon via CSS content */
+#agendaSidebar .view-indicator {
+    color: #2F3E35;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#agendaSidebar .view-indicator::before {
+    content: "\f06e"; /* fa-eye */
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: #E8F2EB;
+    border: 1px solid #B7D7C4;
+    color: #2F3E35;
+}
+
+#agendaSidebar .view-indicator.is-closed::before {
+    content: "\f070"; /* fa-eye-slash */
+}
+
+#agendaSidebar .view-indicator:hover::before {
+    background: #DDEBE2;
+}
+
+/* Bar toggle di atas konten */
+#agendaSidebar .list-toggle {
+    display: flex;
+    justify-content: flex-end;
+    padding: 6px 20px 6px;
+}
+
+#agendaSidebar .copy-sidebar {
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #ffffff;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+#agendaSidebar .copy-sidebar i {
+    font-size: 14px;
+}
+
+#agendaSidebar .copy-sidebar:hover {
+    background: rgba(255, 255, 255, 0.28);
+    color: #ffffff;
+    transform: translateY(-1px);
 }
 
 #agendaSidebar .close-sidebar {
@@ -1511,7 +1586,7 @@
 }
 
 #agendaSidebar .agenda-list {
-    padding: 20px;
+    padding: 10px 20px 20px;
     flex: 1;
     overflow-y: auto;
     background: #F7FAF8;
@@ -1548,6 +1623,8 @@
     word-wrap: break-word;
     font-weight: 600;
     line-height: 1.4;
+    font-size: 15px;
+    color: #1f2937;
 }
 
 /* Badge tetap di kanan, gak boleh ketendang */
@@ -1561,13 +1638,24 @@
     color: #6E9579;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     margin-left: 10px;
-    font-size: 14px;
+    font-size: 16px;
     height: fit-content;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 0;
+    cursor: pointer;
 }
 
 .agenda-item-arrow:hover {
     color: #5b7d67;
+}
+
+.agenda-item-arrow:focus {
+    outline: none;
+    box-shadow: none;
 }
 
 /* Warna status */
@@ -1599,7 +1687,7 @@
 .agenda-details {
     margin-top: 10px;
     font-size: 0.9rem;
-    color: #555;
+    color: #374151;
     padding-left: 10px;
     line-height: 1.4;
 }
@@ -1860,4 +1948,41 @@
 .modal-header .close-modal {
     margin-left: auto;
     padding: 4px 8px;
+}
+#agendaSidebar .agenda-detail-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0;
+    color: #374151;
+}
+
+#agendaSidebar .agenda-detail-line i {
+    color: #6E9579;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    min-width: 18px;
+    height: 18px;
+    font-size: 16px;
+    line-height: 1;
+    text-align: center;
+}
+#agendaSidebar .status-pill {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+#agendaSidebar .status-pill.public {
+    background: #A8E6A3;
+    color: #2F3E35;
+}
+
+#agendaSidebar .status-pill.private {
+    background: #FFB67E;
+    color: #2F3E35;
 }
