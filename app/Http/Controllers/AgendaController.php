@@ -216,11 +216,12 @@ class AgendaController extends Controller
             'start_time' => 'nullable|date_format:H:i',
             'end_time' => 'nullable|date_format:H:i|after_or_equal:start_time',
             'location' => 'nullable|string|max:255',
-            'invited_units' => 'nullable|array',
-            'invited_units.*' => 'exists:units,id_unit',
-            'session_name' => 'nullable|string|max:255',
             'is_public' => 'required|in:0,1',
             'notes' => 'nullable|string|max:1000',
+            'sessions' => 'nullable|array',
+            'sessions.*.session_name' => 'nullable|string|max:255',
+            'sessions.*.invited_units' => 'nullable|array',
+            'sessions.*.invited_units.*' => 'exists:units,id_unit',
         ]);
 
         try {
@@ -240,26 +241,39 @@ class AgendaController extends Controller
             $agenda->notes = $validated['notes'] ?? null;
             $agenda->save();
 
-            // Create group_units and invitation if units are provided
-            if (!empty($validated['invited_units']) && is_array($validated['invited_units'])) {
-                // Generate a unique id_group (use max + 1 or timestamp-based)
+            // Create group_units and invitations for each session
+            // Handle sessions_data from JSON or sessions array
+            $sessionsData = [];
+            if ($request->has('sessions_data')) {
+                $sessionsData = json_decode($request->input('sessions_data'), true) ?? [];
+            } elseif (!empty($validated['sessions'])) {
+                $sessionsData = $validated['sessions'];
+            }
+
+            if (!empty($sessionsData) && is_array($sessionsData)) {
                 $maxGroupId = GroupUnit::max('id_group') ?? 0;
-                $newGroupId = $maxGroupId + 1;
+                
+                foreach ($sessionsData as $session) {
+                    if (!empty($session['invited_units']) && is_array($session['invited_units'])) {
+                        $newGroupId = $maxGroupId + 1;
+                        $maxGroupId = $newGroupId;
 
-                // Add all selected units to this group
-                foreach ($validated['invited_units'] as $unitId) {
-                    GroupUnit::create([
-                        'id_group' => $newGroupId,
-                        'id_unit' => $unitId,
-                    ]);
+                        // Add all selected units to this group
+                        foreach ($session['invited_units'] as $unitId) {
+                            GroupUnit::create([
+                                'id_group' => $newGroupId,
+                                'id_unit' => $unitId,
+                            ]);
+                        }
+
+                        // Create invitation for this session
+                        Invitation::create([
+                            'id_agenda' => $agenda->id_agenda,
+                            'id_group' => $newGroupId,
+                            'session_name' => $session['session_name'] ?? null,
+                        ]);
+                    }
                 }
-
-                // Create invitation for this agenda
-                Invitation::create([
-                    'id_agenda' => $agenda->id_agenda,
-                    'id_group' => $newGroupId,
-                    'session_name' => $validated['session_name'] ?? null,
-                ]);
             }
 
             DB::commit();
