@@ -6,10 +6,13 @@ use App\Models\Agenda;
 use App\Models\Unit;
 use App\Models\User;
 use App\Models\AgendaLog;
+use App\Models\GroupUnit;
+use App\Models\Invitation;
 use App\Services\ExternalAgendaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class AgendaController extends Controller
@@ -104,16 +107,19 @@ class AgendaController extends Controller
         // 🔹 Kalau bukan superadmin, batasi hanya publik atau milik sendiri atau diundang
         if ($user->role !== 'superadmin') {
             $userUnit = $user->unit;
-            $userUnitName = $userUnit ? $userUnit->unit_name : null;
+            $userUnitId = $userUnit ? $userUnit->id_unit : null;
 
-            $query->where(function ($q) use ($userId, $userUnitName) {
+            $query->where(function ($q) use ($userId, $userUnitId) {
                 $q->where('is_public', 1)
                     ->orWhere('id_user', $userId);
 
                 // Tambahkan kondisi untuk agenda privat yang mengundang instansi user
                 if ($userUnitId) {
-                    $q->orWhereHas('invitations.group.unit', function ($sub) use ($userUnitId) {
-                        $sub->where('id_unit', $userUnitId);
+                    $q->orWhere(function ($subQ) use ($userUnitId) {
+                        $subQ->where('is_public', 0)
+                            ->whereHas('invitations.groupUnits', function ($groupQ) use ($userUnitId) {
+                                $groupQ->where('id_unit', $userUnitId);
+                            });
                     });
                 }
             });
@@ -210,12 +216,17 @@ class AgendaController extends Controller
             'start_time' => 'nullable|date_format:H:i',
             'end_time' => 'nullable|date_format:H:i|after_or_equal:start_time',
             'location' => 'nullable|string|max:255',
-            'involved_institution' => 'nullable|string|max:500',
             'is_public' => 'required|in:0,1',
             'notes' => 'nullable|string|max:1000',
+            'sessions' => 'nullable|array',
+            'sessions.*.session_name' => 'nullable|string|max:255',
+            'sessions.*.invited_units' => 'nullable|array',
+            'sessions.*.invited_units.*' => 'exists:units,id_unit',
         ]);
 
         try {
+            DB::beginTransaction();
+
             $agenda = new Agenda();
             $agenda->agenda_name = $validated['agenda_name'];
             $agenda->description = $validated['description'];
@@ -223,13 +234,49 @@ class AgendaController extends Controller
             $agenda->start_time = $validated['start_time'];
             $agenda->end_time = $validated['end_time'];
             $agenda->location = $validated['location'];
-            $agenda->involved_institution = $validated['involved_institution'];
             $agenda->is_public = $validated['is_public'];
             $agenda->id_unit = Auth::user()->id_unit;
             $agenda->id_user = Auth::id();
             $agenda->status = 'pending';
             $agenda->notes = $validated['notes'] ?? null;
             $agenda->save();
+
+            // Create group_units and invitations for each session
+            // Handle sessions_data from JSON or sessions array
+            $sessionsData = [];
+            if ($request->has('sessions_data')) {
+                $sessionsData = json_decode($request->input('sessions_data'), true) ?? [];
+            } elseif (!empty($validated['sessions'])) {
+                $sessionsData = $validated['sessions'];
+            }
+
+            if (!empty($sessionsData) && is_array($sessionsData)) {
+                $maxGroupId = GroupUnit::max('id_group') ?? 0;
+
+                foreach ($sessionsData as $session) {
+                    if (!empty($session['invited_units']) && is_array($session['invited_units'])) {
+                        $newGroupId = $maxGroupId + 1;
+                        $maxGroupId = $newGroupId;
+
+                        // Add all selected units to this group
+                        foreach ($session['invited_units'] as $unitId) {
+                            GroupUnit::create([
+                                'id_group' => $newGroupId,
+                                'id_unit' => $unitId,
+                            ]);
+                        }
+
+                        // Create invitation for this session
+                        Invitation::create([
+                            'id_agenda' => $agenda->id_agenda,
+                            'id_group' => $newGroupId,
+                            'session_name' => $session['session_name'] ?? null,
+                        ]);
+                    }
+                }
+            }
+
+            DB::commit();
 
             // ⚙ Jika request datang via AJAX / fetch
             if ($request->wantsJson() || $request->ajax()) {
@@ -323,7 +370,9 @@ class AgendaController extends Controller
             'location' => 'nullable|string',
             'date' => 'required|date',
             'start_time' => 'required',
-            'involved_institution' => 'nullable|string',
+            'invited_units' => 'nullable|array',
+            'invited_units.*' => 'exists:units,id_unit',
+            'session_name' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
         ]);
 
@@ -332,7 +381,49 @@ class AgendaController extends Controller
         // Jika agenda ditolak dan user biasa yang edit, ubah status kembali ke pending
         $isUserEditingRejected = Auth::user()->role !== 'admin' && $agenda->status === 'rejected';
 
-        $agenda->update($validated);
+        // Update agenda fields (exclude invited_units and session_name)
+        $agendaData = $validated;
+        unset($agendaData['invited_units'], $agendaData['session_name']);
+        $agenda->update($agendaData);
+
+        // Update invitations and group_units
+        DB::beginTransaction();
+        try {
+            // Delete existing invitations for this agenda
+            $existingInvitations = Invitation::where('id_agenda', $agenda->id_agenda)->get();
+            foreach ($existingInvitations as $invitation) {
+                // Delete group_units for this invitation's group
+                GroupUnit::where('id_group', $invitation->id_group)->delete();
+                $invitation->delete();
+            }
+
+            // Create new invitations and group_units if units are provided
+            if (!empty($validated['invited_units']) && is_array($validated['invited_units'])) {
+                // Generate a unique id_group
+                $maxGroupId = GroupUnit::max('id_group') ?? 0;
+                $newGroupId = $maxGroupId + 1;
+
+                // Add all selected units to this group
+                foreach ($validated['invited_units'] as $unitId) {
+                    GroupUnit::create([
+                        'id_group' => $newGroupId,
+                        'id_unit' => $unitId,
+                    ]);
+                }
+
+                // Create invitation for this agenda
+                Invitation::create([
+                    'id_agenda' => $agenda->id_agenda,
+                    'id_group' => $newGroupId,
+                    'session_name' => $validated['session_name'] ?? null,
+                ]);
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
 
         // Jika user biasa edit agenda yang ditolak, ubah status ke pending
         if ($isUserEditingRejected) {
@@ -544,7 +635,9 @@ class AgendaController extends Controller
                 $q->where('agenda_name', 'like', $like)
                     ->orWhere('description', 'like', $like)
                     ->orWhere('location', 'like', $like)
-                    ->orWhere('involved_institution', 'like', $like)
+                    ->orWhereHas('invitations.groupUnits.unit', function ($uq) use ($like) {
+                        $uq->where('unit_name', 'like', $like);
+                    })
                     ->orWhereHas('unit', function ($uq) use ($like) {
                         $uq->where('unit_name', 'like', $like);
                     });
@@ -659,13 +752,16 @@ class AgendaController extends Controller
         $userUnitName = $userUnit ? $userUnit->unit_name : null;
 
         // Get local agendas
+        $userUnit = $user->unit;
+        $userUnitId = $userUnit ? $userUnit->id_unit : null;
+
         $localAgendas = Agenda::query()
             ->with(['unit'])
-            ->selectRaw("id_agenda, agenda_name, DATE(date) as date, location, description, start_time, end_time, involved_institution, is_public, status, id_unit, notes")
+            ->selectRaw("id_agenda, agenda_name, DATE(date) as date, location, description, start_time, end_time, is_public, status, id_unit, notes")
             ->whereMonth('date', $month)
             ->whereYear('date', $year)
             ->where('status', 'approved')
-            ->where(function ($q) use ($userId, $userUnitName) {
+            ->where(function ($q) use ($userId, $userUnitId) {
                 // Agenda publik
                 $q->where('is_public', 1);
 
@@ -676,10 +772,12 @@ class AgendaController extends Controller
                 });
 
                 // Agenda privasi yang mengundang instansi user
-                if ($userUnitName) {
-                    $q->orWhere(function ($subQ) use ($userUnitName) {
+                if ($userUnitId) {
+                    $q->orWhere(function ($subQ) use ($userUnitId) {
                         $subQ->where('is_public', 0)
-                            ->where('involved_institution', 'like', '%' . $userUnitName . '%');
+                            ->whereHas('invitations.groupUnits', function ($groupQ) use ($userUnitId) {
+                                $groupQ->where('id_unit', $userUnitId);
+                            });
                     });
                 }
             })
@@ -738,20 +836,22 @@ class AgendaController extends Controller
         }
 
         $userUnit = $user->unit;
-        $userUnitName = $userUnit ? $userUnit->unit_name : null;
+        $userUnitId = $userUnit ? $userUnit->id_unit : null;
 
         // Get local agendas
         $localAgendas = Agenda::with(['unit', 'user', 'approver'])
             ->whereDate('date', $date)
-            ->where(function ($q) use ($userId, $userUnitName) {
+            ->where(function ($q) use ($userId, $userUnitId) {
                 $q->where('is_public', 1) // publik
                     ->orWhere('id_user', $userId); // private tapi milik sendiri
 
                 // Tambahkan kondisi untuk agenda privat yang mengundang instansi user
-                if ($userUnitName) {
-                    $q->orWhere(function ($subQ) use ($userUnitName) {
+                if ($userUnitId) {
+                    $q->orWhere(function ($subQ) use ($userUnitId) {
                         $subQ->where('is_public', 0)
-                            ->where('involved_institution', 'like', '%' . $userUnitName . '%');
+                            ->whereHas('invitations.groupUnits', function ($groupQ) use ($userUnitId) {
+                                $groupQ->where('id_unit', $userUnitId);
+                            });
                     });
                 }
             })
@@ -811,6 +911,9 @@ class AgendaController extends Controller
         $userUnitName = $userUnit ? $userUnit->unit_name : null;
 
         // Optimize: Only select needed fields to reduce memory and query time
+        $userUnit = $user->unit;
+        $userUnitId = $userUnit ? $userUnit->id_unit : null;
+
         $localAgendas = Agenda::with(['unit:id_unit,unit_name'])
             ->select([
                 'id_agenda',
@@ -821,21 +924,22 @@ class AgendaController extends Controller
                 'is_public',
                 'description',
                 'date',
-                'involved_institution',
                 'notes',
                 'id_unit'
             ])
             ->whereDate('date', $date)
             ->where('status', 'approved')
-            ->where(function ($q) use ($userId, $userUnitName) {
+            ->where(function ($q) use ($userId, $userUnitId) {
                 $q->where('is_public', 1)
                     ->orWhere('id_user', $userId);
 
                 // Tambahkan kondisi untuk agenda privat yang mengundang instansi user
-                if ($userUnitName) {
-                    $q->orWhere(function ($subQ) use ($userUnitName) {
+                if ($userUnitId) {
+                    $q->orWhere(function ($subQ) use ($userUnitId) {
                         $subQ->where('is_public', 0)
-                            ->where('involved_institution', 'like', '%' . $userUnitName . '%');
+                            ->whereHas('invitations.groupUnits', function ($groupQ) use ($userUnitId) {
+                                $groupQ->where('id_unit', $userUnitId);
+                            });
                     });
                 }
             })
@@ -1195,16 +1299,18 @@ class AgendaController extends Controller
             // Apply user permissions
             if ($user->role !== 'superadmin') {
                 $userUnit = $user->unit;
-                $userUnitName = $userUnit ? $userUnit->unit_name : null;
+                $userUnitId = $userUnit ? $userUnit->id_unit : null;
 
-                $query->where(function ($q) use ($userId, $userUnitName) {
+                $query->where(function ($q) use ($userId, $userUnitId) {
                     $q->where('is_public', 1)
                         ->orWhere('id_user', $userId);
 
-                    if ($userUnitName) {
-                        $q->orWhere(function ($subQ) use ($userUnitName) {
+                    if ($userUnitId) {
+                        $q->orWhere(function ($subQ) use ($userUnitId) {
                             $subQ->where('is_public', 0)
-                                ->where('involved_institution', 'like', '%' . $userUnitName . '%');
+                                ->whereHas('invitations.groupUnits', function ($groupQ) use ($userUnitId) {
+                                    $groupQ->where('id_unit', $userUnitId);
+                                });
                         });
                     }
                 });

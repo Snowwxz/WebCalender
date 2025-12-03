@@ -28,10 +28,10 @@ class Invitation extends Model
     }
 
     /**
-     * Relasi ke GroupUnit (kelompok unit)
+     * Relasi ke GroupUnit (kelompok unit) - mendapatkan semua unit dalam group ini
      */
-    public function group()
+    public function groupUnits()
     {
-        return $this->belongsTo(GroupUnit::class, 'id_group', 'id_group');
+        return $this->hasMany(GroupUnit::class, 'id_group', 'id_group');
     }
 }

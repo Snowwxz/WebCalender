@@ -10,10 +10,10 @@ class GroupUnit extends Model
     use HasFactory;
 
     protected $table = 'group_units';
-    protected $primaryKey = 'id_group';
     protected $guarded = [];
 
     protected $fillable = [
+        'id_group',
         'id_unit',
     ];
 
