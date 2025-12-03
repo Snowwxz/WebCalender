@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\GroupUnit;
 
 class Agenda extends Model
 {
@@ -23,7 +24,6 @@ class Agenda extends Model
         'start_time',
         'end_time',
         'location',
-        'involved_institution',
         'status',
         'is_public',
         'id_user',
@@ -67,5 +67,38 @@ class Agenda extends Model
     public function logs()
     {
         return $this->hasMany(AgendaLog::class, 'agenda_id');
+    }
+
+    //ini berfungsi dibagian untuk relasikan ke invitation
+    public function invitations()
+    {
+        return $this->hasMany(Invitation::class, 'id_agenda', 'id_agenda');
+    }
+
+    /**
+     * Get all units invited to this agenda
+     */
+    public function getInvitedUnitsAttribute()
+    {
+        $units = collect();
+        foreach ($this->invitations as $invitation) {
+            $groupUnits = GroupUnit::where('id_group', $invitation->id_group)
+                ->with('unit')
+                ->get();
+            foreach ($groupUnits as $groupUnit) {
+                if ($groupUnit->unit) {
+                    $units->push($groupUnit->unit);
+                }
+            }
+        }
+        return $units->unique('id_unit')->values();
+    }
+
+    /**
+     * Get invited unit names as comma-separated string (for backward compatibility)
+     */
+    public function getInvitedUnitNamesAttribute()
+    {
+        return $this->invitedUnits->pluck('unit_name')->implode(', ');
     }
 }

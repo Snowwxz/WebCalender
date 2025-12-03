@@ -32,4 +32,10 @@ class Unit extends Model
     {
         return $this->hasMany(Agenda::class, 'id_unit', 'id_unit');
     }
+
+    // Relasi ke group_units (One to Many)
+    public function groupUnits()
+    {
+        return $this->hasMany(GroupUnit::class, 'id_unit', 'id_unit');
+    }
 }

@@ -35,7 +35,9 @@ class ApproveController extends Controller
                 $q->where('agenda_name', 'like', "%{$search}%")
                     ->orWhere('description', 'like', "%{$search}%")
                     ->orWhere('location', 'like', "%{$search}%")
-                    ->orWhere('involved_institution', 'like', "%{$search}%")
+                    ->orWhereHas('invitations.groupUnits.unit', function ($unitQuery) use ($search) {
+                        $unitQuery->where('unit_name', 'like', "%{$search}%");
+                    })
                     ->orWhereHas('unit', function ($unitQuery) use ($search) {
                         $unitQuery->where('unit_name', 'like', "%{$search}%");
                     });
