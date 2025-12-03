@@ -63,6 +63,8 @@
                 @endif
 
 
+                <!-- Page 1: Basic Agenda Info -->
+                <div class="form-page" id="page1">
                 <div class="form-grid">
 
                     <!-- Pindahkan ke bawah sini -->
@@ -122,63 +124,6 @@
                         </div>
                     </div>
 
-                    <!-- Dihadiri - Full Width -->
-                    <div class="input-group fullwidth-group">
-                        <label><i class="fas fa-people-group"></i> Dihadiri</label>
-
-                        <div class="chips-multiselect" id="involvedInstansi">
-                            <div class="chips-container">
-                                <div class="chips-selected"></div>
-                                <input type="text" class="chips-input" placeholder="-- Pilih Instansi yang Hadir --"
-                                    readonly style="cursor: pointer;">
-                            </div>
-                            <span class="chips-arrow"><i class="fas fa-chevron-down"></i></span>
-
-                            <div class="chips-dropdown">
-                                <div class="chips-search">
-                                    <input type="text" class="chips-search-input" placeholder="Cari instansi..." />
-                                </div>
-                                <div class="chips-add-new-input-container"
-                                    style="display: none; padding: 10px 12px; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">
-                                    <input type="text" class="chips-add-new-input"
-                                        placeholder="Ketik nama instansi baru..."
-                                        style="width: 100%; padding: 8px 12px; border: 1px solid #6b8f71; border-radius: 6px; font-size: 14px; outline: none;" />
-                                    <div style="display: flex; gap: 8px; margin-top: 8px;">
-                                        <button type="button" class="chips-add-confirm-btn"
-                                            style="flex: 1; padding: 6px 12px; background: #6b8f71; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;">Tambahkan</button>
-                                        <button type="button" class="chips-add-cancel-btn"
-                                            style="flex: 1; padding: 6px 12px; background: #e5e7eb; color: #374151; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;">Batal</button>
-                                    </div>
-                                </div>
-
-                                <ul>
-                                    <li class="select-all-option" data-action="select-all">
-                                        <span class="check-icon"></span>
-                                        <span class="item-text">Pilih Semua</span>
-                                        <i class="fas fa-check checkmark-icon"></i>
-                                    </li>
-                                    @foreach ($units as $unit)
-                                        @if ($unit->id_unit !== Auth::user()->id_unit && strtolower($unit->unit_name) !== 'protokol')
-                                            <li data-value="{{ $unit->unit_name }}" class="dropdown-item">
-                                                <span class="check-icon"></span>
-                                                <span class="item-text">{{ $unit->unit_name }}</span>
-                                                <i class="fas fa-check checkmark-icon"></i>
-                                            </li>
-                                        @endif
-                                    @endforeach
-                                    <li class="add-new-instansi-option" data-action="add-new"
-                                        style="padding: 10px 12px; cursor: pointer; border-top: 1px solid #e5e7eb; color: #6b8f71; font-weight: 500; display: flex; align-items: center; list-style: none;">
-                                        <i class="fas fa-plus-circle" style="margin-right: 8px;"></i>
-                                        <span>Lainnya...</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <input type="hidden" name="involved_institution" id="involvedInstitutionField"
-                            value="{{ old('involved_institution', $agenda->involved_institution) }}">
-                    </div>
-
                     <!-- Catatan - Full Width -->
                     <div class="input-group fullwidth-group">
                         <label><i class="fa-solid fa-file-lines" style="color:#6b8f71;"></i> Catatan</label>
@@ -186,17 +131,606 @@
                     </div>
 
                 </div>
+                </div>
 
-                <div class="form-submit">
-                    <button type="submit" class="btn-primary">Simpan Perubahan</button>
+                <!-- Page 2: Session Management -->
+                <div class="form-page" id="page2" style="display: none;">
+                    <!-- Toggle Group -->
+                    <div class="input-group fullwidth-group" style="margin-bottom: 24px;">
+                        <label style="margin-bottom: 12px; display: block;"><i class="fas fa-layer-group"></i> Mode Agenda</label>
+                        <div style="display: flex; gap: 16px;">
+                            <label class="radio-option" style="display: flex; align-items: center; cursor: pointer; padding: 12px 20px; border: 2px solid #e5e7eb; border-radius: 8px; transition: all 0.3s;">
+                                <input type="radio" name="has_group" value="0" id="noGroup" checked style="margin-right: 10px; width: 18px; height: 18px; cursor: pointer;">
+                                <span>Agenda Normal</span>
+                            </label>
+                            <label class="radio-option" style="display: flex; align-items: center; cursor: pointer; padding: 12px 20px; border: 2px solid #e5e7eb; border-radius: 8px; transition: all 0.3s;">
+                                <input type="radio" name="has_group" value="1" id="withGroup" style="margin-right: 10px; width: 18px; height: 18px; cursor: pointer;">
+                                <span>Agenda dengan Sesi (Group)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Container untuk Dihadiri Normal -->
+                    <div id="normalInvitation" class="invitation-container">
+                        <div class="input-group fullwidth-group">
+                            <label><i class="fas fa-people-group"></i> Dihadiri</label>
+                            <div class="chips-multiselect" id="normalInvolvedInstansi">
+                                <div class="chips-container">
+                                    <div class="chips-selected"></div>
+                                    <input type="text" class="chips-input" placeholder="-- Pilih Instansi yang Hadir --"
+                                        readonly style="cursor: pointer;">
+                                </div>
+                                <span class="chips-arrow"><i class="fas fa-chevron-down"></i></span>
+                                <div class="chips-dropdown">
+                                    <div class="chips-search">
+                                        <input type="text" class="chips-search-input" placeholder="Cari instansi..." />
+                                    </div>
+                                    <ul>
+                                        <li class="select-all-option" data-action="select-all">
+                                            <span class="check-icon"></span>
+                                            <span class="item-text">Pilih Semua</span>
+                                            <i class="fas fa-check checkmark-icon"></i>
+                                        </li>
+                                        @foreach ($units as $unit)
+                                            @if ($unit->id_unit !== Auth::user()->id_unit && strtolower($unit->unit_name) !== 'protokol')
+                                                <li data-value="{{ $unit->id_unit }}" data-name="{{ $unit->unit_name }}" class="dropdown-item">
+                                                    <span class="check-icon"></span>
+                                                    <span class="item-text">{{ $unit->unit_name }}</span>
+                                                    <i class="fas fa-check checkmark-icon"></i>
+                                                </li>
+                                            @endif
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Container untuk Dihadiri dengan Sesi -->
+                    <div id="groupInvitation" class="invitation-container" style="display: none;">
+                        <div id="sessionsContainer">
+                            <!-- Session akan ditambahkan secara dinamis -->
+                        </div>
+                        <button type="button" id="addSessionBtn" class="btn-secondary" style="margin-top: 16px; display: none;">
+                            <i class="fas fa-plus"></i> Tambah Sesi
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Navigation & Submit -->
+                <div class="form-navigation">
+                    <button type="button" id="prevPageBtn" class="btn-secondary" style="display: none;">
+                        <i class="fas fa-arrow-left"></i> Kembali
+                    </button>
+                    <div style="flex: 1; display: flex; justify-content: center; gap: 8px;">
+                        <span class="page-indicator active" data-page="1">1</span>
+                        <span class="page-indicator" data-page="2">2</span>
+                    </div>
+                    <button type="button" id="nextPageBtn" class="btn-primary">
+                        Lanjutkan <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button type="submit" id="submitBtn" class="btn-primary" style="display: none;">
+                        Simpan Perubahan
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
+        // Multi-page form navigation
+        let currentPage = 1;
+        const totalPages = 2;
+
+        function showPage(page) {
+            document.querySelectorAll('.form-page').forEach((p, idx) => {
+                p.style.display = idx + 1 === page ? 'block' : 'none';
+            });
+
+            // Update navigation buttons
+            const prevBtn = document.getElementById('prevPageBtn');
+            const nextBtn = document.getElementById('nextPageBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (prevBtn) prevBtn.style.display = page > 1 ? 'block' : 'none';
+            if (nextBtn) nextBtn.style.display = page < totalPages ? 'block' : 'none';
+            if (submitBtn) submitBtn.style.display = page === totalPages ? 'block' : 'none';
+
+            // Update page indicators
+            document.querySelectorAll('.page-indicator').forEach((indicator, idx) => {
+                if (idx + 1 === page) {
+                    indicator.classList.add('active');
+                } else {
+                    indicator.classList.remove('active');
+                }
+            });
+
+            currentPage = page;
+        }
+
+        function validatePage1() {
+            const requiredFields = ['agenda_name', 'description', 'id_unit', 'date', 'start_time', 'end_time'];
+            let isValid = true;
+            let emptyFields = [];
+
+            requiredFields.forEach(fieldName => {
+                const field = document.querySelector(`[name="${fieldName}"]`);
+                if (field && (!field.value || field.value.trim() === '')) {
+                    isValid = false;
+                    emptyFields.push(fieldName);
+                    field.style.borderColor = '#ef4444';
+                    field.style.backgroundColor = '#fef2f2';
+                } else if (field) {
+                    field.style.borderColor = '';
+                    field.style.backgroundColor = '';
+                }
+            });
+
+            if (!isValid) {
+                showPage(1);
+                alert('Mohon lengkapi semua field yang wajib diisi:\n\n' +
+                    emptyFields.map(field => {
+                        const labels = {
+                            'agenda_name': 'Nama Agenda',
+                            'description': 'Deskripsi Agenda',
+                            'id_unit': 'Nama Instansi',
+                            'date': 'Tanggal',
+                            'start_time': 'Waktu Mulai',
+                            'end_time': 'Waktu Selesai'
+                        };
+                        return '• ' + (labels[field] || field);
+                    }).join('\n'));
+            }
+
+            return isValid;
+        }
+
+        // Initialize page navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            const nextPageBtn = document.getElementById('nextPageBtn');
+            const prevPageBtn = document.getElementById('prevPageBtn');
+            
+            if (nextPageBtn) {
+                nextPageBtn.addEventListener('click', function() {
+                    if (validatePage1()) {
+                        showPage(2);
+                    }
+                });
+            }
+
+            if (prevPageBtn) {
+                prevPageBtn.addEventListener('click', function() {
+                    showPage(1);
+                });
+            }
+
+            // Form validation on submit
+            const form = document.getElementById('agendaForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    if (!validatePage1()) {
+                        e.preventDefault();
+                        showPage(1);
+                        return;
+                    }
+
+                    // Collect session data
+                    collectSessionData();
+                });
+            }
+
+            // Initialize page 1
+            showPage(1);
+        });
+
+        function collectSessionData() {
+            const hasGroup = document.querySelector('input[name="has_group"]:checked')?.value === '1';
+            const sessions = [];
+
+            if (hasGroup) {
+                // Collect from group sessions
+                document.querySelectorAll('.session-item').forEach((sessionEl, index) => {
+                    const sessionName = sessionEl.querySelector('.session-name-input')?.value || null;
+                    const unitIds = [];
+                    sessionEl.querySelectorAll('.unit-chip[data-unit-id]').forEach(chip => {
+                        unitIds.push(chip.getAttribute('data-unit-id'));
+                    });
+
+                    if (unitIds.length > 0) {
+                        sessions.push({
+                            session_name: sessionName || `Sesi ${index + 1}`,
+                            invited_units: unitIds
+                        });
+                    }
+                });
+            } else {
+                // Collect from normal invitation
+                const unitIds = [];
+                const normalRoot = document.getElementById('normalInvolvedInstansi');
+                if (normalRoot) {
+                    normalRoot.querySelectorAll('.unit-chip[data-unit-id]').forEach(chip => {
+                        unitIds.push(chip.getAttribute('data-unit-id'));
+                    });
+                }
+
+                if (unitIds.length > 0) {
+                    sessions.push({
+                        session_name: null,
+                        invited_units: unitIds
+                    });
+                }
+            }
+
+            // Add hidden input for sessions
+            const existingInput = document.querySelector('input[name="sessions_data"]');
+            if (existingInput) {
+                existingInput.remove();
+            }
+
+            const sessionsInput = document.createElement('input');
+            sessionsInput.type = 'hidden';
+            sessionsInput.name = 'sessions_data';
+            sessionsInput.value = JSON.stringify(sessions);
+            const form = document.getElementById('agendaForm');
+            if (form) {
+                form.appendChild(sessionsInput);
+            }
+        }
+
+        // Toggle Group functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('input[name="has_group"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const hasGroup = this.value === '1';
+                    const normalInv = document.getElementById('normalInvitation');
+                    const groupInv = document.getElementById('groupInvitation');
+                    const addSessionBtn = document.getElementById('addSessionBtn');
+                    
+                    if (normalInv) normalInv.style.display = hasGroup ? 'none' : 'block';
+                    if (groupInv) groupInv.style.display = hasGroup ? 'block' : 'none';
+                    if (addSessionBtn) addSessionBtn.style.display = hasGroup ? 'block' : 'none';
+                    
+                    if (hasGroup && document.querySelectorAll('.session-item').length === 0) {
+                        addSession(1);
+                        addSession(2);
+                    }
+                });
+            });
+
+            // Add session functionality
+            let sessionCount = 0;
+            const addSessionBtn = document.getElementById('addSessionBtn');
+            if (addSessionBtn) {
+                addSessionBtn.addEventListener('click', function() {
+                    sessionCount++;
+                    addSession(sessionCount + 2);
+                });
+            }
+        });
+
+        function addSession(sessionNumber) {
+            const container = document.getElementById('sessionsContainer');
+            if (!container) return;
+
+            const sessionDiv = document.createElement('div');
+            sessionDiv.className = 'session-item';
+            sessionDiv.innerHTML = `
+                <div class="input-group fullwidth-group" style="margin-bottom: 16px; border: 1px solid #e5e7eb; padding: 16px; border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <label style="margin: 0;"><i class="fas fa-layer-group"></i> Dihadiri Sesi ${sessionNumber}</label>
+                        ${sessionNumber > 2 ? '<button type="button" class="remove-session-btn" style="background: #fee2e2; color: #991b1b; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;"><i class="fas fa-times"></i></button>' : ''}
+                    </div>
+                    <input type="text" class="session-name-input" placeholder="Nama Sesi (opsional)" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; margin-bottom: 12px;">
+                    <div class="chips-multiselect session-units-select" data-session="${sessionNumber}">
+                        <div class="chips-container">
+                            <div class="chips-selected"></div>
+                            <input type="text" class="chips-input" placeholder="-- Pilih Instansi yang Hadir --" readonly style="cursor: pointer;">
+                        </div>
+                        <span class="chips-arrow"><i class="fas fa-chevron-down"></i></span>
+                        <div class="chips-dropdown">
+                            <div class="chips-search">
+                                <input type="text" class="chips-search-input" placeholder="Cari instansi..." />
+                            </div>
+                            <ul>
+                                <li class="select-all-option" data-action="select-all">
+                                    <span class="check-icon"></span>
+                                    <span class="item-text">Pilih Semua</span>
+                                    <i class="fas fa-check checkmark-icon"></i>
+                                </li>
+                                @foreach ($units as $unit)
+                                    @if ($unit->id_unit !== Auth::user()->id_unit && strtolower($unit->unit_name) !== 'protokol')
+                                        <li data-value="{{ $unit->id_unit }}" data-name="{{ $unit->unit_name }}" class="dropdown-item">
+                                            <span class="check-icon"></span>
+                                            <span class="item-text">{{ $unit->unit_name }}</span>
+                                            <i class="fas fa-check checkmark-icon"></i>
+                                        </li>
+                                    @endif
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(sessionDiv);
+            
+            // Initialize chips for this session
+            initChipsMultiselect(sessionDiv.querySelector('.session-units-select'));
+            
+            // Remove session button
+            const removeBtn = sessionDiv.querySelector('.remove-session-btn');
+            if (removeBtn) {
+                removeBtn.addEventListener('click', function() {
+                    sessionDiv.remove();
+                });
+            }
+        }
+
+        // Initialize chips multiselect function (sama seperti di agenda_create)
+        function initChipsMultiselect(root) {
+            if (!root) return;
+            
+            const dropdown = root.querySelector('.chips-dropdown');
+            const arrow = root.querySelector('.chips-arrow');
+            const searchInput = root.querySelector('.chips-search-input');
+            const mainInput = root.querySelector('.chips-input');
+            const selectedWrap = root.querySelector('.chips-selected');
+            const allListItems = Array.from(dropdown.querySelectorAll('li.dropdown-item'));
+            const listItems = allListItems.filter(li => !li.classList.contains('add-new-instansi-option'));
+            const selectAllOption = dropdown.querySelector('.select-all-option');
+            const container = root.querySelector('.chips-container');
+
+            let selectedValues = [];
+            let selectedUnitIds = [];
+
+            function toggleDropdown() {
+                const isOpen = dropdown.classList.toggle('open');
+                root.classList.toggle('open', isOpen);
+                if (isOpen) {
+                    searchInput.value = '';
+                    filterList('');
+                    searchInput.focus();
+                    listItems.forEach(li => {
+                        li.style.display = 'flex';
+                        const value = li.getAttribute('data-value');
+                        updateItemState(value);
+                    });
+                    if (selectAllOption) selectAllOption.style.display = 'flex';
+                    updateSelectAllState();
+                }
+            }
+
+            function closeDropdown() {
+                dropdown.classList.remove('open');
+                root.classList.remove('open');
+                searchInput.value = '';
+            }
+
+            function toggleItem(unitId, unitName) {
+                const index = selectedUnitIds.indexOf(unitId);
+                if (index > -1) {
+                    selectedUnitIds.splice(index, 1);
+                    selectedValues.splice(index, 1);
+                    removeChip(unitId);
+                } else {
+                    selectedUnitIds.push(unitId);
+                    selectedValues.push(unitName);
+                    addChip(unitId, unitName);
+                }
+                updateItemState(unitId);
+                updateSelectAllState();
+            }
+
+            function addChip(unitId, unitName) {
+                const existingChip = selectedWrap.querySelector(`.unit-chip[data-unit-id="${unitId}"]`);
+                if (existingChip) return;
+
+                const chip = document.createElement('span');
+                chip.className = 'chip unit-chip';
+                chip.setAttribute('data-unit-id', unitId);
+                chip.setAttribute('data-value', unitName);
+                chip.textContent = unitName;
+
+                const btn = document.createElement('button');
+                btn.className = 'chip-remove';
+                btn.innerHTML = '&times;';
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    toggleItem(unitId, unitName);
+                };
+
+                chip.appendChild(btn);
+                selectedWrap.appendChild(chip);
+                mainInput.style.display = selectedUnitIds.length ? 'none' : 'inline';
+            }
+
+            function removeChip(unitId) {
+                const chip = selectedWrap.querySelector(`.unit-chip[data-unit-id="${unitId}"]`);
+                if (chip) {
+                    chip.remove();
+                }
+                mainInput.style.display = selectedUnitIds.length ? 'none' : 'inline';
+            }
+
+            function updateItemState(unitId) {
+                const item = listItems.find(li => li.getAttribute('data-value') === unitId);
+                if (item) {
+                    const isSelected = selectedUnitIds.includes(unitId);
+                    item.classList.toggle('selected', isSelected);
+                    const checkmark = item.querySelector('.checkmark-icon');
+                    if (checkmark) {
+                        checkmark.style.display = isSelected ? 'inline-block' : 'none';
+                    }
+                    const checkIcon = item.querySelector('.check-icon');
+                    if (checkIcon) {
+                        checkIcon.classList.toggle('checked', isSelected);
+                    }
+                }
+            }
+
+            function updateSelectAllState() {
+                const allSelected = listItems.length > 0 && listItems.length === selectedUnitIds.length;
+                if (selectAllOption) {
+                    selectAllOption.classList.toggle('selected', allSelected);
+                    const selectAllCheckmark = selectAllOption.querySelector('.checkmark-icon');
+                    if (selectAllCheckmark) {
+                        selectAllCheckmark.style.display = allSelected ? 'inline-block' : 'none';
+                    }
+                    const selectAllCheckIcon = selectAllOption.querySelector('.check-icon');
+                    if (selectAllCheckIcon) {
+                        selectAllCheckIcon.classList.toggle('checked', allSelected);
+                    }
+                }
+            }
+
+            function selectAll() {
+                const allSelected = listItems.length === selectedUnitIds.length;
+                if (allSelected) {
+                    selectedUnitIds = [];
+                    selectedValues = [];
+                    listItems.forEach(li => {
+                        const unitId = li.getAttribute('data-value');
+                        removeChip(unitId);
+                        updateItemState(unitId);
+                    });
+                } else {
+                    listItems.forEach(li => {
+                        const unitId = li.getAttribute('data-value');
+                        const unitName = li.getAttribute('data-name');
+                        if (!selectedUnitIds.includes(unitId)) {
+                            selectedUnitIds.push(unitId);
+                            selectedValues.push(unitName);
+                            addChip(unitId, unitName);
+                            updateItemState(unitId);
+                        }
+                    });
+                }
+                updateSelectAllState();
+            }
+
+            function filterList(term) {
+                const lower = term.toLowerCase().trim();
+                listItems.forEach(li => {
+                    const text = li.querySelector('.item-text').textContent.toLowerCase();
+                    li.style.display = !lower || text.includes(lower) ? 'flex' : 'none';
+                });
+                if (selectAllOption) {
+                    selectAllOption.style.display = !lower || listItems.some(li => {
+                        const text = li.querySelector('.item-text').textContent.toLowerCase();
+                        return text.includes(lower);
+                    }) ? 'flex' : 'none';
+                }
+            }
+
+            searchInput.addEventListener('input', e => filterList(e.target.value));
+            arrow.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleDropdown();
+            });
+            container.addEventListener('click', (e) => {
+                if (e.target !== searchInput && !e.target.closest('.chips-selected')) {
+                    toggleDropdown();
+                }
+            });
+            if (selectAllOption) {
+                selectAllOption.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectAll();
+                });
+            }
+            listItems.forEach(li => {
+                li.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const unitId = li.getAttribute('data-value');
+                    const unitName = li.getAttribute('data-name');
+                    toggleItem(unitId, unitName);
+                });
+            });
+            document.addEventListener('click', e => {
+                if (!root.contains(e.target)) closeDropdown();
+            });
+        }
+
+        // Initialize normal invitation chips
+        document.addEventListener('DOMContentLoaded', function() {
+            const normalRoot = document.getElementById('normalInvolvedInstansi');
+            if (normalRoot) {
+                initChipsMultiselect(normalRoot);
+            }
+
+            // Initialize existing invitations
+            @if(isset($invitations) && !empty($invitations))
+                const existingInvitations = @json($invitations);
+                
+                if (existingInvitations && existingInvitations.length > 0) {
+                    // Check if any invitation has session_name (group mode)
+                    const hasSessions = existingInvitations.some(inv => inv.session_name !== null) || existingInvitations.length > 1;
+                    
+                    if (hasSessions) {
+                        // Group mode - select the radio button
+                        const withGroupRadio = document.getElementById('withGroup');
+                        const noGroupRadio = document.getElementById('noGroup');
+                        if (withGroupRadio && noGroupRadio) {
+                            withGroupRadio.checked = true;
+                            noGroupRadio.checked = false;
+                            
+                            const normalInv = document.getElementById('normalInvitation');
+                            const groupInv = document.getElementById('groupInvitation');
+                            const addSessionBtn = document.getElementById('addSessionBtn');
+                            
+                            if (normalInv) normalInv.style.display = 'none';
+                            if (groupInv) groupInv.style.display = 'block';
+                            if (addSessionBtn) addSessionBtn.style.display = 'block';
+                            
+                            // Add sessions
+                            existingInvitations.forEach((inv, index) => {
+                                const sessionNumber = index + 1;
+                                addSession(sessionNumber);
+                                
+                                // Wait for session to be added, then populate it
+                                setTimeout(() => {
+                                    const sessionItems = document.querySelectorAll('.session-item');
+                                    const currentSession = sessionItems[index];
+                                    if (currentSession) {
+                                        const sessionNameInput = currentSession.querySelector('.session-name-input');
+                                        if (sessionNameInput && inv.session_name) {
+                                            sessionNameInput.value = inv.session_name;
+                                        }
+                                        
+                                        // Populate units
+                                        const sessionSelect = currentSession.querySelector('.session-units-select');
+                                        if (sessionSelect && inv.units && inv.units.length > 0) {
+                                            inv.units.forEach(unit => {
+                                                const unitItem = sessionSelect.querySelector(`li[data-value="${unit.id_unit}"]`);
+                                                if (unitItem) {
+                                                    unitItem.click();
+                                                }
+                                            });
+                                        }
+                                    }
+                                }, 200 * (index + 1));
+                            });
+                        }
+                    } else {
+                        // Normal mode - populate normal invitation
+                        const firstInv = existingInvitations[0];
+                        if (firstInv && firstInv.units && firstInv.units.length > 0) {
+                            const normalRoot = document.getElementById('normalInvolvedInstansi');
+                            if (normalRoot) {
+                                firstInv.units.forEach(unit => {
+                                    const unitItem = normalRoot.querySelector(`li[data-value="${unit.id_unit}"]`);
+                                    if (unitItem) {
+                                        unitItem.click();
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            @endif
+        });
+
         document.addEventListener('DOMContentLoaded', () => {
-            const root = document.getElementById('involvedInstansi');
+            const root = document.getElementById('normalInvolvedInstansi');
             if (!root) return;
 
             const dropdown = root.querySelector('.chips-dropdown');
@@ -708,6 +1242,89 @@
     </script>
 
     <style>
+        /* Multi-page form styles */
+        .form-page {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-navigation {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 2px solid #e5e7eb;
+        }
+
+        .page-indicator {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .page-indicator.active {
+            background: #6b8f71;
+            color: white;
+        }
+
+        .radio-option {
+            transition: all 0.3s;
+        }
+
+        .radio-option:hover {
+            border-color: #6b8f71 !important;
+            background: #f0fdf4;
+        }
+
+        .radio-option input[type="radio"]:checked ~ span {
+            color: #6b8f71;
+            font-weight: 600;
+        }
+
+        .radio-option:has(input[type="radio"]:checked) {
+            border-color: #6b8f71 !important;
+            background: #f0fdf4;
+        }
+
+        .session-item {
+            margin-bottom: 16px;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .invitation-container {
+            margin-top: 16px;
+        }
+
         .toastify-success {
             position: fixed;
             top: 90px;

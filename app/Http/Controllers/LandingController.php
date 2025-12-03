@@ -27,14 +27,31 @@ class LandingController extends Controller
         $agenda = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($year, $month) {
             // Get local agendas (public only)
             $localAgendas = Agenda::query()
-                ->with(['unit'])
-                ->selectRaw("id_agenda, agenda_name, DATE(date) as date, location, description, start_time, end_time, is_public, status, id_unit, notes")
+                ->with(['unit', 'invitations.groupUnits.unit'])
+                ->select('id_agenda', 'agenda_name', 'date', 'location', 'description', 'start_time', 'end_time', 'is_public', 'status', 'id_unit', 'notes')
                 ->whereYear('date', $year)
                 ->whereMonth('date', $month)
                 ->where('status', 'approved')
                 ->where('is_public', 1)
                 ->orderBy('date', 'asc')
                 ->get()
+                ->map(function($agenda) {
+                    $agendaData = $agenda->toArray();
+                    // Format invitations untuk frontend
+                    $agendaData['invitations'] = $agenda->invitations->map(function($invitation) {
+                        $units = $invitation->groupUnits->map(function($groupUnit) {
+                            return $groupUnit->unit ? $groupUnit->unit->unit_name : null;
+                        })->filter()->values()->toArray();
+                        
+                        return [
+                            'session_name' => $invitation->session_name,
+                            'units' => $units
+                        ];
+                    })->filter(function($inv) {
+                        return !empty($inv['units']) && count($inv['units']) > 0;
+                    })->values()->toArray();
+                    return $agendaData;
+                })
                 ->toArray();
 
             // Get external agendas
@@ -101,13 +118,30 @@ class LandingController extends Controller
         $agenda = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($date) {
             // Get local agendas (public only)
             $localAgendas = Agenda::query()
-                ->with(['unit'])
+                ->with(['unit', 'invitations.groupUnits.unit'])
                 ->select('id_agenda', 'agenda_name', 'date', 'location', 'start_time', 'end_time', 'description', 'is_public', 'status', 'id_unit', 'notes')
                 ->whereDate('date', $date)
                 ->where('status', 'approved')
                 ->where('is_public', 1)
                 ->orderBy('start_time', 'asc')
                 ->get()
+                ->map(function($agenda) {
+                    $agendaData = $agenda->toArray();
+                    // Format invitations untuk frontend
+                    $agendaData['invitations'] = $agenda->invitations->map(function($invitation) {
+                        $units = $invitation->groupUnits->map(function($groupUnit) {
+                            return $groupUnit->unit ? $groupUnit->unit->unit_name : null;
+                        })->filter()->values()->toArray();
+                        
+                        return [
+                            'session_name' => $invitation->session_name,
+                            'units' => $units
+                        ];
+                    })->filter(function($inv) {
+                        return !empty($inv['units']) && count($inv['units']) > 0;
+                    })->values()->toArray();
+                    return $agendaData;
+                })
                 ->toArray();
 
             // Get external agendas

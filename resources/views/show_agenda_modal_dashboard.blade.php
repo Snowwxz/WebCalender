@@ -180,6 +180,112 @@ Catatan: ${agendaData.notes}`;
         }, 2000);
     }
 
+    // Fungsi global untuk mengisi modal agenda
+    window.fillAgendaModal = function(data) {
+        if (!data) return;
+
+        // Format tanggal
+        function formatDate(dateString) {
+            if (!dateString) return "-";
+            const date = new Date(dateString);
+            const options = {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            };
+            return date.toLocaleDateString('id-ID', options);
+        }
+
+        // Isi nama agenda
+        const nameEl = document.getElementById('showAgendaName');
+        if (nameEl) {
+            nameEl.textContent = data.agenda_name || '-';
+        }
+
+        // Isi tanggal
+        const dateEl = document.getElementById('showAgendaDate');
+        if (dateEl) {
+            dateEl.textContent = formatDate(data.date);
+        }
+
+        // Isi waktu
+        const timeEl = document.getElementById('showAgendaTime');
+        if (timeEl) {
+            let timeText = '-';
+            if (data.start_time && data.end_time) {
+                const start = data.start_time.slice(0, 5);
+                const end = data.end_time.slice(0, 5);
+                timeText = `${start} - ${end}`;
+            } else if (data.end_time) {
+                timeText = data.end_time.slice(0, 5);
+            } else if (data.start_time) {
+                timeText = data.start_time.slice(0, 5);
+            }
+            timeEl.textContent = timeText;
+        }
+
+        // Isi lokasi
+        const locationEl = document.getElementById('showAgendaLocation');
+        if (locationEl) {
+            locationEl.textContent = data.location || '-';
+        }
+
+        // Isi deskripsi
+        const descEl = document.getElementById('showAgendaDesc');
+        if (descEl) {
+            descEl.textContent = data.description || '-';
+        }
+
+        // Isi pelaksana
+        const unitEl = document.getElementById('showAgendaUnit');
+        if (unitEl) {
+            const unitName = (data.unit && data.unit.unit_name) ? data.unit.unit_name : '-';
+            unitEl.textContent = unitName;
+        }
+
+        // Format Dihadiri berdasarkan invitations
+        const involvedEl = document.getElementById('showAgendaInvolved');
+        if (involvedEl) {
+            let involvedText = '-';
+            if (data.invitations && data.invitations.length > 0) {
+                const parts = [];
+                data.invitations.forEach((inv, index) => {
+                    if (inv.units && inv.units.length > 0) {
+                        const unitNames = inv.units.join(', ');
+                        if (data.invitations.length > 1) {
+                            // Jika ada multiple sessions, gunakan format "Sesi X= opd, opd"
+                            parts.push(`Sesi ${index + 1}= ${unitNames}`);
+                        } else {
+                            // Jika hanya satu session (normal), tampilkan langsung
+                            parts.push(unitNames);
+                        }
+                    }
+                });
+                if (parts.length > 0) {
+                    involvedText = parts.join('<br>');
+                }
+            } else if (data.involved_institution) {
+                involvedText = data.involved_institution;
+            }
+            involvedEl.innerHTML = involvedText;
+        }
+
+        // Isi status
+        const accessEl = document.getElementById('showAgendaAccess');
+        if (accessEl) {
+            const isPublic = data.is_public == 1 || data.is_public === true;
+            const bg = isPublic ? '#A8E6A3' : '#FFB67E';
+            const text = isPublic ? 'Publik' : 'Privasi';
+            accessEl.innerHTML = `<span class="badge rounded-pill" style="background-color:${bg}; color:#2F3E35; padding:6px 10px;">${text}</span>`;
+        }
+
+        // Isi catatan
+        const notesEl = document.getElementById('showAgendaNotes');
+        if (notesEl) {
+            notesEl.textContent = data.notes || '-';
+        }
+    };
+
     // 🔽 TAMBAHKAN BAGIAN INI 🔽
     $('#showAgendaModal').on('show.bs.modal', function (event) {
         const button = $(event.relatedTarget);
@@ -191,7 +297,7 @@ Catatan: ${agendaData.notes}`;
         const unit = button.data('unit');
         const involved = button.data('involved');
         const access = button.data('access');
-        const notes = button.data('notes'); // penting!
+        const notes = button.data('notes');
 
         const modal = $(this);
         modal.find('#showAgendaName').text(name || '-');
@@ -200,9 +306,9 @@ Catatan: ${agendaData.notes}`;
         modal.find('#showAgendaTime').text(time || '-');
         modal.find('#showAgendaLocation').text(location || '-');
         modal.find('#showAgendaUnit').text(unit || '-');
-        modal.find('#showAgendaInvolved').text(involved || '-');
+        modal.find('#showAgendaInvolved').html(involved || '-');
         modal.find('#showAgendaAccess').text(access || '-');
-        modal.find('#showAgendaNotes').text(notes || '-'); // supaya catatan muncul
+        modal.find('#showAgendaNotes').text(notes || '-');
     });
 });
 </script>

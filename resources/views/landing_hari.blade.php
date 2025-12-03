@@ -607,8 +607,32 @@
             const unitEl = document.getElementById('showAgendaUnit');
             if (unitEl) unitEl.innerText = unitName;
 
+            // Format Dihadiri berdasarkan invitations
             const involvedEl = document.getElementById('showAgendaInvolved');
-            if (involvedEl) involvedEl.innerText = data.involved_institution || '-';
+            if (involvedEl) {
+                let involvedText = '-';
+                if (data.invitations && data.invitations.length > 0) {
+                    const parts = [];
+                    data.invitations.forEach((inv, index) => {
+                        if (inv.units && inv.units.length > 0) {
+                            const unitNames = inv.units.join(', ');
+                            if (data.invitations.length > 1) {
+                                // Jika ada multiple sessions, gunakan format "Sesi X= opd, opd"
+                                parts.push(`Sesi ${index + 1}= ${unitNames}`);
+                            } else {
+                                // Jika hanya satu session (normal), tampilkan langsung
+                                parts.push(unitNames);
+                            }
+                        }
+                    });
+                    if (parts.length > 0) {
+                        involvedText = parts.join('<br>');
+                    }
+                } else if (data.involved_institution) {
+                    involvedText = data.involved_institution;
+                }
+                involvedEl.innerHTML = involvedText;
+            }
 
             const accessEl = document.getElementById('showAgendaAccess');
             if (accessEl) {
