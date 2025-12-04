@@ -218,8 +218,10 @@
                                                                 })->filter()->values()->toArray();
                                                                 
                                                                 if (!empty($unitNames)) {
+                                                                    // Gunakan session_name jika ada, jika tidak gunakan "Sesi X"
+                                                                    $sessionLabel = $invitation->session_name ?? 'Sesi ' . ($index + 1);
                                                                     if ($item->invitations->count() > 1) {
-                                                                        $parts[] = 'Sesi ' . ($index + 1) . '= ' . implode(', ', $unitNames);
+                                                                        $parts[] = $sessionLabel . '= ' . implode(', ', $unitNames);
                                                                     } else {
                                                                         $parts[] = implode(', ', $unitNames);
                                                                     }
@@ -372,8 +374,10 @@
                                                                 })->filter()->values()->toArray();
                                                                 
                                                                 if (!empty($unitNames)) {
+                                                                    // Gunakan session_name jika ada, jika tidak gunakan "Sesi X"
+                                                                    $sessionLabel = $invitation->session_name ?? 'Sesi ' . ($index + 1);
                                                                     if ($item->invitations->count() > 1) {
-                                                                        $parts[] = 'Sesi ' . ($index + 1) . '= ' . implode(', ', $unitNames);
+                                                                        $parts[] = $sessionLabel . '= ' . implode(', ', $unitNames);
                                                                     } else {
                                                                         $parts[] = implode(', ', $unitNames);
                                                                     }
