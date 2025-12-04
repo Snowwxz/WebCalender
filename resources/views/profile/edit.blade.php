@@ -8,14 +8,14 @@
 @section('content')
     <div class="profile-page">
         <div class="profile-header">
-            <div class="header-left">
-                <a href="{{ url('/dashboard/bulan') }}" class="back-btn" title="Kembali ke Dashboard">
+            <div>
+                <a href="{{ route('dashboard.bulan') }}" aria-label="Kembali ke Dashboard">
                     <i class="fas fa-arrow-left"></i>
                 </a>
-                <div class="header-title">
-                    <h1 class="page-title">Profil Saya</h1>
-                    <p class="page-subtitle">Kelola informasi profil dan pengaturan akun Anda</p>
-                </div>
+            </div>
+            <div class="title-wrap">
+                <h1 class="page-title">Profil Saya</h1>
+                <p class="page-subtitle">Kelola informasi profil dan pengaturan akun Anda</p>
             </div>
         </div>
 

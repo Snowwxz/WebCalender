@@ -9,38 +9,42 @@
 
 .profile-header {
     margin-bottom: 30px;
-}
-
-.profile-header .header-left {
-    position: relative;
     display: flex;
-    align-items: center;
-    gap: 16px;
+    flex-direction: column;
+    gap: 10px;
 }
 
-.back-btn {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
+.profile-header a {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: #6E9579 !important;
-    font-size: 1.6rem;
-    transition: color 0.2s ease, transform 0.2s ease;
+    width: 36px;
+    height: 36px;
+    border-radius: 9999px;
     text-decoration: none;
 }
 
-.back-btn:hover {
-    color: #4A7C59 !important;
-    transform: translateX(-2px);
+.profile-header a i {
+    color: #6E9579;
+    font-size: 22px;
+    transition: color 0.2s ease;
 }
 
-.header-title {
-    flex: 1;
-    margin: 0 auto;
+.profile-header a:hover i {
+    color: #55745f;
+}
+
+.title-wrap {
     text-align: center;
+}
+
+.profile-header a:hover,
+.profile-header a:focus,
+.profile-header a:active,
+.profile-header a:visited {
+    text-decoration: none;
+    outline: none;
+    box-shadow: none;
 }
 
 .page-title {
@@ -764,4 +768,3 @@
         margin: 20px;
     }
 }
-

@@ -604,7 +604,7 @@
                     rejectModal.style.display = "none";
                     rejectModal.style.opacity = '';
                     if (sidebar) sidebar.classList.remove('dimmed');
-                    
+
                     // Tampilkan notifikasi sukses (Toastify) bergaya hijau
                     showToast(data.message || "Agenda telah berhasil ditolak.", 'success');
                     setTimeout(() => { location.reload(); }, 1500);
