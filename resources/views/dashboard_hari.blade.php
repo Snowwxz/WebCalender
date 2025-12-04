@@ -165,6 +165,12 @@
                 // Fungsi buka modal tambah agenda
                 function openCreateModal() {
                     document.getElementById('createAgendaModalHari').style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                    
+                    // Reset to page 1
+                    if (typeof showPageHari === 'function') {
+                        showPageHari(1);
+                    }
                 }
 
                 // Fungsi tutup modal (biar konsisten)
@@ -496,12 +502,21 @@
                             eventEl.classList.add(usePublicColor ? 'green' : 'orange');
                             eventEl.classList.add('event-group');
 
-                            // Hitung posisi dan ukuran
-                            const verticalGap = 4;
-                            eventEl.style.top = `${group.top + (verticalGap / 2)}px`;
-                            eventEl.style.height = 'auto';
+                            // Hitung posisi dan ukuran berdasarkan durasi waktu
+                            // Pastikan tinggi mencakup seluruh durasi termasuk sampai akhir jam terakhir
+                            const durationMinutes = group.endMinutes - group.startMinutes;
+                            // Cek apakah endMinutes adalah awal jam (menit = 0)
+                            // Jika ya, tambahkan 60 menit untuk mencakup seluruh slot jam terakhir
+                            const endMinute = group.endMinutes % 60;
+                            const extraHeight = (endMinute === 0) ? 60 : 0; // Tambah 60px jika end adalah awal jam
+                            const calculatedHeight = Math.max(durationMinutes + extraHeight, 30); // Minimal 30px
+                            eventEl.style.top = `${group.top}px`; // Gunakan top tanpa gap untuk akurasi
+                            eventEl.style.height = `${calculatedHeight}px`; // Tinggi penuh sesuai durasi + slot jam terakhir jika perlu
                             eventEl.style.left = '0%';
                             eventEl.style.width = '100%';
+                            eventEl.style.minHeight = '30px'; // Pastikan minimal tinggi
+                            eventEl.style.boxSizing = 'border-box'; // Pastikan padding/border tidak menambah tinggi
+                            eventEl.style.position = 'absolute'; // Pastikan posisi absolute untuk akurasi
 
                             // Simpan semua data agenda dalam grup
                             eventEl.dataset.groupData = JSON.stringify(group.events);
@@ -765,6 +780,11 @@
                 const modal = document.getElementById('createAgendaModalHari');
                 modal.style.display = 'flex';
                 document.body.style.overflow = 'hidden';
+                
+                // Reset to page 1
+                if (typeof showPageHari === 'function') {
+                    showPageHari(1);
+                }
             }
 
             function closeModal() {
@@ -779,19 +799,26 @@
                     form.reset();
                 }
 
-                // Reset chips multiselect
-                const chipsRoot = document.getElementById('involvedInstansiHari');
-                if (chipsRoot) {
-                    const selectedWrap = chipsRoot.querySelector('.chips-selected');
-                    const hiddenField = document.getElementById('involvedInstitutionFieldHari');
-                    const mainInput = chipsRoot.querySelector('.chips-input');
-                    const dropdown = chipsRoot.querySelector('.chips-dropdown');
+                // Reset to page 1
+                if (typeof showPageHari === 'function') {
+                    showPageHari(1);
+                }
+
+                // Clear sessions
+                const sessionsContainer = document.getElementById('sessionsContainerHari');
+                if (sessionsContainer) {
+                    sessionsContainer.innerHTML = '';
+                }
+
+                // Reset normal invitation chips
+                const normalRoot = document.getElementById('normalInvolvedInstansiHari');
+                if (normalRoot) {
+                    const selectedWrap = normalRoot.querySelector('.chips-selected');
+                    const mainInput = normalRoot.querySelector('.chips-input');
+                    const dropdown = normalRoot.querySelector('.chips-dropdown');
 
                     if (selectedWrap) {
                         selectedWrap.innerHTML = '';
-                    }
-                    if (hiddenField) {
-                        hiddenField.value = '';
                     }
                     if (mainInput) {
                         mainInput.style.display = 'inline';
@@ -799,8 +826,7 @@
                     if (dropdown) {
                         dropdown.classList.remove('open');
                     }
-                    chipsRoot.classList.remove('open');
-                    chipsRoot.classList.add('empty');
+                    normalRoot.classList.remove('open');
                 }
             }
 
@@ -841,22 +867,443 @@
                 }
             });
 
+            // Multi-page form navigation untuk modal hari
+            let currentPageHari = 1;
+            const totalPagesHari = 2;
+
+            function showPageHari(page) {
+                document.querySelectorAll('#createAgendaModalHari .form-page').forEach((p, idx) => {
+                    p.style.display = idx + 1 === page ? 'block' : 'none';
+                });
+
+                // Update navigation buttons
+                const prevBtn = document.getElementById('prevPageBtnHari');
+                const nextBtn = document.getElementById('nextPageBtnHari');
+                const submitBtn = document.getElementById('submitBtnHari');
+
+                if (prevBtn) prevBtn.style.display = page > 1 ? 'block' : 'none';
+                if (nextBtn) nextBtn.style.display = page < totalPagesHari ? 'block' : 'none';
+                if (submitBtn) submitBtn.style.display = page === totalPagesHari ? 'block' : 'none';
+
+                currentPageHari = page;
+            }
+
+            // Initialize page navigation
+            document.addEventListener('DOMContentLoaded', function() {
+                const nextBtn = document.getElementById('nextPageBtnHari');
+                const prevBtn = document.getElementById('prevPageBtnHari');
+                const submitBtn = document.getElementById('submitBtnHari');
+
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', function() {
+                        if (validatePage1Hari()) {
+                            showPageHari(2);
+                        }
+                    });
+                }
+
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', function() {
+                        showPageHari(1);
+                    });
+                }
+
+                if (submitBtn) {
+                    submitBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        if (!validatePage1Hari()) {
+                            showPageHari(1);
+                            return false;
+                        }
+                        collectSessionDataHari();
+                        const form = document.getElementById('createAgendaFormHari');
+                        if (form) {
+                            const formEvent = new Event('submit', { bubbles: true, cancelable: true });
+                            form.dispatchEvent(formEvent);
+                        }
+                    });
+                }
+            });
+
+            function validatePage1Hari() {
+                const requiredFields = ['agenda_name', 'description', 'id_unit', 'date', 'start_time', 'end_time'];
+                let isValid = true;
+                let emptyFields = [];
+
+                requiredFields.forEach(fieldName => {
+                    const field = document.querySelector(`#createAgendaModalHari [name="${fieldName}"]`);
+                    if (field && (!field.value || field.value.trim() === '')) {
+                        isValid = false;
+                        emptyFields.push(fieldName);
+                        field.style.borderColor = '#ef4444';
+                        field.style.backgroundColor = '#fef2f2';
+                    } else if (field) {
+                        field.style.borderColor = '';
+                        field.style.backgroundColor = '';
+                    }
+                });
+
+                if (!isValid) {
+                    showPageHari(1);
+                    Toastify({
+                        text: 'Mohon lengkapi semua field yang wajib diisi!',
+                        duration: 3000,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: "#f44336",
+                        stopOnFocus: true
+                    }).showToast();
+                }
+
+                return isValid;
+            }
+
+            function collectSessionDataHari() {
+                const hasGroup = document.querySelector('#createAgendaModalHari input[name="has_group"]:checked')?.value === '1';
+                const sessions = [];
+
+                if (hasGroup) {
+                    // Collect from group sessions
+                    document.querySelectorAll('#createAgendaModalHari .session-item').forEach((sessionEl, index) => {
+                        const sessionName = sessionEl.querySelector('.session-name-input')?.value || null;
+                        const unitIds = [];
+                        sessionEl.querySelectorAll('.unit-chip[data-unit-id]').forEach(chip => {
+                            unitIds.push(chip.getAttribute('data-unit-id'));
+                        });
+
+                        if (unitIds.length > 0) {
+                            sessions.push({
+                                session_name: sessionName || `Sesi ${index + 1}`,
+                                invited_units: unitIds
+                            });
+                        }
+                    });
+                } else {
+                    // Collect from normal invitation
+                    const unitIds = [];
+                    document.querySelectorAll('#createAgendaModalHari #normalInvolvedInstansiHari .chip[data-unit-id]').forEach(chip => {
+                        unitIds.push(chip.getAttribute('data-unit-id'));
+                    });
+
+                    if (unitIds.length > 0) {
+                        sessions.push({
+                            session_name: null,
+                            invited_units: unitIds
+                        });
+                    }
+                }
+
+                // Add hidden input for sessions
+                const existingInput = document.querySelector('#createAgendaModalHari input[name="sessions_data"]');
+                if (existingInput) {
+                    existingInput.remove();
+                }
+
+                const sessionsInput = document.createElement('input');
+                sessionsInput.type = 'hidden';
+                sessionsInput.name = 'sessions_data';
+                sessionsInput.value = JSON.stringify(sessions);
+                document.getElementById('createAgendaFormHari').appendChild(sessionsInput);
+            }
+
+            // Toggle Group functionality
+            document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('#createAgendaModalHari input[name="has_group"]').forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        const hasGroup = this.value === '1';
+                        const normalInvitation = document.getElementById('normalInvitationHari');
+                        const groupInvitation = document.getElementById('groupInvitationHari');
+                        const addSessionBtn = document.getElementById('addSessionBtnHari');
+
+                        if (normalInvitation) normalInvitation.style.display = hasGroup ? 'none' : 'block';
+                        if (groupInvitation) groupInvitation.style.display = hasGroup ? 'block' : 'none';
+                        if (addSessionBtn) addSessionBtn.style.display = hasGroup ? 'block' : 'none';
+                        
+                        if (hasGroup && document.querySelectorAll('#createAgendaModalHari .session-item').length === 0) {
+                            addSessionHari(1);
+                            addSessionHari(2);
+                        }
+                    });
+                });
+
+                // Add session functionality
+                const addSessionBtn = document.getElementById('addSessionBtnHari');
+                if (addSessionBtn) {
+                    let sessionCount = 0;
+                    addSessionBtn.addEventListener('click', function() {
+                        sessionCount++;
+                        addSessionHari(sessionCount + 2);
+                    });
+                }
+            });
+
+            function addSessionHari(sessionNumber) {
+                const container = document.getElementById('sessionsContainerHari');
+                if (!container) return;
+
+                const sessionDiv = document.createElement('div');
+                sessionDiv.className = 'session-item';
+                sessionDiv.innerHTML = `
+                    <div class="input-group fullwidth-group" style="margin-bottom: 16px; border: 1px solid #e5e7eb; padding: 16px; border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <label style="margin: 0;"><i class="fas fa-layer-group"></i> Dihadiri Sesi ${sessionNumber}</label>
+                            ${sessionNumber > 2 ? '<button type="button" class="remove-session-btn" style="background: #fee2e2; color: #991b1b; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;"><i class="fas fa-times"></i></button>' : ''}
+                        </div>
+                        <input type="text" class="session-name-input" placeholder="Nama Sesi (opsional)" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; margin-bottom: 12px;">
+                        <div class="chips-multiselect session-units-select" data-session="${sessionNumber}">
+                            <div class="chips-container">
+                                <div class="chips-selected"></div>
+                                <input type="text" class="chips-input" placeholder="-- Pilih Instansi yang Hadir --" readonly style="cursor: pointer;">
+                            </div>
+                            <span class="chips-arrow"><i class="fas fa-chevron-down"></i></span>
+                            <div class="chips-dropdown">
+                                <div class="chips-search">
+                                    <input type="text" class="chips-search-input" placeholder="Cari instansi..." />
+                                </div>
+                                <ul>
+                                    <li class="select-all-option" data-action="select-all">
+                                        <span class="check-icon"></span>
+                                        <span class="item-text">Pilih Semua</span>
+                                        <i class="fas fa-check checkmark-icon"></i>
+                                    </li>
+                                    @foreach ($units as $unit)
+                                        @if ($unit->id_unit !== Auth::user()->id_unit && strtolower($unit->unit_name) !== 'protokol')
+                                            <li data-value="{{ $unit->id_unit }}" data-name="{{ $unit->unit_name }}" class="dropdown-item">
+                                                <span class="check-icon"></span>
+                                                <span class="item-text">{{ $unit->unit_name }}</span>
+                                                <i class="fas fa-check checkmark-icon"></i>
+                                            </li>
+                                        @endif
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(sessionDiv);
+                
+                // Initialize chips for this session
+                initChipsMultiselectHari(sessionDiv.querySelector('.session-units-select'));
+                
+                // Remove session button
+                const removeBtn = sessionDiv.querySelector('.remove-session-btn');
+                if (removeBtn) {
+                    removeBtn.addEventListener('click', function() {
+                        sessionDiv.remove();
+                    });
+                }
+            }
+
+            // Initialize chips multiselect for normal invitation
+            function initChipsMultiselectHari(root) {
+                if (!root) return;
+                
+                const dropdown = root.querySelector('.chips-dropdown');
+                const arrow = root.querySelector('.chips-arrow');
+                const searchInput = root.querySelector('.chips-search-input');
+                const mainInput = root.querySelector('.chips-input');
+                const selectedWrap = root.querySelector('.chips-selected');
+                const allListItems = Array.from(dropdown.querySelectorAll('li.dropdown-item'));
+                const listItems = allListItems.filter(li => !li.classList.contains('add-new-instansi-option'));
+                const selectAllOption = dropdown.querySelector('.select-all-option');
+                const container = root.querySelector('.chips-container');
+
+                let selectedValues = [];
+                let selectedUnitIds = [];
+
+                function toggleDropdown() {
+                    const isOpen = dropdown.classList.toggle('open');
+                    root.classList.toggle('open', isOpen);
+                    if (isOpen) {
+                        searchInput.value = '';
+                        filterList('');
+                        searchInput.focus();
+                        listItems.forEach(li => {
+                            li.style.display = 'flex';
+                            const value = li.getAttribute('data-value');
+                            updateItemState(value);
+                        });
+                        selectAllOption.style.display = 'flex';
+                        updateSelectAllState();
+                    }
+                }
+
+                function closeDropdown() {
+                    dropdown.classList.remove('open');
+                    root.classList.remove('open');
+                    searchInput.value = '';
+                }
+
+                function toggleItem(unitId, unitName) {
+                    const index = selectedUnitIds.indexOf(unitId);
+                    if (index > -1) {
+                        selectedUnitIds.splice(index, 1);
+                        selectedValues.splice(index, 1);
+                        removeChip(unitId);
+                    } else {
+                        selectedUnitIds.push(unitId);
+                        selectedValues.push(unitName);
+                        addChip(unitId, unitName);
+                    }
+                    updateItemState(unitId);
+                    updateSelectAllState();
+                }
+
+                function addChip(unitId, unitName) {
+                    const existingChip = selectedWrap.querySelector(`.unit-chip[data-unit-id="${unitId}"]`);
+                    if (existingChip) return;
+
+                    const chip = document.createElement('span');
+                    chip.className = 'chip unit-chip';
+                    chip.setAttribute('data-unit-id', unitId);
+                    chip.setAttribute('data-value', unitName);
+                    chip.textContent = unitName;
+
+                    const btn = document.createElement('button');
+                    btn.className = 'chip-remove';
+                    btn.innerHTML = '&times;';
+                    btn.onclick = (e) => {
+                        e.stopPropagation();
+                        toggleItem(unitId, unitName);
+                    };
+
+                    chip.appendChild(btn);
+                    selectedWrap.appendChild(chip);
+                    mainInput.style.display = selectedUnitIds.length ? 'none' : 'inline';
+                }
+
+                function removeChip(unitId) {
+                    const chip = selectedWrap.querySelector(`.unit-chip[data-unit-id="${unitId}"]`);
+                    if (chip) {
+                        chip.remove();
+                    }
+                    mainInput.style.display = selectedUnitIds.length ? 'none' : 'inline';
+                }
+
+                function updateItemState(unitId) {
+                    const item = listItems.find(li => li.getAttribute('data-value') === unitId);
+                    if (item) {
+                        const isSelected = selectedUnitIds.includes(unitId);
+                        item.classList.toggle('selected', isSelected);
+                        const checkmark = item.querySelector('.checkmark-icon');
+                        if (checkmark) {
+                            checkmark.style.display = isSelected ? 'inline-block' : 'none';
+                        }
+                        const checkIcon = item.querySelector('.check-icon');
+                        if (checkIcon) {
+                            checkIcon.classList.toggle('checked', isSelected);
+                        }
+                    }
+                }
+
+                function updateSelectAllState() {
+                    const allSelected = listItems.length > 0 && listItems.length === selectedUnitIds.length;
+                    selectAllOption.classList.toggle('selected', allSelected);
+                    const selectAllCheckmark = selectAllOption.querySelector('.checkmark-icon');
+                    if (selectAllCheckmark) {
+                        selectAllCheckmark.style.display = allSelected ? 'inline-block' : 'none';
+                    }
+                    const selectAllCheckIcon = selectAllOption.querySelector('.check-icon');
+                    if (selectAllCheckIcon) {
+                        selectAllCheckIcon.classList.toggle('checked', allSelected);
+                    }
+                }
+
+                function selectAll() {
+                    const allSelected = listItems.length === selectedUnitIds.length;
+                    if (allSelected) {
+                        selectedUnitIds = [];
+                        selectedValues = [];
+                        listItems.forEach(li => {
+                            const unitId = li.getAttribute('data-value');
+                            removeChip(unitId);
+                            updateItemState(unitId);
+                        });
+                    } else {
+                        listItems.forEach(li => {
+                            const unitId = li.getAttribute('data-value');
+                            const unitName = li.getAttribute('data-name');
+                            if (!selectedUnitIds.includes(unitId)) {
+                                selectedUnitIds.push(unitId);
+                                selectedValues.push(unitName);
+                                addChip(unitId, unitName);
+                                updateItemState(unitId);
+                            }
+                        });
+                    }
+                    updateSelectAllState();
+                }
+
+                function filterList(term) {
+                    const lower = term.toLowerCase().trim();
+                    listItems.forEach(li => {
+                        const text = li.querySelector('.item-text').textContent.toLowerCase();
+                        li.style.display = !lower || text.includes(lower) ? 'flex' : 'none';
+                    });
+                    selectAllOption.style.display = !lower || listItems.some(li => {
+                        const text = li.querySelector('.item-text').textContent.toLowerCase();
+                        return text.includes(lower);
+                    }) ? 'flex' : 'none';
+                }
+
+                searchInput.addEventListener('input', e => filterList(e.target.value));
+                arrow.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleDropdown();
+                });
+                container.addEventListener('click', (e) => {
+                    if (e.target !== searchInput && !e.target.closest('.chips-selected')) {
+                        toggleDropdown();
+                    }
+                });
+                selectAllOption.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectAll();
+                });
+                listItems.forEach(li => {
+                    li.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const unitId = li.getAttribute('data-value');
+                        const unitName = li.getAttribute('data-name');
+                        toggleItem(unitId, unitName);
+                    });
+                });
+                document.addEventListener('click', e => {
+                    if (!root.contains(e.target)) closeDropdown();
+                });
+            }
+
+            // Initialize normal invitation chips
+            document.addEventListener('DOMContentLoaded', function() {
+                const normalRoot = document.getElementById('normalInvolvedInstansiHari');
+                if (normalRoot) {
+                    initChipsMultiselectHari(normalRoot);
+                }
+            });
+
+            // Update handleFormSubmit untuk collect session data
+            const originalHandleFormSubmit = handleFormSubmit;
+            handleFormSubmit = function(e) {
+                e.preventDefault();
+                if (currentPageHari === 1) {
+                    if (!validatePage1Hari()) {
+                        showPageHari(1);
+                        return false;
+                    }
+                    showPageHari(2);
+                    return false;
+                }
+                // If on page 2, collect session data and submit
+                collectSessionDataHari();
+                return originalHandleFormSubmit.call(this, e);
+            };
+
+
             // ==== HANDLE FORM SUBMIT ====
             function handleFormSubmit(e) {
                 e.preventDefault();
 
                 const form = e.target;
-
-                // Pastikan chips multiselect sudah sync sebelum submit
-                const chipsRoot = document.getElementById('involvedInstansiHari');
-                if (chipsRoot) {
-                    const hiddenField = document.getElementById('involvedInstitutionFieldHari');
-                    const selectedChips = chipsRoot.querySelectorAll('.chip');
-                    if (selectedChips.length > 0 && hiddenField) {
-                        const values = Array.from(selectedChips).map(chip => chip.getAttribute('data-value'));
-                        hiddenField.value = values.join(', ');
-                    }
-                }
 
                 const formData = new FormData(form);
                 const submitBtn = form.querySelector('button[type="submit"]');
@@ -899,27 +1346,8 @@
                     .then(data => {
                         if (data.success) {
                             closeModal();
-                            // Reset form dan chips
+                            // Reset form
                             form.reset();
-
-                            // Reset chips multiselect
-                            const chipsRoot = document.getElementById('involvedInstansiHari');
-                            if (chipsRoot) {
-                                const selectedWrap = chipsRoot.querySelector('.chips-selected');
-                                const hiddenField = document.getElementById('involvedInstitutionFieldHari');
-                                const mainInput = chipsRoot.querySelector('.chips-input');
-
-                                if (selectedWrap) {
-                                    selectedWrap.innerHTML = '';
-                                }
-                                if (hiddenField) {
-                                    hiddenField.value = '';
-                                }
-                                if (mainInput) {
-                                    mainInput.style.display = 'inline';
-                                }
-                                chipsRoot.classList.add('empty');
-                            }
 
                             // Reload events
                             renderDayEvents();
@@ -964,357 +1392,6 @@
         </script>
 
         <script>
-            // Chips Multiselect untuk Involved Institution di Dashboard Hari
-            (() => {
-                const root = document.getElementById('involvedInstansiHari');
-                if (!root) return;
-
-                const dropdown = root.querySelector('.chips-dropdown');
-                const arrow = root.querySelector('.chips-arrow');
-                const searchInput = root.querySelector('.chips-search-input');
-                const mainInput = root.querySelector('.chips-input');
-                const selectedWrap = root.querySelector('.chips-selected');
-                const hiddenField = document.getElementById('involvedInstitutionFieldHari');
-                const allListItems = Array.from(dropdown.querySelectorAll('li.dropdown-item'));
-                const listItems = allListItems.filter(li => !li.classList.contains('add-new-instansi-option'));
-                const selectAllOption = dropdown.querySelector('.select-all-option');
-                const container = root.querySelector('.chips-container');
-                const addNewInputContainer = dropdown.querySelector('.chips-add-new-input-container');
-                const addNewInput = dropdown.querySelector('.chips-add-new-input');
-                const addConfirmBtn = dropdown.querySelector('.chips-add-confirm-btn');
-                const addCancelBtn = dropdown.querySelector('.chips-add-cancel-btn');
-
-                let selectedValues = [];
-
-                function showAddNewInput(initialValue = '') {
-                    if (addNewInputContainer) {
-                        addNewInputContainer.style.display = 'block';
-                        if (addNewInput) {
-                            addNewInput.value = initialValue;
-                            setTimeout(() => addNewInput.focus(), 100);
-                        }
-                    }
-                }
-
-                function hideAddNewInput() {
-                    if (addNewInputContainer) {
-                        addNewInputContainer.style.display = 'none';
-                        if (addNewInput) {
-                            addNewInput.value = '';
-                        }
-                        const addNewInstansiOption = dropdown.querySelector('.add-new-instansi-option');
-                        if (addNewInstansiOption) {
-                            addNewInstansiOption.style.display = 'flex';
-                        }
-                    }
-                }
-
-                function toggleDropdown() {
-                    const isOpen = dropdown.classList.toggle('open');
-                    root.classList.toggle('open', isOpen);
-                    if (isOpen) {
-                        searchInput.value = '';
-                        filterList('');
-                        hideAddNewInput();
-                        const addNewInstansiOption = dropdown.querySelector('.add-new-instansi-option');
-                        if (addNewInstansiOption) {
-                            addNewInstansiOption.style.display = 'flex';
-                        }
-                        searchInput.focus();
-                        listItems.forEach(li => {
-                            li.style.display = 'flex';
-                            const value = li.getAttribute('data-value');
-                            updateItemState(value);
-                        });
-                        selectAllOption.style.display = 'flex';
-                        updateSelectAllState();
-                    } else {
-                        hideAddNewInput();
-                    }
-                }
-
-                function closeDropdown() {
-                    dropdown.classList.remove('open');
-                    root.classList.remove('open');
-                    hideAddNewInput();
-                    searchInput.value = '';
-                    const addNewInstansiOption = dropdown.querySelector('.add-new-instansi-option');
-                    if (addNewInstansiOption) {
-                        addNewInstansiOption.style.display = 'flex';
-                    }
-                }
-
-                function toggleItem(value) {
-                    const index = selectedValues.indexOf(value);
-                    if (index > -1) {
-                        selectedValues.splice(index, 1);
-                        removeChip(value);
-                    } else {
-                        selectedValues.push(value);
-                        addChip(value);
-                    }
-                    updateItemState(value);
-                    updateSelectAllState();
-                    syncHidden();
-                }
-
-                function addChip(value) {
-                    const existingChip = selectedWrap.querySelector(`.chip[data-value="${value}"]`);
-                    if (existingChip) return;
-
-                    const chip = document.createElement('span');
-                    chip.className = 'chip';
-                    chip.setAttribute('data-value', value);
-                    chip.textContent = value;
-
-                    const btn = document.createElement('button');
-                    btn.className = 'chip-remove';
-                    btn.innerHTML = '&times;';
-                    btn.onclick = (e) => {
-                        e.stopPropagation();
-                        toggleItem(value);
-                    };
-
-                    chip.appendChild(btn);
-                    selectedWrap.appendChild(chip);
-                }
-
-                function removeChip(value) {
-                    const chip = selectedWrap.querySelector(`.chip[data-value="${value}"]`);
-                    if (chip) {
-                        chip.remove();
-                    }
-                }
-
-                function updateItemState(value) {
-                    const item = listItems.find(li => li.getAttribute('data-value') === value);
-                    if (item) {
-                        const isSelected = selectedValues.includes(value);
-                        item.classList.toggle('selected', isSelected);
-                        const checkmark = item.querySelector('.checkmark-icon');
-                        if (checkmark) {
-                            checkmark.style.display = isSelected ? 'inline-block' : 'none';
-                        }
-                        const checkIcon = item.querySelector('.check-icon');
-                        if (checkIcon) {
-                            checkIcon.classList.toggle('checked', isSelected);
-                        }
-                    }
-                }
-
-                function updateSelectAllState() {
-                    const allSelected = listItems.length > 0 && listItems.length === selectedValues.length;
-                    selectAllOption.classList.toggle('selected', allSelected);
-                    const selectAllCheckmark = selectAllOption.querySelector('.checkmark-icon');
-                    if (selectAllCheckmark) {
-                        selectAllCheckmark.style.display = allSelected ? 'inline-block' : 'none';
-                    }
-                    const selectAllCheckIcon = selectAllOption.querySelector('.check-icon');
-                    if (selectAllCheckIcon) {
-                        selectAllCheckIcon.classList.toggle('checked', allSelected);
-                    }
-                }
-
-                function selectAll() {
-                    const allValues = listItems.map(li => li.getAttribute('data-value'));
-                    const allSelected = listItems.length === selectedValues.length;
-
-                    if (allSelected) {
-                        selectedValues = [];
-                        listItems.forEach(li => {
-                            const value = li.getAttribute('data-value');
-                            removeChip(value);
-                            updateItemState(value);
-                        });
-                    } else {
-                        selectedValues = [...allValues];
-                        listItems.forEach(li => {
-                            const value = li.getAttribute('data-value');
-                            addChip(value);
-                            updateItemState(value);
-                        });
-                    }
-                    updateSelectAllState();
-                    syncHidden();
-                }
-
-                function syncHidden() {
-                    hiddenField.value = selectedValues.join(', ');
-                    mainInput.style.display = selectedValues.length ? 'none' : 'inline';
-                    if (selectedValues.length === 0) {
-                        root.classList.add('empty');
-                    } else {
-                        root.classList.remove('empty');
-                    }
-                }
-
-                function addNewItem(name) {
-                    const cleanName = name.trim();
-                    if (!cleanName) {
-                        alert('Nama instansi tidak boleh kosong!');
-                        if (addNewInput) addNewInput.focus();
-                        return;
-                    }
-
-                    const existsInList = listItems.some(li => li.getAttribute('data-value').toLowerCase() === cleanName
-                        .toLowerCase());
-                    const existsInSelected = selectedValues.some(val => val.toLowerCase() === cleanName.toLowerCase());
-
-                    if (existsInList || existsInSelected) {
-                        alert('Instansi sudah ada!');
-                        if (addNewInput) {
-                            addNewInput.value = '';
-                            addNewInput.focus();
-                        }
-                        return;
-                    }
-
-                    selectedValues.push(cleanName);
-                    addChip(cleanName);
-                    updateSelectAllState();
-                    syncHidden();
-                    hideAddNewInput();
-                    filterList('');
-
-                    if (typeof Toastify !== 'undefined') {
-                        Toastify({
-                            text: `Instansi "${cleanName}" berhasil ditambahkan!`,
-                            duration: 2500,
-                            gravity: "top",
-                            position: "center",
-                            style: {
-                                background: "#d1fae5",
-                                color: "#065f46",
-                                borderRadius: "8px",
-                                fontSize: "0.9rem"
-                            }
-                        }).showToast();
-                    }
-                }
-
-                function filterList(term) {
-                    const lower = term.toLowerCase().trim();
-                    const addNewInstansiOption = dropdown.querySelector('.add-new-instansi-option');
-
-                    listItems.forEach(li => {
-                        const text = li.querySelector('.item-text').textContent.toLowerCase();
-                        const match = !lower || text.includes(lower);
-                        li.style.display = match ? 'flex' : 'none';
-                    });
-
-                    if (!lower || listItems.some(li => {
-                            const text = li.querySelector('.item-text').textContent.toLowerCase();
-                            return text.includes(lower);
-                        })) {
-                        selectAllOption.style.display = 'flex';
-                    } else {
-                        selectAllOption.style.display = 'none';
-                    }
-
-                    if (addNewInstansiOption) {
-                        if (addNewInputContainer && addNewInputContainer.style.display === 'none') {
-                            addNewInstansiOption.style.display = 'flex';
-                        } else {
-                            addNewInstansiOption.style.display = 'none';
-                        }
-                    }
-                }
-
-                // Event listeners
-                searchInput.addEventListener('input', e => filterList(e.target.value));
-
-                const addNewInstansiOption = dropdown.querySelector('.add-new-instansi-option');
-                if (addNewInstansiOption) {
-                    addNewInstansiOption.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        showAddNewInput('');
-                        addNewInstansiOption.style.display = 'none';
-                        selectAllOption.style.display = 'none';
-                    });
-                }
-
-                if (addNewInput) {
-                    addNewInput.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            if (addConfirmBtn) addConfirmBtn.click();
-                        } else if (e.key === 'Escape') {
-                            e.preventDefault();
-                            hideAddNewInput();
-                            selectAllOption.style.display = 'flex';
-                            searchInput.focus();
-                        }
-                    });
-                }
-
-                if (addConfirmBtn) {
-                    addConfirmBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        if (addNewInput && addNewInput.value.trim()) {
-                            addNewItem(addNewInput.value.trim());
-                            selectAllOption.style.display = 'flex';
-                        }
-                    });
-                }
-
-                if (addCancelBtn) {
-                    addCancelBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        hideAddNewInput();
-                        selectAllOption.style.display = 'flex';
-                        searchInput.focus();
-                    });
-                }
-
-                arrow.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    toggleDropdown();
-                });
-
-                container.addEventListener('click', (e) => {
-                    if (e.target !== searchInput && !e.target.closest('.chips-selected')) {
-                        toggleDropdown();
-                    }
-                });
-
-                selectAllOption.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    selectAll();
-                });
-
-                listItems.forEach(li => {
-                    li.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const value = li.getAttribute('data-value');
-                        toggleItem(value);
-                    });
-                });
-
-                document.addEventListener('click', e => {
-                    if (!root.contains(e.target)) closeDropdown();
-                });
-
-                function initializeValues() {
-                    const oldValue = hiddenField.value;
-                    if (oldValue && oldValue.trim() !== '') {
-                        const restoredValues = oldValue.split(',').map(v => v.trim()).filter(Boolean);
-                        restoredValues.forEach(value => {
-                            if (!selectedValues.includes(value)) {
-                                selectedValues.push(value);
-                                addChip(value);
-                            }
-                            updateItemState(value);
-                        });
-                        updateSelectAllState();
-                    }
-                    syncHidden();
-                }
-
-                initializeValues();
-            })();
-        </script>
-
-        <script>
             // ✅ INI DITARO DI LUAR
             const showAgendaModalEl = document.getElementById('showAgendaModal');
             if (showAgendaModalEl) {
@@ -1333,4 +1410,88 @@
                 });
             }
         </script>
+
+        <style>
+            /* Multi-page form styles untuk modal hari */
+            #createAgendaModalHari .form-page {
+                animation: fadeIn 0.3s ease;
+            }
+
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            #createAgendaModalHari .form-navigation {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-top: 32px;
+                padding-top: 24px;
+                border-top: 2px solid #e5e7eb;
+            }
+
+            #createAgendaModalHari .radio-option {
+                transition: all 0.3s;
+            }
+
+            #createAgendaModalHari .radio-option:hover {
+                border-color: #6b8f71 !important;
+                background: #f0fdf4;
+            }
+
+            #createAgendaModalHari .radio-option input[type="radio"]:checked ~ span {
+                color: #6b8f71;
+                font-weight: 600;
+            }
+
+            #createAgendaModalHari .radio-option:has(input[type="radio"]:checked) {
+                border-color: #6b8f71 !important;
+                background: #f0fdf4;
+            }
+
+            #createAgendaModalHari .session-item {
+                margin-bottom: 16px;
+            }
+
+            #createAgendaModalHari .btn-secondary {
+                background: #e5e7eb;
+                color: #374151;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: 500;
+                transition: all 0.3s;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            #createAgendaModalHari .btn-secondary:hover {
+                background: #d1d5db;
+            }
+
+            #createAgendaModalHari .invitation-container {
+                margin-top: 16px;
+            }
+
+            #createAgendaModalHari .btn-primary {
+                background: #6b8f71;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: 500;
+                transition: all 0.3s;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            #createAgendaModalHari .btn-primary:hover {
+                background: #5a7a5f;
+            }
+        </style>
     @endsection
