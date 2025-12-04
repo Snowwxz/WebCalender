@@ -95,9 +95,11 @@
                         <tr>
                             <th>Nama Agenda</th>
                             <th>Pelaksana</th>
+                            <th>Dihadiri</th>
                             <th>Tanggal</th>
                             <th>Waktu</th>
                             <th>Lokasi</th>
+                            <th>Catatan</th>
                             <th>Status</th>
                             <th>Aksi</th>
                         </tr>
@@ -123,19 +125,25 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td>
+                                <td class="col-pelaksana">
                                     <div class="table-cell-content">
                                         <i class="fas fa-building"></i>
-                                        <span>{{ $agenda->unit->unit_name ?? '-' }}</span>
+                                        <span title="{{ data_get($agenda, 'unit.unit_name', '') }}">{{ data_get($agenda, 'unit.unit_name', '-') }}</span>
                                     </div>
                                 </td>
-                                <td>
+                                <td class="col-dihadiri">
+                                    <div class="table-cell-content">
+                                        <i class="fas fa-users"></i>
+                                        <span title="{{ $agenda->invited_unit_names }}">{{ $agenda->invited_unit_names ?: '-' }}</span>
+                                    </div>
+                                </td>
+                                <td class="col-tanggal">
                                     <div class="table-cell-content">
                                         <i class="fas fa-calendar-alt"></i>
                                         <span>{{ \Carbon\Carbon::parse($agenda->date)->locale('id')->translatedFormat('d M Y') }}</span>
                                     </div>
                                 </td>
-                                <td>
+                                <td class="col-waktu">
                                     <div class="table-cell-content">
                                         <i class="fas fa-clock"></i>
                                         <span>
@@ -149,10 +157,16 @@
                                         </span>
                                     </div>
                                 </td>
-                                <td>
+                                <td class="col-location">
                                     <div class="table-cell-content">
                                         <i class="fas fa-map-marker-alt"></i>
-                                        <span>{{ Str::limit($agenda->location ?? '-', 30) }}</span>
+                                        <span title="{{ $agenda->location }}">{{ $agenda->location ?? '-' }}</span>
+                                    </div>
+                                </td>
+                                <td class="col-notes">
+                                    <div class="table-cell-content">
+                                        <i class="fas fa-file-alt"></i>
+                                        <span title="{{ $agenda->notes }}">{{ $agenda->notes ?: '-' }}</span>
                                     </div>
                                 </td>
                                 <td>

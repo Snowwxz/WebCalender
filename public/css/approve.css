@@ -388,6 +388,37 @@
     color: #374151;
 }
 
+.col-dihadiri,
+.col-notes {
+    max-width: 260px;
+}
+
+.col-location {
+    min-width: 280px;
+}
+
+.col-dihadiri .table-cell-content,
+.col-notes .table-cell-content {
+    align-items: flex-start;
+}
+
+.col-dihadiri span,
+.col-notes span {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.col-location span {
+    display: block;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
+    line-height: 1.4;
+}
+
 .agenda-name-cell {
     min-width: 250px;
     max-width: 300px;
@@ -442,7 +473,7 @@
 
 .table-cell-content span {
     flex: 1;
-    word-break: break-word;
+    word-break: normal;
 }
 
 .status-cell {
@@ -455,25 +486,31 @@
 .visibility-badge {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 11px;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 9999px;
+    font-size: 12px;
     font-weight: 500;
+    line-height: 1;
+    margin-left: 4px;
 }
 
+/* Publik: hijau pastel */
 .visibility-badge.public {
-    background: #dbeafe;
-    color: #1e40af;
+    background-color: #a7f3d0;
+    color: #1f2937;
+    border: 1px solid #86efac;
 }
 
+/* Privasi: orange pastel */
 .visibility-badge.private {
-    background: #f3f4f6;
-    color: #6b7280;
+    background-color: #fdba74; /* pastel dari #ea580c */
+    color: #1f2937;
+    border: 1px solid #f59e0b;
 }
 
 .visibility-badge i {
-    font-size: 10px;
+    font-size: 12px;
 }
 
 .action-cell {
@@ -521,7 +558,7 @@
     }
 
     .approval-table {
-        min-width: 1000px;
+        min-width: 1200px;
     }
 }
 
@@ -1196,4 +1233,17 @@
     to {
         transform: rotate(360deg);
     }
+}
+.col-pelaksana,
+.col-tanggal,
+.col-waktu {
+    max-width: 220px;
+}
+
+.col-pelaksana span,
+.col-tanggal span,
+.col-waktu span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
