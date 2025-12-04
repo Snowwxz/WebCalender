@@ -275,7 +275,23 @@
 
                     // Fungsi untuk cek apakah dua event overlap atau menyentuh
                     // Event dianggap overlap jika mereka saling menyentuh di waktu yang sama
+                    // ATAU jika jamnya sama (start_time sama atau sangat dekat)
                     function eventsOverlap(e1, e2) {
+                        // Toleransi untuk dianggap "sama waktu" (dalam menit)
+                        const timeTolerance = 60; // 1 jam toleransi
+                        
+                        // Cek apakah waktu mulai sama atau sangat dekat (untuk menangani agenda dengan jam yang sama)
+                        const startDiff = Math.abs(e1.startMinutes - e2.startMinutes);
+                        if (startDiff <= timeTolerance) {
+                            return true;
+                        }
+                        
+                        // Cek apakah waktu akhir sama atau sangat dekat
+                        const endDiff = Math.abs(e1.endMinutes - e2.endMinutes);
+                        if (endDiff <= timeTolerance) {
+                            return true;
+                        }
+                        
                         // Event overlap jika:
                         // - e1 dimulai sebelum e2 berakhir DAN
                         // - e1 berakhir setelah e2 dimulai
