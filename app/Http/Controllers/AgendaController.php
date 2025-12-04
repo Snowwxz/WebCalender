@@ -312,13 +312,21 @@ class AgendaController extends Controller
                 return response()->json([
                     'success' => true,
                     'agenda' => $agendaData,
-                    'message' => 'Agenda berhasil ditambahkan .',
+                    'message' => 'Agenda berhasil ditambahkan.',
                 ]);
             }
 
-            // 📄 Kalau request biasa (form HTML) → kembali ke Dashboard Bulan
-            return redirect()->route('dashboard.bulan')->with('success', 'Agenda berhasil ditambahkan!');
+            // 📄 Kalau request biasa (form HTML) → kembali ke halaman notification
+            return redirect()->route('agenda.notification')->with('success', 'Agenda berhasil diajukan! Status: Menunggu Persetujuan');
         } catch (\Exception $e) {
+            DB::rollBack();
+            
+            // Log error untuk debugging
+            Log::error('Error saving agenda: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'request' => $request->all()
+            ]);
+            
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
@@ -326,7 +334,9 @@ class AgendaController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->with('error', 'Gagal menyimpan agenda: ' . $e->getMessage());
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Gagal menyimpan agenda: ' . $e->getMessage());
         }
     }
 

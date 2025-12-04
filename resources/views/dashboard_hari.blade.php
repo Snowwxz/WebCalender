@@ -643,9 +643,11 @@
                                 data.invitations.forEach((inv, index) => {
                                     if (inv.units && inv.units.length > 0) {
                                         const unitNames = inv.units.join(', ');
+                                        // Gunakan session_name jika ada, jika tidak gunakan "Sesi X"
+                                        const sessionLabel = inv.session_name || `Sesi ${index + 1}`;
                                         if (data.invitations.length > 1) {
-                                            // Jika ada multiple sessions, gunakan format "Sesi X= opd, opd"
-                                            parts.push(`Sesi ${index + 1}= ${unitNames}`);
+                                            // Jika ada multiple sessions, gunakan format "Nama Sesi= opd, opd"
+                                            parts.push(`${sessionLabel}= ${unitNames}`);
                                         } else {
                                             // Jika hanya satu session (normal), tampilkan langsung
                                             parts.push(unitNames);

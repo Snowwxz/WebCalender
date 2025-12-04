@@ -318,17 +318,52 @@
             return isValid;
         }
 
-        // Form validation on submit
-        document.getElementById('agendaForm').addEventListener('submit', function(e) {
+        // Form validation on submit - akan dipanggil sebelum konfirmasi
+        function validateAndPrepareForm() {
             if (!validatePage1()) {
-                e.preventDefault();
                 showPage(1);
-                return;
+                return false;
+            }
+
+            // Validate session names if group mode
+            const hasGroup = document.querySelector('input[name="has_group"]:checked')?.value === '1';
+            if (hasGroup) {
+                let isValid = true;
+                const sessionItems = document.querySelectorAll('.session-item');
+                sessionItems.forEach((sessionEl, index) => {
+                    const sessionNameInput = sessionEl.querySelector('.session-name-input');
+                    const sessionName = sessionNameInput?.value?.trim();
+                    if (!sessionName) {
+                        isValid = false;
+                        if (sessionNameInput) {
+                            sessionNameInput.style.borderColor = '#ef4444';
+                            sessionNameInput.style.backgroundColor = '#fef2f2';
+                        }
+                    } else {
+                        if (sessionNameInput) {
+                            sessionNameInput.style.borderColor = '';
+                            sessionNameInput.style.backgroundColor = '';
+                        }
+                    }
+                });
+                
+                if (!isValid) {
+                    showPage(2);
+                    alert('Mohon lengkapi semua nama sesi yang wajib diisi.');
+                    return false;
+                }
             }
 
             // Collect session data
-            collectSessionData();
-        });
+            try {
+                collectSessionData();
+                return true;
+            } catch (error) {
+                showPage(2);
+                alert(error.message);
+                return false;
+            }
+        }
 
         function collectSessionData() {
             const hasGroup = document.querySelector('input[name="has_group"]:checked').value === '1';
@@ -337,7 +372,21 @@
             if (hasGroup) {
                 // Collect from group sessions
                 document.querySelectorAll('.session-item').forEach((sessionEl, index) => {
-                    const sessionName = sessionEl.querySelector('.session-name-input')?.value || null;
+                    const sessionNameInput = sessionEl.querySelector('.session-name-input');
+                    const sessionName = sessionNameInput?.value?.trim();
+                    
+                    // Validate session name is required
+                    if (!sessionName) {
+                        sessionNameInput.style.borderColor = '#ef4444';
+                        sessionNameInput.style.backgroundColor = '#fef2f2';
+                        throw new Error(`Nama sesi ${index + 1} wajib diisi`);
+                    } else {
+                        if (sessionNameInput) {
+                            sessionNameInput.style.borderColor = '';
+                            sessionNameInput.style.backgroundColor = '';
+                        }
+                    }
+                    
                     const unitIds = [];
                     sessionEl.querySelectorAll('.unit-chip[data-unit-id]').forEach(chip => {
                         unitIds.push(chip.getAttribute('data-unit-id'));
@@ -345,7 +394,7 @@
 
                     if (unitIds.length > 0) {
                         sessions.push({
-                            session_name: sessionName || `Sesi ${index + 1}`,
+                            session_name: sessionName,
                             invited_units: unitIds
                         });
                     }
@@ -430,7 +479,7 @@
                         <label style="margin: 0;"><i class="fas fa-layer-group"></i> Dihadiri Sesi ${sessionNumber}</label>
                         ${sessionNumber > 2 ? '<button type="button" class="remove-session-btn" style="background: #fee2e2; color: #991b1b; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;"><i class="fas fa-times"></i></button>' : ''}
                     </div>
-                    <input type="text" class="session-name-input" placeholder="Nama Sesi (opsional)" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; margin-bottom: 12px;">
+                    <input type="text" class="session-name-input" placeholder="Nama Sesi (wajib)" required style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; margin-bottom: 12px;">
                     <div class="chips-multiselect session-units-select" data-session="${sessionNumber}">
                         <div class="chips-container">
                             <div class="chips-selected"></div>
@@ -1088,7 +1137,20 @@
 
             toastContent.querySelector('#confirmSubmit').addEventListener('click', () => {
                 toast.hideToast(); // tutup konfirmasi
-                document.getElementById('agendaForm').submit(); // kirim form
+                
+                // Pastikan data sudah dikumpulkan sebelum submit
+                try {
+                    collectSessionData();
+                } catch (error) {
+                    alert(error.message);
+                    return;
+                }
+                
+                // Set flag untuk menandai bahwa form sudah divalidasi
+                isFormValidated = true;
+                
+                // Submit form
+                document.getElementById('agendaForm').submit();
             });
 
             toastContent.querySelector('#cancelSubmit').addEventListener('click', () => {
@@ -1096,9 +1158,24 @@
             });
         }
 
+        // Flag untuk menandai submit yang sudah divalidasi
+        let isFormValidated = false;
+        
         // intercept tombol submit bawaan form
         document.getElementById("agendaForm").addEventListener("submit", function(e) {
+            // Jika sudah divalidasi, biarkan submit berjalan
+            if (isFormValidated) {
+                isFormValidated = false; // Reset flag
+                return true; // Biarkan form submit normal
+            }
+            
             e.preventDefault(); // cegah kirim langsung
+            
+            // Validasi dan persiapan data terlebih dahulu
+            if (!validateAndPrepareForm()) {
+                return; // Jika validasi gagal, jangan lanjutkan
+            }
+            
             showConfirmSubmit(); // munculkan toast konfirmasi
         });
 
