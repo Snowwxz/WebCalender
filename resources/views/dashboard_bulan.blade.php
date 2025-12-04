@@ -44,10 +44,17 @@
                 <div id="agendaSidebar" class="agenda-sidebar">
                     <div class="sidebar-header">
                         <h3 id="agendaSidebarDate">Agenda Hari Ini</h3>
-                        <button class="close-sidebar" aria-label="Tutup"
-                            onclick="document.getElementById('agendaSidebar').classList.remove('active')">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
+                        <div class="sidebar-actions">
+                            <button class="copy-sidebar" id="copySidebarAgendaBtn" aria-label="Salin agenda hari ini"
+                                title="Salin agenda hari ini">
+                                <i class="fas fa-copy"></i>
+                                <span class="label">Salin</span>
+                            </button>
+                            <button class="close-sidebar" aria-label="Tutup"
+                                onclick="document.getElementById('agendaSidebar').classList.remove('active')">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
                     </div>
                     <div id="agendaList" class="agenda-list"></div>
                 </div>
@@ -75,8 +82,8 @@
                             <!-- Full Width Fields -->
                             <div class="input-group fullwidth-group">
                                 <label><i class="fas fa-file-alt"></i> Nama Agenda</label>
-                                <input type="text" name="agenda_name" id="agenda_name"
-                                    placeholder="Masukkan nama agenda" required>
+                                <input type="text" name="agenda_name" id="agenda_name" placeholder="Masukkan nama agenda"
+                                    required>
                             </div>
 
                             <div class="input-group fullwidth-group">
@@ -102,7 +109,8 @@
 
                                 <div class="input-group lokasi-group">
                                     <label for="lokasi"><i class="fas fa-map-marker-alt"></i> Lokasi</label>
-                                    <input type="text" id="location" name="location" placeholder="Masukkan lokasi kegiatan">
+                                    <input type="text" id="location" name="location"
+                                        placeholder="Masukkan lokasi kegiatan">
                                 </div>
                             </div>
 
@@ -131,20 +139,27 @@
                                 <div class="chips-multiselect" id="involvedInstansi">
                                     <div class="chips-container">
                                         <div class="chips-selected"></div>
-                                        <input type="text" class="chips-input" placeholder="-- Pilih Instansi yang Hadir --"
-                                            readonly style="cursor: pointer;">
+                                        <input type="text" class="chips-input"
+                                            placeholder="-- Pilih Instansi yang Hadir --" readonly
+                                            style="cursor: pointer;">
                                     </div>
                                     <span class="chips-arrow"><i class="fas fa-chevron-down"></i></span>
 
                                     <div class="chips-dropdown">
                                         <div class="chips-search">
-                                            <input type="text" class="chips-search-input" placeholder="Cari instansi..." />
+                                            <input type="text" class="chips-search-input"
+                                                placeholder="Cari instansi..." />
                                         </div>
-                                        <div class="chips-add-new-input-container" style="display: none; padding: 10px 12px; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">
-                                            <input type="text" class="chips-add-new-input" placeholder="Ketik nama instansi baru..." style="width: 100%; padding: 8px 12px; border: 1px solid #6b8f71; border-radius: 6px; font-size: 14px; outline: none;" />
+                                        <div class="chips-add-new-input-container"
+                                            style="display: none; padding: 10px 12px; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">
+                                            <input type="text" class="chips-add-new-input"
+                                                placeholder="Ketik nama instansi baru..."
+                                                style="width: 100%; padding: 8px 12px; border: 1px solid #6b8f71; border-radius: 6px; font-size: 14px; outline: none;" />
                                             <div style="display: flex; gap: 8px; margin-top: 8px;">
-                                                <button type="button" class="chips-add-confirm-btn" style="flex: 1; padding: 6px 12px; background: #6b8f71; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;">Tambahkan</button>
-                                                <button type="button" class="chips-add-cancel-btn" style="flex: 1; padding: 6px 12px; background: #e5e7eb; color: #374151; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;">Batal</button>
+                                                <button type="button" class="chips-add-confirm-btn"
+                                                    style="flex: 1; padding: 6px 12px; background: #6b8f71; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;">Tambahkan</button>
+                                                <button type="button" class="chips-add-cancel-btn"
+                                                    style="flex: 1; padding: 6px 12px; background: #e5e7eb; color: #374151; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;">Batal</button>
                                             </div>
                                         </div>
 
@@ -163,7 +178,8 @@
                                                     </li>
                                                 @endif
                                             @endforeach
-                                            <li class="add-new-instansi-option" data-action="add-new" style="padding: 10px 12px; cursor: pointer; border-top: 1px solid #e5e7eb; color: #6b8f71; font-weight: 500; display: flex; align-items: center; list-style: none;">
+                                            <li class="add-new-instansi-option" data-action="add-new"
+                                                style="padding: 10px 12px; cursor: pointer; border-top: 1px solid #e5e7eb; color: #6b8f71; font-weight: 500; display: flex; align-items: center; list-style: none;">
                                                 <i class="fas fa-plus-circle" style="margin-right: 8px;"></i>
                                                 <span>Lainnya...</span>
                                             </li>
@@ -448,7 +464,6 @@
                 }
             }
 
-            // ✅ Jalankan setelah semua script selesai dimuat
             window.addEventListener('load', () => {
                 initCategoryFilter();
                 generateMainCalendar();
@@ -724,7 +739,8 @@
                         return;
                     }
 
-                    const existsInList = listItems.some(li => li.getAttribute('data-value').toLowerCase() === cleanName.toLowerCase());
+                    const existsInList = listItems.some(li => li.getAttribute('data-value').toLowerCase() === cleanName
+                        .toLowerCase());
                     const existsInSelected = selectedValues.some(val => val.toLowerCase() === cleanName.toLowerCase());
 
                     if (existsInList || existsInSelected) {
@@ -770,9 +786,9 @@
                     });
 
                     if (!lower || listItems.some(li => {
-                        const text = li.querySelector('.item-text').textContent.toLowerCase();
-                        return text.includes(lower);
-                    })) {
+                            const text = li.querySelector('.item-text').textContent.toLowerCase();
+                            return text.includes(lower);
+                        })) {
                         selectAllOption.style.display = 'flex';
                     } else {
                         selectAllOption.style.display = 'none';
@@ -960,7 +976,6 @@
         </script>
 
         <script>
-            // ✅ INI DITARO DI LUAR
             const showAgendaModalEl = document.getElementById('showAgendaModal');
 
             showAgendaModalEl.addEventListener('show.bs.modal', function() {
@@ -1029,32 +1044,214 @@
                     return timeA.localeCompare(timeB);
                 });
 
-                sortedAgendaList.forEach((item, index) => {
+                const copyBtn = document.getElementById('copySidebarAgendaBtn');
+                if (copyBtn) {
+                    copyBtn.onclick = () => {
+                        const tanggal = formatDate(date);
+                        const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g,
+                            '&gt;');
+
+                        function normalizeAttendees(raw) {
+                            if (!raw || raw.trim() === '-') {
+                                return {
+                                    plain: '-',
+                                    html: esc('-')
+                                };
+                            }
+                            if (/\d+\.\s/.test(raw)) {
+                                const firstIndex = raw.search(/\d+\.\s/);
+                                const header = raw.slice(0, firstIndex).trim();
+                                const items = raw.slice(firstIndex).split(/\d+\.\s/).map(s => s.trim()).filter(Boolean);
+                                const plain = (header ? header + '\r\n' : '') + items.map(s => `• ${s}`).join('\r\n');
+                                const html = (header ? esc(header) + '<br>' : '') + '<ul>' + items.map(s =>
+                                    `<li>${esc(s)}</li>`).join('') + '</ul>';
+                                return {
+                                    plain,
+                                    html
+                                };
+                            }
+                            const parts = raw.split(/,\s+/).map(s => s.trim()).filter(Boolean);
+                            if (parts.length <= 1) return {
+                                plain: raw,
+                                html: esc(raw)
+                            };
+                            return {
+                                plain: parts.map(s => `• ${s}`).join('\r\n'),
+                                html: '<ul>' + parts.map(s => `<li>${esc(s)}</li>`).join('') + '</ul>'
+                            };
+                        }
+
+                        const entries = sortedAgendaList.map((item, idx) => {
+                            const name = item.agenda_name || item.title || '-';
+                            const desc = item.description || '-';
+                            const start = item.start_time || '';
+                            const end = item.end_time || '';
+                            const waktu = (start && end) ? `${start} - ${end}` : (start || end || '-');
+                            const lokasi = item.location || '-';
+                            const pelaksana = (item.unit && item.unit.unit_name) ? item.unit.unit_name : (item
+                                .unit_name || '-');
+                            const dihadiriRaw = item.involved_institution || '-';
+                            const dihadiriNorm = normalizeAttendees(dihadiriRaw);
+                            const status = (item.is_public == 1 || item.is_public === true) ? 'Publik' : 'Privasi';
+                            const catatan = item.notes || '-';
+                            const nomor = idx + 1;
+
+                            const plain =
+                                `*AGENDA ${nomor}:* ${name}\r\n\r\n` +
+                                `*Deskripsi:*\r\n${desc}\r\n\r\n` +
+                                `*Tanggal:* ${tanggal}\r\n` +
+                                `*Waktu:* ${waktu}\r\n` +
+                                `*Lokasi:* ${lokasi}\r\n\r\n` +
+                                `*Pelaksana:* ${pelaksana}\r\n` +
+                                `*Dihadiri:*\r\n${dihadiriNorm.plain}\r\n\r\n` +
+                                `*Status:* ${status}\r\n*Catatan:* ${catatan}`;
+
+                            const html =
+                                `<b>AGENDA ${nomor}:</b> ${esc(name)}<br><br>` +
+                                `<b>Deskripsi:</b><br>${esc(desc)}<br><br>` +
+                                `<b>Tanggal:</b> ${esc(tanggal)}<br>` +
+                                `<b>Waktu:</b> ${esc(waktu)}<br>` +
+                                `<b>Lokasi:</b> ${esc(lokasi)}<br><br>` +
+                                `<b>Pelaksana:</b> ${esc(pelaksana)}<br>` +
+                                `<b>Dihadiri:</b>` +
+                                dihadiriNorm.html +
+                                `<br>` +
+                                `<b>Status:</b> ${esc(status)}<br><b>Catatan:</b> ${esc(catatan)}`;
+
+                            return {
+                                plain,
+                                html
+                            };
+                        });
+
+                        const headerText = `Agenda ${tanggal}`;
+                        const headerPlain = `*${headerText.toUpperCase()}*\r\n\r\n`;
+                        const headerHtml = `<b>${esc(headerText.toUpperCase())}</b><br><br>`;
+                        const plainText = headerPlain + entries.map(e => e.plain).join(`\r\n\r\n`);
+                        const htmlText = headerHtml + entries.map(e => e.html).join('<br><br>');
+
+                        const doTextareaFallback = () => {
+                            const ta = document.createElement('textarea');
+                            ta.value = plainText;
+                            ta.style.position = 'fixed';
+                            ta.style.left = '-9999px';
+                            document.body.appendChild(ta);
+                            ta.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(ta);
+                            if (typeof showSuccessToast === 'function') showSuccessToast(
+                                `Agenda ${tanggal} berhasil disalin`);
+                        };
+
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            navigator.clipboard.writeText(plainText).then(() => {
+                                if (typeof showSuccessToast === 'function') showSuccessToast(
+                                    `Agenda ${tanggal} berhasil disalin`);
+                            }).catch(doTextareaFallback);
+                        } else {
+                            doTextareaFallback();
+                        }
+                    };
+                }
+
+                const esc = s => String(s || '').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+                // Bar toggle di atas konten
+                const toggleRow = document.createElement('div');
+                toggleRow.className = 'list-toggle';
+                toggleRow.innerHTML = `<span class="view-indicator is-open">Tampilkan</span>`;
+                listContainer.appendChild(toggleRow);
+
+                sortedAgendaList.forEach((data) => {
                     const itemDiv = document.createElement("div");
                     itemDiv.className = "agenda-item";
 
                     const header = document.createElement("div");
                     header.className = "agenda-header";
-
-                    // Check if it's external agenda
-                    item.is_public = 1;
-                    const externalBadge = "";
-
                     header.innerHTML = `
-                    <span class="agenda-item-title">${item.agenda_name}${externalBadge}</span>
-                    <span class="agenda-item-arrow"><i class="fas fa-chevron-right"></i></span>
-                `;
+                        <div class="agenda-item-title">${esc(data.agenda_name)}</div>
+                        <button class="agenda-item-arrow" aria-label="Tampilkan/Sembunyikan">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    `;
+
+                    const timeText = (data.start_time && data.end_time)
+                        ? `${data.start_time.slice(0,5)} - ${data.end_time.slice(0,5)}`
+                        : (data.end_time ? data.end_time.slice(0,5) : (data.start_time ? data.start_time.slice(0,5) : '-'));
+                    const tanggalText = formatDate(data.date || date);
+
+                    const unitName = (data.unit && data.unit.unit_name) ? data.unit.unit_name : (data.unit_name || '-');
+                    const desc = (data.description || '-');
+                    const involved = (data.involved_institution || '-');
+                    const notes = (data.notes || '-');
+                    const location = (data.location || '-');
+                    const statusText = (data.is_public == 1 || data.is_public === true) ? 'Publik' : 'Privasi';
+                    const statusClass = (data.is_public == 1 || data.is_public === true) ? 'public' : 'private';
+
+                    const details = document.createElement("div");
+                    details.className = "agenda-details";
+                    details.innerHTML = `
+                        <div class="agenda-detail-line"><i class="fas fa-align-left"></i><span>Deskripsi: ${esc(desc)}</span></div>
+                        <div class="agenda-detail-line"><i class="fas fa-calendar"></i><span>Tanggal: ${esc(tanggalText)}</span></div>
+                        <div class="agenda-detail-line"><i class="fas fa-clock"></i><span>Waktu: ${esc(timeText)}</span></div>
+                        <div class="agenda-detail-line"><i class="fas fa-map-marker-alt"></i><span>Lokasi: ${esc(location)}</span></div>
+                        <div class="agenda-detail-line"><i class="fas fa-building"></i><span>Pelaksana: ${esc(unitName)}</span></div>
+                        <div class="agenda-detail-line"><i class="fas fa-users"></i><span>Dihadiri: ${esc(involved)}</span></div>
+                        <div class="agenda-detail-line"><i class="fas fa-eye"></i><span>Status: <span class="status-pill ${statusClass}">${esc(statusText)}</span></span></div>
+                        <div class="agenda-detail-line"><i class="fas fa-sticky-note"></i><span>Catatan: ${esc(notes)}</span></div>
+                    `;
 
                     itemDiv.appendChild(header);
+                    itemDiv.appendChild(details);
 
-                    itemDiv.addEventListener("click", () => {
-                        openShowAgendaModal(item);
+                    header.querySelector('.agenda-item-title').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openShowAgendaModal(data);
+                    });
+
+                    header.querySelector('.agenda-item-arrow').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        details.classList.toggle('hidden');
+                        const icon = e.currentTarget.querySelector('i');
+                        icon.className = details.classList.contains('hidden') ? 'fas fa-chevron-right' : 'fas fa-chevron-down';
+                    });
+
+                    itemDiv.addEventListener('click', (e) => {
+                        if (e.target.closest('.agenda-item-arrow')) return;
+                        openShowAgendaModal(data);
                     });
 
                     listContainer.appendChild(itemDiv);
                 });
 
                 sidebar.classList.add("active");
+
+                const viewIndicator = listContainer.querySelector('.view-indicator');
+                if (viewIndicator) {
+                    let isOpen = true;
+                    const setLabel = () => {
+                        viewIndicator.textContent = 'Tampilkan';
+                        if (isOpen) {
+                            viewIndicator.classList.add('is-open');
+                            viewIndicator.classList.remove('is-closed');
+                            viewIndicator.setAttribute('aria-label', 'Sembunyikan ringkasan');
+                            viewIndicator.setAttribute('title', 'Sembunyikan ringkasan');
+                        } else {
+                            viewIndicator.classList.add('is-closed');
+                            viewIndicator.classList.remove('is-open');
+                            viewIndicator.setAttribute('aria-label', 'Tampilkan ringkasan');
+                            viewIndicator.setAttribute('title', 'Tampilkan ringkasan');
+                        }
+                    };
+                    setLabel();
+                    viewIndicator.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const allDetails = document.querySelectorAll('#agendaSidebar .agenda-details');
+                        isOpen = !isOpen;
+                        allDetails.forEach(d => d.classList.toggle('hidden', !isOpen));
+                        setLabel();
+                    });
+                }
             }
         </script>
 
@@ -1089,23 +1286,23 @@
 
                 Toastify({
                     node: successToast,
-                    duration: 3000,
+                    duration: 2500,
                     gravity: "top",
-                    position: "right", // 🔥 pindahkan ke kanan biar lebih elegan
+                    position: "center",
                     close: false,
                     stopOnFocus: true,
                     offset: {
-                        x: 20,
-                        y: 70
+                        x: 0,
+                        y: 20
                     },
+                    zIndex: 13000,
                     style: {
-                        background: "#ECFDF5", // 💚 hijau pastel lembut (tanpa gradien)
-                        border: "1px solid #A7F3D0",
+                        background: "#E8F2EB",
+                        border: "1px solid #B7D7C4",
                         borderRadius: "10px",
-                        padding: "14px 22px",
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-                        display: "flex",
-                        justifyContent: "center",
+                        padding: "12px 18px",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+                        display: "inline-flex",
                         alignItems: "center",
                     }
                 }).showToast();
