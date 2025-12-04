@@ -241,7 +241,50 @@
 
             function handleFormSubmit(e) {
                 e.preventDefault();
-                if (!validateAgendaForm()) return false;
+                
+                // Validasi page 1
+                if (!validatePage1()) {
+                    showPage(1);
+                    return false;
+                }
+
+                // Validasi session names if group mode
+                const hasGroup = document.querySelector('#createAgendaModal input[name="has_group"]:checked')?.value === '1';
+                if (hasGroup) {
+                    let isValid = true;
+                    const sessionItems = document.querySelectorAll('#createAgendaModal .session-item');
+                    sessionItems.forEach((sessionEl, index) => {
+                        const sessionNameInput = sessionEl.querySelector('.session-name-input');
+                        const sessionName = sessionNameInput?.value?.trim();
+                        if (!sessionName) {
+                            isValid = false;
+                            if (sessionNameInput) {
+                                sessionNameInput.style.borderColor = '#ef4444';
+                                sessionNameInput.style.backgroundColor = '#fef2f2';
+                            }
+                        } else {
+                            if (sessionNameInput) {
+                                sessionNameInput.style.borderColor = '';
+                                sessionNameInput.style.backgroundColor = '';
+                            }
+                        }
+                    });
+                    
+                    if (!isValid) {
+                        showPage(2);
+                        showErrorToast('Mohon lengkapi semua nama sesi yang wajib diisi.');
+                        return false;
+                    }
+                }
+
+                // Collect session data
+                try {
+                    collectSessionData();
+                } catch (error) {
+                    showPage(2);
+                    showErrorToast(error.message);
+                    return false;
+                }
 
                 const form = e.target;
                 const formData = new FormData(form);
@@ -254,29 +297,64 @@
                         },
                         body: formData
                     })
-                    .then(res => res.json())
+                    .then(async res => {
+                        let data;
+                        try {
+                            // Coba parse sebagai JSON
+                            data = await res.json();
+                        } catch (e) {
+                            // Jika bukan JSON, mungkin redirect atau HTML error
+                            if (res.redirected || res.status === 302) {
+                                // Jika redirect, berarti berhasil (Laravel redirect setelah success)
+                                window.location.href = "{{ route('agenda.notification') }}";
+                                return;
+                            }
+                            throw new Error('Response tidak valid dari server');
+                        }
+
+                        // Jika response tidak OK (status 422 untuk validation, 500 untuk server error, dll)
+                        if (!res.ok) {
+                            // Handle validation errors
+                            if (res.status === 422 && data.errors) {
+                                const errorMessages = Object.values(data.errors).flat().join(', ');
+                                throw new Error(errorMessages || 'Validasi gagal');
+                            }
+                            // Handle other errors
+                            throw new Error(data.message || data.error || `Error: ${res.status} ${res.statusText}`);
+                        }
+
+                        return data;
+                    })
                     .then(data => {
-                        if (data.success) {
+                        if (data && data.success) {
                             // Tambahkan agenda baru langsung ke array lokal
-                            agenda.push(data.agenda);
-                            generateMainCalendar(); // re-render tampilan kalender
+                            if (data.agenda) {
+                                agenda.push(data.agenda);
+                                generateMainCalendar(); // re-render tampilan kalender
+                            }
                             closeModal();
 
-                            showSuccessToast("Agenda berhasil ditambahkan!");
+                            showSuccessToast("Agenda berhasil diajukan! Status: Menunggu Persetujuan");
+                            
+                            // Redirect ke notification page setelah 1.5 detik
+                            setTimeout(() => {
+                                window.location.href = "{{ route('agenda.notification') }}";
+                            }, 1500);
+                        } else if (data && !data.success) {
+                            showErrorToast(data.message || "Gagal menambahkan agenda!");
                         } else {
-                            showErrorToast("Gagal menambahkan agenda!");
+                            // Jika tidak ada data.success, mungkin redirect sudah terjadi
+                            closeModal();
+                            showSuccessToast("Agenda berhasil diajukan! Status: Menunggu Persetujuan");
                         }
                     })
                     .catch(err => {
-                        console.error(err);
-                        Toastify({
-                            text: "Terjadi kesalahan pada server.",
-                            duration: 3000,
-                            gravity: "top",
-                            position: "right",
-                            backgroundColor: "#f44336",
-                            stopOnFocus: true
-                        }).showToast();
+                        console.error('Error submitting form:', err);
+                        let errorMessage = "Terjadi kesalahan pada server.";
+                        if (err.message) {
+                            errorMessage = err.message;
+                        }
+                        showErrorToast(errorMessage);
                     });
                 return false;
             }
@@ -620,11 +698,12 @@
                 if (submitBtn) {
                     submitBtn.addEventListener('click', function(e) {
                         e.preventDefault();
+                        // Validasi page 1 dulu
                         if (!validatePage1()) {
                             showPage(1);
                             return false;
                         }
-                        collectSessionData();
+                        // Trigger form submit yang akan memanggil handleFormSubmit dengan validasi lengkap
                         const form = document.getElementById('agendaForm');
                         if (form) {
                             const formEvent = new Event('submit', { bubbles: true, cancelable: true });
@@ -661,13 +740,31 @@
             }
 
             function collectSessionData() {
-                const hasGroup = document.querySelector('#createAgendaModal input[name="has_group"]:checked')?.value === '1';
+                const hasGroupRadio = document.querySelector('#createAgendaModal input[name="has_group"]:checked');
+                if (!hasGroupRadio) {
+                    throw new Error('Mode agenda belum dipilih');
+                }
+                const hasGroup = hasGroupRadio.value === '1';
                 const sessions = [];
 
                 if (hasGroup) {
                     // Collect from group sessions
                     document.querySelectorAll('#createAgendaModal .session-item').forEach((sessionEl, index) => {
-                        const sessionName = sessionEl.querySelector('.session-name-input')?.value || null;
+                        const sessionNameInput = sessionEl.querySelector('.session-name-input');
+                        const sessionName = sessionNameInput?.value?.trim();
+                        
+                        // Validate session name is required
+                        if (!sessionName) {
+                            sessionNameInput.style.borderColor = '#ef4444';
+                            sessionNameInput.style.backgroundColor = '#fef2f2';
+                            throw new Error(`Nama sesi ${index + 1} wajib diisi`);
+                        } else {
+                            if (sessionNameInput) {
+                                sessionNameInput.style.borderColor = '';
+                                sessionNameInput.style.backgroundColor = '';
+                            }
+                        }
+                        
                         const unitIds = [];
                         sessionEl.querySelectorAll('.unit-chip[data-unit-id]').forEach(chip => {
                             unitIds.push(chip.getAttribute('data-unit-id'));
@@ -675,7 +772,7 @@
 
                         if (unitIds.length > 0) {
                             sessions.push({
-                                session_name: sessionName || `Sesi ${index + 1}`,
+                                session_name: sessionName,
                                 invited_units: unitIds
                             });
                         }
@@ -751,7 +848,7 @@
                             <label style="margin: 0;"><i class="fas fa-layer-group"></i> Dihadiri Sesi ${sessionNumber}</label>
                             ${sessionNumber > 2 ? '<button type="button" class="remove-session-btn" style="background: #fee2e2; color: #991b1b; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;"><i class="fas fa-times"></i></button>' : ''}
                         </div>
-                        <input type="text" class="session-name-input" placeholder="Nama Sesi (opsional)" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; margin-bottom: 12px;">
+                        <input type="text" class="session-name-input" placeholder="Nama Sesi (wajib)" required style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; margin-bottom: 12px;">
                         <div class="chips-multiselect session-units-select" data-session="${sessionNumber}">
                             <div class="chips-container">
                                 <div class="chips-selected"></div>
@@ -983,22 +1080,7 @@
                 }
             });
 
-            // Update handleFormSubmit to collect session data
-            const originalHandleFormSubmit = handleFormSubmit;
-            handleFormSubmit = function(e) {
-                e.preventDefault();
-                if (currentPage === 1) {
-                    if (!validatePage1()) {
-                        showPage(1);
-                        return false;
-                    }
-                    showPage(2);
-                    return false;
-                }
-                // If on page 2, collect session data and submit
-                collectSessionData();
-                return originalHandleFormSubmit.call(this, e);
-            };
+            // handleFormSubmit sudah lengkap dengan validasi dan submit, tidak perlu override
 
 
             // Helper function untuk get element

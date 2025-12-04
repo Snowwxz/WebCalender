@@ -462,7 +462,7 @@
                         ? `${item.start_time} - ${item.end_time}`
                         : (item.start_time ?? '-');
                     const organizer = item.organizer ?? (item.unit && item.unit.unit_name) ?? '-';
-                    
+
                     // Format participants dari invitations
                     let participants = '-';
                     if (item.invitations && item.invitations.length > 0) {
@@ -485,7 +485,7 @@
                     } else if (item.involved_institution) {
                         participants = item.involved_institution;
                     }
-                    
+
                     const location = item.location ?? '-';
 
                     return `

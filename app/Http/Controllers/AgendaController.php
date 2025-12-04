@@ -267,27 +267,55 @@ class AgendaController extends Controller
             }
 
             if (!empty($sessionsData) && is_array($sessionsData)) {
-                $maxGroupId = GroupUnit::max('id_group') ?? 0;
-
                 foreach ($sessionsData as $session) {
                     if (!empty($session['invited_units']) && is_array($session['invited_units'])) {
-                        $newGroupId = $maxGroupId + 1;
-                        $maxGroupId = $newGroupId;
+                        // Gunakan retry logic untuk menghindari duplicate entry
+                        $maxRetries = 5;
+                        $newGroupId = null;
+                        
+                        for ($attempt = 0; $attempt < $maxRetries; $attempt++) {
+                            try {
+                                // Gunakan raw query dengan FOR UPDATE untuk lock yang lebih kuat
+                                $maxGroupId = DB::selectOne(
+                                    "SELECT COALESCE(MAX(id_group), 0) as max_id FROM group_units FOR UPDATE"
+                                )->max_id ?? 0;
+                                
+                                $newGroupId = $maxGroupId + 1;
 
-                        // Add all selected units to this group
-                        foreach ($session['invited_units'] as $unitId) {
-                            GroupUnit::create([
-                                'id_group' => $newGroupId,
-                                'id_unit' => $unitId,
-                            ]);
+                                // Add all selected units to this group
+                                foreach ($session['invited_units'] as $unitId) {
+                                    GroupUnit::create([
+                                        'id_group' => $newGroupId,
+                                        'id_unit' => $unitId,
+                                    ]);
+                                }
+                                
+                                // Jika berhasil, break dari loop
+                                break;
+                            } catch (\Illuminate\Database\QueryException $e) {
+                                // Jika duplicate entry, coba lagi dengan id_group baru
+                                if ($e->getCode() == 23000 && strpos($e->getMessage(), 'Duplicate entry') !== false) {
+                                    if ($attempt < $maxRetries - 1) {
+                                        // Tunggu sebentar sebelum retry (exponential backoff)
+                                        usleep(100000 * ($attempt + 1)); // 100ms, 200ms, 300ms, etc
+                                        continue;
+                                    } else {
+                                        throw $e; // Jika sudah max retries, throw error
+                                    }
+                                } else {
+                                    throw $e; // Jika error lain, throw langsung
+                                }
+                            }
                         }
 
                         // Create invitation for this session
-                        Invitation::create([
-                            'id_agenda' => $agenda->id_agenda,
-                            'id_group' => $newGroupId,
-                            'session_name' => $session['session_name'] ?? null,
-                        ]);
+                        if ($newGroupId !== null) {
+                            Invitation::create([
+                                'id_agenda' => $agenda->id_agenda,
+                                'id_group' => $newGroupId,
+                                'session_name' => $session['session_name'] ?? null,
+                            ]);
+                        }
                     }
                 }
             }
@@ -295,7 +323,7 @@ class AgendaController extends Controller
             DB::commit();
 
             // ⚙ Jika request datang via AJAX / fetch
-            if ($request->wantsJson() || $request->ajax()) {
+            if ($request->wantsJson() || $request->ajax() || $request->expectsJson() || $request->header('Accept') === 'application/json') {
                 // Load relasi untuk response
                 $agenda->load('unit', 'user');
 
@@ -327,7 +355,7 @@ class AgendaController extends Controller
                 'request' => $request->all()
             ]);
             
-            if ($request->wantsJson() || $request->ajax()) {
+            if ($request->wantsJson() || $request->ajax() || $request->expectsJson() || $request->header('Accept') === 'application/json') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Gagal menyimpan agenda: ' . $e->getMessage(),
@@ -469,27 +497,55 @@ class AgendaController extends Controller
             }
 
             if (!empty($sessionsData) && is_array($sessionsData)) {
-                $maxGroupId = GroupUnit::max('id_group') ?? 0;
-
                 foreach ($sessionsData as $session) {
                     if (!empty($session['invited_units']) && is_array($session['invited_units'])) {
-                        $newGroupId = $maxGroupId + 1;
-                        $maxGroupId = $newGroupId;
+                        // Gunakan retry logic untuk menghindari duplicate entry
+                        $maxRetries = 5;
+                        $newGroupId = null;
+                        
+                        for ($attempt = 0; $attempt < $maxRetries; $attempt++) {
+                            try {
+                                // Gunakan raw query dengan FOR UPDATE untuk lock yang lebih kuat
+                                $maxGroupId = DB::selectOne(
+                                    "SELECT COALESCE(MAX(id_group), 0) as max_id FROM group_units FOR UPDATE"
+                                )->max_id ?? 0;
+                                
+                                $newGroupId = $maxGroupId + 1;
 
-                        // Add all selected units to this group
-                        foreach ($session['invited_units'] as $unitId) {
-                            GroupUnit::create([
-                                'id_group' => $newGroupId,
-                                'id_unit' => $unitId,
-                            ]);
+                                // Add all selected units to this group
+                                foreach ($session['invited_units'] as $unitId) {
+                                    GroupUnit::create([
+                                        'id_group' => $newGroupId,
+                                        'id_unit' => $unitId,
+                                    ]);
+                                }
+                                
+                                // Jika berhasil, break dari loop
+                                break;
+                            } catch (\Illuminate\Database\QueryException $e) {
+                                // Jika duplicate entry, coba lagi dengan id_group baru
+                                if ($e->getCode() == 23000 && strpos($e->getMessage(), 'Duplicate entry') !== false) {
+                                    if ($attempt < $maxRetries - 1) {
+                                        // Tunggu sebentar sebelum retry (exponential backoff)
+                                        usleep(100000 * ($attempt + 1)); // 100ms, 200ms, 300ms, etc
+                                        continue;
+                                    } else {
+                                        throw $e; // Jika sudah max retries, throw error
+                                    }
+                                } else {
+                                    throw $e; // Jika error lain, throw langsung
+                                }
+                            }
                         }
 
                         // Create invitation for this session
-                        Invitation::create([
-                            'id_agenda' => $agenda->id_agenda,
-                            'id_group' => $newGroupId,
-                            'session_name' => $session['session_name'] ?? null,
-                        ]);
+                        if ($newGroupId !== null) {
+                            Invitation::create([
+                                'id_agenda' => $agenda->id_agenda,
+                                'id_group' => $newGroupId,
+                                'session_name' => $session['session_name'] ?? null,
+                            ]);
+                        }
                     }
                 }
             }

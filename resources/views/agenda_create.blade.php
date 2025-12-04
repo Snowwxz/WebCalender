@@ -366,7 +366,32 @@
         }
 
         function collectSessionData() {
-            const hasGroup = document.querySelector('input[name="has_group"]:checked').value === '1';
+            const hasGroupRadio = document.querySelector('input[name="has_group"]:checked');
+            if (!hasGroupRadio) {
+                // Default ke normal jika tidak ada yang dipilih
+                const sessions = [];
+                const unitIds = [];
+                document.querySelectorAll('#normalInvolvedInstansi .chip[data-unit-id]').forEach(chip => {
+                    unitIds.push(chip.getAttribute('data-unit-id'));
+                });
+                if (unitIds.length > 0) {
+                    sessions.push({
+                        session_name: null,
+                        invited_units: unitIds
+                    });
+                }
+                // Add hidden input for sessions
+                const existingInput = document.querySelector('input[name="sessions_data"]');
+                if (existingInput) existingInput.remove();
+                const sessionsInput = document.createElement('input');
+                sessionsInput.type = 'hidden';
+                sessionsInput.name = 'sessions_data';
+                sessionsInput.value = JSON.stringify(sessions);
+                const form = document.getElementById('agendaForm');
+                if (form) form.appendChild(sessionsInput);
+                return;
+            }
+            const hasGroup = hasGroupRadio.value === '1';
             const sessions = [];
 
             if (hasGroup) {
@@ -1146,11 +1171,44 @@
                     return;
                 }
                 
-                // Set flag untuk menandai bahwa form sudah divalidasi
-                isFormValidated = true;
-                
-                // Submit form
-                document.getElementById('agendaForm').submit();
+                // Submit form langsung menggunakan FormData dan fetch
+                const form = document.getElementById('agendaForm');
+                if (form) {
+                    const formData = new FormData(form);
+                    
+                    fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                            'Accept': 'application/json'
+                        },
+                        body: formData
+                    })
+                    .then(response => {
+                        if (response.redirected) {
+                            // Jika redirect, berarti berhasil
+                            window.location.href = response.url;
+                        } else if (response.ok) {
+                            return response.json();
+                        } else {
+                            return response.json().then(data => {
+                                throw new Error(data.message || 'Gagal menyimpan agenda');
+                            });
+                        }
+                    })
+                    .then(data => {
+                        if (data && data.success) {
+                            window.location.href = "{{ route('agenda.notification') }}";
+                        } else {
+                            alert(data.message || 'Agenda berhasil diajukan!');
+                            window.location.href = "{{ route('agenda.notification') }}";
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert(error.message || 'Terjadi kesalahan saat menyimpan agenda');
+                    });
+                }
             });
 
             toastContent.querySelector('#cancelSubmit').addEventListener('click', () => {
@@ -1162,22 +1220,29 @@
         let isFormValidated = false;
         
         // intercept tombol submit bawaan form
-        document.getElementById("agendaForm").addEventListener("submit", function(e) {
-            // Jika sudah divalidasi, biarkan submit berjalan
-            if (isFormValidated) {
-                isFormValidated = false; // Reset flag
-                return true; // Biarkan form submit normal
-            }
-            
-            e.preventDefault(); // cegah kirim langsung
-            
-            // Validasi dan persiapan data terlebih dahulu
-            if (!validateAndPrepareForm()) {
-                return; // Jika validasi gagal, jangan lanjutkan
-            }
-            
-            showConfirmSubmit(); // munculkan toast konfirmasi
-        });
+        const formElement = document.getElementById("agendaForm");
+        if (formElement) {
+            formElement.addEventListener("submit", function(e) {
+                // Jika sudah divalidasi, biarkan submit berjalan tanpa preventDefault
+                if (isFormValidated) {
+                    isFormValidated = false; // Reset flag
+                    // Tidak perlu preventDefault, biarkan form submit normal
+                    return; // Exit early, tidak preventDefault
+                }
+                
+                // Jika belum divalidasi, cegah submit dan validasi dulu
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Validasi dan persiapan data terlebih dahulu
+                if (!validateAndPrepareForm()) {
+                    return false; // Jika validasi gagal, jangan lanjutkan
+                }
+                
+                showConfirmSubmit(); // munculkan toast konfirmasi
+                return false;
+            });
+        }
 
         // ======== TOAST SUKSES (senada tema hijau pastel) ========
         function showSuccessToast(message) {
