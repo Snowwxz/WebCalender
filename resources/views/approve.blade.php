@@ -116,7 +116,7 @@
                                         @endif
                                         <div class="submission-info-row">
                                             <i class="fas fa-clock"></i>
-                                            <span>Diajukan {{ \Carbon\Carbon::parse($agenda->created_at)->locale('id')->diffForHumans() }}</span>
+                                            <span>Diajukan {{ \Carbon\Carbon::parse($agenda->created_at)->locale('id')->diffForHumans() }}@if($agenda->updated_at > $agenda->created_at) (diedit) @endif</span>
                                             @if ($agenda->logs_count > 0)
                                                 <span class="update-badge" onclick="showUpdateModal({{ $agenda->id_agenda }})"
                                                     style="cursor: pointer;">
@@ -236,10 +236,20 @@
                                                     <i class="fas fa-pen"></i> Edit
                                                 </a>
                                             @else
-                                                <span class="validated-text">
-                                                    <i class="fas fa-circle-check"></i>
-                                                    {{ $agenda->status === 'rejected' ? 'Ditolak' : ucfirst($agenda->status) }}
-                                                </span>
+                                                @if ($agenda->status === 'rejected')
+                                                    <form action="{{ route('agenda.destroy', $agenda->id_agenda) }}" method="POST" class="action-form delete-form" onsubmit="return confirm('Hapus agenda yang ditolak ini?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn-delete" title="Hapus">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <span class="validated-text">
+                                                        <i class="fas fa-circle-check"></i>
+                                                        {{ ucfirst($agenda->status) }}
+                                                    </span>
+                                                @endif
                                             @endif
                                         @endif
                                     </div>
@@ -311,9 +321,9 @@
                 <p class="reject-modal-question">Yakin ingin menolak agenda ini?</p>
                 <label for="rejectReason" class="reject-modal-label">
                     <i class="fas fa-comment-dots"></i>
-                    Alasan penolakan
+                    Alasan penolakan (wajib)
                 </label>
-                <textarea id="rejectReason" placeholder="Tuliskan alasan penolakan (opsional)" class="reject-modal-textarea"
+                <textarea id="rejectReason" placeholder="Tuliskan alasan penolakan (wajib)" class="reject-modal-textarea"
                     rows="4"></textarea>
             </div>
 
@@ -582,6 +592,11 @@
 
                 const reason = rejectReason.value.trim();
                 const agendaId = currentAgendaId;
+
+                if (!reason) {
+                    Swal.fire("Alasan wajib", "Mohon isi alasan penolakan.", "warning");
+                    return;
+                }
 
                 // Disable button untuk mencegah double click
                 rejectModalConfirm.disabled = true;

@@ -566,6 +566,17 @@
             let selectedValues = [];
             let selectedUnitIds = [];
 
+            function getUsedUnitIds(excludeRoot) {
+                const used = [];
+                document.querySelectorAll('.session-units-select').forEach(sel => {
+                    if (excludeRoot && excludeRoot === sel) return;
+                    sel.querySelectorAll('.unit-chip[data-unit-id]').forEach(chip => {
+                        used.push(chip.getAttribute('data-unit-id'));
+                    });
+                });
+                return used;
+            }
+
             function toggleDropdown() {
                 const isOpen = dropdown.classList.toggle('open');
                 root.classList.toggle('open', isOpen);
@@ -590,6 +601,10 @@
             }
 
             function toggleItem(unitId, unitName) {
+                const usedElsewhere = getUsedUnitIds(root);
+                if (usedElsewhere.includes(unitId)) {
+                    return;
+                }
                 const index = selectedUnitIds.indexOf(unitId);
                 if (index > -1) {
                     selectedUnitIds.splice(index, 1);
@@ -648,6 +663,10 @@
                     if (checkIcon) {
                         checkIcon.classList.toggle('checked', isSelected);
                     }
+                    const used = getUsedUnitIds(root);
+                    const isUsedElsewhere = used.includes(unitId);
+                    item.style.opacity = isUsedElsewhere ? '0.5' : '';
+                    item.style.pointerEvents = isUsedElsewhere ? 'none' : '';
                 }
             }
 
@@ -675,10 +694,11 @@
                         updateItemState(unitId);
                     });
                 } else {
+                    const used = getUsedUnitIds(root);
                     listItems.forEach(li => {
                         const unitId = li.getAttribute('data-value');
                         const unitName = li.getAttribute('data-name');
-                        if (!selectedUnitIds.includes(unitId)) {
+                        if (!selectedUnitIds.includes(unitId) && !used.includes(unitId)) {
                             selectedUnitIds.push(unitId);
                             selectedValues.push(unitName);
                             addChip(unitId, unitName);
@@ -693,7 +713,13 @@
                 const lower = term.toLowerCase().trim();
                 listItems.forEach(li => {
                     const text = li.querySelector('.item-text').textContent.toLowerCase();
-                    li.style.display = !lower || text.includes(lower) ? 'flex' : 'none';
+                    const used = getUsedUnitIds(root);
+                    const unitId = li.getAttribute('data-value');
+                    const match = !lower || text.includes(lower);
+                    li.style.display = match ? 'flex' : 'none';
+                    const disabled = used.includes(unitId);
+                    li.style.opacity = disabled ? '0.5' : '';
+                    li.style.pointerEvents = disabled ? 'none' : '';
                 });
                 selectAllOption.style.display = !lower || listItems.some(li => {
                     const text = li.querySelector('.item-text').textContent.toLowerCase();

@@ -62,6 +62,7 @@
         </div>
 
         <!-- Modal Create Agenda -->
+        @if(Auth::user()->role !== 'superadmin')
         <div class="modal-overlay" id="createAgendaModal" style="display: none;">
             <div class="modal-container">
                 <div class="modal-header">
@@ -224,6 +225,7 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
         <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
@@ -501,7 +503,9 @@
             }
 
             // Modal functions
+            const IS_SUPERADMIN = {{ Auth::user()->role === 'superadmin' ? 'true' : 'false' }};
             function openModal(selectedDate = null) {
+                if (IS_SUPERADMIN) return;
                 const modal = document.getElementById('createAgendaModal');
                 const dateInput = document.getElementById('date');
                 const agendaSidebar = document.getElementById('agendaSidebar');

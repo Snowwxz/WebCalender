@@ -225,17 +225,23 @@
                 @csrf
                 <div class="user-form-group">
                     <label>Nama</label>
-                    <input type="text" name="name" required>
+                    <input type="text" name="name" value="{{ old('name') }}" required>
                 </div>
 
                 <div class="user-form-group">
                     <label>Username</label>
-                    <input type="text" name="username" required>
+                    <input type="text" name="username" value="{{ old('username') }}" required>
                 </div>
 
                 <div class="user-form-group">
                     <label>Email</label>
-                    <input type="email" name="email" required>
+                    <input type="email" name="email" value="{{ old('email') }}" required>
+                    @error('email')
+                        <div class="error-message" style="margin-top:6px; color:#991B1B; font-size:13px;">
+                            <i class="fas fa-exclamation-circle" style="margin-right:6px;"></i>
+                            {{ $message }}
+                        </div>
+                    @enderror
                 </div>
 
                 <div class="user-form-group">
@@ -251,7 +257,7 @@
                     <select name="id_unit" required>
                         <option value="">-- Pilih OPD --</option>
                         @foreach ($units as $unit)
-                            <option value="{{ $unit->id_unit }}">{{ $unit->unit_name }}</option>
+                            <option value="{{ $unit->id_unit }}" {{ old('id_unit') == $unit->id_unit ? 'selected' : '' }}>{{ $unit->unit_name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -259,8 +265,8 @@
                 <div class="user-form-group">
                     <label>Role</label>
                     <select name="role" required>
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
+                        <option value="user" {{ old('role') === 'user' ? 'selected' : '' }}>User</option>
+                        <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
                     </select>
                 </div>
 
@@ -364,6 +370,31 @@
 
         }); // ✅ penutup DOMContentLoaded
     </script>
+
+    @if ($errors->has('email'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const modal = document.getElementById('addUserModal');
+                if (modal) modal.classList.add('show');
+                const node = document.createElement('div');
+                node.style.position = 'fixed';
+                node.style.top = '90px';
+                node.style.left = '50%';
+                node.style.transform = 'translateX(-50%)';
+                node.style.background = '#FEE2E2';
+                node.style.color = '#991B1B';
+                node.style.border = '1px solid #FCA5A5';
+                node.style.borderRadius = '6px';
+                node.style.padding = '8px 18px';
+                node.style.fontSize = '14px';
+                node.style.fontWeight = '500';
+                node.style.zIndex = '9999';
+                node.textContent = 'Email sudah terdaftar. Gunakan email lain.';
+                document.body.appendChild(node);
+                setTimeout(() => node.remove(), 3000);
+            });
+        </script>
+    @endif
 
     <!-- Modal Tambah OPD -->
     <div id="addUnitModal" class="user-form-modal">

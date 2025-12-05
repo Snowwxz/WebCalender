@@ -268,7 +268,7 @@
                                             <span>{{ $item->unit->unit_name ?? '-' }}</span>
                                             <span class="submission-time">
                                                 - Diajukan
-                                                {{ \Carbon\Carbon::parse($item->created_at)->locale('id')->diffForHumans() }}
+                                                {{ \Carbon\Carbon::parse($item->created_at)->locale('id')->diffForHumans() }}@if($item->updated_at > $item->created_at) (diedit) @endif
                                             </span>
                                         </div>
 
@@ -424,7 +424,7 @@
                                             <span>{{ $item->unit->unit_name ?? '-' }}</span>
                                             <span class="submission-time">
                                                 - Diajukan
-                                                {{ \Carbon\Carbon::parse($item->created_at)->locale('id')->diffForHumans() }}
+                                                {{ \Carbon\Carbon::parse($item->created_at)->locale('id')->diffForHumans() }}@if($item->updated_at > $item->created_at) (diedit) @endif
                                             </span>
                                         </div>
 

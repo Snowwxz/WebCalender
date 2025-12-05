@@ -44,14 +44,14 @@ class ApproveController extends Controller
             });
         }
 
-        // 🔽 Sorting Options
+        // 🔽 Sorting Options (prioritize recent edits)
         switch ($sort) {
             case 'oldest_submitted':
-                $agendaQuery->orderBy('created_at', 'asc');
+                $agendaQuery->orderBy('updated_at', 'asc');
                 break;
 
             case 'newest_submitted':
-                $agendaQuery->orderBy('created_at', 'desc');
+                $agendaQuery->orderBy('updated_at', 'desc');
                 break;
 
             case 'earliest_event':
@@ -63,7 +63,7 @@ class ApproveController extends Controller
                 break;
 
             default:
-                $agendaQuery->orderBy('created_at', 'desc');
+                $agendaQuery->orderBy('updated_at', 'desc');
                 break;
         }
 

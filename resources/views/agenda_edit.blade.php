@@ -231,7 +231,7 @@
             const prevBtn = document.getElementById('prevPageBtn');
             const nextBtn = document.getElementById('nextPageBtn');
             const submitBtn = document.getElementById('submitBtn');
-            
+
             if (prevBtn) prevBtn.style.display = page > 1 ? 'block' : 'none';
             if (nextBtn) nextBtn.style.display = page < totalPages ? 'block' : 'none';
             if (submitBtn) submitBtn.style.display = page === totalPages ? 'block' : 'none';
@@ -289,7 +289,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const nextPageBtn = document.getElementById('nextPageBtn');
             const prevPageBtn = document.getElementById('prevPageBtn');
-            
+
             if (nextPageBtn) {
                 nextPageBtn.addEventListener('click', function() {
                     if (validatePage1()) {
@@ -385,11 +385,11 @@
                     const normalInv = document.getElementById('normalInvitation');
                     const groupInv = document.getElementById('groupInvitation');
                     const addSessionBtn = document.getElementById('addSessionBtn');
-                    
+
                     if (normalInv) normalInv.style.display = hasGroup ? 'none' : 'block';
                     if (groupInv) groupInv.style.display = hasGroup ? 'block' : 'none';
                     if (addSessionBtn) addSessionBtn.style.display = hasGroup ? 'block' : 'none';
-                    
+
                     if (hasGroup && document.querySelectorAll('.session-item').length === 0) {
                         addSession(1);
                         addSession(2);
@@ -452,10 +452,10 @@
                 </div>
             `;
             container.appendChild(sessionDiv);
-            
+
             // Initialize chips for this session
             initChipsMultiselect(sessionDiv.querySelector('.session-units-select'));
-            
+
             // Remove session button
             const removeBtn = sessionDiv.querySelector('.remove-session-btn');
             if (removeBtn) {
@@ -468,7 +468,7 @@
         // Initialize chips multiselect function (sama seperti di agenda_create)
         function initChipsMultiselect(root) {
             if (!root) return;
-            
+
             const dropdown = root.querySelector('.chips-dropdown');
             const arrow = root.querySelector('.chips-arrow');
             const searchInput = root.querySelector('.chips-search-input');
@@ -481,6 +481,17 @@
 
             let selectedValues = [];
             let selectedUnitIds = [];
+
+            function getUsedUnitIds(excludeRoot) {
+                const used = [];
+                document.querySelectorAll('.session-units-select').forEach(sel => {
+                    if (excludeRoot && excludeRoot === sel) return;
+                    sel.querySelectorAll('.unit-chip[data-unit-id]').forEach(chip => {
+                        used.push(chip.getAttribute('data-unit-id'));
+                    });
+                });
+                return used;
+            }
 
             function toggleDropdown() {
                 const isOpen = dropdown.classList.toggle('open');
@@ -506,6 +517,10 @@
             }
 
             function toggleItem(unitId, unitName) {
+                const usedElsewhere = getUsedUnitIds(root);
+                if (usedElsewhere.includes(unitId)) {
+                    return;
+                }
                 const index = selectedUnitIds.indexOf(unitId);
                 if (index > -1) {
                     selectedUnitIds.splice(index, 1);
@@ -564,6 +579,10 @@
                     if (checkIcon) {
                         checkIcon.classList.toggle('checked', isSelected);
                     }
+                    const used = getUsedUnitIds(root);
+                    const isUsedElsewhere = used.includes(unitId);
+                    item.style.opacity = isUsedElsewhere ? '0.5' : '';
+                    item.style.pointerEvents = isUsedElsewhere ? 'none' : '';
                 }
             }
 
@@ -593,10 +612,11 @@
                         updateItemState(unitId);
                     });
                 } else {
+                    const used = getUsedUnitIds(root);
                     listItems.forEach(li => {
                         const unitId = li.getAttribute('data-value');
                         const unitName = li.getAttribute('data-name');
-                        if (!selectedUnitIds.includes(unitId)) {
+                        if (!selectedUnitIds.includes(unitId) && !used.includes(unitId)) {
                             selectedUnitIds.push(unitId);
                             selectedValues.push(unitName);
                             addChip(unitId, unitName);
@@ -611,7 +631,13 @@
                 const lower = term.toLowerCase().trim();
                 listItems.forEach(li => {
                     const text = li.querySelector('.item-text').textContent.toLowerCase();
-                    li.style.display = !lower || text.includes(lower) ? 'flex' : 'none';
+                    const used = getUsedUnitIds(root);
+                    const unitId = li.getAttribute('data-value');
+                    const match = !lower || text.includes(lower);
+                    li.style.display = match ? 'flex' : 'none';
+                    const disabled = used.includes(unitId);
+                    li.style.opacity = disabled ? '0.5' : '';
+                    li.style.pointerEvents = disabled ? 'none' : '';
                 });
                 if (selectAllOption) {
                     selectAllOption.style.display = !lower || listItems.some(li => {
@@ -660,11 +686,11 @@
             // Initialize existing invitations
             @if(isset($invitations) && !empty($invitations))
                 const existingInvitations = @json($invitations);
-                
+
                 if (existingInvitations && existingInvitations.length > 0) {
                     // Check if any invitation has session_name (group mode)
                     const hasSessions = existingInvitations.some(inv => inv.session_name !== null) || existingInvitations.length > 1;
-                    
+
                     if (hasSessions) {
                         // Group mode - select the radio button
                         const withGroupRadio = document.getElementById('withGroup');
@@ -672,22 +698,21 @@
                         if (withGroupRadio && noGroupRadio) {
                             withGroupRadio.checked = true;
                             noGroupRadio.checked = false;
-                            
+
                             const normalInv = document.getElementById('normalInvitation');
                             const groupInv = document.getElementById('groupInvitation');
                             const addSessionBtn = document.getElementById('addSessionBtn');
-                            
+
                             if (normalInv) normalInv.style.display = 'none';
                             if (groupInv) groupInv.style.display = 'block';
                             if (addSessionBtn) addSessionBtn.style.display = 'block';
-                            
+
                             // Add sessions
                             existingInvitations.forEach((inv, index) => {
                                 const sessionNumber = index + 1;
                                 addSession(sessionNumber);
-                                
-                                // Wait for session to be added, then populate it
-                                setTimeout(() => {
+
+                                // Populate immediately
                                     const sessionItems = document.querySelectorAll('.session-item');
                                     const currentSession = sessionItems[index];
                                     if (currentSession) {
@@ -695,7 +720,7 @@
                                         if (sessionNameInput && inv.session_name) {
                                             sessionNameInput.value = inv.session_name;
                                         }
-                                        
+
                                         // Populate units
                                         const sessionSelect = currentSession.querySelector('.session-units-select');
                                         if (sessionSelect && inv.units && inv.units.length > 0) {
@@ -707,7 +732,6 @@
                                             });
                                         }
                                     }
-                                }, 200 * (index + 1));
                             });
                         }
                     } else {
@@ -755,7 +779,7 @@
             let selectedValues = [];
 
             // Utility: render a chip
-            function addChip(value) {
+            function addChip(value, displayText) {
                 if (!value) return;
                 // prevent duplicate chips
                 if (selectedWrap.querySelector(`.chip[data-value="${escapeSelector(value)}"]`)) return;
@@ -763,7 +787,7 @@
                 const chip = document.createElement('span');
                 chip.className = 'chip';
                 chip.setAttribute('data-value', value);
-                chip.textContent = value;
+                chip.textContent = displayText ?? value;
 
                 const btn = document.createElement('button');
                 btn.className = 'chip-remove';
@@ -818,14 +842,14 @@
                 root.classList.toggle('empty', selectedValues.length === 0);
             }
 
-            function toggleItem(value) {
+            function toggleItem(value, displayText) {
                 const index = selectedValues.findIndex(v => v === value);
                 if (index > -1) {
                     selectedValues.splice(index, 1);
                     removeChip(value);
                 } else {
                     selectedValues.push(value);
-                    addChip(value);
+                    addChip(value, displayText);
                 }
                 updateItemState(value);
                 updateSelectAllState();
@@ -852,7 +876,9 @@
                     visibleValues.forEach(v => {
                         if (!selectedValues.includes(v)) {
                             selectedValues.push(v);
-                            addChip(v);
+                            const li = listItems.find(item => item.getAttribute('data-value') === v);
+                            const name = li ? li.getAttribute('data-name') : v;
+                            addChip(v, name);
                         }
                         updateItemState(v);
                     });
@@ -1009,7 +1035,8 @@
                 li.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const value = li.getAttribute('data-value');
-                    if (value) toggleItem(value);
+                    const name = li.getAttribute('data-name');
+                    if (value) toggleItem(value, name);
                 });
             });
 
@@ -1082,6 +1109,7 @@
                         // create a new li so it can be filtered in future
                         const newLi = document.createElement('li');
                         newLi.setAttribute('data-value', value);
+                        newLi.setAttribute('data-name', value);
                         newLi.classList.add('dropdown-item');
                         newLi.innerHTML = `
                             <span class="check-icon"></span>
@@ -1096,14 +1124,16 @@
                         }
                         newLi.addEventListener('click', (e) => {
                             e.stopPropagation();
-                            toggleItem(value);
+                            toggleItem(value, value);
                         });
                         listItems.push(newLi);
                     }
 
                     if (!selectedValues.includes(value)) {
                         selectedValues.push(value);
-                        addChip(value);
+                        const li = listItems.find(item => item.getAttribute('data-value') === value);
+                        const name = li ? li.getAttribute('data-name') : value;
+                        addChip(value, name);
                     }
                     updateItemState(value);
                 });
