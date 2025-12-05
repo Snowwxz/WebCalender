@@ -238,7 +238,7 @@
                                             @else
                                                 <span class="validated-text">
                                                     <i class="fas fa-circle-check"></i>
-                                                    {{ ucfirst($agenda->status) }}
+                                                    {{ $agenda->status === 'rejected' ? 'Ditolak' : ucfirst($agenda->status) }}
                                                 </span>
                                             @endif
                                         @endif
