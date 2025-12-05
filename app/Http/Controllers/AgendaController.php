@@ -207,6 +207,9 @@ class AgendaController extends Controller
     public function create()
     {
         $user = Auth::user();
+        if ($user && $user->role === 'superadmin') {
+            abort(403, 'Superadmin tidak memiliki hak untuk membuat agenda');
+        }
         $unitName = null;
 
         if ($user && $user->id_unit) {
@@ -225,6 +228,12 @@ class AgendaController extends Controller
      */
     public function store(Request $request)
     {
+        if (Auth::user() && Auth::user()->role === 'superadmin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Superadmin tidak memiliki hak untuk membuat agenda.'
+            ], 403);
+        }
         $validated = $request->validate([
             'agenda_name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -267,19 +276,31 @@ class AgendaController extends Controller
             }
 
             if (!empty($sessionsData) && is_array($sessionsData)) {
+                // Validasi: tidak boleh ada instansi yang sama di sesi berbeda
+                $usedUnits = [];
+                foreach ($sessionsData as $session) {
+                    if (!empty($session['invited_units']) && is_array($session['invited_units'])) {
+                        foreach ($session['invited_units'] as $unitId) {
+                            if (in_array($unitId, $usedUnits, true)) {
+                                throw new \Exception('Instansi yang sama tidak boleh diundang pada lebih dari satu sesi.');
+                            }
+                            $usedUnits[] = $unitId;
+                        }
+                    }
+                }
                 foreach ($sessionsData as $session) {
                     if (!empty($session['invited_units']) && is_array($session['invited_units'])) {
                         // Gunakan retry logic untuk menghindari duplicate entry
                         $maxRetries = 5;
                         $newGroupId = null;
-                        
+
                         for ($attempt = 0; $attempt < $maxRetries; $attempt++) {
                             try {
                                 // Gunakan raw query dengan FOR UPDATE untuk lock yang lebih kuat
                                 $maxGroupId = DB::selectOne(
                                     "SELECT COALESCE(MAX(id_group), 0) as max_id FROM group_units FOR UPDATE"
                                 )->max_id ?? 0;
-                                
+
                                 $newGroupId = $maxGroupId + 1;
 
                                 // Add all selected units to this group
@@ -289,7 +310,7 @@ class AgendaController extends Controller
                                         'id_unit' => $unitId,
                                     ]);
                                 }
-                                
+
                                 // Jika berhasil, break dari loop
                                 break;
                             } catch (\Illuminate\Database\QueryException $e) {
@@ -348,18 +369,18 @@ class AgendaController extends Controller
             return redirect()->route('agenda.notification')->with('success', 'Agenda berhasil diajukan! Status: Menunggu Persetujuan');
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             // Log error untuk debugging
             Log::error('Error saving agenda: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
                 'request' => $request->all()
             ]);
-            
+
             if ($request->wantsJson() || $request->ajax() || $request->expectsJson() || $request->header('Accept') === 'application/json') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Gagal menyimpan agenda: ' . $e->getMessage(),
-                ], 500);
+                ], 422);
             }
 
             return redirect()->back()
@@ -497,19 +518,31 @@ class AgendaController extends Controller
             }
 
             if (!empty($sessionsData) && is_array($sessionsData)) {
+                // Validasi: tidak boleh ada instansi yang sama di sesi berbeda
+                $usedUnits = [];
+                foreach ($sessionsData as $session) {
+                    if (!empty($session['invited_units']) && is_array($session['invited_units'])) {
+                        foreach ($session['invited_units'] as $unitId) {
+                            if (in_array($unitId, $usedUnits, true)) {
+                                throw new \Exception('Instansi yang sama tidak boleh diundang pada lebih dari satu sesi.');
+                            }
+                            $usedUnits[] = $unitId;
+                        }
+                    }
+                }
                 foreach ($sessionsData as $session) {
                     if (!empty($session['invited_units']) && is_array($session['invited_units'])) {
                         // Gunakan retry logic untuk menghindari duplicate entry
                         $maxRetries = 5;
                         $newGroupId = null;
-                        
+
                         for ($attempt = 0; $attempt < $maxRetries; $attempt++) {
                             try {
                                 // Gunakan raw query dengan FOR UPDATE untuk lock yang lebih kuat
                                 $maxGroupId = DB::selectOne(
                                     "SELECT COALESCE(MAX(id_group), 0) as max_id FROM group_units FOR UPDATE"
                                 )->max_id ?? 0;
-                                
+
                                 $newGroupId = $maxGroupId + 1;
 
                                 // Add all selected units to this group
@@ -519,7 +552,7 @@ class AgendaController extends Controller
                                         'id_unit' => $unitId,
                                     ]);
                                 }
-                                
+
                                 // Jika berhasil, break dari loop
                                 break;
                             } catch (\Illuminate\Database\QueryException $e) {
@@ -656,7 +689,7 @@ class AgendaController extends Controller
             $agenda = Agenda::findOrFail($id_agenda);
 
             $request->validate([
-                'reason' => 'nullable|string|max:500',
+                'reason' => 'required|string|max:500',
             ]);
 
             if (Auth::user()->role !== 'admin') {
@@ -723,14 +756,24 @@ class AgendaController extends Controller
     {
         $agenda = Agenda::findOrFail($id_agenda);
 
-        // Validasi: hanya creator & status pending yang bisa hapus
-        if ($agenda->status !== 'pending') {
-            return redirect()->back()->with('error', 'Agenda tidak dapat dihapus karena sudah di-approve atau ditolak.');
+        // Izin hapus:
+        // - User pembuat boleh menghapus jika status pending atau rejected
+        // - Admin boleh menghapus jika status rejected
+        $isCreator = ($agenda->id_user === Auth::user()->id_user);
+        $isAdmin = (Auth::user()->role === 'admin' || Auth::user()->role === 'superadmin');
+        $isPendingOrRejected = in_array($agenda->status, ['pending', 'rejected']);
+
+        if (!(($isCreator && $isPendingOrRejected) || ($isAdmin && $agenda->status === 'rejected'))) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki izin untuk menghapus agenda ini.');
         }
 
-        // Sesuaikan dengan kolom kamu: id_user
-        if ($agenda->id_user !== Auth::user()->id_user) {
-            return redirect()->back()->with('error', 'Anda tidak memiliki izin untuk menghapus agenda ini.');
+        // Bersihkan invitations dan group_units terkait agar tidak ada data yatim
+        $invitations = Invitation::where('id_agenda', $agenda->id_agenda)->get();
+        foreach ($invitations as $inv) {
+            if ($inv->id_group) {
+                GroupUnit::where('id_group', $inv->id_group)->delete();
+            }
+            $inv->delete();
         }
 
         $agenda->delete();
@@ -780,7 +823,7 @@ class AgendaController extends Controller
         // Base query for the list
         $query = Agenda::with(['unit', 'invitations.groupUnits.unit'])
             ->where('id_user', $userId)
-            ->orderBy('created_at', 'desc');
+            ->orderBy('updated_at', 'desc');
 
         if (in_array($status, ['pending', 'approved', 'rejected'])) {
             $query->where('status', $status);

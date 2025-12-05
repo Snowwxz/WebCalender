@@ -6,7 +6,9 @@
     @endpush
 
     @section('content')
-        @include('tambah_agenda_modal_hari')
+        @if(Auth::user()->role !== 'superadmin')
+            @include('tambah_agenda_modal_hari')
+        @endif
         @include('show_agenda_modal_dashboard')
         <div class="calendar-page">
             <div class="calendar-content-wrapper">
@@ -140,8 +142,10 @@
                 }
 
                 // === Klik slot jam untuk buka modal create agenda ===
+                const IS_SUPERADMIN = {{ Auth::user()->role === 'superadmin' ? 'true' : 'false' }};
                 document.querySelectorAll('.hour-slot').forEach(slot => {
                     slot.addEventListener('click', function(event) {
+                        if (IS_SUPERADMIN) return;
 
                         // Ambil jam dari data-hour
                         const hour = this.dataset.hour;
@@ -169,6 +173,7 @@
 
                 // Fungsi buka modal tambah agenda
                 function openCreateModal() {
+                    if (IS_SUPERADMIN) return;
                     document.getElementById('createAgendaModalHari').style.display = 'flex';
                     document.body.style.overflow = 'hidden';
 
