@@ -720,7 +720,7 @@
                         if (normalInvitation) normalInvitation.style.display = hasGroup ? 'none' : 'block';
                         if (groupInvitation) groupInvitation.style.display = hasGroup ? 'block' : 'none';
                         if (addSessionBtn) addSessionBtn.style.display = hasGroup ? 'block' : 'none';
-                        
+
                         if (hasGroup && document.querySelectorAll('#createAgendaModal .session-item').length === 0) {
                             addSession(1);
                             addSession(2);
@@ -783,10 +783,10 @@
                     </div>
                 `;
                 container.appendChild(sessionDiv);
-                
+
                 // Initialize chips for this session
                 initChipsMultiselect(sessionDiv.querySelector('.session-units-select'));
-                
+
                 // Remove session button
                 const removeBtn = sessionDiv.querySelector('.remove-session-btn');
                 if (removeBtn) {

@@ -567,6 +567,20 @@
                 showSuccessToast("{{ session('success') }}");
             @endif
 
+            @if ($errors->has('email'))
+                showErrorToast('Email sudah terdaftar');
+            @endif
+            @if ($errors->has('username'))
+                showErrorToast('Username sudah terdaftar');
+            @endif
+            @if (session('error'))
+                showErrorToast("{{ session('error') }}");
+            @endif
+
+            @if ($errors->has('email') || $errors->has('username') || $errors->has('password') || $errors->has('name') || $errors->has('id_unit') || $errors->has('role'))
+                if (typeof window.openAddUserModal === 'function') window.openAddUserModal();
+            @endif
+
             function showSuccessToast(message) {
                 const popup = document.createElement('div');
                 popup.className = 'toastify-popup toastify-success';
@@ -581,6 +595,21 @@
                     popup.classList.add('toastify-popup-hide');
                     setTimeout(() => popup.remove(), 300);
                 }, 2500);
+            }
+
+            function showErrorToast(message) {
+                Toastify({
+                    text: message,
+                    duration: 3000,
+                    gravity: 'top',
+                    position: 'center',
+                    style: {
+                        background: '#F47C7C',
+                        color: '#ffffff',
+                        borderRadius: '6px',
+                        boxShadow: '0 6px 14px rgba(0,0,0,0.08)'
+                    }
+                }).showToast();
             }
         });
     </script>
