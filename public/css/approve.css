@@ -388,8 +388,13 @@
     color: #374151;
 }
 
-.col-dihadiri,
-.col-notes {
+.col-dihadiri {
+    max-width: 300px;
+    min-width: 250px;
+}
+
+.col-notes,
+.col-reason {
     max-width: 260px;
 }
 
@@ -398,12 +403,23 @@
 }
 
 .col-dihadiri .table-cell-content,
-.col-notes .table-cell-content {
+.col-notes .table-cell-content,
+.col-reason .table-cell-content,
+.col-pelaksana .table-cell-content {
     align-items: flex-start;
 }
 
-.col-dihadiri span,
-.col-notes span {
+.col-dihadiri span {
+    display: block;
+    white-space: normal;
+    overflow: visible;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.4;
+}
+
+.col-notes span,
+.col-reason span {
     display: block;
     white-space: nowrap;
     overflow: hidden;
@@ -521,13 +537,17 @@
 
 .action-cell .approval-actions {
     display: flex;
+    flex-direction: row;
     gap: 8px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    align-items: center;
 }
 
 .action-cell .btn-approve,
 .action-cell .btn-reject {
-    padding: 8px 12px;
+    padding: 10px;
+    width: 36px;
+    height: 36px;
     font-size: 13px;
     white-space: nowrap;
 }
@@ -575,12 +595,18 @@
     }
 
     .action-cell .approval-actions {
-        flex-direction: column;
-        width: 100%;
+        flex-direction: row;
+        width: auto;
+        justify-content: flex-start;
     }
 
     .action-cell .btn-approve,
-    .action-cell .btn-reject,
+    .action-cell .btn-reject {
+        width: 36px;
+        height: 36px;
+        padding: 10px;
+    }
+    
     .action-cell .btn-edit {
         width: 100%;
         justify-content: center;
@@ -727,8 +753,11 @@
 .btn-reject {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 10px 16px;
+    justify-content: center;
+    gap: 0;
+    padding: 10px;
+    width: 36px;
+    height: 36px;
     border: none;
     border-radius: 8px;
     font-size: 14px;
@@ -761,12 +790,14 @@
 
 .btn-approve i,
 .btn-reject i {
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .approval-actions {
     display: flex;
+    flex-direction: row;
     gap: 12px;
+    align-items: center;
 }
 
 /* Edit Agenda button (approved state) */
@@ -842,7 +873,9 @@
 
     .approval-actions {
         width: 100%;
+        flex-direction: row;
         justify-content: flex-start;
+        align-items: center;
     }
 
     .status-tabs-wrap {
@@ -1234,13 +1267,24 @@
         transform: rotate(360deg);
     }
 }
-.col-pelaksana,
+.col-pelaksana {
+    max-width: 300px;
+    min-width: 250px;
+}
+
 .col-tanggal,
 .col-waktu {
     max-width: 220px;
 }
 
-.col-pelaksana span,
+.col-pelaksana span {
+    white-space: normal;
+    overflow: visible;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.4;
+}
+
 .col-tanggal span,
 .col-waktu span {
     white-space: nowrap;

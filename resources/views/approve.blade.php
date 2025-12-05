@@ -100,6 +100,7 @@
                             <th>Waktu</th>
                             <th>Lokasi</th>
                             <th>Catatan</th>
+                            <th>Alasan</th>
                             <th>Status</th>
                             <th>Aksi</th>
                         </tr>
@@ -169,6 +170,18 @@
                                         <span title="{{ $agenda->notes }}">{{ $agenda->notes ?: '-' }}</span>
                                     </div>
                                 </td>
+                                <td class="col-reason">
+                                    <div class="table-cell-content">
+                                        <i class="fas fa-comment-alt"></i>
+                                        <span title="{{ $agenda->reason }}">
+                                            @if ($agenda->status === 'rejected' && $agenda->reason)
+                                                {{ Str::limit($agenda->reason, 60) }}
+                                            @else
+                                                -
+                                            @endif
+                                        </span>
+                                    </div>
+                                </td>
                                 <td>
                                     <div class="status-cell">
                                         <span class="status-badge {{ $agenda->status }}">
@@ -200,8 +213,9 @@
                                         @if ($agenda->status === 'pending')
                                             <div class="approval-actions">
                                                 <button type="button" class="btn-reject"
-                                                    onclick="openRejectModal({{ $agenda->id_agenda }})">
-                                                    <i class="fas fa-times"></i> Tolak
+                                                    onclick="openRejectModal({{ $agenda->id_agenda }})"
+                                                    title="Tolak">
+                                                    <i class="fas fa-times"></i>
                                                 </button>
                                                 <form action="{{ route('agenda.updateStatus', $agenda->id_agenda) }}" method="POST"
                                                     class="action-form approve-form" data-agenda-id="{{ $agenda->id_agenda }}">
@@ -209,8 +223,9 @@
                                                     @method('PUT')
                                                     <input type="hidden" name="status" value="approved">
                                                     <button type="button" class="btn-approve"
-                                                        onclick="showApproveConfirm({{ $agenda->id_agenda }})">
-                                                        <i class="fas fa-check"></i> Setujui
+                                                        onclick="showApproveConfirm({{ $agenda->id_agenda }})"
+                                                        title="Setujui">
+                                                        <i class="fas fa-check"></i>
                                                     </button>
                                                 </form>
                                             </div>

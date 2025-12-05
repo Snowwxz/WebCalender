@@ -30,6 +30,7 @@ class Agenda extends Model
         'approved_by',
         'id_unit',
         'notes',
+        'reason',
     ];
 
     /**
