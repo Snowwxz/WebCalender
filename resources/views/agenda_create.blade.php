@@ -1212,23 +1212,22 @@
                     })
                     .then(response => {
                         if (response.redirected) {
-                            // Jika redirect, berarti berhasil
+                            try { localStorage.setItem('agendaCreateSuccess', 'Agenda berhasil diajukan! Status: Menunggu Persetujuan'); } catch(e){}
                             window.location.href = response.url;
-                        } else if (response.ok) {
-                            return response.json();
-                        } else {
-                            return response.json().then(data => {
-                                throw new Error(data.message || 'Gagal menyimpan agenda');
-                            });
+                            return;
                         }
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        return response.json().then(data => { throw new Error(data.message || 'Gagal menyimpan agenda'); });
                     })
                     .then(data => {
-                        if (data && data.success) {
-                            window.location.href = "{{ route('agenda.notification') }}";
+                        if (data && typeof data === 'object') {
+                            try { localStorage.setItem('agendaCreateSuccess', (data.message || 'Agenda berhasil diajukan! Status: Menunggu Persetujuan')); } catch(e){}
                         } else {
-                            alert(data.message || 'Agenda berhasil diajukan!');
-                            window.location.href = "{{ route('agenda.notification') }}";
+                            try { localStorage.setItem('agendaCreateSuccess', 'Agenda berhasil diajukan! Status: Menunggu Persetujuan'); } catch(e){}
                         }
+                        window.location.href = "{{ route('agenda.notification') }}";
                     })
                     .catch(error => {
                         console.error('Error:', error);

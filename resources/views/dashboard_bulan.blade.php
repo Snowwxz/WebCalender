@@ -164,7 +164,7 @@
                             <!-- Container untuk Dihadiri Normal -->
                             <div id="normalInvitation" class="invitation-container">
                                 <div class="input-group fullwidth-group">
-                                    <label><i class="fas fa-people-group"></i> Dihadiri</label>
+                                    <label><i class="fas fa-users"></i> Dihadiri</label>
                                     <div class="chips-multiselect" id="normalInvolvedInstansi">
                                     <div class="chips-container">
                                         <div class="chips-selected"></div>
@@ -213,11 +213,16 @@
                             <button type="button" id="prevPageBtn" class="btn-secondary" style="display: none;">
                                 <i class="fas fa-arrow-left"></i> Kembali
                             </button>
-                            <div style="flex: 1;"></div>
-                            <button type="button" id="nextPageBtn" class="btn-primary">
+
+                            <div class="page-indicators">
+                                <span id="pageIndicator1" class="page-indicator">1</span>
+                                <span id="pageIndicator2" class="page-indicator">2</span>
+                            </div>
+
+                            <button type="button" id="nextPageBtn" class="btn-primary nav-right">
                                 Lanjutkan <i class="fas fa-arrow-right"></i>
                             </button>
-                            <button type="submit" id="submitBtn" class="btn-primary" style="display: none;">
+                            <button type="submit" id="submitBtn" class="btn-primary nav-right" style="display: none;">
                                 Ajukan Agenda
                             </button>
                         </div>
@@ -593,10 +598,17 @@
                 const prevBtn = document.getElementById('prevPageBtn');
                 const nextBtn = document.getElementById('nextPageBtn');
                 const submitBtn = document.getElementById('submitBtn');
+                const ind1 = document.getElementById('pageIndicator1');
+                const ind2 = document.getElementById('pageIndicator2');
 
                 if (prevBtn) prevBtn.style.display = page > 1 ? 'block' : 'none';
                 if (nextBtn) nextBtn.style.display = page < totalPages ? 'block' : 'none';
                 if (submitBtn) submitBtn.style.display = page === totalPages ? 'block' : 'none';
+
+                if (ind1 && ind2) {
+                    ind1.classList.toggle('active', page === 1);
+                    ind2.classList.toggle('active', page === 2);
+                }
 
                 currentPage = page;
             }
@@ -1490,14 +1502,16 @@
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
+                gap: 12px;
                 margin-top: 32px;
                 padding-top: 24px;
                 border-top: 2px solid #e5e7eb;
             }
 
+            #createAgendaModal .page-indicators { display:flex; align-items:center; justify-content:center; gap:10px; flex:1 1 auto; }
             #createAgendaModal .page-indicator {
-                width: 32px;
-                height: 32px;
+                width: 28px;
+                height: 28px;
                 border-radius: 50%;
                 background: #e5e7eb;
                 color: #6b7280;
@@ -1505,8 +1519,7 @@
                 align-items: center;
                 justify-content: center;
                 font-weight: 600;
-                cursor: pointer;
-                transition: all 0.3s;
+                font-size: 13px;
             }
 
             #createAgendaModal .page-indicator.active {
@@ -1541,14 +1554,16 @@
                 background: #e5e7eb;
                 color: #374151;
                 border: none;
-                padding: 10px 20px;
-                border-radius: 8px;
+                padding: 8px 12px;
+                border-radius: 10px;
                 cursor: pointer;
                 font-weight: 500;
                 transition: all 0.3s;
                 display: inline-flex;
                 align-items: center;
                 gap: 8px;
+                flex-shrink: 0;
+                line-height: 1.2;
             }
 
             #createAgendaModal .btn-secondary:hover {
@@ -1571,10 +1586,18 @@
                 display: inline-flex;
                 align-items: center;
                 gap: 8px;
+                width: auto;
+                min-width: 160px;
+                flex-shrink: 0;
             }
 
             #createAgendaModal .btn-primary:hover {
                 background: #5a7a5f;
             }
+            #createAgendaModal .btn-primary.nav-right { margin-left: auto; }
+
+            #createAgendaModal .input-group label i { color:#6b8f71; font-size:18px; }
+
+            #createAgendaModal #normalInvolvedInstansi.chips-multiselect { border-top-left-radius:16px; border-bottom-left-radius:16px; }
         </style>
     @endsection

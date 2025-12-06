@@ -1049,10 +1049,17 @@
                 const prevBtn = document.getElementById('prevPageBtnHari');
                 const nextBtn = document.getElementById('nextPageBtnHari');
                 const submitBtn = document.getElementById('submitBtnHari');
+                const ind1 = document.getElementById('pageIndicator1Hari');
+                const ind2 = document.getElementById('pageIndicator2Hari');
 
                 if (prevBtn) prevBtn.style.display = page > 1 ? 'block' : 'none';
                 if (nextBtn) nextBtn.style.display = page < totalPagesHari ? 'block' : 'none';
                 if (submitBtn) submitBtn.style.display = page === totalPagesHari ? 'block' : 'none';
+
+                if (ind1 && ind2) {
+                    ind1.classList.toggle('active', page === 1);
+                    ind2.classList.toggle('active', page === 2);
+                }
 
                 currentPageHari = page;
             }
@@ -1595,9 +1602,36 @@
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
+                gap: 12px;
                 margin-top: 32px;
                 padding-top: 24px;
                 border-top: 2px solid #e5e7eb;
+            }
+
+            #createAgendaModalHari .page-indicators {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                flex: 1 1 auto;
+            }
+
+            #createAgendaModalHari .page-indicator {
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                background: #e5e7eb;
+                color: #6b7280;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 600;
+                font-size: 13px;
+            }
+
+            #createAgendaModalHari .page-indicator.active {
+                background: #6b8f71;
+                color: #ffffff;
             }
 
             #createAgendaModalHari .radio-option {
@@ -1627,14 +1661,26 @@
                 background: #e5e7eb;
                 color: #374151;
                 border: none;
-                padding: 10px 20px;
-                border-radius: 8px;
+                padding: 8px 12px;
+                border-radius: 10px;
                 cursor: pointer;
                 font-weight: 500;
                 transition: all 0.3s;
                 display: inline-flex;
                 align-items: center;
                 gap: 8px;
+                flex-shrink: 0;
+                line-height: 1.2;
+            }
+
+            #createAgendaModalHari #prevPageBtnHari {
+                padding: 8px 12px;
+                font-size: 14px;
+                border-radius: 10px;
+            }
+
+            #createAgendaModalHari #prevPageBtnHari i {
+                font-size: 14px;
             }
 
             #createAgendaModalHari .btn-secondary:hover {
@@ -1643,6 +1689,26 @@
 
             #createAgendaModalHari .invitation-container {
                 margin-top: 16px;
+            }
+
+            #createAgendaModalHari .input-group label i {
+                color: #6b8f71;
+                font-size: 18px;
+            }
+
+            #createAgendaModalHari #normalInvolvedInstansiHari .chips-leading-icon {
+                color: #6E9579;
+                margin-right: 6px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 20px;
+                height: 20px;
+            }
+
+            #createAgendaModalHari #normalInvolvedInstansiHari.chips-multiselect {
+                border-top-left-radius: 16px;
+                border-bottom-left-radius: 16px;
             }
 
             #createAgendaModalHari .btn-primary {
@@ -1657,6 +1723,13 @@
                 display: inline-flex;
                 align-items: center;
                 gap: 8px;
+                width: auto;
+                min-width: 160px;
+                flex-shrink: 0;
+            }
+
+            #createAgendaModalHari .btn-primary.nav-right {
+                margin-left: auto;
             }
 
             #createAgendaModalHari .btn-primary:hover {

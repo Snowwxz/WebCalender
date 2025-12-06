@@ -525,6 +525,11 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
+            @if (session('success'))
+                showToast(@json(session('success')), 'success');
+            @elseif (session('error'))
+                showToast(@json(session('error')), 'error');
+            @endif
             // Tampilkan toast dari sessionStorage setelah page reload selesai
             const toastMessage = sessionStorage.getItem('toastMessage');
             const toastType = sessionStorage.getItem('toastType');
