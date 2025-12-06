@@ -202,7 +202,7 @@
                                                     {{ ucfirst($agenda->status) }}
                                             @endswitch
                                         </span>
-                                        <div class="visibility-badge {{ $agenda->is_public ? 'public' : 'private' }}">
+                                        <div class="visibility-badge {{ $agenda->is_public ? 'public' : 'private' }}" style="background: {{ $agenda->is_public ? '#059669' : '#ea580c' }}; color: #ffffff;">
                                             <i class="fas fa-{{ $agenda->is_public ? 'eye' : 'eye-slash' }}"></i>
                                             {{ $agenda->is_public ? 'Publik' : 'Privasi' }}
                                         </div>
@@ -525,6 +525,11 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
+            @if (session('success'))
+                showToast(@json(session('success')), 'success');
+            @elseif (session('error'))
+                showToast(@json(session('error')), 'error');
+            @endif
             // Tampilkan toast dari sessionStorage setelah page reload selesai
             const toastMessage = sessionStorage.getItem('toastMessage');
             const toastType = sessionStorage.getItem('toastType');

@@ -98,7 +98,7 @@
                     <!-- Container untuk Dihadiri Normal -->
                     <div id="normalInvitationHari" class="invitation-container">
                         <div class="input-group fullwidth-group">
-                            <label><i class="fas fa-people-group"></i> Dihadiri</label>
+                            <label><i class="fas fa-users"></i> Dihadiri</label>
                             <div class="chips-multiselect" id="normalInvolvedInstansiHari">
                                 <div class="chips-container">
                                     <div class="chips-selected"></div>
@@ -147,11 +147,16 @@
                     <button type="button" id="prevPageBtnHari" class="btn-secondary" style="display: none;">
                         <i class="fas fa-arrow-left"></i> Kembali
                     </button>
-                    <div style="flex: 1;"></div>
-                    <button type="button" id="nextPageBtnHari" class="btn-primary">
+
+                    <div class="page-indicators">
+                        <span id="pageIndicator1Hari" class="page-indicator">1</span>
+                        <span id="pageIndicator2Hari" class="page-indicator">2</span>
+                    </div>
+
+                    <button type="button" id="nextPageBtnHari" class="btn-primary nav-right">
                         Lanjutkan <i class="fas fa-arrow-right"></i>
                     </button>
-                    <button type="submit" id="submitBtnHari" class="btn-primary" style="display: none;">
+                    <button type="submit" id="submitBtnHari" class="btn-primary nav-right" style="display: none;">
                         Ajukan Agenda
                     </button>
                 </div>

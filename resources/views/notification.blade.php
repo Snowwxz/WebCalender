@@ -4,7 +4,7 @@
         <link rel="stylesheet" href="{{ asset('css/notification.css') }}">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-        </push>
+        @endpush
 
         @section('content')
             <div class="notification-page">
@@ -33,7 +33,7 @@
                     $currentYear = request('year', '');
                     $currentMonth = request('month', '');
                     $currentSearch = request('q', '');
-                    
+
                     $buildQuery = function($status) use ($currentYear, $currentMonth, $currentSearch) {
                         $params = ['status' => $status];
                         if ($currentYear) $params['year'] = $currentYear;
@@ -70,7 +70,7 @@
                 <div class="filter-section">
                     <form method="GET" action="{{ route('agenda.notification') }}" class="filter-form">
                         <input type="hidden" name="status" value="{{ request('status', 'all') }}">
-                        
+
                         <!-- Filter Tahun dan Bulan -->
                         <div class="filter-date-group">
                             <div class="filter-item">
@@ -92,7 +92,7 @@
                                     @endfor
                                 </select>
                             </div>
-                            
+
                             <div class="filter-item">
                                 <label for="filter_month">
                                     <i class="fas fa-calendar"></i> Bulan
@@ -115,7 +115,7 @@
                                 </select>
                             </div>
                         </div>
-                        
+
                         <!-- Search Bar -->
                         <div class="search-bar">
                             <div class="search-input-wrap">
@@ -216,7 +216,7 @@
                                                                 $unitNames = $invitation->groupUnits->map(function($groupUnit) {
                                                                     return $groupUnit->unit ? $groupUnit->unit->unit_name : null;
                                                                 })->filter()->values()->toArray();
-                                                                
+
                                                                 if (!empty($unitNames)) {
                                                                     // Gunakan session_name jika ada, jika tidak gunakan "Sesi X"
                                                                     $sessionLabel = $invitation->session_name ?? 'Sesi ' . ($index + 1);
@@ -298,7 +298,7 @@
                         @endif
 
                         @foreach ($agenda as $item)
-                            <div class="notification-card {{ $agendaId && $item->id_agenda == $agendaId ? 'selected-agenda' : '' }}" 
+                            <div class="notification-card {{ $agendaId && $item->id_agenda == $agendaId ? 'selected-agenda' : '' }}"
                                  id="agenda-{{ $item->id_agenda }}"
                                  @if($agendaId && $item->id_agenda == $agendaId) data-selected="true" @endif>
                                 <!-- Card Header -->
@@ -372,7 +372,7 @@
                                                                 $unitNames = $invitation->groupUnits->map(function($groupUnit) {
                                                                     return $groupUnit->unit ? $groupUnit->unit->unit_name : null;
                                                                 })->filter()->values()->toArray();
-                                                                
+
                                                                 if (!empty($unitNames)) {
                                                                     // Gunakan session_name jika ada, jika tidak gunakan "Sesi X"
                                                                     $sessionLabel = $invitation->session_name ?? 'Sesi ' . ($index + 1);
@@ -514,14 +514,14 @@
                 // Scroll ke agenda yang dipilih jika ada agenda_id
                 @if($agendaId)
                     document.addEventListener('DOMContentLoaded', function() {
-                        const selectedCard = document.querySelector('[data-selected="true"]') || 
+                        const selectedCard = document.querySelector('[data-selected="true"]') ||
                                            document.getElementById('selected-agenda-{{ $agendaId }}') ||
                                            document.getElementById('agenda-{{ $agendaId }}');
                         if (selectedCard) {
                             setTimeout(() => {
-                                selectedCard.scrollIntoView({ 
-                                    behavior: 'smooth', 
-                                    block: 'center' 
+                                selectedCard.scrollIntoView({
+                                    behavior: 'smooth',
+                                    block: 'center'
                                 });
                             }, 300);
                         }
@@ -628,10 +628,46 @@
 
             <script>
                 document.addEventListener("DOMContentLoaded", function() {
+                    try {
+                        var ls = localStorage.getItem('agendaCreateSuccess');
+                        if (ls) {
+                            if (typeof showSuccessToast === 'function') { showSuccessToast(ls); }
+                            else {
+                                const p = document.createElement('div');
+                                p.className = 'toastify-popup toastify-success';
+                                p.innerHTML = '<i class="bi bi-check-circle-fill" style="color:#5FA776; font-size:16px;"></i><span>'+ls+'</span>';
+                                document.body.appendChild(p);
+                                p.classList.add('toastify-popup-show');
+                                setTimeout(function(){ p.classList.remove('toastify-popup-show'); p.classList.add('toastify-popup-hide'); setTimeout(function(){ p.remove(); }, 300); }, 2500);
+                            }
+                            localStorage.removeItem('agendaCreateSuccess');
+                        }
+                    } catch(e){}
+
                     @if (session('success'))
-                        showSuccessToast("{{ session('success') }}");
+                        var __msg = @json(session('success'));
+                        if (typeof showSuccessToast === 'function') {
+                            showSuccessToast(__msg);
+                        } else {
+                            const p = document.createElement('div');
+                            p.className = 'toastify-popup toastify-success';
+                            p.innerHTML = '<i class="bi bi-check-circle-fill" style="color:#5FA776; font-size:16px;"></i><span>'+__msg+'</span>';
+                            document.body.appendChild(p);
+                            p.classList.add('toastify-popup-show');
+                            setTimeout(function(){ p.classList.remove('toastify-popup-show'); p.classList.add('toastify-popup-hide'); setTimeout(function(){ p.remove(); }, 300); }, 2500);
+                        }
                     @elseif (session('error'))
-                        showErrorToast("{{ session('error') }}");
+                        var __err = @json(session('error'));
+                        if (typeof showErrorToast === 'function') {
+                            showErrorToast(__err);
+                        } else {
+                            const p = document.createElement('div');
+                            p.className = 'toastify-popup toastify-error';
+                            p.innerHTML = '<i class="bi bi-x-circle-fill" style="color:#EF4444; font-size:16px;"></i><span>'+__err+'</span>';
+                            document.body.appendChild(p);
+                            p.classList.add('toastify-popup-show');
+                            setTimeout(function(){ p.classList.remove('toastify-popup-show'); p.classList.add('toastify-popup-hide'); setTimeout(function(){ p.remove(); }, 300); }, 3000);
+                        }
                     @endif
                 });
 
@@ -721,7 +757,7 @@
                 font-weight: 500;
                 font-family: 'Poppins', sans-serif;
                 box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-                z-index: 9999;
+                z-index: 13000;
                 display: inline-flex;
                 align-items: center;
                 gap: 8px;
@@ -744,7 +780,7 @@
                 font-weight: 500;
                 font-family: 'Poppins', sans-serif;
                 box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-                z-index: 9999;
+                z-index: 13000;
                 display: inline-flex;
                 align-items: center;
                 gap: 8px;
