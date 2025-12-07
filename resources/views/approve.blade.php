@@ -112,7 +112,7 @@
                                     <div class="agenda-name-wrapper">
                                         <div class="agenda-title">{{ $agenda->agenda_name }}</div>
                                         @if ($agenda->description)
-                                            <div class="agenda-description">{{ Str::limit($agenda->description, 60) }}</div>
+                                            <div class="agenda-description">{{ $agenda->description }}</div>
                                         @endif
                                         <div class="submission-info-row">
                                             <i class="fas fa-clock"></i>
