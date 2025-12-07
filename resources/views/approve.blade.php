@@ -240,12 +240,12 @@
                                                     @if ($agenda->status === 'rejected')
                                                         <span class="validated-text">
                                                             <i class="fas fa-circle-check"></i>
-                                                            {{ ucfirst($agenda->status) }}
+                                                            Ditolak
                                                         </span>
                                                     @else
                                                         <span class="validated-text">
                                                             <i class="fas fa-circle-check"></i>
-                                                            {{ ucfirst($agenda->status) }}
+                                                            Menunggu
                                                         </span>
                                                     @endif
                                                 @endif
@@ -528,6 +528,13 @@
             @elseif (session('error'))
                 showToast(@json(session('error')), 'error');
             @endif
+            try {
+                const msg = localStorage.getItem('agendaCreateSuccess');
+                if (msg) {
+                    setTimeout(() => { showToast(msg, 'success'); }, 200);
+                    localStorage.removeItem('agendaCreateSuccess');
+                }
+            } catch (e) {}
             // Tampilkan toast dari sessionStorage setelah page reload selesai
             const toastMessage = sessionStorage.getItem('toastMessage');
             const toastType = sessionStorage.getItem('toastType');
