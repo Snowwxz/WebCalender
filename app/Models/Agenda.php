@@ -97,9 +97,64 @@ class Agenda extends Model
 
     /**
      * Get invited unit names as comma-separated string (for backward compatibility)
+     * Now includes session information if available
      */
     public function getInvitedUnitNamesAttribute()
     {
-        return $this->invitedUnits->pluck('unit_name')->implode(', ');
+        // Use already loaded relations if available, otherwise load them
+        $invitations = $this->relationLoaded('invitations') 
+            ? $this->invitations 
+            : $this->invitations()->with(['groupUnits.unit'])->get();
+        
+        if ($invitations->isEmpty()) {
+            return '';
+        }
+
+        $sessionGroups = [];
+        $hasAnySession = false;
+        
+        foreach ($invitations as $invitation) {
+            // Ensure groupUnits are loaded
+            if (!$invitation->relationLoaded('groupUnits')) {
+                $invitation->load('groupUnits.unit');
+            }
+            
+            $units = [];
+            foreach ($invitation->groupUnits as $groupUnit) {
+                // Ensure unit is loaded
+                if (!$groupUnit->relationLoaded('unit')) {
+                    $groupUnit->load('unit');
+                }
+                
+                if ($groupUnit->unit) {
+                    $units[] = $groupUnit->unit->unit_name;
+                }
+            }
+            
+            if (!empty($units)) {
+                // Jika ada session_name, gunakan format dengan session
+                if (!empty($invitation->session_name)) {
+                    $hasAnySession = true;
+                    $sessionGroups[] = 'Sesi ' . $invitation->session_name . '= ' . implode(', ', $units);
+                } else {
+                    // Jika tidak ada session_name, tambahkan ke array tanpa prefix
+                    $sessionGroups[] = implode(', ', $units);
+                }
+            }
+        }
+        
+        // Jika tidak ada session sama sekali, kembalikan format lama (backward compatibility)
+        if (empty($sessionGroups)) {
+            return $this->invitedUnits->pluck('unit_name')->implode(', ');
+        }
+        
+        // Jika ada setidaknya satu session, gabungkan dengan line break untuk memisahkan session
+        // Jika tidak ada session sama sekali, gabungkan dengan ', '
+        if ($hasAnySession) {
+            return implode("\n", $sessionGroups);
+        } else {
+            // Semua tanpa session, gabungkan dengan koma
+            return implode(', ', $sessionGroups);
+        }
     }
 }

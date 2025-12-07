@@ -47,6 +47,10 @@
                       <i class="fas fa-users"></i>
                       <span class="nav-label">Super Admin</span>
                   </a>
+                  <a href="{{ route('opd') }}" class="nav-icon {{ request()->is('opd') ? 'active' : '' }}" title="OPD">
+                      <i class="fas fa-sitemap"></i>
+                      <span class="nav-label">OPD</span>
+                  </a>
               @endif
               @if (Auth::user()->role !== 'superadmin')
                   <a href="{{ route('agenda.create') }}" class="nav-icon {{ request()->routeIs('agenda.create') ? 'active' : '' }}" title="Tambah Agenda">
@@ -73,6 +77,10 @@
                       <a href="{{ route('superadmin.dashboard') }}" class="nav-icon {{ request()->is('superadmin') ? 'active' : '' }}" title="Super Admin">
                           <i class="fas fa-users"></i>
                           <span class="nav-label">Super Admin</span>
+                      </a>
+                      <a href="{{ route('opd') }}" class="nav-icon {{ request()->is('opd') ? 'active' : '' }}" title="OPD">
+                          <i class="fas fa-sitemap"></i>
+                          <span class="nav-label">OPD</span>
                       </a>
                   @endif
                   @if (Auth::user()->role !== 'superadmin')

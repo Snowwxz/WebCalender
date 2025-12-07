@@ -12,14 +12,14 @@
                 <i class="fas fa-arrow-left"></i>
             </a>
             <div class="title-wrap">
-                <h1 class="page-title">Daftar User dan OPD</h1>
+                <h1 class="page-title">Daftar User</h1>
                 <p class="page-subtitle">Kelola akun pengguna dan organisasi perangkat daerah</p>
             </div>
         </div>
 
         <div class="search-section">
             <div class="search-box">
-                <input type="text" id="globalSearch" class="search-input" placeholder="Cari User ataupun OPD...">
+                <input type="text" id="globalSearch" class="search-input" placeholder="Cari User...">
                 <button class="search-btn"><i class="fas fa-search"></i></button>
             </div>
         </div>
@@ -90,64 +90,6 @@
             </div>
         </div>
 
-        <div class="section-space"></div>
-
-        <!-- Tabel OPD -->
-        <div class="admin-card">
-            <div class="admin-card-header">
-                <button class="btn-chip" type="button" onclick="openAddUnitModal()">
-                    <i class="fas fa-plus"></i>
-                    Tambah OPD
-                </button>
-            </div>
-            <div class="section-title" style="margin-bottom: 8px;">
-                <i class="fas fa-sitemap"></i>
-                <span>Daftar OPD</span>
-            </div>
-            <div class="admin-table-wrap">
-                <table class="admin-table" id="unitTable">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Nama Instansi</th>
-                            <th>Alamat</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($units as $index => $unit)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>{{ $unit->unit_name }}</td>
-                                <td>{{ $unit->address ?? '-' }}</td>
-                                <td>
-                                    <div class="table-action-stack">
-                                        <button type="button" class="btn-icon-edit" data-id="{{ $unit->id_unit }}"
-                                            data-name="{{ $unit->unit_name }}" data-address="{{ $unit->address }}"
-                                            onclick="openEditUnitModal(this)">
-                                            <i class="fas fa-pen"></i>
-                                        </button>
-
-                                        <form action="{{ route('units.destroy', $unit->id_unit) }}" method="POST"
-                                            style="display:inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn-icon-delete">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="4" style="text-align:center;">Belum ada data OPD.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
     </div>
 
     <!-- Modal Edit User -->
@@ -396,66 +338,6 @@
         </script>
     @endif
 
-    <!-- Modal Tambah OPD -->
-    <div id="addUnitModal" class="user-form-modal">
-        <div class="user-form-content">
-            <div class="user-form-header">
-                <h2 class="user-form-title">
-                    <i class="fas fa-plus" style="margin-right: 8px; color:#82A98D;"></i>
-                    Tambah OPD
-                </h2>
-                <button class="close-modal" onclick="closeAddUnitModal()">&times;</button>
-            </div>
-            <form action="{{ route('units.store') }}" method="POST">
-                @csrf
-                <div class="user-form-group">
-                    <label>Nama Instansi</label>
-                    <input type="text" name="unit_name" required>
-                </div>
-
-                <div class="user-form-group">
-                    <label>Alamat</label>
-                    <input type="text" name="address">
-                </div>
-
-                <div class="user-form-actions">
-                    <button type="submit" class="btn-save">Simpan</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal Edit OPD -->
-    <div id="editUnitModal" class="user-form-modal">
-        <div class="user-form-content">
-            <div class="user-form-header">
-                <h2 class="user-form-title">
-                    <i class="fas fa-pen" style="margin-right: 8px; color:#82A98D;"></i>
-                    Edit OPD
-                </h2>
-                <button class="close-modal" onclick="closeEditUnitModal()">&times;</button>
-            </div>
-
-            <form id="editUnitForm" method="POST">
-                @csrf
-                @method('PUT')
-
-                <div class="user-form-group">
-                    <label>Nama Instansi</label>
-                    <input type="text" name="unit_name" id="editUnitName" required>
-                </div>
-
-                <div class="user-form-group">
-                    <label>Alamat</label>
-                    <input type="text" name="address" id="editUnitAddress">
-                </div>
-
-                <div class="user-form-actions">
-                    <button type="submit" class="btn-save">Simpan</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -524,19 +406,6 @@
             }
 
             // ==== KONFIRMASI TAMBAH/EDIT ====
-            const addUnitForm = document.querySelector('#addUnitModal form');
-            if (addUnitForm) {
-                addUnitForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    showConfirmation({
-                        title: 'Konfirmasi Tambah OPD',
-                        text: 'Yakin ingin menambahkan data OPD?',
-                        confirmText: 'Ya, simpan',
-                        form: addUnitForm
-                    });
-                });
-            }
-
             const editUserForm = document.getElementById('editForm');
             if (editUserForm) {
                 editUserForm.addEventListener('submit', function(e) {
@@ -546,19 +415,6 @@
                         text: 'Yakin ingin menyimpan perubahan data?',
                         confirmText: 'Ya, simpan',
                         form: editUserForm
-                    });
-                });
-            }
-
-            const editUnitForm = document.getElementById('editUnitForm');
-            if (editUnitForm) {
-                editUnitForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    showConfirmation({
-                        title: 'Konfirmasi Edit OPD',
-                        text: 'Yakin ingin menyimpan perubahan data OPD?',
-                        confirmText: 'Ya, simpan',
-                        form: editUnitForm
                     });
                 });
             }
@@ -580,17 +436,6 @@
                     });
                 }
 
-                if (isDelete && action.includes('/superadmin/units/')) {
-                    form.addEventListener('submit', function(e) {
-                        e.preventDefault();
-                        showConfirmation({
-                            title: 'Konfirmasi Hapus OPD',
-                            text: 'Yakin ingin menghapus data OPD ini?',
-                            confirmText: 'Ya, hapus',
-                            form: form
-                        });
-                    });
-                }
             });
 
             // ==== POPUP SUKSES ====
@@ -730,34 +575,6 @@
 
             window.closeEditModal = function() {
                 document.getElementById('editModal').classList.remove('show');
-            };
-
-            window.openAddUnitModal = function() {
-                document.getElementById('addUnitModal').classList.add('show');
-            };
-
-            window.closeAddUnitModal = function() {
-                document.getElementById('addUnitModal').classList.remove('show');
-            };
-
-            window.openEditUnitModal = function(button) {
-                const modal = document.getElementById('editUnitModal');
-                const form = document.getElementById('editUnitForm');
-
-                const id = button.getAttribute('data-id');
-                const name = button.getAttribute('data-name');
-                const address = button.getAttribute('data-address');
-
-                // set action form
-                form.action = `/superadmin/units/${id}`;
-                document.getElementById('editUnitName').value = name;
-                document.getElementById('editUnitAddress').value = address;
-
-                modal.classList.add('show');
-            };
-
-            window.closeEditUnitModal = function() {
-                document.getElementById('editUnitModal').classList.remove('show');
             };
         });
     </script>
@@ -925,55 +742,4 @@
         });
     </script>
 
-    <script>
-        // Fungsi untuk membuka modal Edit OPD dan mengisi data
-        window.openEditUnitModal = function(button) {
-            const modal = document.getElementById('editUnitModal');
-            const form = document.getElementById('editUnitForm');
-
-            if (!modal || !form) return;
-
-            const unitId = button.getAttribute('data-id');
-            const unitName = button.getAttribute('data-name') || '';
-            const unitAddress = button.getAttribute('data-address') || '';
-
-            // Set action form ke endpoint update OPD
-            form.action = `/superadmin/units/${unitId}`;
-
-            // Isi field
-            const nameInput = document.getElementById('editUnitName');
-            const addrInput = document.getElementById('editUnitAddress');
-            if (nameInput) nameInput.value = unitName;
-            if (addrInput) addrInput.value = unitAddress;
-
-            // Tampilkan modal
-            modal.classList.add('show');
-        }
-
-        // Fungsi untuk menutup modal Edit OPD
-        window.closeEditUnitModal = function() {
-            const modal = document.getElementById('editUnitModal');
-            if (modal) modal.classList.remove('show');
-        }
-
-        // Buka modal Tambah OPD
-        window.openAddUnitModal = function() {
-            const modal = document.getElementById('addUnitModal');
-            if (!modal) return;
-
-            // Reset field input
-            const nameInput = modal.querySelector('input[name="unit_name"]');
-            const addrInput = modal.querySelector('input[name="address"]');
-            if (nameInput) nameInput.value = '';
-            if (addrInput) addrInput.value = '';
-
-            modal.classList.add('show');
-        }
-
-        // Tutup modal Tambah OPD
-        window.closeAddUnitModal = function() {
-            const modal = document.getElementById('addUnitModal');
-            if (modal) modal.classList.remove('show');
-        }
-    </script>
 @endsection

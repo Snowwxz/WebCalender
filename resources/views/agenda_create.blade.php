@@ -159,6 +159,13 @@
                                             <span class="item-text">Pilih Semua</span>
                                             <i class="fas fa-check checkmark-icon"></i>
                                         </li>
+                                        <li class="chips-add-new-input-container" style="display: none; padding: 12px; border-top: 1px solid #e5e7eb; background: #f9fafb; list-style: none;">
+                                            <input type="text" class="chips-add-new-input" placeholder="Masukkan nama instansi..." style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; margin-bottom: 8px;">
+                                            <div style="display: flex; gap: 8px;">
+                                                <button type="button" class="chips-add-confirm-btn" style="flex: 1; background: #6b8f71; color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: 500;">Tambah</button>
+                                                <button type="button" class="chips-add-cancel-btn" style="flex: 1; background: #e5e7eb; color: #374151; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: 500;">Batal</button>
+                                            </div>
+                                        </li>
                                         @foreach ($units as $unit)
                                             @if ($unit->id_unit !== Auth::user()->id_unit && strtolower($unit->unit_name) !== 'protokol')
                                                 <li data-value="{{ $unit->id_unit }}" data-name="{{ $unit->unit_name }}" class="dropdown-item">
@@ -168,6 +175,10 @@
                                                 </li>
                                             @endif
                                         @endforeach
+                                        <li class="add-new-instansi-option" style="display: flex; align-items: center; padding: 10px 16px; cursor: pointer; border-top: 1px solid #e5e7eb; margin-top: 8px; color: #6b8f71;">
+                                            <i class="fas fa-plus-circle" style="margin-right: 10px;"></i>
+                                            <span class="item-text">Tambah Instansi Baru</span>
+                                        </li>
                                     </ul>
                                 </div>
                             </div>
@@ -249,6 +260,30 @@
         let currentPage = 1;
         const totalPages = 2;
 
+        // Fungsi untuk setup event listener tombol submit (didefinisikan lebih awal)
+        function setupSubmitButton() {
+            const submitBtn = document.getElementById("submitBtn");
+            if (submitBtn) {
+                // Hapus semua event listener dengan clone node
+                const newSubmitBtn = submitBtn.cloneNode(true);
+                submitBtn.parentNode.replaceChild(newSubmitBtn, submitBtn);
+                
+                // Pasang event listener baru
+                newSubmitBtn.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Validasi dan persiapan data terlebih dahulu
+                    if (!validateAndPrepareForm()) {
+                        return false;
+                    }
+                    
+                    showConfirmSubmit();
+                    return false;
+                });
+            }
+        }
+
         function showPage(page) {
             document.querySelectorAll('.form-page').forEach((p, idx) => {
                 p.style.display = idx + 1 === page ? 'block' : 'none';
@@ -257,7 +292,14 @@
             // Update navigation buttons
             document.getElementById('prevPageBtn').style.display = page > 1 ? 'block' : 'none';
             document.getElementById('nextPageBtn').style.display = page < totalPages ? 'block' : 'none';
-            document.getElementById('submitBtn').style.display = page === totalPages ? 'block' : 'none';
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) {
+                submitBtn.style.display = page === totalPages ? 'block' : 'none';
+                // Setup ulang event listener setiap kali tombol submit ditampilkan
+                if (page === totalPages) {
+                    setTimeout(setupSubmitButton, 50);
+                }
+            }
 
             // Update page indicators
             document.querySelectorAll('.page-indicator').forEach((indicator, idx) => {
@@ -413,28 +455,46 @@
                     }
                     
                     const unitIds = [];
+                    const customUnits = [];
+                    
+                    // Collect unit IDs (from database)
                     sessionEl.querySelectorAll('.unit-chip[data-unit-id]').forEach(chip => {
                         unitIds.push(chip.getAttribute('data-unit-id'));
                     });
 
-                    if (unitIds.length > 0) {
+                    // Collect custom units (not from database)
+                    sessionEl.querySelectorAll('.unit-chip[data-is-custom="true"]').forEach(chip => {
+                        customUnits.push(chip.getAttribute('data-custom-name'));
+                    });
+
+                    if (unitIds.length > 0 || customUnits.length > 0) {
                         sessions.push({
                             session_name: sessionName,
-                            invited_units: unitIds
+                            invited_units: unitIds,
+                            custom_units: customUnits
                         });
                     }
                 });
             } else {
                 // Collect from normal invitation
                 const unitIds = [];
-                document.querySelectorAll('#normalInvolvedInstansi .chip[data-unit-id]').forEach(chip => {
+                const customUnits = [];
+                
+                // Collect unit IDs (from database)
+                document.querySelectorAll('#normalInvolvedInstansi .unit-chip[data-unit-id]').forEach(chip => {
                     unitIds.push(chip.getAttribute('data-unit-id'));
                 });
 
-                if (unitIds.length > 0) {
+                // Collect custom units (not from database)
+                document.querySelectorAll('#normalInvolvedInstansi .unit-chip[data-is-custom="true"]').forEach(chip => {
+                    customUnits.push(chip.getAttribute('data-custom-name'));
+                });
+
+                if (unitIds.length > 0 || customUnits.length > 0) {
                     sessions.push({
                         session_name: null,
-                        invited_units: unitIds
+                        invited_units: unitIds,
+                        custom_units: customUnits
                     });
                 }
             }
@@ -521,6 +581,13 @@
                                     <span class="item-text">Pilih Semua</span>
                                     <i class="fas fa-check checkmark-icon"></i>
                                 </li>
+                                <li class="chips-add-new-input-container" style="display: none; padding: 12px; border-top: 1px solid #e5e7eb; background: #f9fafb; list-style: none;">
+                                    <input type="text" class="chips-add-new-input" placeholder="Masukkan nama instansi..." style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; margin-bottom: 8px;">
+                                    <div style="display: flex; gap: 8px;">
+                                        <button type="button" class="chips-add-confirm-btn" style="flex: 1; background: #6b8f71; color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: 500;">Tambah</button>
+                                        <button type="button" class="chips-add-cancel-btn" style="flex: 1; background: #e5e7eb; color: #374151; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: 500;">Batal</button>
+                                    </div>
+                                </li>
                                 @foreach ($units as $unit)
                                     @if ($unit->id_unit !== Auth::user()->id_unit && strtolower($unit->unit_name) !== 'protokol')
                                         <li data-value="{{ $unit->id_unit }}" data-name="{{ $unit->unit_name }}" class="dropdown-item">
@@ -530,6 +597,10 @@
                                         </li>
                                     @endif
                                 @endforeach
+                                <li class="add-new-instansi-option" style="display: flex; align-items: center; padding: 10px 16px; cursor: pointer; border-top: 1px solid #e5e7eb; margin-top: 8px; color: #6b8f71;">
+                                    <i class="fas fa-plus-circle" style="margin-right: 10px;"></i>
+                                    <span class="item-text">Tambah Instansi Baru</span>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -591,6 +662,11 @@
                     });
                     selectAllOption.style.display = 'flex';
                     updateSelectAllState();
+                    
+                    // Pastikan opsi "Tambah Instansi Baru" terlihat
+                    if (addNewInstansiOption && addNewInputContainer && addNewInputContainer.style.display === 'none') {
+                        addNewInstansiOption.style.display = 'flex';
+                    }
                 }
             }
 
@@ -619,7 +695,32 @@
                 updateSelectAllState();
             }
 
-            function addChip(unitId, unitName) {
+            function addChip(unitId, unitName, isCustom = false) {
+                if (isCustom) {
+                    // Untuk instansi custom, tidak ada unit-id
+                    const existingChip = selectedWrap.querySelector(`.unit-chip[data-custom-name="${unitName}"]`);
+                    if (existingChip) return;
+
+                    const chip = document.createElement('span');
+                    chip.className = 'chip unit-chip';
+                    chip.setAttribute('data-custom-name', unitName);
+                    chip.setAttribute('data-value', unitName);
+                    chip.setAttribute('data-is-custom', 'true');
+                    chip.textContent = unitName;
+
+                    const btn = document.createElement('button');
+                    btn.className = 'chip-remove';
+                    btn.innerHTML = '&times;';
+                    btn.onclick = (e) => {
+                        e.stopPropagation();
+                        removeCustomChip(unitName);
+                    };
+
+                    chip.appendChild(btn);
+                    selectedWrap.appendChild(chip);
+                    selectedValues.push(unitName);
+                } else {
+                    // Untuk instansi dari database
                 const existingChip = selectedWrap.querySelector(`.unit-chip[data-unit-id="${unitId}"]`);
                 if (existingChip) return;
 
@@ -639,7 +740,24 @@
 
                 chip.appendChild(btn);
                 selectedWrap.appendChild(chip);
-                mainInput.style.display = selectedUnitIds.length ? 'none' : 'inline';
+                    selectedUnitIds.push(unitId);
+                    selectedValues.push(unitName);
+                }
+                const totalSelected = selectedUnitIds.length + selectedWrap.querySelectorAll('.unit-chip[data-is-custom="true"]').length;
+                mainInput.style.display = totalSelected ? 'none' : 'inline';
+            }
+
+            function removeCustomChip(unitName) {
+                const chip = selectedWrap.querySelector(`.unit-chip[data-custom-name="${unitName}"]`);
+                if (chip) {
+                    chip.remove();
+                    const index = selectedValues.indexOf(unitName);
+                    if (index > -1) {
+                        selectedValues.splice(index, 1);
+                    }
+                }
+                const totalSelected = selectedUnitIds.length + selectedWrap.querySelectorAll('.unit-chip[data-is-custom="true"]').length;
+                mainInput.style.display = totalSelected ? 'none' : 'inline';
             }
 
             function removeChip(unitId) {
@@ -647,13 +765,23 @@
                 if (chip) {
                     chip.remove();
                 }
-                mainInput.style.display = selectedUnitIds.length ? 'none' : 'inline';
+                const totalSelected = selectedUnitIds.length + selectedWrap.querySelectorAll('.unit-chip[data-is-custom="true"]').length;
+                mainInput.style.display = totalSelected ? 'none' : 'inline';
             }
 
-            function updateItemState(unitId) {
-                const item = listItems.find(li => li.getAttribute('data-value') === unitId);
+            function updateItemState(unitIdOrCustomId) {
+                const item = listItems.find(li => li.getAttribute('data-value') === unitIdOrCustomId);
                 if (item) {
-                    const isSelected = selectedUnitIds.includes(unitId);
+                    const isCustom = item.getAttribute('data-is-custom') === 'true';
+                    let isSelected = false;
+                    
+                    if (isCustom) {
+                        const customName = item.getAttribute('data-name');
+                        isSelected = selectedValues.includes(customName);
+                    } else {
+                        isSelected = selectedUnitIds.includes(unitIdOrCustomId);
+                    }
+                    
                     item.classList.toggle('selected', isSelected);
                     const checkmark = item.querySelector('.checkmark-icon');
                     if (checkmark) {
@@ -663,10 +791,13 @@
                     if (checkIcon) {
                         checkIcon.classList.toggle('checked', isSelected);
                     }
+                    
+                    if (!isCustom) {
                     const used = getUsedUnitIds(root);
-                    const isUsedElsewhere = used.includes(unitId);
+                        const isUsedElsewhere = used.includes(unitIdOrCustomId);
                     item.style.opacity = isUsedElsewhere ? '0.5' : '';
                     item.style.pointerEvents = isUsedElsewhere ? 'none' : '';
+                    }
                 }
             }
 
@@ -713,13 +844,17 @@
                 const lower = term.toLowerCase().trim();
                 listItems.forEach(li => {
                     const text = li.querySelector('.item-text').textContent.toLowerCase();
-                    const used = getUsedUnitIds(root);
-                    const unitId = li.getAttribute('data-value');
+                    const isCustom = li.getAttribute('data-is-custom') === 'true';
                     const match = !lower || text.includes(lower);
                     li.style.display = match ? 'flex' : 'none';
+                    
+                    if (!isCustom) {
+                        const used = getUsedUnitIds(root);
+                        const unitId = li.getAttribute('data-value');
                     const disabled = used.includes(unitId);
                     li.style.opacity = disabled ? '0.5' : '';
                     li.style.pointerEvents = disabled ? 'none' : '';
+                    }
                 });
                 selectAllOption.style.display = !lower || listItems.some(li => {
                     const text = li.querySelector('.item-text').textContent.toLowerCase();
@@ -727,7 +862,195 @@
                 }) ? 'flex' : 'none';
             }
 
-            searchInput.addEventListener('input', e => filterList(e.target.value));
+            // Fungsi untuk menambahkan instansi custom
+            function addCustomUnit(customName) {
+                const cleanName = customName.trim();
+                if (!cleanName) {
+                    alert('Nama instansi tidak boleh kosong!');
+                    return;
+                }
+
+                // Split berdasarkan koma jika ada
+                const unitNames = cleanName.split(',').map(name => name.trim()).filter(name => name.length > 0);
+                
+                if (unitNames.length === 0) {
+                    alert('Nama instansi tidak boleh kosong!');
+                    return;
+                }
+
+                let addedCount = 0;
+                let skippedCount = 0;
+
+                // Proses setiap nama instansi
+                unitNames.forEach(unitName => {
+                    // Cek duplikat di chip yang sudah dipilih
+                    const existingChip = selectedWrap.querySelector(`.unit-chip[data-custom-name="${unitName}"], .unit-chip[data-value="${unitName}"]`);
+                    if (existingChip) {
+                        skippedCount++;
+                        return;
+                    }
+
+                    // Cek apakah sudah ada di list items (case insensitive) - jika ada, pilih dari list
+                    const ul = dropdown.querySelector('ul');
+                    const existingListItem = Array.from(ul.querySelectorAll('li.dropdown-item')).find(li => {
+                        const name = li.getAttribute('data-name');
+                        return name && name.toLowerCase() === unitName.toLowerCase();
+                    });
+                    
+                    if (existingListItem) {
+                        // Jika sudah ada di list, langsung pilih saja
+                        const existingUnitId = existingListItem.getAttribute('data-value');
+                        const existingUnitName = existingListItem.getAttribute('data-name');
+                        if (!selectedUnitIds.includes(existingUnitId) && !selectedValues.includes(existingUnitName)) {
+                            toggleItem(existingUnitId, existingUnitName);
+                            addedCount++;
+                        } else {
+                            skippedCount++;
+                        }
+                        return;
+                    }
+
+                    // Jangan tambahkan ke dropdown list, hanya tambahkan sebagai chip
+                    // Tambahkan chip custom langsung
+                    addChip(null, unitName, true);
+                    addedCount++;
+                });
+
+                // Jangan tutup dropdown, biarkan tetap terbuka agar user bisa menambah lagi
+                // Pastikan input field container tetap terlihat
+                if (addNewInputContainer) {
+                    addNewInputContainer.style.display = 'block';
+                }
+                // Hanya kosongkan input field dan fokus kembali
+                if (addNewInput) {
+                    addNewInput.value = '';
+                    setTimeout(() => addNewInput.focus(), 100);
+                }
+                // Pastikan opsi "Tambah Instansi Baru" tetap tersembunyi
+                if (addNewInstansiOption) {
+                    addNewInstansiOption.style.display = 'none';
+                }
+
+                // Toast notifikasi
+                if (typeof Toastify !== 'undefined') {
+                    let message = '';
+                    if (addedCount > 0 && skippedCount === 0) {
+                        message = `${addedCount} instansi berhasil ditambahkan!`;
+                    } else if (addedCount > 0 && skippedCount > 0) {
+                        message = `${addedCount} instansi ditambahkan, ${skippedCount} instansi dilewati (sudah ada)`;
+                    } else if (skippedCount > 0) {
+                        message = `Semua instansi sudah ditambahkan sebelumnya`;
+                    }
+                    
+                    Toastify({
+                        text: message,
+                        duration: 2500,
+                        gravity: "top",
+                        position: "center",
+                        style: {
+                            background: addedCount > 0 ? "#d1fae5" : "#fee2e2",
+                            color: addedCount > 0 ? "#065f46" : "#991b1b",
+                            borderRadius: "8px",
+                            fontSize: "0.9rem"
+                        }
+                    }).showToast();
+                }
+            }
+
+            // Event listeners untuk instansi custom
+            const addNewInstansiOption = dropdown.querySelector('.add-new-instansi-option');
+            const addNewInputContainer = dropdown.querySelector('.chips-add-new-input-container');
+            const addNewInput = dropdown.querySelector('.chips-add-new-input');
+            const addConfirmBtn = dropdown.querySelector('.chips-add-confirm-btn');
+            const addCancelBtn = dropdown.querySelector('.chips-add-cancel-btn');
+
+            function showAddNewInput() {
+                if (addNewInputContainer) {
+                    addNewInputContainer.style.display = 'block';
+                    if (addNewInput) {
+                        addNewInput.value = '';
+                        setTimeout(() => addNewInput.focus(), 100);
+                    }
+                    if (addNewInstansiOption) {
+                        addNewInstansiOption.style.display = 'none';
+                    }
+                    selectAllOption.style.display = 'none';
+                }
+            }
+
+            function hideAddNewInput() {
+                if (addNewInputContainer) {
+                    addNewInputContainer.style.display = 'none';
+                    if (addNewInput) {
+                        addNewInput.value = '';
+                    }
+                    if (addNewInstansiOption) {
+                        addNewInstansiOption.style.display = 'flex';
+                    }
+                    selectAllOption.style.display = 'flex';
+                }
+            }
+
+            if (addNewInstansiOption) {
+                addNewInstansiOption.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showAddNewInput();
+                });
+            }
+
+            if (addNewInput) {
+                addNewInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (addConfirmBtn) addConfirmBtn.click();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        hideAddNewInput();
+                        searchInput.focus();
+                    }
+                });
+            }
+
+            if (addConfirmBtn) {
+                addConfirmBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (addNewInput && addNewInput.value.trim()) {
+                        addCustomUnit(addNewInput.value.trim());
+                        // Jangan tutup input field, biarkan tetap terbuka agar user bisa menambah lagi
+                        // Input field akan dikosongkan dan fokus kembali di dalam fungsi addCustomUnit
+                    }
+                });
+            }
+
+            if (addCancelBtn) {
+                addCancelBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    hideAddNewInput();
+                    searchInput.focus();
+                });
+            }
+
+            // Update toggleDropdown untuk menampilkan opsi tambah instansi
+            const originalToggleDropdown = toggleDropdown;
+            toggleDropdown = function() {
+                originalToggleDropdown();
+                if (dropdown.classList.contains('open')) {
+                    if (addNewInstansiOption && addNewInputContainer && addNewInputContainer.style.display === 'none') {
+                        addNewInstansiOption.style.display = 'flex';
+                    }
+                } else {
+                    hideAddNewInput();
+                }
+            };
+
+            searchInput.addEventListener('input', e => {
+                filterList(e.target.value);
+                // Sembunyikan input tambah instansi saat search
+                if (e.target.value.trim() && addNewInputContainer) {
+                    addNewInputContainer.style.display = 'none';
+                }
+            });
+
             arrow.addEventListener('click', (e) => {
                 e.stopPropagation();
                 toggleDropdown();
@@ -750,7 +1073,10 @@
                 });
             });
             document.addEventListener('click', e => {
-                if (!root.contains(e.target)) closeDropdown();
+                if (!root.contains(e.target)) {
+                    closeDropdown();
+                    hideAddNewInput();
+                }
             });
         }
 
@@ -1227,7 +1553,11 @@
                         } else {
                             try { localStorage.setItem('agendaCreateSuccess', 'Agenda berhasil diajukan! Status: Menunggu Persetujuan'); } catch(e){}
                         }
-                        window.location.href = "{{ route('agenda.notification') }}";
+                        @if (Auth::check() && Auth::user()->role === 'admin')
+                            window.location.href = "{{ route('approve') }}";
+                        @else
+                            window.location.href = "{{ route('agenda.notification') }}";
+                        @endif
                     })
                     .catch(error => {
                         console.error('Error:', error);
@@ -1244,29 +1574,41 @@
         // Flag untuk menandai submit yang sudah divalidasi
         let isFormValidated = false;
         
+        // Handler untuk tombol submit
+        function handleSubmit(e) {
+            // Jika sudah divalidasi, biarkan submit berjalan tanpa preventDefault
+            if (isFormValidated) {
+                isFormValidated = false; // Reset flag
+                // Tidak perlu preventDefault, biarkan form submit normal
+                return true; // Exit early, tidak preventDefault
+            }
+            
+            // Jika belum divalidasi, cegah submit dan validasi dulu
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Validasi dan persiapan data terlebih dahulu
+            if (!validateAndPrepareForm()) {
+                return false; // Jika validasi gagal, jangan lanjutkan
+            }
+            
+            showConfirmSubmit(); // munculkan toast konfirmasi
+            return false;
+        }
+        
         // intercept tombol submit bawaan form
         const formElement = document.getElementById("agendaForm");
         if (formElement) {
-            formElement.addEventListener("submit", function(e) {
-                // Jika sudah divalidasi, biarkan submit berjalan tanpa preventDefault
-                if (isFormValidated) {
-                    isFormValidated = false; // Reset flag
-                    // Tidak perlu preventDefault, biarkan form submit normal
-                    return; // Exit early, tidak preventDefault
-                }
-                
-                // Jika belum divalidasi, cegah submit dan validasi dulu
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // Validasi dan persiapan data terlebih dahulu
-                if (!validateAndPrepareForm()) {
-                    return false; // Jika validasi gagal, jangan lanjutkan
-                }
-                
-                showConfirmSubmit(); // munculkan toast konfirmasi
-                return false;
+            formElement.addEventListener("submit", handleSubmit);
+        }
+        
+        // Setup saat DOM ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setupSubmitButton();
             });
+        } else {
+            setupSubmitButton();
         }
 
         // ======== TOAST SUKSES (senada tema hijau pastel) ========

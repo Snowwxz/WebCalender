@@ -109,6 +109,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware('role:superadmin')->group(function () {
         Route::get('/superadmin', [UserController::class, 'index'])->name('superadmin.dashboard');
+        Route::get('/opd', function() {
+            $units = \App\Models\Unit::all();
+            return view('opd', compact('units'));
+        })->name('opd');
 
         Route::delete('/superadmin/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
         Route::put('/superadmin/users/{id}', [UserController::class, 'update'])->name('users.update');

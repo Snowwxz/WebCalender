@@ -135,7 +135,7 @@
                                 <td class="col-dihadiri">
                                     <div class="table-cell-content">
                                         <i class="fas fa-users"></i>
-                                        <span title="{{ $agenda->invited_unit_names }}">{{ $agenda->invited_unit_names ?: '-' }}</span>
+                                        <span title="{{ $agenda->invited_unit_names }}" style="white-space: pre-line;">{{ $agenda->invited_unit_names ?: '-' }}</span>
                                     </div>
                                 </td>
                                 <td class="col-tanggal">

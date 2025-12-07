@@ -279,17 +279,45 @@ class AgendaController extends Controller
                 // Validasi: tidak boleh ada instansi yang sama di sesi berbeda
                 $usedUnits = [];
                 foreach ($sessionsData as $session) {
+                    $allUnits = [];
                     if (!empty($session['invited_units']) && is_array($session['invited_units'])) {
-                        foreach ($session['invited_units'] as $unitId) {
-                            if (in_array($unitId, $usedUnits, true)) {
-                                throw new \Exception('Instansi yang sama tidak boleh diundang pada lebih dari satu sesi.');
-                            }
-                            $usedUnits[] = $unitId;
+                        $allUnits = array_merge($allUnits, $session['invited_units']);
+                    }
+                    if (!empty($session['custom_units']) && is_array($session['custom_units'])) {
+                        // Untuk custom units, cek apakah sudah ada di database atau perlu dibuat
+                        foreach ($session['custom_units'] as $customUnitName) {
+                            $customUnit = \App\Models\Unit::firstOrCreate(
+                                ['unit_name' => $customUnitName],
+                                ['address' => null]
+                            );
+                            $allUnits[] = $customUnit->id_unit;
                         }
+                    }
+                    foreach ($allUnits as $unitId) {
+                        if (in_array($unitId, $usedUnits, true)) {
+                            throw new \Exception('Instansi yang sama tidak boleh diundang pada lebih dari satu sesi.');
+                        }
+                        $usedUnits[] = $unitId;
                     }
                 }
                 foreach ($sessionsData as $session) {
+                    $allUnits = [];
+                    // Gabungkan invited_units dan custom_units
                     if (!empty($session['invited_units']) && is_array($session['invited_units'])) {
+                        $allUnits = array_merge($allUnits, $session['invited_units']);
+                    }
+                    if (!empty($session['custom_units']) && is_array($session['custom_units'])) {
+                        // Untuk custom units, buat unit baru jika belum ada
+                        foreach ($session['custom_units'] as $customUnitName) {
+                            $customUnit = \App\Models\Unit::firstOrCreate(
+                                ['unit_name' => $customUnitName],
+                                ['address' => null]
+                            );
+                            $allUnits[] = $customUnit->id_unit;
+                        }
+                    }
+                    
+                    if (!empty($allUnits)) {
                         // Gunakan retry logic untuk menghindari duplicate entry
                         $maxRetries = 5;
                         $newGroupId = null;
@@ -304,7 +332,7 @@ class AgendaController extends Controller
                                 $newGroupId = $maxGroupId + 1;
 
                                 // Add all selected units to this group
-                                foreach ($session['invited_units'] as $unitId) {
+                                foreach ($allUnits as $unitId) {
                                     GroupUnit::create([
                                         'id_group' => $newGroupId,
                                         'id_unit' => $unitId,
@@ -365,7 +393,11 @@ class AgendaController extends Controller
                 ]);
             }
 
-            // 📄 Kalau request biasa (form HTML) → kembali ke halaman notification
+            // 📄 Kalau request biasa (form HTML) → redirect berdasarkan role
+            $user = Auth::user();
+            if ($user && $user->role === 'admin') {
+                return redirect()->route('approve')->with('success', 'Agenda berhasil diajukan! Status: Menunggu Persetujuan');
+            }
             return redirect()->route('agenda.notification')->with('success', 'Agenda berhasil diajukan! Status: Menunggu Persetujuan');
         } catch (\Exception $e) {
             DB::rollBack();

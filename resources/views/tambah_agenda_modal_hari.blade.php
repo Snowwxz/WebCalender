@@ -116,6 +116,13 @@
                                             <span class="item-text">Pilih Semua</span>
                                             <i class="fas fa-check checkmark-icon"></i>
                                         </li>
+                                        <li class="chips-add-new-input-container" style="display: none; padding: 12px; border-top: 1px solid #e5e7eb; background: #f9fafb; list-style: none;">
+                                            <input type="text" class="chips-add-new-input" placeholder="Masukkan nama instansi..." style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; margin-bottom: 8px;">
+                                            <div style="display: flex; gap: 8px;">
+                                                <button type="button" class="chips-add-confirm-btn" style="flex: 1; background: #6b8f71; color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: 500;">Tambah</button>
+                                                <button type="button" class="chips-add-cancel-btn" style="flex: 1; background: #e5e7eb; color: #374151; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: 500;">Batal</button>
+                                            </div>
+                                        </li>
                                         @foreach ($units as $unit)
                                             @if ($unit->id_unit !== Auth::user()->id_unit && strtolower($unit->unit_name) !== 'protokol')
                                                 <li data-value="{{ $unit->id_unit }}" data-name="{{ $unit->unit_name }}" class="dropdown-item">
@@ -125,6 +132,10 @@
                                                 </li>
                                             @endif
                                         @endforeach
+                                        <li class="add-new-instansi-option" style="display: flex; align-items: center; padding: 10px 16px; cursor: pointer; border-top: 1px solid #e5e7eb; margin-top: 8px; color: #6b8f71;">
+                                            <i class="fas fa-plus-circle" style="margin-right: 10px;"></i>
+                                            <span class="item-text">Tambah Instansi Baru</span>
+                                        </li>
                                     </ul>
                                 </div>
                             </div>
