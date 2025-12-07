@@ -800,13 +800,11 @@ class AgendaController extends Controller
         $agenda = Agenda::findOrFail($id_agenda);
 
         // Izin hapus:
-        // - User pembuat boleh menghapus jika status pending atau rejected
-        // - Admin boleh menghapus jika status rejected
+        // - HANYA pembuat agenda boleh menghapus jika status pending atau rejected
         $isCreator = ($agenda->id_user === Auth::user()->id_user);
-        $isAdmin = (Auth::user()->role === 'admin' || Auth::user()->role === 'superadmin');
         $isPendingOrRejected = in_array($agenda->status, ['pending', 'rejected']);
 
-        if (!(($isCreator && $isPendingOrRejected) || ($isAdmin && $agenda->status === 'rejected'))) {
+        if (!($isCreator && $isPendingOrRejected)) {
             return redirect()->back()->with('error', 'Anda tidak memiliki izin untuk menghapus agenda ini.');
         }
 

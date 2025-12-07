@@ -210,6 +210,7 @@
                                 </td>
                                 <td>
                                     <div class="action-cell">
+                                        @php($isOwner = (Auth::check() && Auth::user()->id_user == $agenda->id_user))
                                         @if ($agenda->status === 'pending')
                                             <div class="approval-actions">
                                                 <button type="button" class="btn-reject"
@@ -229,31 +230,28 @@
                                                     </button>
                                                 </form>
                                             </div>
-                                        @else
-                                            @if ($agenda->status === 'approved')
-                                                <a href="{{ route('agenda.edit', ['id_agenda' => $agenda->id_agenda, 'from' => 'approve']) }}"
-                                                    class="btn-edit">
-                                                    <i class="fas fa-pen"></i> Edit
-                                                </a>
                                             @else
-                                                @if ($agenda->status === 'rejected')
-                                                    <form action="{{ route('agenda.destroy', $agenda->id_agenda) }}" method="POST" class="action-form delete-form" onsubmit="return confirm('Hapus agenda yang ditolak ini?')">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn-delete" title="Hapus">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
-                                                    </form>
+                                                @if ($agenda->status === 'approved')
+                                                    <a href="{{ route('agenda.edit', ['id_agenda' => $agenda->id_agenda, 'from' => 'approve']) }}"
+                                                        class="btn-edit">
+                                                        <i class="fas fa-pen"></i> Edit
+                                                    </a>
                                                 @else
-                                                    <span class="validated-text">
-                                                        <i class="fas fa-circle-check"></i>
-                                                        {{ ucfirst($agenda->status) }}
-                                                    </span>
+                                                    @if ($agenda->status === 'rejected')
+                                                        <span class="validated-text">
+                                                            <i class="fas fa-circle-check"></i>
+                                                            {{ ucfirst($agenda->status) }}
+                                                        </span>
+                                                    @else
+                                                        <span class="validated-text">
+                                                            <i class="fas fa-circle-check"></i>
+                                                            {{ ucfirst($agenda->status) }}
+                                                        </span>
+                                                    @endif
                                                 @endif
                                             @endif
-                                        @endif
-                                    </div>
-                                </td>
+                                        </div>
+                                    </td>
                             </tr>
                         @endforeach
                     </tbody>
