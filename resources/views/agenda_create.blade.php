@@ -177,7 +177,7 @@
                                         @endforeach
                                         <li class="add-new-instansi-option" style="display: flex; align-items: center; padding: 10px 16px; cursor: pointer; border-top: 1px solid #e5e7eb; margin-top: 8px; color: #6b8f71;">
                                             <i class="fas fa-plus-circle" style="margin-right: 10px;"></i>
-                                            <span class="item-text">Tambah Instansi Baru</span>
+                                            <span class="item-text">Lainnya...</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -267,17 +267,17 @@
                 // Hapus semua event listener dengan clone node
                 const newSubmitBtn = submitBtn.cloneNode(true);
                 submitBtn.parentNode.replaceChild(newSubmitBtn, submitBtn);
-                
+
                 // Pasang event listener baru
                 newSubmitBtn.addEventListener("click", function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    
+
                     // Validasi dan persiapan data terlebih dahulu
                     if (!validateAndPrepareForm()) {
                         return false;
                     }
-                    
+
                     showConfirmSubmit();
                     return false;
                 });
@@ -388,7 +388,7 @@
                         }
                     }
                 });
-                
+
                 if (!isValid) {
                     showPage(2);
                     alert('Mohon lengkapi semua nama sesi yang wajib diisi.');
@@ -441,7 +441,7 @@
                 document.querySelectorAll('.session-item').forEach((sessionEl, index) => {
                     const sessionNameInput = sessionEl.querySelector('.session-name-input');
                     const sessionName = sessionNameInput?.value?.trim();
-                    
+
                     // Validate session name is required
                     if (!sessionName) {
                         sessionNameInput.style.borderColor = '#ef4444';
@@ -453,10 +453,10 @@
                             sessionNameInput.style.backgroundColor = '';
                         }
                     }
-                    
+
                     const unitIds = [];
                     const customUnits = [];
-                    
+
                     // Collect unit IDs (from database)
                     sessionEl.querySelectorAll('.unit-chip[data-unit-id]').forEach(chip => {
                         unitIds.push(chip.getAttribute('data-unit-id'));
@@ -479,7 +479,7 @@
                 // Collect from normal invitation
                 const unitIds = [];
                 const customUnits = [];
-                
+
                 // Collect unit IDs (from database)
                 document.querySelectorAll('#normalInvolvedInstansi .unit-chip[data-unit-id]').forEach(chip => {
                     unitIds.push(chip.getAttribute('data-unit-id'));
@@ -539,7 +539,7 @@
                 document.getElementById('normalInvitation').style.display = hasGroup ? 'none' : 'block';
                 document.getElementById('groupInvitation').style.display = hasGroup ? 'block' : 'none';
                 document.getElementById('addSessionBtn').style.display = hasGroup ? 'block' : 'none';
-                
+
                 if (hasGroup && document.querySelectorAll('.session-item').length === 0) {
                     addSession(1);
                     addSession(2);
@@ -607,10 +607,10 @@
                 </div>
             `;
             container.appendChild(sessionDiv);
-            
+
             // Initialize chips for this session
             initChipsMultiselect(sessionDiv.querySelector('.session-units-select'));
-            
+
             // Remove session button
             const removeBtn = sessionDiv.querySelector('.remove-session-btn');
             if (removeBtn) {
@@ -623,7 +623,7 @@
         // Initialize chips multiselect for normal invitation
         function initChipsMultiselect(root) {
             if (!root) return;
-            
+
             const dropdown = root.querySelector('.chips-dropdown');
             const arrow = root.querySelector('.chips-arrow');
             const searchInput = root.querySelector('.chips-search-input');
@@ -662,7 +662,7 @@
                     });
                     selectAllOption.style.display = 'flex';
                     updateSelectAllState();
-                    
+
                     // Pastikan opsi "Tambah Instansi Baru" terlihat
                     if (addNewInstansiOption && addNewInputContainer && addNewInputContainer.style.display === 'none') {
                         addNewInstansiOption.style.display = 'flex';
@@ -774,14 +774,14 @@
                 if (item) {
                     const isCustom = item.getAttribute('data-is-custom') === 'true';
                     let isSelected = false;
-                    
+
                     if (isCustom) {
                         const customName = item.getAttribute('data-name');
                         isSelected = selectedValues.includes(customName);
                     } else {
                         isSelected = selectedUnitIds.includes(unitIdOrCustomId);
                     }
-                    
+
                     item.classList.toggle('selected', isSelected);
                     const checkmark = item.querySelector('.checkmark-icon');
                     if (checkmark) {
@@ -791,7 +791,7 @@
                     if (checkIcon) {
                         checkIcon.classList.toggle('checked', isSelected);
                     }
-                    
+
                     if (!isCustom) {
                     const used = getUsedUnitIds(root);
                         const isUsedElsewhere = used.includes(unitIdOrCustomId);
@@ -847,7 +847,7 @@
                     const isCustom = li.getAttribute('data-is-custom') === 'true';
                     const match = !lower || text.includes(lower);
                     li.style.display = match ? 'flex' : 'none';
-                    
+
                     if (!isCustom) {
                         const used = getUsedUnitIds(root);
                         const unitId = li.getAttribute('data-value');
@@ -872,7 +872,7 @@
 
                 // Split berdasarkan koma jika ada
                 const unitNames = cleanName.split(',').map(name => name.trim()).filter(name => name.length > 0);
-                
+
                 if (unitNames.length === 0) {
                     alert('Nama instansi tidak boleh kosong!');
                     return;
@@ -896,7 +896,7 @@
                         const name = li.getAttribute('data-name');
                         return name && name.toLowerCase() === unitName.toLowerCase();
                     });
-                    
+
                     if (existingListItem) {
                         // Jika sudah ada di list, langsung pilih saja
                         const existingUnitId = existingListItem.getAttribute('data-value');
@@ -941,7 +941,7 @@
                     } else if (skippedCount > 0) {
                         message = `Semua instansi sudah ditambahkan sebelumnya`;
                     }
-                    
+
                     Toastify({
                         text: message,
                         duration: 2500,
@@ -1514,7 +1514,7 @@
 
             toastContent.querySelector('#confirmSubmit').addEventListener('click', () => {
                 toast.hideToast(); // tutup konfirmasi
-                
+
                 // Pastikan data sudah dikumpulkan sebelum submit
                 try {
                     collectSessionData();
@@ -1522,12 +1522,12 @@
                     alert(error.message);
                     return;
                 }
-                
+
                 // Submit form langsung menggunakan FormData dan fetch
                 const form = document.getElementById('agendaForm');
                 if (form) {
                     const formData = new FormData(form);
-                    
+
                     fetch(form.action, {
                         method: 'POST',
                         headers: {
@@ -1573,7 +1573,7 @@
 
         // Flag untuk menandai submit yang sudah divalidasi
         let isFormValidated = false;
-        
+
         // Handler untuk tombol submit
         function handleSubmit(e) {
             // Jika sudah divalidasi, biarkan submit berjalan tanpa preventDefault
@@ -1582,26 +1582,26 @@
                 // Tidak perlu preventDefault, biarkan form submit normal
                 return true; // Exit early, tidak preventDefault
             }
-            
+
             // Jika belum divalidasi, cegah submit dan validasi dulu
             e.preventDefault();
             e.stopPropagation();
-            
+
             // Validasi dan persiapan data terlebih dahulu
             if (!validateAndPrepareForm()) {
                 return false; // Jika validasi gagal, jangan lanjutkan
             }
-            
+
             showConfirmSubmit(); // munculkan toast konfirmasi
             return false;
         }
-        
+
         // intercept tombol submit bawaan form
         const formElement = document.getElementById("agendaForm");
         if (formElement) {
             formElement.addEventListener("submit", handleSubmit);
         }
-        
+
         // Setup saat DOM ready
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function() {
