@@ -316,7 +316,7 @@ class AgendaController extends Controller
                             $allUnits[] = $customUnit->id_unit;
                         }
                     }
-                    
+
                     if (!empty($allUnits)) {
                         // Gunakan retry logic untuk menghindari duplicate entry
                         $maxRetries = 5;
@@ -550,60 +550,71 @@ class AgendaController extends Controller
             }
 
             if (!empty($sessionsData) && is_array($sessionsData)) {
-                // Validasi: tidak boleh ada instansi yang sama di sesi berbeda
+                // Normalisasi: gabungkan invited_units (id) dan custom_units (nama → id)
                 $usedUnits = [];
+                $normalizedSessions = [];
                 foreach ($sessionsData as $session) {
+                    $allUnits = [];
                     if (!empty($session['invited_units']) && is_array($session['invited_units'])) {
-                        foreach ($session['invited_units'] as $unitId) {
-                            if (in_array($unitId, $usedUnits, true)) {
-                                throw new \Exception('Instansi yang sama tidak boleh diundang pada lebih dari satu sesi.');
+                        foreach ($session['invited_units'] as $val) {
+                            if (is_numeric($val)) {
+                                $allUnits[] = (int) $val;
                             }
-                            $usedUnits[] = $unitId;
                         }
                     }
+                    if (!empty($session['custom_units']) && is_array($session['custom_units'])) {
+                        foreach ($session['custom_units'] as $name) {
+                            $name = trim((string) $name);
+                            if ($name === '') continue;
+                            $unit = Unit::whereRaw('LOWER(unit_name) = ?', [strtolower($name)])->first();
+                            if (!$unit) {
+                                $unit = Unit::create(['unit_name' => $name]);
+                            }
+                            $allUnits[] = $unit->id_unit;
+                        }
+                    }
+                    foreach ($allUnits as $unitId) {
+                        if (in_array($unitId, $usedUnits, true)) {
+                            throw new \Exception('Instansi yang sama tidak boleh diundang pada lebih dari satu sesi.');
+                        }
+                        $usedUnits[] = $unitId;
+                    }
+                    $normalizedSessions[] = [
+                        'session_name' => $session['session_name'] ?? null,
+                        'invited_units' => $allUnits
+                    ];
                 }
-                foreach ($sessionsData as $session) {
-                    if (!empty($session['invited_units']) && is_array($session['invited_units'])) {
+                foreach ($normalizedSessions as $session) {
+                    if (!empty($session['invited_units'])) {
                         // Gunakan retry logic untuk menghindari duplicate entry
                         $maxRetries = 5;
                         $newGroupId = null;
-
                         for ($attempt = 0; $attempt < $maxRetries; $attempt++) {
                             try {
-                                // Gunakan raw query dengan FOR UPDATE untuk lock yang lebih kuat
                                 $maxGroupId = DB::selectOne(
                                     "SELECT COALESCE(MAX(id_group), 0) as max_id FROM group_units FOR UPDATE"
                                 )->max_id ?? 0;
-
                                 $newGroupId = $maxGroupId + 1;
-
-                                // Add all selected units to this group
                                 foreach ($session['invited_units'] as $unitId) {
                                     GroupUnit::create([
                                         'id_group' => $newGroupId,
                                         'id_unit' => $unitId,
                                     ]);
                                 }
-
-                                // Jika berhasil, break dari loop
                                 break;
                             } catch (\Illuminate\Database\QueryException $e) {
-                                // Jika duplicate entry, coba lagi dengan id_group baru
                                 if ($e->getCode() == 23000 && strpos($e->getMessage(), 'Duplicate entry') !== false) {
                                     if ($attempt < $maxRetries - 1) {
-                                        // Tunggu sebentar sebelum retry (exponential backoff)
-                                        usleep(100000 * ($attempt + 1)); // 100ms, 200ms, 300ms, etc
+                                        usleep(100000 * ($attempt + 1));
                                         continue;
                                     } else {
-                                        throw $e; // Jika sudah max retries, throw error
+                                        throw $e;
                                     }
                                 } else {
-                                    throw $e; // Jika error lain, throw langsung
+                                    throw $e;
                                 }
                             }
                         }
-
-                        // Create invitation for this session
                         if ($newGroupId !== null) {
                             Invitation::create([
                                 'id_agenda' => $agenda->id_agenda,

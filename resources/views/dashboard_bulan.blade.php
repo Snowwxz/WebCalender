@@ -697,12 +697,12 @@
                         const sessionName = sessionEl.querySelector('.session-name-input')?.value || null;
                         const unitIds = [];
                         const customUnits = [];
-                        
+
                         // Collect unit IDs (from database)
                         sessionEl.querySelectorAll('.unit-chip[data-unit-id]').forEach(chip => {
                             unitIds.push(chip.getAttribute('data-unit-id'));
                         });
-                        
+
                         // Collect custom units (without unitId)
                         sessionEl.querySelectorAll('.unit-chip[data-is-custom="true"]').forEach(chip => {
                             const customName = chip.getAttribute('data-custom-name') || chip.getAttribute('data-value');
@@ -723,12 +723,12 @@
                     // Collect from normal invitation
                     const unitIds = [];
                     const customUnits = [];
-                    
+
                     // Collect unit IDs (from database)
                     document.querySelectorAll('#createAgendaModal #normalInvolvedInstansi .unit-chip[data-unit-id]').forEach(chip => {
                         unitIds.push(chip.getAttribute('data-unit-id'));
                     });
-                    
+
                     // Collect custom units (without unitId)
                     document.querySelectorAll('#createAgendaModal #normalInvolvedInstansi .unit-chip[data-is-custom="true"]').forEach(chip => {
                         const customName = chip.getAttribute('data-custom-name') || chip.getAttribute('data-value');
@@ -912,7 +912,7 @@
 
                     // Split berdasarkan koma jika ada
                     const unitNames = cleanName.split(',').map(name => name.trim()).filter(name => name.length > 0);
-                    
+
                     if (unitNames.length === 0) {
                         alert('Nama instansi tidak boleh kosong!');
                         return;
@@ -936,7 +936,7 @@
                             const name = li.getAttribute('data-name');
                             return name && name.toLowerCase() === unitName.toLowerCase();
                         });
-                        
+
                         if (existingListItem) {
                             // Jika sudah ada di list, langsung pilih saja
                             const existingUnitId = existingListItem.getAttribute('data-value');
@@ -982,7 +982,7 @@
                         } else if (skippedCount > 0) {
                             message = `Semua instansi sudah ditambahkan sebelumnya`;
                         }
-                        
+
                         Toastify({
                             text: message,
                             duration: 2500,
@@ -1035,7 +1035,22 @@
                     }
                 }
 
+                function getUsedUnitIds(excludeRoot) {
+                    const used = [];
+                    document.querySelectorAll('#createAgendaModal .session-units-select').forEach(sel => {
+                        if (excludeRoot && excludeRoot === sel) return;
+                        sel.querySelectorAll('.unit-chip[data-unit-id]').forEach(chip => {
+                            used.push(chip.getAttribute('data-unit-id'));
+                        });
+                    });
+                    return used;
+                }
+
                 function toggleItem(unitId, unitName) {
+                    const usedElsewhere = getUsedUnitIds(root);
+                    if (usedElsewhere.includes(unitId)) {
+                        return;
+                    }
                     const index = selectedUnitIds.indexOf(unitId);
                     if (index > -1) {
                         selectedUnitIds.splice(index, 1);
@@ -1132,6 +1147,10 @@
                         if (checkIcon) {
                             checkIcon.classList.toggle('checked', isSelected);
                         }
+                        const used = getUsedUnitIds(root);
+                        const disabled = used.includes(unitId);
+                        item.style.opacity = disabled ? '0.5' : '';
+                        item.style.pointerEvents = disabled ? 'none' : '';
                     }
                 }
 
@@ -1176,18 +1195,20 @@
                 function filterList(term) {
                     const lower = term.toLowerCase().trim();
                     const addNewInstansiOption = dropdown.querySelector('.add-new-instansi-option');
-                    
+                    const used = getUsedUnitIds(root);
                     listItems.forEach(li => {
                         const text = li.querySelector('.item-text').textContent.toLowerCase();
-                        li.style.display = !lower || text.includes(lower) ? 'flex' : 'none';
+                        const show = !lower || text.includes(lower);
+                        li.style.display = show ? 'flex' : 'none';
+                        const unitId = li.getAttribute('data-value');
+                        const disabled = used.includes(unitId);
+                        li.style.opacity = disabled ? '0.5' : '';
+                        li.style.pointerEvents = disabled ? 'none' : '';
                     });
-                    
                     selectAllOption.style.display = !lower || listItems.some(li => {
                         const text = li.querySelector('.item-text').textContent.toLowerCase();
                         return text.includes(lower);
                     }) ? 'flex' : 'none';
-
-                    // Tampilkan opsi "Tambah Instansi Baru" kecuali sedang menampilkan input field
                     if (addNewInstansiOption) {
                         if (addNewInputContainer && addNewInputContainer.style.display === 'none') {
                             addNewInstansiOption.style.display = 'flex';
